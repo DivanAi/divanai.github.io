@@ -1469,8 +1469,8 @@ const DEFAULT_SETTINGS = {
   },
   chair: 'gpt',
   goal: 'debate',
-  tone: 'net',           // 'net' = Sonuç/Artı/Eksi/İlk adım · 'chat' = paragraf · 'brief' = madde
-  v: 2,                  // ayar şeması sürümü (göç için)
+  tone: 'chat',          // 'chat' = doğal sohbet (varsayılan) · 'net' = rapor düzeni · 'brief' = kısa madde
+  v: 3,                  // ayar şeması sürümü (göç için)
   maxWords: 130,         // cevap başına kelime sınırı (kullanıcı değiştirebilir)
   context: 'full',       // 'full' = tüm geçmiş · 'compact' = eski mesajlar tek satır
   contextKeep: 3,        // sıkıştırmada son kaç mesaj tam tutulur
@@ -1485,7 +1485,7 @@ const DEFAULT_SETTINGS = {
   web: false,            // OpenRouter :online — internetten bilgi (kredi harcar)
   table: 'konsey',       // 'konsey' = 4 ayrı model · 'ayna' = aynı model iki sandalyede
   duel: { on: false, pid: 'grok' },   // ayna modunun eski alanı (table ile eşitlenir)
-  v: 2
+  v: 3
 };
 
 function mergeSettings(stored) {
@@ -1571,12 +1571,14 @@ function mergeSettings(stored) {
   // masa türü: eski kayıtlarda duel.on varsa ondan türet
   if (!['konsey', 'ayna', 'ajan'].includes(s.table)) s.table = s.duel.on ? 'ayna' : 'konsey';
   s.duel.on = s.table === 'ayna';   // iki alan tek gerçeğe bağlı
-  // eski sürümden gelen varsayılan ton 'chat' ise yeni net/teknik üsluba geç
-  if (!s.v || s.v < 2) {
-    if (s.tone === 'chat' || !s.tone) s.tone = 'net';
-    s.v = 2;
+  /* v3 · kullanıcı geri bildirimi: "Sonuç / Artı / Eksi / İlk adım" iskeleti robotik
+     bulundu; masa artık normal sohbet gibi konuşur. Eski kayıttaki 'net' bir kez
+     sohbete çevrilir; 'brief' (kısa madde) bilinçli seçim sayılıp korunur. */
+  if (!s.v || s.v < 3) {
+    if (!s.tone || s.tone === 'net' || s.tone === 'chat') s.tone = 'chat';
+    s.v = 3;
   }
-  if (!['chat', 'brief', 'net'].includes(s.tone)) s.tone = 'net';
+  if (!['chat', 'brief', 'net'].includes(s.tone)) s.tone = 'chat';
   if (s.table === 'ayna') s.chair = s.duel.pid; else if (!s.active.includes(s.chair)) s.chair = s.active[0];
   return s;
 }
@@ -2104,7 +2106,7 @@ function tokenBudget() {
 
 function systemPrompt(p) {
   const g = goalOf();
-  const tone = state.settings.tone || 'net';
+  const tone = state.settings.tone || 'chat';
   const net = tone === 'net';
   const chat = tone === 'chat';
   const chair = chairPersona();
@@ -2126,6 +2128,7 @@ function systemPrompt(p) {
     '',
     '## Masa',
     'Birkaç yapay zekâ tek konuşmada tartışıyor; kullanıcı hepsini görüyor.',
+    ...(chat ? ['Bu bir sohbet masası: herkes bir öncekinin söylediğine cevap verir. Sırayla rapor okuyan bir panel değil.'] : []),
     '- Rolün: **' + p.name + ' · ' + p.roleLabel + '** — ' + (p.roleBrief || (ROLES[p.role] && ROLES[p.role].brief) || 'kendi açında konuş') + '.',
     '- Diğer konuşmacılar: ' + (others || '—') + '.',
     duelOn()
@@ -2146,17 +2149,26 @@ function systemPrompt(p) {
         '   **Eksi:** 1–2 madde — maliyet, risk, sınır; kendi önerinin en kırılgan yanı burada olmalı.\n' +
         '   **İlk adım:** tek cümle — bugün yapılabilecek en küçük işlem.'
       : (chat
-        ? '1. **Doğal konuş:** 3–6 cümle, en fazla ' + words() + ' kelime. Birbirine bağlı akan bir paragraf yaz; madde imi, başlık, "Kanıt:", "Ölçüt:" gibi etiketler kullanma. Giriş/nezaket kalıbı yok — ilk cümle doğrudan işe girsin.'
+        ? '1. **Sohbet gibi yaz:** 3–6 cümle, en fazla ' + words() + ' kelime. Birbirine bağlı akan tek paragraf; madde imi, başlık, numara yok. "Sonuç:", "Artı:", "Eksi:", "İlk adım:", "Kanıt:", "Ölçüt:" gibi etiketler YASAK — bunlar rapor dili, sohbet değil. İlk cümle doğrudan işe girsin; "Elbette", "Harika soru", "Öncelikle" gibi açılışlar yok.'
         : '1. **Kısa yaz:** en fazla ' + words() + ' kelime. Tek paragraf ya da en fazla 3 madde. Giriş cümlesi, özet cümlesi, nezaket kalıbı yok — ilk cümle doğrudan bilgi versin.'),
-    '2. **Objektif ol:** övgü, duygusal dil, taraf tutma yok ("harika", "kesinlikle", "bence", "çok güzel" gibi ifadeler kullanma). İddialarını gerekçeyle kur; veri yoksa "kanıt yok" de. Sayı, istatistik, fiyat, kaynak uydurma.',
-    '2b. **Dolgu yasak:** "çok önemli", "kritik nokta", "unutmayın", "sonuç olarak", "bence", "harika", "muhteşem" gibi cümleler yazma. Sıfat yerine sayı, adım ya da araç adı koy. Aynı şeyi iki kez söyleme.',
-    '2c. **Sayının kaynağı:** fiyat, süre, oran veya tarih yazıyorsan kaynağını da yaz; kaynak yoksa sonuna "(kaynak yok)" ekle ve tahmin olduğunu belirt. Uydurma sayı, en büyük hatadır.',
-    '3. **Kendi görüşünün zayıf yerini yaz:** her cevapta savunduğun noktanın en kırılgan yanını tek cümleyle belirt ("Bunu çürütecek şey: …"). Karşı argüman üretmek zorunlu, taraf tutmak yasak.',
-    '3b. **Tekrar etme:** aynı noktayı aynı gerekçeyle ikinci kez yazma. Aynı noktayı **yeni bir gerekçe, örnek veya karşı örnekle derinleştirmek serbest** — tartışma böyle ilerler. Söyleyecek gerçekten yeni bir şey yoksa aynen şunu yaz: "Yeni nokta yok; kalan tek belirsizlik: …"',
-    '4. **Alıntı yapma:** "X şunu dedi / masaya şunu bıraktı / X ile aynı yerdeyim" gibi ifadelerle başlama; başkasının cümlesini tekrarlama. İtiraz edeceksen doğrudan kendi cümlenle başla: "Kapsam itirazı geçersiz, çünkü…"',
-    (chat || net)
-      ? '5. Soru sormak veya sözü birine devretmek zorunlu değil. Sohbet akışı gerektiriyorsa birine tek cümleyle cevap ver; "@isim" etiketi kullanma.'
-      : '5. Tartışma turlarında son cümlede tek bir soru sor ve sözü tek kişiye bırak. Kapanış/özet turlarında soru sorma.',
+    ...(chat
+      ? [
+        '2. **Fikrin olsun:** "bence", "sanırım", "bana kalırsa" serbest. Bir tarafı tut ve nedenini söyle; "her iki tarafın da haklı yanı var" gibi ortada kalan cevap yazma.',
+        '3. **Somut ol:** soyut cümle yerine örnek, araç adı, adım ya da sayı ver. Emin olmadığın sayıyı uydurma — "kabaca", "tahminimce" de ve tahmin olduğunu söyle. Uydurma sayı en büyük hatadır.',
+        '4. **Karşılık ver:** senden önce konuşanın söylediği bir cümleye doğrudan değin; adını anman serbest ("Claude’un maliyet itirazı yerinde ama…"). Katıl, itiraz et ya da ekle; ardından kendi noktanı söyle. Daha önce söylenmiş şeyi tekrar etme.',
+        '5. **Dolgu yok:** "çok önemli", "kritik nokta", "unutmayın", "sonuç olarak" gibi kalıplar yok. Kısa cümle kur, süsleme yapma.'
+      ]
+      : [
+        '2. **Objektif ol:** övgü, duygusal dil, taraf tutma yok ("harika", "kesinlikle", "bence", "çok güzel" gibi ifadeler kullanma). İddialarını gerekçeyle kur; veri yoksa "kanıt yok" de. Sayı, istatistik, fiyat, kaynak uydurma.',
+        '2b. **Dolgu yasak:** "çok önemli", "kritik nokta", "unutmayın", "sonuç olarak", "bence", "harika", "muhteşem" gibi cümleler yazma. Sıfat yerine sayı, adım ya da araç adı koy. Aynı şeyi iki kez söyleme.',
+        '2c. **Sayının kaynağı:** fiyat, süre, oran veya tarih yazıyorsan kaynağını da yaz; kaynak yoksa sonuna "(kaynak yok)" ekle ve tahmin olduğunu belirt. Uydurma sayı, en büyük hatadır.',
+        '3. **Kendi görüşünün zayıf yerini yaz:** her cevapta savunduğun noktanın en kırılgan yanını tek cümleyle belirt ("Bunu çürütecek şey: …"). Karşı argüman üretmek zorunlu, taraf tutmak yasak.',
+        '3b. **Tekrar etme:** aynı noktayı aynı gerekçeyle ikinci kez yazma. Aynı noktayı **yeni bir gerekçe, örnek veya karşı örnekle derinleştirmek serbest** — tartışma böyle ilerler. Söyleyecek gerçekten yeni bir şey yoksa aynen şunu yaz: "Yeni nokta yok; kalan tek belirsizlik: …"',
+        '4. **Alıntı yapma:** "X şunu dedi / masaya şunu bıraktı / X ile aynı yerdeyim" gibi ifadelerle başlama; başkasının cümlesini tekrarlama. İtiraz edeceksen doğrudan kendi cümlenle başla: "Kapsam itirazı geçersiz, çünkü…"',
+        net
+          ? '5. Soru sormak veya sözü birine devretmek zorunlu değil. Sohbet akışı gerektiriyorsa birine tek cümleyle cevap ver; "@isim" etiketi kullanma.'
+          : '5. Tartışma turlarında son cümlede tek bir soru sor ve sözü tek kişiye bırak. Kapanış/özet turlarında soru sorma.'
+      ]),
     sessionLang() === 'tr'
       ? '6. Türkçe: de/da, ki, mi eklerine dikkat. Teknik terimi ilk kullanışta bir cümleyle açıkla.'
       : '6. Yazım ve dilbilgisi kurallarına uy. Teknik terimi ilk kullanışta bir cümleyle açıkla.',
@@ -2174,7 +2186,7 @@ function systemPrompt(p) {
     net
       ? 'Kalın etiketler (Sonuç/Artı/Eksi/İlk adım) + kısa madde imleri. Tablo yok, giriş paragrafı yok. Yalnızca kendi konuşmanı yaz; başka konuşmacıların repliklerini veya "Kullanıcı:" etiketlerini yazma.'
       : (chat
-        ? 'Düz metin paragraf; en fazla bir kalın ifade. Yalnızca kendi konuşmanı yaz; başka konuşmacıların repliklerini veya "Kullanıcı:" etiketlerini yazma.'
+        ? 'Düz paragraf. Başlık, madde imi, etiket yok; en fazla bir kalın ifade. Yalnızca kendi konuşmanı yaz; başka konuşmacıların repliklerini veya "Kullanıcı:" etiketlerini yazma.'
         : 'Düz metin + markdown (kalın, madde). Yalnızca kendi konuşmanı yaz; başka konuşmacıların repliklerini veya "Kullanıcı:" etiketlerini yazma.')
   ];
   if (said.length) {
@@ -2877,7 +2889,7 @@ async function runRound(opts = {}) {
           'Dolgu cümle yok, geçen turda söyleneni tekrar yok. Sayı veriyorsan kaynağını yaz, kaynak yoksa “(kaynak yok)” ekle.'
         : tone === 'brief'
         ? 'Şimdi sıra sende (' + round + '. tur). En fazla ' + words() + ' kelime. Doğrudan konuya gir; daha önce söyleneni tekrar etme. Sonunda tek bir soru sor ve sözü tek kişiye bırak.'
-        : 'Şimdi sıra sende (' + round + '. tur). Doğal bir konuşma cümlesiyle devam et, en fazla ' + words() + ' kelime; madde listesi yok. Daha önce söyleneni tekrar etme. Soru sormak zorunda değilsin.';
+        : 'Şimdi sıra sende (' + round + '. tur). En fazla ' + words() + ' kelime. Senden önce konuşanın söylediği bir cümleye doğrudan cevap vererek başla (adını anabilirsin), ardından kendi noktanı ekle. Düz paragraf yaz: madde imi, başlık, "Sonuç / Artı / Eksi / İlk adım" etiketi yok. Daha önce söyleneni tekrar etme. Soru sormak zorunda değilsin.';
     hist.push({ role: 'user', content: directive });
 
     // kendi son iki cevabı birbirine benziyorsa modele açıkça söyle (ek çağrı yok)
@@ -7108,9 +7120,9 @@ function drawerBodyHTML() {
     '</select></label>' +
     ((d.table === 'ayna') ? '<p class="note">Ayna’da gündem sabittir: <b>tartış & eleştir</b> — biri savunur, biri itiraz eder, sonunda tarafsız hakem kararı çıkar. Bu yüzden ana ekranda gündem seçenekleri görünmez.</p>' : '') +
     '<label class="field"><span>Konuşma üslubu</span><select id="toneSel">' +
-    '<option value="net" ' + ((d.tone || 'net') === 'net' ? 'selected' : '') + '>Net ve teknik — Sonuç / Artı / Eksi / İlk adım (önerilen)</option>' +
-    '<option value="chat" ' + (d.tone === 'chat' ? 'selected' : '') + '>Sohbet — doğal paragraf</option>' +
-    '<option value="brief" ' + (d.tone === 'brief' ? 'selected' : '') + '>Kısa — madde madde</option>' +
+    '<option value="chat" ' + ((d.tone || 'chat') === 'chat' ? 'selected' : '') + '>Doğal sohbet — normal konuşma gibi (önerilen)</option>' +
+    '<option value="net" ' + (d.tone === 'net' ? 'selected' : '') + '>Rapor düzeni — Sonuç / Artı / Eksi / İlk adım</option>' +
+    '<option value="brief" ' + (d.tone === 'brief' ? 'selected' : '') + '>Kısa — birkaç madde</option>' +
     '</select></label>' +
     '<label class="field"><span>Cevap sınırı (kelime) · 30–500</span>' +
     '<input type="number" id="maxWordsIn" min="30" max="500" step="10" value="' + (Number(d.maxWords) || 130) + '"/></label>' +

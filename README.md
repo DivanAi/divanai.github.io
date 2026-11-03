@@ -84,7 +84,7 @@ onu **Dışa aktar** ile alırsın.
 
 | Ayar | Ne işe yarar | Varsayılan |
 |---|---|---|
-| **Üslup** | Net ve teknik (Sonuç/Artı/Eksi/İlk adım) · Sohbet · Kısa madde | **Net** |
+| **Üslup** | Doğal sohbet (normal konuşma gibi) · Rapor düzeni (Sonuç/Artı/Eksi/İlk adım) · Kısa madde | **Doğal sohbet** |
 | **Cevap sınırı** | Konuşmacı başına en fazla kelime (30–500) | 130 |
 | **Bağlam** | Tam geçmiş ya da sıkıştırılmış (~%30 az token) | Tam |
 | **En fazla tur** | Tur tavanı (2–20); dolunca masa durur ve özet çıkarır | 6 |
