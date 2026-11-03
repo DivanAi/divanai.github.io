@@ -72,6 +72,9 @@ onu **Dışa aktar** ile alırsın.
 **Masadaki modeller**
 - Her sandalyeyi açıp kapatabilirsin (en az bir tanesi açık olmalı). DivanAI beş sağlayıcı tanır:
   ChatGPT, Gemini, Claude, Grok, DeepSeek — **beşi birden** açılabilir.
+- **Anahtarı yapıştırınca modeller kendiliğinden gelir**: seçtiğin servisin kendi model listesi
+  çekilir ve beş sandalyeye o servise ait modeller yerleşir. Elle model kimliği yazmak zorunda değilsin.
+  Kendi seçtiğin ve o serviste bulunan bir model varsa **korunur**, üzerine yazılmaz.
 - **Başkan**: özeti ve kapanışı yazan sandalye.
 - **Ücretsiz modeller** düğmesi: anahtarın gördüğü `:free` modelleri listeler; önce **hangi sandalyeye**
   atayacağını seç, sonra satırdaki **kullan**'a bas. Seçim yapmadan hiçbir sandalye değişmez.

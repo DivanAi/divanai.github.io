@@ -1187,7 +1187,9 @@ const GATEWAYS = {
       '<br><b>Ücretsiz model kotası:</b> sonu <code>:free</code> ile biten modellerde dakikada 20, günde 50 istek. ' +
       'Bir tur 4 istek harcar → günde yaklaşık 12 tur. Hesabına 10 $ kredi yüklersen ücretsiz model sınırı günde 1.000 isteğe çıkar; ' +
       'ücretli (ucuz) modellerde ise günlük istek sınırı yoktur, yalnızca harcadığın token ödenir.',
-    models: { gpt: 'openai/gpt-6-luna', gemini: 'google/gemini-3.8-flash', claude: 'anthropic/claude-haiku-5.5', grok: 'x-ai/grok-4.3', deepseek: 'deepseek/deepseek-v4.1-flash' }
+    models: { gpt: 'openai/gpt-6-luna', gemini: 'google/gemini-3.8-flash',
+              claude: 'anthropic/claude-haiku-5.5', grok: 'x-ai/grok-4.3',
+              deepseek: 'deepseek/deepseek-v4.1-flash' }
   },
   vercel: {
     group: 'gateway',
@@ -1248,7 +1250,9 @@ const GATEWAYS = {
     keyHint: 'gsk_…',
     keyUrl: 'https://console.groq.com/keys',
     note: 'Çok hızlı çıkarım. Ücretsiz katman: günde 1.000 istek, dakikada 30 (modele göre). Kredi kartı istemez.',
-    models: { gpt: 'openai/gpt-oss-120b', gemini: '', claude: '', grok: 'openai/gpt-oss-20b', deepseek: '' }
+    models: { gpt: 'openai/gpt-oss-120b', gemini: 'llama-3.3-70b-versatile',
+              claude: 'llama-3.1-8b-instant', grok: 'openai/gpt-oss-20b',
+              deepseek: 'llama-3.3-70b-versatile' }
   },
   deepseek: {
     group: 'single',
@@ -1259,7 +1263,8 @@ const GATEWAYS = {
     keyHint: 'sk-…',
     keyUrl: 'https://platform.deepseek.com/api_keys',
     note: 'Ucuz modeller; kredi yüklenir (küçük tutarlar yeter). Tek anahtar, iki model (sohbet + akıl yürütme).',
-    models: { gpt: '', gemini: '', claude: '', grok: '', deepseek: 'deepseek-chat' }
+    models: { gpt: 'deepseek-flash', gemini: 'deepseek-v4-pro', claude: 'deepseek-flash',
+              grok: 'deepseek-v4-pro', deepseek: 'deepseek-flash' }
   },
   together: {
     group: 'single',
@@ -1270,7 +1275,9 @@ const GATEWAYS = {
     keyHint: 'Together anahtarı',
     keyUrl: 'https://api.together.ai/settings/api-keys',
     note: 'Açık modeller (Llama, Qwen, DeepSeek…). Kredi ile çalışır; bazı modellerde küçük ücretsiz deneme vardır.',
-    models: { gpt: '', gemini: '', claude: '', grok: '', deepseek: 'deepseek-ai/DeepSeek-V3' }
+    models: { gpt: 'openai/gpt-oss-120b', gemini: 'Qwen/Qwen3.8-Flash',
+                claude: 'zai-org/GLM-5.3', grok: 'deepseek-ai/DeepSeek-V4.1-Flash',
+                deepseek: 'deepseek-ai/DeepSeek-V4.1-Flash' }
   },
   cerebras: {
     group: 'single',
@@ -1281,7 +1288,8 @@ const GATEWAYS = {
     keyHint: 'csk-…',
     keyUrl: 'https://cloud.cerebras.ai/',
     note: 'Çok hızlı açık modeller. Ücretsiz katman: günde 1 milyon token, dakikada 30 istek.',
-    models: { gpt: 'gpt-oss-120b', gemini: '', claude: '', grok: '', deepseek: '' }
+    models: { gpt: 'gpt-oss-120b', gemini: 'qwen-3.8-27b', claude: 'gpt-oss-120b',
+                grok: 'qwen-3.8-27b', deepseek: 'gpt-oss-120b' }
   },
   mistral: {
     group: 'single',
@@ -1292,7 +1300,8 @@ const GATEWAYS = {
     keyHint: 'Mistral anahtarı',
     keyUrl: 'https://console.mistral.ai/api-keys',
     note: 'Avrupa merkezli. Ücretsiz “experiment” katmanı var; anahtar almadan önce konsolda açman gerekebilir.',
-    models: { gpt: 'mistral-small-latest', gemini: '', claude: '', grok: '', deepseek: '' }
+    models: { gpt: 'mistral-large-4', gemini: 'mistral-large-4', claude: 'mistral-large-4',
+                grok: 'mistral-large-4', deepseek: 'mistral-large-4' }
   },
   xai: {
     group: 'single',
@@ -1303,7 +1312,8 @@ const GATEWAYS = {
     keyHint: 'xai-…',
     keyUrl: 'https://console.x.ai/',
     note: 'Grok modelleri. Ücretli; yeni hesaba deneme kredisi verilebilir.',
-    models: { gpt: '', gemini: '', claude: '', grok: 'grok-4', deepseek: '' }
+    models: { gpt: 'grok-4.7', gemini: 'grok-4.7', claude: 'grok-4.7',
+                grok: 'grok-4.7', deepseek: 'grok-4.7' }
   },
   openai: {
     group: 'single',
@@ -1314,7 +1324,8 @@ const GATEWAYS = {
     keyHint: 'sk-…',
     keyUrl: 'https://platform.openai.com/api-keys',
     note: 'Doğrudan OpenAI. Ücretli (kullandıkça öde). Anahtar tarayıcıdan çağrılabilir, ama OpenAI tarayıcıya açık anahtarı önermez — paylaşılan bilgisayarda kullanma.',
-    models: { gpt: 'gpt-5-mini', gemini: '', claude: '', grok: '', deepseek: '' }
+    models: { gpt: 'gpt-6-astra', gemini: 'gpt-6.1-sol', claude: 'gpt-6.1-terra',
+                grok: 'gpt-6-luna', deepseek: 'gpt-6-luna' }
   },
 };
 
@@ -1513,6 +1524,28 @@ function mergeSettings(stored) {
   if (!s.seatSrc || typeof s.seatSrc !== 'object' || Array.isArray(s.seatSrc)) s.seatSrc = {};
   if (!s.seatKey || typeof s.seatKey !== 'object' || Array.isArray(s.seatKey)) s.seatKey = {};
   refreshGateways(s.api.customs);                     // özel bağlantılar GATEWAYS'e girer
+  /* AÇILIŞTA ONARIM — başka sağlayıcının model kimliği kalmışsa düzelt.
+     Örnek: bağlantı Groq'a çevrilmiş ama sandalyede hâlâ "google/gemini-3.8-flash"
+     yazıyor. Groq o modeli tanımaz, tur "model bulunamadı (404)" ile düşer.
+     Bu durumda sandalyeyi bu bağlantının kendi çalışan modeliyle değiştir. */
+  (function repairForeignModels() {
+    const kind = s.api.kind;
+    const pre = (GATEWAYS[kind] || {}).models;
+    if (!pre) return;                                  // özel bağlantı: dokunma
+    const mine = new Set(Object.values(pre).map(v => String(v || '').trim()).filter(Boolean));
+    const others = new Set();
+    Object.entries(GATEWAYS).forEach(([k, g]) => {
+      if (k === kind || !g || !g.models) return;
+      Object.values(g.models).forEach(v => { const t = String(v || '').trim(); if (t) others.add(t); });
+    });
+    const holder = String(pre[s.chair] || '').trim() || [...mine][0] || '';
+    if (!holder) return;
+    if (!s.models || typeof s.models !== 'object' || Array.isArray(s.models)) s.models = {};
+    for (const pid of PROVIDER_ORDER) {
+      const cur = String(s.models[pid] || '').trim();
+      if (cur && others.has(cur) && !mine.has(cur)) s.models[pid] = holder;   // yabancı model: değiştir
+    }
+  })();
   for (const pid of Object.keys(s.seatSrc)) {
     if (!s.seatSrc[pid] || !GATEWAYS[s.seatSrc[pid]]) delete s.seatSrc[pid];   // geçersiz kaynak: ana bağlantıya dön
   }
@@ -2584,13 +2617,22 @@ function resolveRoute(pid) {
     ? (state.settings.models[pid] || '')          // sandalye kendi bağlantısında: model kimliği sandalyenin
     : (state.settings.models[pid] || '');
   const g = GATEWAYS[kind] || {};
+  /* Güvenlik ağı: sandalyenin model kimliği boşsa ama bu bağlantının kendi ön
+     ayarında çalışan bir model varsa onu kullan. Boş kimlik yüzünden turun
+     sessizce durmasındansa masa çalışsın. (Özel bağlantıda ön ayar yoktur.) */
+  let model2 = model;
+  if (!String(model2).trim()) {
+    const pre = (g.models || {});
+    model2 = String(pre[state.settings.chair] || '').trim() ||
+             Object.keys(pre).map(k => String(pre[k] || '').trim()).find(Boolean) || '';
+  }
   if (kind === 'compat' && !(a.baseUrl || '').trim()) return { kind: 'missing', why: 'Özel adres boş' };
   if (g.custom && !(g.baseUrl || '').trim()) return { kind: 'missing', why: 'Bağlantı adresi boş' };
   const key = seatKeyOf(pid);
   if (!key.trim() && !isOptionalKey(kind)) {
     return { kind: 'missing', why: 'API anahtarı yok (' + (g.label || kind) + ')' };
   }
-  return { kind: 'gateway', cfg: cfgOfKind(kind, key), key: key, model: model, kindOf: kind };
+  return { kind: 'gateway', cfg: cfgOfKind(kind, key), key: key, model: model2, kindOf: kind };
 }
 
 /* ---------------- tur çalıştırma ---------------- */
@@ -7229,6 +7271,21 @@ function renderDrawerBody() {
         const cur = (drawerDraft.models[pid] || '').trim();
         if (!cur || otherDefaults.has(cur)) drawerDraft.models[pid] = preset[pid] || '';
       }
+      /* Bu bağlantı bir sandalye için model tanımlamıyorsa sandalyeyi BOŞ BIRAKMA:
+         boş sandalye turda "Model kimliği boş" hatası verip susuyordu. Onun yerine
+         bağlantının kendi çalışan modelini yaz, kaç sandalyenin böyle doldurulduğunu söyle. */
+      let fixed = 0;
+      const holder = PROVIDER_ORDER.map(p => (preset[p] || '').trim()).find(Boolean) || '';
+      if (holder) {
+        for (const pid of PROVIDER_ORDER) {
+          if (!(drawerDraft.models[pid] || '').trim()) {
+            drawerDraft.models[pid] = holder;
+            fixed++;
+          }
+        }
+      }
+      if (fixed) setTimeout(() => toast(fixed + ' sandalye bu bağlantıda tanımlı olmadığı için ' +
+        'aynı modelle dolduruldu. Ayarlar → Masadaki modeller\'den değiştirebilirsin.', 'ok'), 120);
     }
     state.testResults = null;
     renderDrawerBody();
@@ -7237,6 +7294,12 @@ function renderDrawerBody() {
 
   const bodyEl = $('#drawerBody');
   if (bodyEl) bodyEl.addEventListener('change', e => {
+    /* anahtar yapıştırılınca/bitirilince o sağlayıcının modellerini getir ve yerleştir */
+    if (e.target && e.target.id === 'connKey') {
+      syncDraftFromDOM();
+      loadModelList(true);
+      return;
+    }
     const sel = e.target.closest('select.seatSrc'); if (!sel) return;
     syncDraftFromDOM();
     renderDrawerBody();
@@ -7438,8 +7501,47 @@ function renderTestList(results) {
   return h + '</div>';
 }
 
-async function loadModelList() {
-  if (state.orModels && state.orModelsOf === (drawerDraft && drawerDraft.api.kind)) return;
+/* ---------------- sağlayıcının kendi model listesi ----------------
+   Amaç (kullanıcı isteği): hangi sağlayıcının anahtarı girilirse modeller ONA göre gelsin.
+   Ön ayarlar bir başlangıç; asıl doğru kaynak sağlayıcının kendi /models yanıtı.
+   Anahtar girilince liste çekilir ve sandalyelerdeki yabancı/boş kimlikler düzeltilir. */
+
+/* sohbet dışı modelleri ayıkla (gömme, ses, görsel, sıralama, güvenlik…) */
+function modelIsChat(id) {
+  return !/embed|whisper|tts|transcri|rerank|moderat|guard|safety|image|dall|flux|stable-|sdxl|ocr|audio|realtime|voxtral|imagine|video|deprecat/i.test(String(id || ''));
+}
+/* listenin içinden sohbet modellerini, tanıdık olanlar önce olacak şekilde sırala */
+function rankChatModels(ids) {
+  const uniq = [];
+  const seen = new Set();
+  for (const id of ids) {
+    const t = String(id || '').trim();
+    if (!t || seen.has(t) || !modelIsChat(t)) continue;
+    seen.add(t); uniq.push(t);
+  }
+  const score = id => (/instruct|chat|gpt|llama|qwen|mistral|grok|deepseek|claude|gemini|glm|kimi/i.test(id) ? 0 : 100) + id.length / 100;
+  return uniq.sort((a, b) => score(a) - score(b) || a.localeCompare(b));
+}
+/* sandalyeleri bu listenin modelleriyle doldur. Döndürdüğü sayı: kaç sandalye değişti.
+   Kural: model zaten listede varsa DOKUNMA; boşse ya da başka sağlayıcıdan kalmışsa değiştir. */
+function autoFillModels(kind, ids) {
+  const d = drawerDraft;
+  if (!d || !d.api || d.api.kind !== kind) return 0;
+  const set = new Set((ids || []).map(x => String(x).trim()));
+  const ranked = rankChatModels(ids || []);
+  if (!ranked.length) return 0;
+  let changed = 0, i = 0;
+  for (const pid of PROVIDER_ORDER) {
+    const cur = String(d.models[pid] || '').trim();
+    if (cur && set.has(cur)) continue;               // bu sağlayıcıda var: koru
+    d.models[pid] = ranked[i % ranked.length];
+    i++; changed++;
+  }
+  return changed;
+}
+
+async function loadModelList(force) {
+  if (!force && state.orModels && state.orModelsOf === (drawerDraft && drawerDraft.api.kind)) return;
   try {
     const d = drawerDraft;
     if (!d) return;
@@ -7471,7 +7573,10 @@ async function loadModelList() {
       state.orModels = list;
       state.orFree = free;
       state.orModelsOf = d.api.kind;
+      /* sandalyelerdeki boş ya da başka sağlayıcıdan kalmış model kimliklerini düzelt */
+      const fixed = autoFillModels(d.api.kind, list);
       if (drawerOpen) renderDrawerBody();
+      if (fixed) toast(fixed + ' sandalye bu bağlantının modelleriyle dolduruldu.', 'ok');
     }
   } catch (e) { /* model listesi alınamazsa sessiz geç: kimlik elle yazılabilir */ }
 }
