@@ -2,6 +2,8 @@
 
 **Site:** https://divanai.github.io/  ·  **Kaynak:** https://github.com/divanai/divanai.github.io
 
+**Türkçe** · [English](README.en.md) — arayüz iki dilli: üst şeritteki bayraklarla Türkçe ⇄ İngilizce.
+
 > **Divan**, Osmanlı'da devlet işlerinin görüşüldüğü meclis; **AI** eki onu yapay zekâya taşır.
 > Okunuşu: *di-va-na-i*. Doğru yazım: **divanai** (bitişik, tamamı küçük harf).
 
@@ -56,7 +58,7 @@ Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya,
 | **Masa türü** | En üstteki dört düğme | Değiştirirsen mevcut konuşma temizlenir (önce uyarır) |
 | **Konu** | Alttaki yazı kutusu | `Enter` başlatır, `Shift+Enter` alt satır |
 | **Gündem** | Konunun altındaki çipler | **Fikir üret · Tartış & eleştir · Karar ver** — yalnız Konsey'de; Ayna'da gündem sabittir |
-| **Hız** | Üst sağdaki `1× / 2× / 4×` | Yalnız ekrandaki yazma hızını değiştirir; istek sayısını değiştirmez |
+| **Dil** | Üst şeritteki iki bayrak (Türk · İngiliz) | Arayüzün tamamını Türkçe ⇄ İngilizce çevirir; seçim kalıcıdır. Cevaplar ve yazdığın konu çevrilmez |
 | **Model** | Ayna ve TekeTek'te listenin yanındaki seçici | TekeTek'te: **Pollinations · anahtarsız** ya da **kendi bağlantın** |
 | **Geçmiş** | Üst şeritteki saat simgesi | Bu tarayıcıdaki son 10 konuşma + **favoriler** · aç, devam et, sil |
 | **Bir daha gösterme** | Anahtar kartının sağ üstü | “Canlı modeller için 3 adım” kartını kalıcı olarak gizler (ana ekrandaki anahtar istemini kapatır) |
@@ -335,8 +337,17 @@ geçen parçayı ikinci kez yazmaz.
 
 ## Dil
 
+**Arayüz iki dilli: Türkçe ve İngilizce.** Üst şeritteki iki bayraktan birine bas; bütün yazılar
+o dile döner — düğmeler, yardım, ayarlar, uyarılar, onay kutuları, dışa aktarma başlıkları. Seçim
+tarayıcıda saklanır, sayfayı yenileyince korunur. İlk açılışta tarayıcının dili Türkçe değilse
+arayüz İngilizce açılır.
+
 Cevaplar **senin yazdığın dilde** gelir: Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce.
-Uygulama konunun dilini algılar ve her modelin talimatına ekler. Arayüz ve dışa aktarma başlıkları Türkçedir.
+Uygulama konunun dilini algılar ve her modelin talimatına ekler.
+
+**Çevrilmeyenler:** yazdığın konu, sohbet balonları ve model cevapları. Bunlar sana aittir,
+arayüz dili ne olursa olsun olduğu gibi kalır. **Demo (örnek) konuşmalar iki dillidir:** hangi
+arayüz dilini seçtiysen örnek konuşma da o dilde oynar.
 
 ---
 

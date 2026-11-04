@@ -137,6 +137,15 @@ a{color:#9fc6ff}
 .brandtext span{font-size:11px;color:var(--dim);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topmid{flex:1;display:flex;justify-content:center;min-width:0}
 .topactions{display:flex;align-items:center;gap:8px}
+.langPick{display:inline-flex;align-items:center;gap:3px;padding:3px;border-radius:11px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.langBtn{display:grid;place-items:center;width:32px;height:26px;padding:0;border:0;border-radius:8px;
+  background:transparent;cursor:pointer;opacity:.55;transition:.15s}
+.langBtn svg{display:block;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.14)}
+.langBtn:hover{opacity:.9;background:rgba(255,255,255,.06)}
+.langBtn.on{opacity:1;background:rgba(245,199,106,.14);box-shadow:0 0 0 1px rgba(245,199,106,.4) inset}
+@media (max-width:640px){ .langBtn{width:30px;height:24px} }
+
 .pill{
   display:inline-flex;align-items:center;gap:6px;
   font-size:11px;letter-spacing:.06em;text-transform:uppercase;
@@ -843,6 +852,17 @@ select optgroup{background:#151a24;color:#9aa2b5}
   .summaryCard{padding:13px 14px}
   .drawer{width:100%}
 }
+/* 340 px altı: DEMO rozeti yer kaplamasın */
+@media (max-width:345px){ .topmid{display:none} }
+/* çok dar ekran: marka yazısı yerine yalnız logo — üst şerit sıkışmasın */
+@media (max-width:560px){
+  .brandtext{display:none}
+  .topbar{padding:8px 10px;gap:6px}
+  .topactions{gap:6px}
+  .langPick{padding:2px;gap:2px}
+  .langBtn{width:26px;height:21px}
+  .langBtn svg{width:19px;height:13px}
+}
 @media (max-width:520px){
   .seats{grid-template-columns:repeat(2,minmax(0,1fr))}
   #hintText{display:none}
@@ -1050,7 +1070,14 @@ select optgroup{background:#151a24;color:#9aa2b5}
     </div>
     <div class="topmid"><span class="pill" id="modePill" data-mode="demo"><i class="led"></i><span id="modePillText">Demo</span></span></div>
     <div class="topactions">
-      <button class="btn ghost" id="speedBtn" title="Konuşma hızı (1× → 2× → 4×)"><span class="lbl">Hız&nbsp;</span><span id="speedLbl">1×</span></button>
+      <div class="langPick" id="langPick" role="group" aria-label="Dili değiştir">
+        <button type="button" class="langBtn" data-lang="tr" title="Türkçe" aria-label="Türkçe" aria-pressed="true">
+          <svg viewBox="0 0 24 16" width="22" height="16" aria-hidden="true"><rect width="24" height="16" fill="#E30A17"/><circle cx="9.4" cy="8" r="4.4" fill="#fff"/><circle cx="10.6" cy="8" r="3.5" fill="#E30A17"/><path d="M15.4 8l2.3-.75-1.42 1.96v-2.42l1.42 1.96z" fill="#fff"/></svg>
+        </button>
+        <button type="button" class="langBtn" data-lang="en" title="English" aria-label="English" aria-pressed="false">
+          <svg viewBox="0 0 24 16" width="22" height="16" aria-hidden="true"><rect width="24" height="16" fill="#012169"/><path d="M0 0l24 16M24 0L0 16" stroke="#fff" stroke-width="3.2"/><path d="M0 0l24 16M24 0L0 16" stroke="#C8102E" stroke-width="1.6"/><path d="M12 0v16M0 8h24" stroke="#fff" stroke-width="5.4"/><path d="M12 0v16M0 8h24" stroke="#C8102E" stroke-width="3.2"/></svg>
+        </button>
+      </div>
       <button class="btn ghost icon" id="helpBtn" title="Yardım · nasıl çalışır?" aria-label="Yardım">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.7 2.3c-.8.5-1.3 1-1.3 2"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>
       </button>
@@ -1258,7 +1285,788 @@ select optgroup{background:#151a24;color:#9aa2b5}
 </aside>
 
 <div id="toasts" aria-live="polite"></div>
-<script>/* Copyright 2026 DivanAI — Apache License 2.0 (LICENSE dosyasına bak). */
+<script>/* ---------------- Dil katmanı (TR / EN) ----------------
+   Arayüz metinleri Türkçe yazılmış; İngilizce seçilince DOM'da gezinip
+   eşleşen metinleri değiştirir. Model cevapları, kullanıcının yazdığı konu ve
+   sohbet balonları ASLA çevrilmez (o içerik kullanıcıya aittir).
+   Yeni bir arayüz metni eklerken İngilizcesini EN sözlüğüne yaz; yoksa
+   İngilizce modda Türkçe görünür. */
+(function () {
+  'use strict';
+
+  /* ---- sözlük: Türkçe → İngilizce ---- */
+  const EN = {
+    /* üst şerit */
+    'yapay zekâlar aynı masada': 'many AI minds, one table',
+    'Hız': 'Speed',
+    'Yardım · nasıl çalışır?': 'Help · how it works',
+    'Yardım': 'Help',
+    'Destek': 'Support',
+    'Destek olmak istersen': 'If you would like to support',
+    'Ayarlar': 'Settings',
+    'Geçmiş konuşmalar': 'Conversation history',
+    'Geçmiş konuşmalar · bu tarayıcıda': 'Conversation history · in this browser',
+    'Dili değiştir': 'Change language',
+    'Türkçe': 'Turkish',
+    'İngilizce': 'English',
+    'Demo': 'Demo',
+    'Anahtarsız': 'No key',
+    'Canlı': 'Live',
+
+    /* masa türleri */
+    'Konsey': 'Council',
+    'Ayna': 'Mirror',
+    'Ajanlar': 'Agents',
+    'TekeTek': 'OneOnOne',
+    '4 ayrı model · başkan özetler': '4 separate models · chair summarizes',
+    'aynı model · 2 tur + hakem kararı': 'same model · 2 rounds + verdict',
+    'her sandalyeye ayrı görev · zincirleme teslim': 'a task per seat · chained hand-off',
+    'tek yapay zekâ · anahtarsız da çalışır': 'one AI · works without a key',
+    'Konuşacağın yapay zekâ': 'The AI you will talk to',
+    'Ayna’da kapışacak model': 'Model that debates in Mirror',
+
+    /* giriş ekranı */
+    'Dört yapay zekâ, tek masa.': 'Four AI minds, one table.',
+    'Konuyu bir kez yaz. Modeller sırayla konuşsun, birbirine itiraz etsin, en sonunda başkan toparlayıp özetlesin. Sekme sekme kopyala-yapıştır yok.':
+      'Write the topic once. The models speak in turn, challenge each other, and the chair sums it all up. No tab-by-tab copy-paste.',
+    'Canlı modeller için 3 adım': '3 steps to live models',
+    'anahtar ücretsiz': 'key is free',
+    'ANAHTAR ÜCRETSİZ': 'KEY IS FREE',
+    'Bir daha gösterme': 'Don’t show again',
+    'Hesap aç': 'Create an account',
+    'OpenRouter’da; ücretsiz modeller için kredi kartı istemez.': 'at OpenRouter; free models need no credit card.',
+    'Anahtarı kopyala': 'Copy the key',
+    'ile başlayan uzun satır.': 'the long line starting with it.',
+    'Buraya yapıştır': 'Paste it here',
+    'Ayarlar → Mod: Canlı → OpenRouter → Anahtar.': 'Settings → Mode: Live → OpenRouter → Key.',
+    'TekeTek ile başla — anahtar gerekmez': 'Start with OneOnOne — no key needed',
+    'Anahtar sayfasını aç': 'Open the key page',
+    'Ayarları aç': 'Open settings',
+    'Fikir üret': 'Generate ideas',
+    'Tartış & eleştir': 'Debate & critique',
+    'Karar ver': 'Decide',
+    'Örnek konu:': 'Example topic:',
+    'Yapay zekâları tek masada tartıştıran araç': 'A tool that puts AIs at one table',
+    'Bursa’da kahve dükkânı açmak': 'Opening a coffee shop in Bursa',
+    'Maaşlı iş mi, kendi işim mi?': 'Salary job or my own business?',
+    'Kafede wifi şifresi verilsin mi?': 'Share the café wifi password?',
+    'İndirim mi, kampanya mı?': 'Discount or campaign?',
+
+    /* yazı kutusu */
+    'Masaya bir konu at… (örn: Bu yazılım fikrimi 3 ayda çıkarabilir miyim?)':
+      'Put a topic on the table… (e.g. Can I ship this software idea in 3 months?)',
+    'Ne sormak istiyorsun? (örn: Kredi kartı borcumu nasıl düzene sokarım?)':
+      'What do you want to ask? (e.g. How do I get my credit card debt under control?)',
+    'Yazmaya devam et…': 'Keep writing…',
+    'Projeyi yaz… (örn: Küçük bir sabun markası için 6 haftalık lansman planı çıkar.)':
+      'Describe the project… (e.g. Make a 6-week launch plan for a small soap brand.)',
+    'Ek talimat yaz: eksik kalan işi söyle, ajanlar yeni geçişte uysun…':
+      'Write extra instructions: say what is missing, agents will follow in the next pass…',
+    'Masaya yaz: itiraz, ek bilgi, yeni soru…': 'Write to the table: objection, extra info, new question…',
+    'Masa konuşurken araya not bırakabilirsin…': 'You can drop a note while the table talks…',
+    'Ajanlar çalışırken araya not bırakabilirsin…': 'You can drop a note while the agents work…',
+    'Cevap yazılıyor…': 'Writing the answer…',
+    'gönder': 'send',
+    'alt satır': 'new line',
+    'yazdığın yeni mesaj yeni bir tur başlatır': 'a new message starts another round',
+    'sohbet hafızası bu sekmede açık kalır': 'chat memory stays on in this tab',
+    'Masa konuşurken yazarsan sıradaki konuşmacılar görür': 'What you write mid-round reaches the next speakers',
+    'Cevap geliyor…': 'Answer coming…',
+    'Masa toplanıyor': 'Setting the table',
+
+    /* alt düğmeler */
+    'Dinlenmeyi bitir': 'End cooldown',
+    '▶ Kaldığı yerden devam': '▶ Continue where it stopped',
+    '+ Bir tur daha': '+ One more round',
+    '+ Bir geçiş daha': '+ One more pass',
+    'Özet çıkar': 'Make summary',
+    '▸ Devam': '▸ Continue',
+    '■ Durdur': '■ Stop',
+    'Dışa aktar': 'Export',
+    'Kopyala': 'Copy',
+    'biçimli belge': 'formatted document',
+    'her yerde açılır': 'opens anywhere',
+    'not uygulamaları': 'note apps',
+
+    /* konu kartı */
+    'GÜNDEM': 'AGENDA',
+    'SORU': 'QUESTION',
+    'Yeni konu': 'New topic',
+    'Tartış & eleştir': 'Debate & critique',
+    'Sohbet': 'Chat',
+    'Masa hazır': 'Table ready',
+    'Demo modu': 'Demo mode',
+    'CANLI': 'LIVE',
+    'CANLI · ANAHTARSIZ': 'LIVE · NO KEY',
+    'DEMO · ÖRNEK KONUŞMA': 'DEMO · SAMPLE TALK',
+
+    /* geçmiş paneli */
+    'Geçmiş konuşmalar': 'Conversation history',
+    'Favoriler': 'Favorites',
+    'Diğerleri': 'Others',
+    'Henüz kayıtlı konuşma yok.': 'No saved conversations yet.',
+    'İlk konuşman başladığında burada görünecek.': 'Your first conversation will appear here.',
+    '↓ Oturumu dosyaya kaydet': '↓ Save session to file',
+    '↑ Dosyadan aç': '↑ Open from file',
+    'Listeyi temizle': 'Clear the list',
+    'Bu liste yalnız bu tarayıcıda durur; hesap ve sunucu yok. Başka cihazda devam etmek için dosyaya kaydet, öbür cihazda dosyadan aç.':
+      'This list lives only in this browser; no account, no server. To continue on another device, save to a file and open it there.',
+    'Favorilere ekle': 'Add to favorites',
+    'Favoriden çıkar': 'Remove from favorites',
+    'Favori': 'Favorite',
+    'Bu konuşmayı listeden sil': 'Remove this conversation',
+    'Sil': 'Delete',
+
+    /* destek paneli */
+    'Zorunlu değil. DivanAI herkese açık ve ücretsiz kalır.': 'Optional. DivanAI stays open and free.',
+
+    /* yardım */
+    'Nasıl çalışır?': 'How does it work?',
+    'Kapat': 'Close',
+    'Anladım': 'Got it',
+
+    /* sık kullanılan bildirimler */
+    'Konuşma açıldı': 'Conversation opened',
+    'Konuşma listeden silindi.': 'Conversation removed from the list.',
+    'Listeden silindi. Açık konuşma bu; yazmaya devam edersen listeye geri döner.':
+      'Removed from the list. This one is open; keep writing and it returns to the list.',
+    'Geçmiş listesi temizlendi.': 'History cleared.',
+    'Liste zaten boş.': 'The list is already empty.',
+    'Favorilere eklendi — listenin başında durur.': 'Added to favorites — it stays at the top of the list.',
+    'Favoriden çıkarıldı.': 'Removed from favorites.',
+    'Fare işaretiyle': 'With the mouse',
+    'Konuşma markdown olarak kopyalandı.': 'Conversation copied as markdown.',
+    'Dışa aktarılacak konuşma yok.': 'There is no conversation to export.',
+    'Kaydedilecek konuşma yok.': 'There is no conversation to save.',
+    'Bu dosya bir DivanAI oturumu değil.': 'This file is not a DivanAI session.',
+    'Dosya okunamadı (bozuk ya da JSON değil).': 'Could not read the file (broken or not JSON).',
+    'Konuşma dosyaya kaydedildi. Başka cihazda “Dosyadan aç” ile devam edebilirsin.':
+      'Session saved to a file. Open it on another device with “Open from file”.',
+    'Masa temizlendi. Yeni konu yazabilirsin.': 'Table cleared. You can write a new topic.',
+
+    /* demo uyarıları */
+    'Demo modu: aşağıdaki cevaplar hazır örnek metindir, her konuda aynıdır. Gerçek model cevapları için Ayarlar → Mod: Canlı.':
+      'Demo mode: the answers below are canned sample text, the same for every topic. For real model answers use Settings → Mode: Live.',
+    'Demo metinleri yalnızca Türkçe hazırlanmıştır; canlı modda cevaplar senin yazdığın dilde gelir.':
+      'Demo text is available in Turkish only; in live mode answers come in the language you write.',
+
+    /* mod seçimi bilgilendirmesi */
+    'Masa türünü değiştirince mevcut konuşma temizlenir.': 'Changing the table type clears the current conversation.',
+    'Önce “Dışa aktar” ile saklayabilirsin.': 'You can save it first with “Export”.',
+    'Devam edilsin mi?': 'Continue?',
+
+    /* ayarlar çekmecesi (başlıklar) */
+    'Mod': 'Mode',
+    'Canlı': 'Live',
+    'gerçek modeller': 'real models',
+    'örnek konuşma': 'sample conversation',
+    'Demo modunda hazır örnek konuşmalar oynar — gerçek cevap değildir. Gerçek modeller için Canlı + bir bağlantı seç.':
+      'Demo mode plays canned sample conversations — not real answers. For real models pick Live + a connection.',
+    'Bağlantı': 'Connection',
+    'Kaydet ve uygula': 'Save and apply',
+    'Demo modu': 'Demo mode',
+    'Bağlantıyı test et': 'Test connection',
+
+    /* dışa aktarma başlıkları */
+    'Tarih': 'Date',
+    'Amaç': 'Goal',
+    'Masa': 'Table',
+    'Başkan': 'Chair',
+    'Konuşma': 'Conversation'
+  };
+
+  /* Metin düğümleri satır içi etiketlerle (kalın/kod) bölündüğü için parça parça */
+  Object.assign(EN, {
+    "Demo metinleri arayüz dilinde gelir. İngilizce örnek konuşma için sağ üstten İngiliz bayrağını seç.": "Demo text comes in the interface language. For an English sample conversation, pick the British flag at the top right.",
+    "Masadaki modeller": "Models at the table",
+    "Masadaki model": "Model at the table",
+    "model kimliği": "model id",
+    "Kapat (Esc)": "Close (Esc)",
+    "Portre": "Portrait",
+    "Sinemalik": "Cinematic",
+    "Kamera": "Camera",
+    "masayı yönetir, herkesi konuşturur, tartışmayı toparlar": "runs the table, brings everyone in, sums up the debate",
+    "konuyu parçalar, çerçeve kurar, ölçüt ve varsayımları ayırır": "breaks the topic apart, sets the frame, separates criteria from assumptions",
+    "zayıf noktaları, riskleri ve boşlukları işaret eder": "flags weak spots, risks and gaps",
+    "uygulanabilirlik, adımlar, araçlar ve maliyet": "feasibility, steps, tools and cost",
+    "veri, örnek, karşılaştırma ve kaynak getirir": "brings data, examples, comparisons and sources",
+    "tezi savunur; kanıt, sayı ve somut örnek getirir": "defends the thesis; brings evidence, numbers and concrete examples",
+    "karşı çıkar; zayıf varsayımı, gizli maliyeti ve açığı arar": "objects; looks for the weak assumption, the hidden cost and the gap",
+    "Masa türü": "Table type",
+    "Bu kartı gizle": "Hide this card",
+    "Masanın amacı": "Purpose of the table",
+    "Gönder (Enter)": "Send (Enter)",
+    "Gönder": "Send",
+    "TekeTek modunda kullanılacak yapay zekâ": "AI used in OneOnOne mode",
+    "Ayna modunda kullanılacak model": "Model used in Mirror mode",
+    "Ajan akışı": "Agent flow",
+    "Kredi harcamaz. IP başına 45 saniyede 1 görsel; sağ altta küçük filigran. Yazı/harf üretmekte zayıf.": "Costs no credits. One image per 45 seconds per IP; small watermark bottom right. Weak at lettering.",
+    "Ücretli: görsel başına ~$0.001–0.003. Kalite daha yüksek, filigran yok; tabela/yazı da düzgün çıkar.": "Paid: about $0.001–0.003 per image. Higher quality, no watermark; signs and lettering come out clean.",
+    "Kare — ürün, portre, sosyal akış": "Square — product, portrait, social feed",
+    "Klasik fotoğraf — sunum, katalog": "Classic photo — slides, catalogue",
+    "Fotoğraf makinesi oranı — sahne, mekân": "Camera ratio — scene, space",
+    "Geniş — kapak, vitrin, sunum kapağı": "Wide — cover, storefront, deck cover",
+    "Dikey — telefon, hikâye, afiş": "Vertical — phone, story, poster",
+    "Sinema bandı — geniş manzara, banner": "Cinema strip — wide scenery, banner",
+    "kare": "square",
+    "kart": "4:3",
+    "foto": "photo",
+    "geniş": "wide",
+    "dikey": "vertical",
+    "sinema": "cinema",
+    "Pollinations · anahtarsız · gpt-oss": "Pollinations · keyless · gpt-oss",
+    "Pollinations · anahtarsız": "Pollinations · keyless",
+    "Kendi bağlantım (anahtar gerekir) · OpenRouter": "My own connection (key required) · OpenRouter",
+    'Dört yapay zekâ,': 'Four AI minds,',
+    'tek masa.': 'one table.',
+    'Aynı model,': 'The same model,',
+    'kendi kendine karşı': 'against itself',
+    'Her sandalyeye': 'A separate task',
+    'ayrı görev.': 'for every seat.',
+    'TekeTek: tek yapay zekâ,': 'OneOnOne: a single AI,',
+    'doğrudan cevap': 'a direct answer',
+    'Canlı modeller için': 'For live models',
+    '3 adım': 'in 3 steps',
+    '— OpenRouter’da; ücretsiz modeller için kredi kartı istemez.': '— at OpenRouter; free models need no credit card.',
+    '—': '—',
+    'ile başlayan uzun satır.': '— the long line that starts with it.',
+    '— Ayarlar → Mod: Canlı → OpenRouter → Anahtar.': '— Settings → Mode: Live → OpenRouter → Key.',
+    'Bu liste yalnız': 'This list lives only',
+    'bu tarayıcıda': 'in this browser',
+    'durur; hesap ve sunucu yok. Başka cihazda devam etmek için': '; no account, no server. To continue on another device',
+    ', öbür cihazda': ', and on the other device',
+    'dosyadan aç': 'open from file',
+    'gönder ·': 'send ·',
+    '4 ayrı şirket': '4 separate companies',
+    'Başkan:': 'Chair:',
+    'Hakem:': 'Judge:',
+    'Model:': 'Model:',
+    'Masa kuruluyor': 'Setting the table',
+    'Masa hazır': 'Table ready',
+    'masanın sahibi': 'table owner',
+    'MASANIN SAHİBİ': 'TABLE OWNER',
+    'MODERATÖR · BAŞKAN': 'MODERATOR · CHAIR',
+    'MODERATÖR': 'MODERATOR',
+    'ANALİST': 'ANALYST',
+    'ELEŞTİRMEN': 'CRITIC',
+    'MÜHENDİS': 'ENGINEER',
+    'ARAŞTIRMACI': 'RESEARCHER',
+    'DANIŞMAN': 'ADVISOR',
+    'SAVUNAN': 'DEFENDER',
+    'İTİRAZ EDEN': 'OBJECTOR',
+    'HAKEM': 'JUDGE',
+    'başkan': 'chair',
+    'moderatör': 'moderator',
+    'analist': 'analyst',
+    'eleştirmen': 'critic',
+    'mühendis': 'engineer',
+    'araştırmacı': 'researcher',
+    'Ayna · 2 sandalye': 'Mirror · 2 seats',
+    'TekeTek · 1 sandalye': 'OneOnOne · 1 seat',
+    'anahtarsız · ücretsiz': 'no key · free',
+    'kendi bağlantın': 'your own connection',
+    'aynı model, iki rol': 'same model, two roles',
+    'zincirleme teslim': 'chained hand-off',
+    '4 model': '4 models',
+    'Sohbet': 'Chat',
+    'Tartış & eleştir': 'Debate & critique',
+    'Cevap yazılıyor…': 'Writing the answer…',
+    'Masa konuşurken yazarsan': 'If you write while the table talks,',
+    'sıradaki konuşmacılar görür': 'the next speakers will see it',
+    'Özet çıkar': 'Summarize',
+    'Bir tur daha': 'One more round',
+    'Bir geçiş daha': 'One more pass',
+    'Durdur': 'Stop',
+    'Kopyala': 'Copy',
+    'Dışa aktar': 'Export',
+    'Yeni konu': 'New topic',
+    'Güncel': 'Current'
+  });
+
+  /* Dinamik metinler için desenler (sayı/isim gömülü olanlar) */
+  const EN_PATTERNS = [
+    [/^(.+?) · (MODERATÖR|ANALİST|ELEŞTİRMEN|MÜHENDİS|ARAŞTIRMACI|DANIŞMAN|BAŞKAN|SAVUNAN|İTİRAZ EDEN|HAKEM)$/,
+      (m, n, r) => n + ' · ' + ({ 'MODERATÖR': 'MODERATOR', 'ANALİST': 'ANALYST', 'ELEŞTİRMEN': 'CRITIC', 'MÜHENDİS': 'ENGINEER', 'ARAŞTIRMACI': 'RESEARCHER', 'DANIŞMAN': 'ADVISOR', 'BAŞKAN': 'CHAIR', 'SAVUNAN': 'DEFENDER', 'İTİRAZ EDEN': 'OBJECTOR', 'HAKEM': 'JUDGE' }[r])],
+    [/^(.+) Masa temizlendi\.$/, (m, pre) => translate(pre) + ' Table cleared.'],
+    [/^Bugün · (\d\d:\d\d) · (.+?) · (\d+) mesaj$/, (m, t, mode, n) => 'Today · ' + t + ' · ' + ({ 'Konsey': 'Council', 'Ayna': 'Mirror', 'Ajanlar': 'Agents', 'TekeTek': 'OneOnOne' }[mode] || mode) + ' · ' + n + ' messages'],
+    [/^(\d+) sandalye bu bağlantının modelleriyle dolduruldu\.$/, '$1 seats filled with this connection’s models.'],
+    [/^TUR (\d+) · (\d+) KONUŞMACI$/, 'ROUND $1 · $2 SPEAKERS'],
+    [/^(\d+) KONUŞMACI$/, '$1 SPEAKERS'],
+    [/^(.+) konuşuyor$/, '$1 is speaking'],
+    [/^(.+) çalışıyor$/, '$1 is working'],
+    [/^(.+) yazıyor$/, '$1 is writing'],
+    [/^Başkan: (.+)$/, 'Chair: $1'],
+    [/^Masa: (.+)$/, 'Table: $1'],
+    [/^(\d+) ayrı model · başkan özetler$/, '$1 separate models · chair summarizes'],
+    [/^İstemin sonuna eklenir: (.+)$/, 'Added to the end of the prompt: $1'],
+    [/^(\d+) tur \+ karar = (\d+) istek$/, '$1 rounds + verdict = $2 requests'],
+    [/^(\d+) tur \+ karar = (\d+) istek · (.+)$/, '$1 rounds + verdict = $2 requests · $3'],
+    [/^· (\d+) sandalye$/, '· $1 seats'],
+    [/^(\d+) sandalye$/, '$1 seats'],
+    [/^Kendi bağlantım \(anahtar gerekir\) · (.+)$/, 'My own connection (key required) · $1'],
+    [/^Pollinations · anahtarsız(?: · (.+))?$/, 'Pollinations · keyless$1'],
+    [/^(\d+) model$/, '$1 models'],
+    [/^(\d+) sandalye$/, '$1 seats'],
+    [/^(\d+) mesaj$/, '$1 messages'],
+    [/^(\d+)\/(\d+)$/, '$1/$2'],
+    [/^TUR (\d+) · (\d+)\/(\d+)$/, 'ROUND $1 · $2/$3'],
+    [/^Bugün · (\d\d:\d\d)$/, 'Today · $1'],
+    [/^Bugün$/, 'Today'],
+    [/^(\d+) Ocak$/, 'Jan $1'], [/^(\d+) Şubat$/, 'Feb $1'], [/^(\d+) Mart$/, 'Mar $1'],
+    [/^(\d+) Nisan$/, 'Apr $1'], [/^(\d+) Mayıs$/, 'May $1'], [/^(\d+) Haziran$/, 'Jun $1'],
+    [/^(\d+) Temmuz$/, 'Jul $1'], [/^(\d+) Ağustos$/, 'Aug $1'], [/^(\d+) Eylül$/, 'Sep $1'],
+    [/^(\d+) Ekim$/, 'Oct $1'], [/^(\d+) Kasım$/, 'Nov $1'], [/^(\d+) Aralık$/, 'Dec $1'],
+    [/^(\d+) sn$/, '$1 s'], [/^(\d+) dk (\d+) sn$/, '$1 min $2 s'],
+    [/^TUR (\d+)/, 'ROUND $1']
+  ];
+
+  /* .md = model/kullanıcı metni (çevrilmez). .bubble'ın kendisi korunmaz:
+     içindeki rol rozeti (MODERATÖR vb.) arayüz yazısıdır, çevrilir. */
+  const SKIP = '.md, #input, textarea, .hpTopic, .topicText, script, style, pre, code';
+
+  function lang() {
+    return (window.DIVANAI && window.DIVANAI.state && window.DIVANAI.state.settings &&
+      window.DIVANAI.state.settings.uiLang) || document.documentElement.getAttribute('data-ui-lang') || 'tr';
+  }
+  function isEn() { return lang() === 'en'; }
+
+  /* tek bir metni çevir */
+  function translate(s) {
+    if (!isEn() || !s) return s;
+    const key = s.trim();
+    if (!key) return s;
+    if (Object.prototype.hasOwnProperty.call(EN, key)) {
+      return s.replace(key, EN[key]);
+    }
+    for (const [re, rep] of EN_PATTERNS) {
+      if (re.test(key)) return s.replace(key, key.replace(re, rep));
+    }
+    return s;
+  }
+
+  /* Blok çevirisi: <p>/<li>/<label> gibi paragraflar satır içi <b>/<code> ile
+     bölündüğü için tam metinle eşleştirilir. Eşleşince bloğun tamamı çevrilir
+     (İngilizcede iç biçimlendirme sadeleşir; Türkçeye dönünce eski hâli geri gelir). */
+  const BLOCK_SEL = 'p, li, h3, h4, .note, .swRow b, .swRow i, .mTxt b, .mTxt i, .hpNote, .spName, .spDesc, label i';
+  const NO_TOUCH = 'select, input, button, textarea, label, .hpItem, .swRow, .mTxt';
+  /* bir bloğun İÇİNDE yuvalanmış blok varsa dış blok atlanır (çift çeviri olmasın) */
+  const NESTED = 'p, li, h3, h4, .note, .hpNote, .spName, .spDesc, .swRow, .mTxt, ul, ol';
+
+  /* DOM'u çevir: metin düğümleri + placeholder/title/aria-label */
+  let busy = false;
+  function translateDom(root) {
+    if (busy) return;
+    busy = true;
+    try {
+      const r = root || document.body;
+      const blocks = r.querySelectorAll ? r.querySelectorAll(BLOCK_SEL) : [];
+
+      /* 1) bloklar: tam metinle eşleşen paragraflar (özgün metin bir kez saklanır) */
+      const norm = el => (el.textContent || '').replace(/\s+/g, ' ').trim();
+
+      blocks.forEach(el => {
+        if (el.closest(SKIP)) return;
+        if (el.querySelector(NESTED)) return;
+        if (el.querySelector(NO_TOUCH)) return;
+        /* çeviri uygulanırsa blok işaretlenir: içindeki kelimeler tek tek çevrilmesin
+           (çeviri yoksa işaret konmaz, tek tek sözcük çevirisi devrede kalır) */
+        const cur = norm(el);
+        if (!cur) return;
+        if (isEn()) {
+          /* zaten İngilizceyse dokunma — uygulama metni yeniden yazdıysa yeniden çevir */
+          if (el.__enText && cur === el.__enText) return;
+          const out = EN[cur] || (translate(cur) !== cur ? translate(cur) : null);
+          if (out) {
+            el.__trHtml = el.innerHTML;
+            el.__trText = cur;
+            el.textContent = out;
+            el.__enText = out;
+            el.__trDone = true;
+            el.setAttribute('data-i18n-block', '1');
+          }
+        } else if (el.__trDone && el.__trHtml !== undefined) {
+          el.innerHTML = el.__trHtml;
+          el.__trDone = false;
+          el.__enText = undefined;
+          el.setAttribute('data-i18n-block', '1');
+        }
+      });
+
+      /* 2) tek tek metin düğümleri (kısa etiketler, satır içi parçalar) */
+      const walker = document.createTreeWalker(r, NodeFilter.SHOW_TEXT, {
+        acceptNode(n) {
+          if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          const p = n.parentElement;
+          if (!p) return NodeFilter.FILTER_REJECT;
+          if (p.closest(SKIP)) return NodeFilter.FILTER_REJECT;
+          if (p.closest('[data-i18n-block]')) return NodeFilter.FILTER_REJECT;
+          // blok çevirisi yapılmış elementin içine dokunma
+          let a = p;
+          while (a && a !== r) { if (a.__trDone) return NodeFilter.FILTER_REJECT; a = a.parentElement; }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      for (const n of nodes) {
+        if (n.__tr === undefined) n.__tr = n.nodeValue;
+        const src = n.__tr;
+        const out = isEn() ? translate(src) : src;
+        if (n.nodeValue !== out) n.nodeValue = out;
+      }
+
+      /* 3) öznitelikler: placeholder / title / aria-label */
+      const els = r.querySelectorAll ? r.querySelectorAll('[placeholder],[title],[aria-label],[alt]') : [];
+      els.forEach(el => {
+        ['placeholder', 'title', 'aria-label', 'alt'].forEach(a => {
+          const v = el.getAttribute(a);
+          if (!v) return;
+          const k = '__tr_' + a;
+          if (el[k] === undefined) el[k] = v;
+          const src = el[k];
+          const out = isEn() ? translate(src) : src;
+          if (v !== out) el.setAttribute(a, out);
+        });
+      });
+    } finally { busy = false; }
+  }
+
+  /* dinamik eklenen içerik için gözlemci */
+  let t = null;
+  function observe() {
+    if (t || typeof MutationObserver === 'undefined') return;
+    t = new MutationObserver(() => {
+      if (busy || !isEn()) return;
+      clearTimeout(t.__h);
+      t.__h = setTimeout(() => translateDom(document.body), 40);
+    });
+    t.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
+
+  const TITLE_TR = 'DivanAI — yapay zekâlar aynı masada';
+  const TITLE_EN = 'DivanAI — many AI minds, one table';
+
+  function apply() {
+    const l = isEn() ? 'en' : 'tr';
+    document.documentElement.setAttribute('lang', l);
+    document.documentElement.setAttribute('data-ui-lang', l);
+    if (!document.__titleTr) document.__titleTr = document.title || TITLE_TR;
+    document.title = isEn() ? TITLE_EN : document.__titleTr;
+    translateDom(document.body);
+  }
+
+
+  /* ── yardım modalı · ayarlar · geçmiş notu · masa türleri: tam paragraflar ──
+     Anahtarlar ekrandaki metnin birebir kendisi (boşluklar tek boşluğa inmiş hâli). */
+  Object.assign(EN, {
+    "İpuçları": "Tips",
+    "Gündem türü": "Agenda type",
+    "Masa düzeni": "Table layout",
+    "Özel gündem": "Custom agenda",
+    "hiç yazılmaz": "not written at all",
+    "Gündem türleri": "Agenda types",
+    "Konuşma üslubu": "Conversation tone",
+    "Grok · MÜHENDİS": "Grok · ENGINEER",
+    "Gemini · ANALİST": "Gemini · ANALYST",
+    "İnternetten bilgi": "Web search",
+    "Roller ve görevler": "Roles and tasks",
+    "ChatGPT · MODERATÖR": "ChatGPT · MODERATOR",
+    "Claude · ELEŞTİRMEN": "Claude · CRITIC",
+    "Kısa — birkaç madde": "Brief — a few points",
+    "Masa nasıl çalışır?": "How does the table work?",
+    "Üslup: net ve teknik": "Tone: crisp and technical",
+    "DeepSeek · ARAŞTIRMACI": "DeepSeek · RESEARCHER",
+    "Konuşacağın yapay zekâ": "The AI you will talk to",
+    "Ayna’da kapışacak model": "Model that debates in Mirror",
+    "Gerçek modellere geçmek": "Switching to real models",
+    "Bağlam (token tasarrufu)": "Context (token saving)",
+    "Tam geçmiş — en çok token": "Full history — most tokens",
+    "Durum · günlük istek hakkı": "Status · daily request quota",
+    "Ücretsiz kullanımın sınırı": "The limit of free usage",
+    "4 ayrı model · başkan özetler": "4 separate models · chair summarizes",
+    "Güncel kaynakları modele ekle": "Add up-to-date sources to the model",
+    "Cevap sınırı (kelime) · 30–500": "Answer limit (words) · 30–500",
+    "Model (Ayna seçiliyken geçerli)": "Model (used when Mirror is selected)",
+    "API anahtarlarını da dosyaya ekle": "Include the API keys in the file too",
+    "aynı model · 2 tur + hakem kararı": "same model · 2 rounds + verdict",
+    "Üç masa türü: Konsey, Ayna, Ajanlar": "Three table types: Council, Mirror, Agents",
+    "Sıkıştırmada son kaç mesaj tam kalsın": "How many recent messages stay full when compressing",
+    "Herkesin uyacağı görev (serbest metin)": "Task everyone must follow (free text)",
+    "Masa hafızası — en az token (önerilen)": "Table memory — fewest tokens (recommended)",
+    "tek yapay zekâ · anahtarsız da çalışır": "one AI · works without a key",
+    "Gündem adı (masanın başlığında görünür)": "Agenda name (shown in the table heading)",
+    "Sıkıştırılmış — eski mesajlar tek satır": "Compressed — old messages in one line",
+    "Doyunca dur ve özeti kendiliğinden çıkar": "Stop when saturated and summarize automatically",
+    "Sandalye zaman aşımı (saniye, 0 = kapalı)": "Seat timeout (seconds, 0 = off)",
+    "Sağlayıcı dinlenmesi (dakika, 0 = kapalı)": "Provider cooldown (minutes, 0 = off)",
+    "Yeni noktası olmayan sandalye “geçti” desin": "Let a seat with nothing new say “pass”",
+    "Doğal sohbet — normal konuşma gibi (önerilen)": "Natural chat — like a normal conversation (recommended)",
+    "Rapor düzeni — Sonuç / Artı / Eksi / İlk adım": "Report layout — Result / Pros / Cons / First step",
+    "her sandalyeye ayrı görev · zincirleme teslim": "a task per seat · chained hand-off",
+    "Ayna’da kapışacak model 2 tur + karar = 5 istek": "Model that debates in Mirror · 2 rounds + verdict = 5 requests",
+    "NanoGPT / AIMLAPI — tek anahtar, geniş katalog.": "NanoGPT / AIMLAPI — one key, large catalogue.",
+    "Anahtarı kopyala — sk-or-v1-… ile başlayan uzun satır.": "Copy the key — the long line that starts with sk-or-v1-…",
+    "Requesty — 600+ model, ücretsiz katman, EU uç noktası.": "Requesty — 600+ models, free tier, EU endpoint.",
+    "Buraya yapıştır — Ayarlar → Mod: Canlı → OpenRouter → Anahtar.": "Paste it here — Settings → Mode: Live → OpenRouter → Key.",
+    "Vercel AI Gateway — tek anahtar, modelde ek ücret yok. Anahtar": "Vercel AI Gateway — one key, no extra fee per model. The key",
+    "Fikir üret — çeşitlilik önemlidir, masadan farklı yönler çıkar.": "Generate ideas — variety matters; different directions come out of the table.",
+    "Karar ver — herkes net bir seçenek söyler, başkan kararı yazar.": "Decide — everyone states one clear option; the chair writes the decision.",
+    "OpenRouter’ın araması kullanılır; model kimliğine :online eklenir.": "OpenRouter’s search is used; :online is appended to the model id.",
+    "Hesap aç — OpenRouter’da; ücretsiz modeller için kredi kartı istemez.": "Create an account — at OpenRouter; free models need no credit card.",
+    "Son iki turda yeni fikir gelmezse masa durur; boşuna token harcanmaz.": "If the last two rounds bring nothing new the table stops; no tokens wasted.",
+    "OpenRouter — en pratik. 400+ model, bazıları ücretsiz (:free). Anahtar": "OpenRouter — the most practical. 400+ models, some free (:free). The key",
+    "Tartış & eleştir — varsayımlar ve riskler kırılır, itiraz teşvik edilir.": "Debate & critique — assumptions and risks are broken down; objection is encouraged.",
+    "Demo modu: hiç istek harcamaz. Kota beklemeden masayı denemek için bu modu kullan.": "Demo mode: uses no requests at all. Use it to try the table without waiting for quota.",
+    "DivanAI · tek sayfa. Sunucusuz çalışır; API çağrıları doğrudan tarayıcıdan yapılır.": "DivanAI · a single page. It runs without a server; API calls go straight from the browser.",
+    "Masa konuşurken araya not bırakabilirsin: yaz ve gönder, sıradaki konuşmacılar onu görür.": "You can drop a note while the table talks: write and send, the next speakers will see it.",
+    "2. turdan sonra, söyleyecek yeni bir şeyi olmayan sandalye cevap yazmaz; yalnız “PAS” der.": "From round 2 on, a seat with nothing new to say writes no answer; it just says “PASS”.",
+    "Başka cihaza taşımak için aynı paneldeki Oturumu dosyaya kaydet → öbür cihazda Dosyadan aç.": "To move to another device use Save session to file in the same panel → Open from file on the other device.",
+    "Bir tur daha ile aynı konuyu derinleştir; Özet çıkar ile başkan kararı tek sayfaya indirir.": "One more round deepens the same topic; Summarize reduces the chair’s decision to a single page.",
+    "Dışa aktarılan dosyada her cevabın künyesi vardır: tur · saat · model (yedekse hangi model).": "Every answer in the exported file carries a credit line: round · time · model (which backup model if any).",
+    "Özel adres — kendi LiteLLM/Cloudflare AI Gateway kurulumun ya da başka OpenAI uyumlu servis.": "Custom address — your own LiteLLM / Cloudflare AI Gateway setup or another OpenAI-compatible service.",
+    "Başkan — özeti ve kapanışı o yazarChatGPT · MODERATÖRGemini · ANALİSTClaude · ELEŞTİRMENGrok · MÜHENDİS": "Chair — writes the summary and the closing",
+    "Bir konuşmacı başkasının cevabını kopyalarsa masaya alınmaz; “kopyasıydı” notu düşer, söz sıradakine geçer.": "If a speaker copies someone else’s answer it is not accepted; a “duplicate” note is dropped and the turn moves on.",
+    "Her sandalyenin rol etiketini ve tek cümlelik görevini değiştirebilirsin. Boş bırakılan alan varsayılana döner.": "You can change each seat’s role label and its one-sentence task. Empty fields fall back to the default.",
+    "Demo modunda hazır örnek konuşmalar oynar — gerçek cevap değildir. Gerçek modeller için Canlı + bir bağlantı seç.": "Demo mode plays canned sample conversations — not real answers. For real models pick Live + a connection.",
+    "Bu liste yalnız bu tarayıcıda durur; hesap ve sunucu yok. Başka cihazda devam etmek için dosyaya kaydet, öbür cihazda dosyadan aç.": "This list lives only in this browser; no account, no server. To continue on another device, save to a file and open it there.",
+    "Bir model hata verirse masa durmaz; aynı sandalyeye yedek model geçer ve konuşma sürer. Cevabın başlığında ↺ model etiketi görünür.": "If a model fails the table does not stop; a backup model takes the same seat and the conversation continues. The answer header shows a ↺ model tag.",
+    "Ayna — aynı model iki sandalyede: Model A · savunan ve Model B · itiraz eden. Tek modelin kendi cevabını beğenip geçmesini engeller.": "Mirror — the same model in two seats: Model A · defending and Model B · objecting. It stops a single model from approving its own answer.",
+    "Ayarlar bu tarayıcıda durur. Tarayıcı verisi silinirse ya da başka cihaza geçersen kaybolur. Yedeği dosyaya indir, yeni cihazda yükle.": "Settings live in this browser. They are lost if browser data is cleared or you move to another device. Download the backup to a file and load it on the new device.",
+    "En az bir model açık olmalı; beş sandalyenin hepsi birden de açılabilir. Kimlik yanlışsa test düğmesi hangi modelin hata verdiğini yazar.": "At least one model must be on; all five seats can be on at once. If an id is wrong the test button tells you which model failed.",
+    "Roller: Moderatör açar ve yönetir · Analist çerçeve kurar · Eleştirmen riskleri arar · Mühendis uygulanabilirliğe bakar · Başkan özeti yazar.": "Roles: Moderator opens and runs the table · Analyst frames it · Critic hunts for risks · Engineer checks feasibility · Chair writes the summary.",
+    "Tek anahtarla birden çok modele ulaşmak için bir ağ geçidi (gateway) kullan. Hepsi OpenAI uyumlu; DivanAI’da Ayarlar → Bağlantı’dan seçiyorsun:": "To reach many models with one key use a gateway. All of them are OpenAI compatible; you pick one in Settings → Connection:",
+    "Konuyu bir kez yaz. Modeller sırayla konuşsun, birbirine itiraz etsin, en sonunda başkan toparlayıp özetlesin. Sekme sekme kopyala-yapıştır yok.": "Write the topic once. Let the models speak in turn, challenge each other, and let the chair sum it all up. No tab-by-tab copy-paste.",
+    "Ana ekranın en üstündeki üç düğme masa türünü seçer. Konuşma sırasında da üstte durur, istediğin an geçebilirsin (konuşma temizlenir, önce sorar).": "The buttons at the top of the main screen choose the table type. They stay there during a conversation, so you can switch any time (the conversation is cleared, with a confirmation first).",
+    "Tur tavanı dolunca masa durur ve özet çıkarır. “Bir tur daha”ya kendin basarsan masa karışmaz (tavanı aşarsan uyarı verir) — her tur token harcar.": "When the round cap is reached the table stops and summarizes. Pressing “One more round” yourself is fine (it warns if you go past the cap) — every round costs tokens.",
+    "Kopya cevaplar zaten masaya konmuyordu; bu ayar onları hiç yazdırmaz. Turun kapanış konuşmacısı (başkan) her zaman konuşur, 1. turda kimse geçemez.": "Duplicate answers were already kept off the table; this setting stops them from being written at all. The closing speaker (the chair) always speaks, and nobody can pass in round 1.",
+    "Masa türünü üstteki Konsey / Ayna / Ajanlar / TekeTek düğmelerinden seçersin; konuşma sırasında da değiştirebilirsin (masa temizlenir, önce onay ister).": "You choose the table type with the Council / Mirror / Agents / OneOnOne buttons at the top; you can switch mid-conversation too (the table is cleared, with a confirmation first).",
+    "Masa hafızası: eski turlar tek satırlık nota iner, modele yalnız o not + son mesajlar gider. Sohbet ekranında görünmez; yalnız token harcamasını düşürür.": "Table memory: old rounds shrink to a one-line note, and only that note plus the latest messages go to the model. It is invisible on screen; it only cuts token spending.",
+    "Bağlantıyı test et düğmesi her model için tek kelimelik bir istek atar; hangi modelin hangi hatayı verdiğini (401, 404, CORS, model kimliği) burada görürsün.": "The Test connection button sends a one-word request for each model; here you see which model returns which error (401, 404, CORS, model id).",
+    "Ajanlar — her sandalyeye ayrı görev yazarsın; ajanlar sırayla çalışır ve birbirine devir paketi bırakır, sonunda başkan tek teslimat çıkarır. Proje yapmak için.": "Agents — you give each seat its own task; agents work in turn and hand off a package to each other, and at the end the chair produces one delivery. For getting work done.",
+    "Dikkat: gönderilen metin yurt dışındaki sağlayıcı sunucularında işlenir. Kişisel, gizli veya müşteriye ait bilgi yazma; sağlayıcının kendi gizlilik koşulları geçerlidir.": "Careful: the text you send is processed on the provider’s servers abroad. Do not enter personal, secret or client-confidential information; the provider’s own privacy terms apply.",
+    "Kopyala (konuşma bitince alttaki çubukta) tüm masayı markdown olarak panoya alır; bir yere yapıştırmak için hazırdır. Dışa aktar ise dosya indirir (Word · metin · markdown).": "Copy (in the bar below once the conversation ends) puts the whole table on the clipboard as markdown, ready to paste. Export downloads a file (Word · text · markdown).",
+    "Masa kendiliğinden durur: son iki turda yeni fikir gelmezse ya da tur tavanı (varsayılan 6) dolunca başkan özeti çıkarır. Boşuna token harcanmaz; devam etmek istersen Bir tur daha.": "The table stops on its own: if the last two rounds bring nothing new, or the round cap (6 by default) is reached, the chair produces a summary. No tokens wasted; continue with One more round if you want.",
+    "Ayna seçiliyken “Masadaki modeller” listesi yok sayılır: iki sandalye de bu modelle konuşur. Özet yerine tarafsız bir hakem kararı yazılır (en güçlü artı/eksi, karar verilemeyen nokta).": "With Mirror selected the “models at the table” list is ignored: both seats speak with this model. Instead of a summary you get a neutral judge verdict (strongest pro/con, the undecidable point).",
+    "Konsey — klasik masa: masada 4 ayrı şirketin modeli (ChatGPT, Gemini, Claude, Grok) ayrı rollerle konuşur, sonunda başkan özetler. Birbirinden farklı bakış açıları istediğinde bunu seç.": "Council — the classic table: models from 4 different companies (ChatGPT, Gemini, Claude, Grok) speak in separate roles, and the chair summarizes at the end. Pick this when you want genuinely different viewpoints.",
+    "Anahtar yalnızca bu tarayıcının localStorage’ında saklanır, hiçbir sunucuya gönderilmez. Konuşmalar sadece açık oturumda tutulur; sayfayı yenilersen son masa geri yüklenir, \"Yeni konu\" ile silinir.": "The key is kept only in this browser’s localStorage and is never sent to any server. Conversations live in the open session; reloading restores the last table, and “New topic” clears it.",
+    "Dil: Cevaplar senin yazdığın dilde gelir (Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce). Tartışmanın ortasında dil değiştirirsen modeller yeni dile geçer. Arayüz, dışa aktarma başlıkları ve demo örnek konuşmalar seçtiğin arayüz dilinde gelir.": "Language: answers come in the language you write (Turkish if you write Turkish, English if you write English). If you switch languages mid-debate the models follow. The interface, export headings and demo sample conversations come in the interface language you pick.",
+    "Ayna’nın amacı: tek modelin kör noktasını yakalamak. Model kendi cevabını savunurken “Eksi” maddesini gerçekten yazmak zorunda kalıyor; itiraz eden taraf ise aynı modelin zayıf varsayımlarını adıyla söylüyor.": "Mirror’s point: to catch the blind spot of a single model. While defending its own answer the model really has to write the “Cons” item; the objecting side names the same model’s weak assumptions out loud.",
+    "Yalnızca OpenRouter bağlantısında çalışır. Ücretsiz modelde bile kredi harcar: istek başına yaklaşık 0,7–1,5 sent (motor Exa/Parallel). Kredin yoksa istek hata verir. Açıkken cevaplar [1], [2] ile kaynak gösterir.": "Works only on an OpenRouter connection. It spends credits even on a free model: about 0.7–1.5 cents per request (engine Exa/Parallel). Without credit the request fails. While on, answers cite sources as [1], [2].",
+    "Geçmiş: üst şeritteki saat simgesi bu tarayıcıdaki son 10 konuşmayı gösterir; tıklayıp kaldığın yerden devam edersin. Satırdaki yıldıza basarsan konuşma favori olur: listenin başında kalır ve 10’luk sınıra takılmaz.": "History: the clock icon in the top bar lists the last 10 conversations in this browser; click one to continue where you stopped. Press the star on a row to make it a favorite: it stays at the top of the list and is not pushed out by the limit of 10.",
+    "Bir sandalye bu süre içinde cevabını bitirmezse yalnız o sandalye kesilir, masa beklemede kalmaz. Yarıda kalan metin 30 karakterden uzunsa korunur ve “yarıda kesildi” etiketiyle masaya konur. Yavaş modeller için cömert tut.": "If a seat does not finish within this time only that seat is cut; the table does not hang. Text longer than 30 characters is kept and placed on the table marked “cut short”. Keep it generous for slow models.",
+    "Bir konu yazarsın; masadaki modeller sırayla konuşur. Her konuşmacı öncekileri görür, yeni bir nokta ekler ya da itiraz eder, sonunda sözü tek kişiye bırakır. Tur bitince başkan toparlar. Sekmeler arası kopyala-yapıştır yok.": "You write a topic; the models at the table speak in turn. Each speaker sees the previous ones, adds a new point or objects, and finally hands over to one person. When the round ends the chair sums up. No tab-by-tab copy-paste.",
+    "Ücretsiz ve kilitsiz: abonelik, günlük limit, reklam, hesap yok. Model ücretini kendi anahtarınla sağlayıcıya ödersin; DivanAI aradan para almaz. Lisans: Apache 2.0 (kullan, değiştir, sat — kapalı kutuya çevirmek de serbest).": "Free and unlocked: no subscription, no daily limit, no ads, no account. You pay the model provider directly with your own key; DivanAI takes nothing in between. Licence: Apache 2.0 (use, modify, sell — even closing the box is allowed).",
+    "Kart istemeyen ücretsiz yol: OpenRouter (ücretsiz :free modeller), Groq ve Cerebras — üçü de kredi kartı istemez. Bağlantı ekranında her kartın köşesinde kart istemez / kart ister etiketi yazar. Anahtar yalnızca bu tarayıcıda kalır.": "Free routes that need no card: OpenRouter (free :free models), Groq and Cerebras — none of them requires a credit card. On the connection screen every card shows a “no card / card required” tag. The key stays in this browser only.",
+    "Yazdığın konu ve konuşma, doğrudan kendi tarayıcından seçtiğin sağlayıcıya (OpenRouter vb.) gönderilir. DivanAI’nın sunucusu yoktur; bu metinleri toplayan, saklayan ya da okuyan bir yer yoktur. Konuşma geçmişi yalnızca bu tarayıcıda saklanır.": "Your topic and the conversation go directly from your browser to the provider you chose (OpenRouter etc.). DivanAI has no server; nothing collects, stores or reads these texts. Conversation history is kept only in this browser.",
+    "TekeTek: anahtarın yoksa TekeTek sekmesini seç — Pollinations üzerinden gpt-oss 20B cevaplar, kayıt ve anahtar istemez. Sınırı: aynı internet bağlantısından 45 saniyede 1 yanıt; art arda yazarsan masa birkaç saniye bekleyip kendisi tekrar dener.": "OneOnOne: if you have no key pick the OneOnOne tab — gpt-oss 20B answers through Pollinations, no signup and no key. Its limit: 1 answer every 45 seconds per internet connection; if you write again quickly the table waits a few seconds and retries by itself.",
+    "Yedeğe girenler: bağlantı türü, model kimlikleri, roller, üslup, gündem, tur tavanı, görsel ayarları. Konuşma geçmişi girmez (onu menüdeki .md ile ayrıca indirirsin). Yüklerken eksik alan varsa varsayılanla tamamlanır — yedek eski sürümden kalsa da çalışır.": "What goes into the backup: connection type, model ids, roles, tone, agenda, round cap, image settings. Conversation history is not included (download it separately as .md from the menu). Missing fields are filled with defaults on load — a backup from an older version still works.",
+    "Bir sağlayıcı 429 / kredi bitti hatası verirse bu süre boyunca hiç denenmez — her turda aynı duvara çarpmak yerine bekler. Dinlenen sandalye masada saat rozetiyle (ör. 16:25) görünür — üzerine gelince sebebi yazar; alttaki Dinlenmeyi bitir düğmesi beklemeden açar.": "If a provider returns 429 / out of credits it is not tried at all for this period — instead of hitting the same wall every round, the table waits. The resting seat shows a clock badge (e.g. 16:25); hover to see why, and the End cooldown button below reopens it immediately.",
+    "Varsayılan üslup net: her konuşmacı Sonuç / Artı / Eksi / İlk adım iskeletiyle konuşur, dolgu cümle (“bence”, “harika”, “sonuç olarak”) yazmaz. Sayı veriyorsa kaynağını yazar; kaynak yoksa (kaynak yok) der. “Sohbet” üslubuna Ayarlar → Konuşma üslubu’ndan geçebilirsin.": "The default tone is crisp: every speaker uses the Result / Pros / Cons / First step skeleton and writes no filler (“I think”, “great”, “in conclusion”). If they give a number they cite the source; if there is none they say “(no source)”. You can switch to the “Chat” tone in Settings → Conversation tone.",
+    "Masa türünü ana ekrandan seçersin: Konsey (ayrı modeller), Ayna (aynı model iki sandalyede), Ajanlar (her sandalyeye ayrı görev) ya da TekeTek (tek yapay zekâ, anahtarsız da çalışır). Burada yalnız Ayna’nın modelini belirlersin; Ajanlar’ın görevleri ana ekrandaki panelde yazılır.": "You pick the table type on the main screen: Council (separate models), Mirror (same model in two seats), Agents (a task per seat) or OneOnOne (a single AI, works without a key). Here you only choose Mirror’s model; agent tasks are written in the panel on the main screen.",
+    "Üç kural: ① Kısa — konuşma başına en fazla ~90 kelime, süsleme ve giriş cümlesi yok. ② Objektif — övgü ve duygusal dil yok, gerekçesiz iddia yok, uydurma veri yok. ③ Tekrar yok — daha önce söylenen bir nokta yeniden yazılmaz; eklenecek yeni bir şey yoksa model bunu açıkça söyler.": "Three rules: ① Short — at most ~90 words per turn, no decoration or intro lines. ② Objective — no praise or emotional language, no unsupported claims, no invented data. ③ No repetition — a point already made is not rewritten; if there is nothing new the model says so plainly.",
+    "Uygulama sınırsız ve kilitsiz; sınır yalnızca model tarafında. OpenRouter’da sonu :free ile biten modellerde dakikada 20 / günde 50 istek var — bir tur 4 istek harcadığı için bu günde ~12 tur demek. Hesabına 10 $ kredi yüklersen ücretsiz model sınırı günde 1.000’e çıkar; ucuz ücretli modellerde ise günlük istek sınırı yoktur.": "The app itself is unlimited and unlocked; the limits sit on the model side. On OpenRouter, models ending in :free allow 20 requests per minute / 50 per day — a round costs 4 requests, so that is about 12 rounds a day. Adding $10 of credit raises the free-model limit to 1,000 a day; cheap paid models have no daily request limit.",
+    "Ayarlar → İnternetten bilgi açıksa OpenRouter’ın web araması devreye girer ve cevaplar [1] [2] gibi kaynak gösterir. Dikkat: bu özellik kredi harcar — ücretsiz modelde bile istek başına yaklaşık 0,7–1,5 sent. Varsayılan olarak kapalıdır. Yalnızca OpenRouter bağlantısında çalışır; model aramayı desteklemiyorsa masa bunu söyler ve web’siz devam eder.": "With Settings → Web search on, OpenRouter’s web search kicks in and answers cite sources as [1] [2]. Careful: this costs credits — about 0.7–1.5 cents per request even on a free model. It is off by default and works only on an OpenRouter connection; if the model does not support search, the table says so and continues without the web.",
+    "Ayna nasıl işler: 1) Üstten Ayna’yı seç (yanındaki listeden modeli belirle, ör. Gemini). 2) Konuyu yaz. 3) 1. turda A tezi kurar, B hemen açık arar. 4) “Bir tur daha” dediğinde bu kez B açar, A itiraz eder — böylece biri sürekli savunmada kalmaz. 5) Tur sonunda özet yerine hakem kararı çıkar: hangi taraf hangi noktada haklı, en güçlü 2+2 argüman, karar verilemeyen nokta ve ilk adım. 6) Otomatik durma ve tur tavanı burada da geçerli.": "How Mirror works: 1) Pick Mirror at the top (choose the model from the list next to it, e.g. Gemini). 2) Write the topic. 3) In round 1 A defends, B looks for the opening. 4) On “One more round” B opens this time and A objects — so neither side is stuck defending. 5) The round ends with a judge verdict instead of a summary: which side is right where, the strongest 2+2 arguments, the point that cannot be decided, and the first step. 6) Auto-stop and the round cap apply here too.",
+    "Ajanlar nasıl işler: 1) Üstten Ajanlar’ı seç. 2) Panelde her sandalyeye görev ve beklenen çıktı yaz (ya da hazır projelerden birini yükle). 3) Akışı seç: Sıralı (1→2→3→4), Denetçi (önce başkan plan çıkarır) veya Karşılıklı devir (sıradakini ajan seçer, “BİTTİ” derse durur). 4) Panellerdeki ≈ istek yazısı bu işin kaç istek harcayacağını söyler — geçiş sayısını artırmadan önce ona bak. 5) Her ajan cevabının altında devir paketi kartı çıkar: AMAÇ / YERLEŞEN / AÇIK / KANIT / KISIT / SINIR. Sıradaki ajan tüm konuşmayı değil, yalnız bu paketi görür; böylece token şişmez. 6) “Her adımda dur” açıksa her ajandan sonra Devam’a basman gerekir. 7) Sonuçta EKİP TESLİMİ kartı çıkar. “Bir geçiş daha” ile açık kalanları kapatırsın.": "How Agents work: 1) Pick Agents at the top. 2) Give each seat a task and an expected output (or load one of the ready projects). 3) Choose the flow: Sequential (1→2→3→4), Supervisor (the chair plans first) or Relay (each agent picks the next one and stops on “DONE”). 4) The ≈ requests note on each panel tells you what this will cost — check it before adding passes. 5) Under each agent answer a hand-off card appears: GOAL / SETTLED / OPEN / EVIDENCE / CONSTRAINT / LIMIT. The next agent sees only that card, not the whole conversation, so tokens stay low. 6) With “Pause at every step” on, you press Continue after each agent. 7) At the end a TEAM DELIVERY card appears. “One more pass” closes what is still open.",
+  });
+
+
+  /* ── rol rozetleri, ayar düğmeleri, örnek konular, yardım başlığı ── */
+  Object.assign(EN, {
+    "Başkan — özeti ve kapanışı o yazar": "Chair — writes the summary and the closing",
+    "Bu bağlantı için örnek model kimliklerini doldur": "Fill sample model ids for this connection",
+    "Rolleri varsayılana döndür": "Reset roles to default",
+    "Kapalıyken anahtarlar dosyaya hiç yazılmaz. Açarsan dosya açık metin anahtar taşır; kimseyle paylaşma, güvenli yerde tut.": "When off, keys are never written to the file. Turn it on and the file carries keys in plain text; do not share it, keep it somewhere safe.",
+    "⬇ Yedeği indir (.json)": "⬇ Download backup (.json)",
+    "⬆ Yedekten yükle": "⬆ Load from backup",
+    "DivanAI · kullanım": "DivanAI · how to use",
+    "Yapay zekâları tek masada tartıştıran araç": "A tool that makes AI minds debate at one table",
+    "Bursa'da kahve dükkânı açmak": "Opening a coffee shop in Bursa",
+    "Maaşlı iş mi, kendi işim mi?": "Salaried job or my own business?",
+    "Kafede wifi şifresi verilsin mi?": "Should the café hand out its wifi password?",
+    "İndirim mi, kampanya mı?": "Discount or campaign?",
+    "BAŞKAN": "CHAIR",
+    "ÖZET · YEREL": "SUMMARY · LOCAL",
+    "ÖZET": "SUMMARY",
+    "Kapat ✕": "Close ✕",
+  });
+
+
+  Object.assign(EN, {
+    "Henüz kayıtlı konuşma yok.": "No saved conversations yet.",
+    "İlk konuşman başladığında burada görünecek.": "It will appear here once your first conversation starts.",
+  });
+
+
+  Object.assign(EN, {
+    "alt satır": "new line",
+    "· yazdığın yeni mesaj yeni bir tur başlatır": "· your next message starts a new round",
+    "· sohbet hafızası bu sekmede açık kalır": "· chat memory stays on in this tab",
+    "Masa konuşurken yazarsan": "If you write while the table talks,",
+    "sıradaki konuşmacılar görür": "the next speakers see it",
+    "Cevap geliyor…": "Answer on its way…",
+    "gönder": "send",
+  });
+
+
+  Object.assign(EN, {
+    "alt satır · yazdığın yeni mesaj yeni bir tur başlatır": "new line · your next message starts a new round",
+  });
+
+
+  Object.assign(EN, {
+    "konuşuyor": "is speaking",
+    "çalışıyor": "is working",
+    "Ajanlar sıraya giriyor": "Agents are lining up",
+    "Masa toplanıyor": "The table is gathering",
+    "yazıyor": "is writing",
+    "yazıyor…": "writing…",
+    "sırada": "next",
+    "Henüz kayıtlı konuşma yok. İlk konuşman başladığında burada görünecek.": "No saved conversations yet. It will appear here once your first conversation starts.",
+  });
+
+
+  /* ── tarayıcı onay kutuları (window.confirm) ─────────────────────────────
+     Metinler satır satır çevrilir; bilinmeyen kutu olduğu gibi bırakılır. */
+  function dialogEn(m) {
+    if (/^Masa türünü değiştirince/.test(m)) {
+      return 'Switching the table type clears the current conversation.\n\nYou can save it first with “Export”.\n\nContinue?';
+    }
+    if (/^Geçmiş listesindeki bütün konuşmalar/.test(m)) {
+      return 'All conversations in the history list will be deleted from this browser.\n\nFiles you exported are not deleted. Continue?';
+    }
+    let t2 = m.match(/^“(.+)” silinsin mi\? Anahtarı da bu tarayıcıdan silinir\.$/);
+    if (t2) return 'Delete “' + t2[1] + '”? Its key will also be removed from this browser.';
+    t2 = m.match(/^“(.+)” sandalyesinde zaten rol\/görev yazılı\. Kadrodan seçilenle değiştirilsin mi\?$/);
+    if (t2) return '“' + t2[1] + '” already has a role/task on that seat. Replace it with the one picked from the roster?';
+    if (/^Yedek: /.test(m)) {
+      return m.replace(/^Yedek: /, 'Backup: ')
+        .replace(/^Dosyada: Canlı$/m, 'File has: Live')
+        .replace(/^Dosyada: Demo$/m, 'File has: Demo')
+        .replace(/^Dosyada: mod belirtilmemiş$/m, 'File has: mode not specified')
+        .replace(/ · (\d+) model$/m, ' · $1 models')
+        .replace(/^Anahtarlar: dosyada VAR \(dosyadakiler kullanılacak\)$/m, 'Keys: present in the file (the ones in the file will be used)')
+        .replace(/^Anahtarlar: dosyada yok \(bu tarayıcıdaki anahtarların korunur\)$/m, 'Keys: not in the file (keys in this browser are kept)')
+        .replace(/^Şu anki ayarların üzerine yazılsın mı\?$/m, 'Overwrite your current settings?');
+    }
+    if (/^Kalan ücretsiz istek hakkın: /.test(m)) {
+      return m.replace(/^Kalan ücretsiz istek hakkın: /, 'Free requests left: ')
+        .replace(/^Bu masa tipik olarak (\d+) istek harcar \(en fazla (\d+)\)\.$/m, 'This table typically uses $1 requests (at most $2).')
+        .replace(/^Hak yetmezse konuşma yarıda kesilebilir\.$/m, 'If the quota runs out the conversation may be cut short.')
+        .replace(/^Yenilenme: 00:00 UTC — yerel saatinle (.+) \((.+) sonra\)\.$/m, 'Resets: 00:00 UTC — $1 your local time ($2 from now).')
+        .replace(/^Yine de başlatayım mı\?$/m, 'Start anyway?');
+    }
+    if (/^Bu projede \d+ görsel çizilecek/.test(m)) {
+      return m.replace(/^Bu projede (\d+) görsel çizilecek \(ajanların metninden\)\.$/m, 'This project will draw $1 images (from the agents’ text).')
+        .replace(/^Görseli ajanlar değil, seçili görsel motoru üretir: /m, 'The images are not produced by the agents but by the selected image engine: ')
+        .replace(/^Başlasın mı\?$/m, 'Start?');
+    }
+    return m;
+  }
+
+  let nativeConfirm = null;
+  function patchConfirm() {
+    if (nativeConfirm || typeof window.confirm !== 'function') return;
+    nativeConfirm = window.confirm.bind(window);
+    window.confirm = function (msg) {
+      const s2 = String(msg == null ? '' : msg);
+      return nativeConfirm(isEn() ? dialogEn(s2) : s2);
+    };
+  }
+
+
+  Object.assign(EN, {
+    "Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek hazır gelir — kurulum yapmadan konuşmaya başlarsın.": "No table, no seats, no debate: a single AI answers what you write. Pick the model from the list above. If you have no key, a keyless option is ready — start talking with no setup.",
+    "Tek modeli iki sandalyeye oturt: biri savunur, biri itiraz eder. Her turda açan taraf değişir; sonunda tarafsız hakem kararı çıkar. Tek modelin kör noktasını görmek için.": "Put one model in two seats: one defends, one objects. The opening side swaps every round; the round ends with a neutral judge verdict. For seeing a single model’s blind spot.",
+    "Bir proje yaz, her ajana kendi işini ver. Ajanlar sırayla çalışır ve birbirine teslim paketi bırakır; başkan sonunda tek teslimat çıkarır. Boş konuşma yok, iş çıkar.": "Write a project, give each agent its own job. Agents work in turn and hand a delivery package to each other; at the end the chair produces one delivery. No empty talk — work comes out.",
+    "Not: bu çıktı karar desteğidir; hukuk, sağlık, finans gibi konularda profesyonel danışmanlık yerine geçmez. Modeller hata yapabilir — kritik sayıyı kaynağından doğrula.": "Note: this output is decision support; it does not replace professional advice on law, health or finance. Models make mistakes — check critical numbers at the source.",
+    "Masa kendiliğinden durdu ve özeti çıkardı. Devam etmek istersen “Bir tur daha” ile sürdürebilirsin (ek token harcar).": "The table stopped on its own and produced the summary. To keep going, continue with “One more round” (costs extra tokens).",
+    "Bu özet paylaşılabilir. \"Kopyala\" ile tüm konuşmayı markdown olarak alabilirsin.": "This summary is ready to share. Use \"Copy\" to grab the whole conversation as markdown.",
+    "Ayna: ikinci tur başlıyor — bu kez itiraz eden taraf açıyor.": "Mirror: round two is starting — this time the objecting side opens.",
+    "Metin etiketi — kredi harcamaz, yalnız görsel istemine eklenir.": "Text label — costs no credits, only added to the image prompt.",
+    "Görev ve beklenen çıktı boş bırakılırsa o ajan atlanır.": "If the task and expected output are left empty, that agent is skipped.",
+    "işaretliyse, o ajan metnini bitirdikten sonra": "ticked means that agent, once it finishes its text,",
+    "bir görsel çizer — görseli ajanın kendisi değil, motor üretir. Açılışta kaç görsel çizileceği sorulur; istemezsen tek tek de üretebilirsin.": "draws an image — the image comes from the engine, not from the agent itself. At the start you are asked how many images to draw; you can also make them one by one.",
+    "“Bu ajanın metninden görsel çizilsin”": "“Draw an image from this agent’s text”",
+    "Bu ajanın metninden görsel çizilsin": "Draw an image from this agent’s text",
+    "yukarıdaki görsel motoru": "the image engine above",
+    "Kredi harcamaz. IP başına 45 saniyede 1 görsel; sağ altta küçük filigran. Yazı/harf üretmekte zayıf. · Oran: Kare — ürün, portre, sosyal akış": "Costs no credits. 1 image per 45 seconds per IP; small watermark bottom right. Weak at text/letters. · Ratio: Square — product, portrait, social feed",
+    "Her ajan sırayla çalışır ve öncekilerin teslim paketini alır. En ucuz, en öngörülebilir akış.": "Each agent works in turn and receives the delivery package of the ones before. The cheapest, most predictable flow.",
+    "Başkan önce işi parçalara böler; ajanlar bu plana göre çalışır; başkan sonunda birleştirir.": "The chair splits the work first; the agents follow that plan; the chair merges at the end.",
+    "Her ajan bitince sıradakini kendi seçer. “BİTTİ” derse zincir durur. Sonsuz döngüye karşı devir tavanı var.": "When an agent finishes it picks the next one. If it says “DONE” the chain stops. A pass cap guards against endless loops.",
+    "Her sandalyeye ayrı görev yaz. Ajanlar birbirine teslim paketi bırakarak ilerler.": "Give each seat its own task. Agents move forward by handing packages to each other.",
+    "Hazır proje:": "Ready project:",
+    "Ürün lansmanı": "Product launch",
+    "Dergi sayısı": "Magazine issue",
+    "Restoran açılışı": "Restaurant opening",
+    "Sıralı": "Sequential",
+    "Denetçi": "Supervisor",
+    "Karşılıklı devir": "Relay",
+    "plan → 4 ajan → birleştir": "plan → 4 agents → merge",
+    "sıradakini ajan seçer": "each agent picks the next",
+    "ayrı görev": "its own task",
+    "Görev": "Task",
+    "Beklenen çıktı": "Expected output",
+    "Ajan sayısı": "Agent count",
+    "Geçiş": "Passes",
+    "Her adımda dur": "Pause at every step",
+    "Sabah ışığı": "Morning light",
+    "Ürün çekimi": "Product shot",
+    "Geniş açı": "Wide angle",
+    "Düz çizim": "Flat drawing",
+    "geniş": "wide",
+    "Görsel": "Image",
+    "Ücretsiz": "Free",
+    "kendi anahtarın": "your own key",
+    "anahtarsız": "keyless",
+    "Pollinations · anahtarsız": "Pollinations · keyless",
+    "Canlı ·": "Live ·",
+    "Hakem kararı": "Judge verdict",
+    "alt satır · sohbet hafızası bu sekmede açık kalır": "new line · chat memory stays on in this tab",
+    "Ajanlar modu: her sandalyeye görev yaz, projeyi gönder. İstek sayısı üstte görünür.": "Agents mode: give each seat a task and send the project. The request count shows at the top.",
+    "Ayna modu: aynı model iki sandalyede (savunan + itiraz eden). Konuyu yaz.": "Mirror mode: the same model in two seats (defender + objector). Write the topic.",
+    "TekeTek: yazdığını gpt-oss 20B cevaplar — anahtar gerekmez. Kurulum yok.": "OneOnOne: gpt-oss 20B answers what you write — no key needed. No setup.",
+  });
+
+
+  Object.assign(EN, {
+    "Görev ve beklenen çıktı boş bırakılırsa o ajan atlanır. “Bu ajanın metninden görsel çizilsin” işaretliyse, o ajan metnini bitirdikten sonra bir görsel çizer — görseli ajanın kendisi değil, motor üretir. Açılışta kaç görsel çizileceği sorulur; istemezsen tek tek de üretebilirsin.": "If the task and expected output are left empty, that agent is skipped. With “Draw an image from this agent’s text” ticked, that agent — once it finishes its text — draws an image; the image comes from the engine, not from the agent. At the start you are asked how many images to make; you can also produce them one by one.",
+  });
+
+
+  Object.assign(EN, {
+    "tek masa": "one table",
+    "doğrudan cevap": "direct answers",
+    "kendi kendine karşı": "against itself",
+    "Her sandalyeye": "Every seat gets",
+    "TekeTek: tek yapay zekâ,": "OneOnOne: one AI,",
+    "Beş yapay zekâ,": "Five AI minds,",
+    "Üç yapay zekâ,": "Three AI minds,",
+    "İki yapay zekâ,": "Two AI minds,",
+    "Altı yapay zekâ,": "Six AI minds,",
+    "Yedi yapay zekâ,": "Seven AI minds,",
+    "8 ayrı model · başkan özetler": "8 separate models · chair summarizes",
+  });
+
+  /* iki dilli metin seçimi: T2('Türkçe', 'English') — model metni ve bildirimler için */
+  function T2(tr, en) { return isEn() ? en : tr; }
+
+  Object.assign(EN, {
+    "🖼 Görsel üret": "🖼 Generate image",
+    "Bu cevaptan görsel üret": "Generate an image from this answer",
+    "Görsel üretilemedi": "Could not generate the image",
+    "Yeniden üret": "Regenerate",
+    "Yeniden dene": "Try again",
+    "Görsel çizimi atlandı. Metin kısmı hazır; her cevabın başındaki “🖼 Görsel üret” ile istediğin zaman tek tek çizdirebilirsin.": "Image drawing skipped. The text part is ready; use “🖼 Generate image” at the top of any answer to draw them one by one whenever you want.",
+  });
+
+  window.I18N = { EN, translate, translateDom, apply, observe, isEn, lang, dialogEn, patchConfirm, T2 };
+  window.T2 = T2;
+  patchConfirm();
+})();
+
+
+/* Copyright 2026 DivanAI — Apache License 2.0 (LICENSE dosyasına bak). */
 /* ============================================================
    DivanAI — core
    durum, sağlayıcılar, model çağrıları, orkestrasyon
@@ -1598,6 +2406,7 @@ function migrateLegacyStore() {
 migrateLegacyStore();
 const DEFAULT_SETTINGS = {
   mode: 'demo',                                    // 'demo' | 'live'
+  uiLang: (typeof navigator !== 'undefined' && navigator.language && !/^tr/i.test(navigator.language)) ? 'en' : 'tr',   // arayüz dili
   img: { engine: 'bedava', model: 'google/gemini-2.5-flash-image', size: 1024 },   // görsel üretimi
   api: {
     kind: 'openrouter',                              // openrouter | groq | … | compat | c:<id>   (proxy/doğrudan API kaldırıldı)
@@ -3053,17 +3862,20 @@ function resolveRoute(pid) {
 /* aynı turda birden çok cevap engellenirse tek satırda topla */
 function noteBlocked(round, name, best, isSelf) {
   const last = state.transcript[state.transcript.length - 1];
+  const pc = '%' + Math.round(best.sim * 100);
   const line = isSelf
-    ? name + ' önceki cevabını tekrarladı (%' + Math.round(best.sim * 100) + ' benzer)'
-    : name + ', ' + best.who + ' ile aynı cevabı yazdı (%' + Math.round(best.sim * 100) + ' benzer)';
+    ? window.T2(name + ' önceki cevabını tekrarladı (%' + pc + ' benzer)',
+                name + ' repeated its previous answer (' + pc + ' similar)')
+    : window.T2(name + ', ' + best.who + ' ile aynı cevabı yazdı (%' + pc + ' benzer)',
+                name + ' wrote the same answer as ' + best.who + ' (' + pc + ' similar)');
   if (last && last.kind === 'notice' && last.blockedRound === round) {
     last.names = (last.names || []).concat([line]);
-    const shown = last.names.slice(0, 2).join(' · ') + (last.names.length > 2 ? ' · +' + (last.names.length - 2) + ' konuşmacı daha' : '');
-    last.text = shown + ' · masaya alınmadı, söz sıradakine geçti.';
+    const shown = last.names.slice(0, 2).join(' · ') + (last.names.length > 2 ? window.T2(' · +' + (last.names.length - 2) + ' konuşmacı daha', ' · +' + (last.names.length - 2) + ' more speakers') : '');
+    last.text = shown + window.T2(' · masaya alınmadı, söz sıradakine geçti.', ' · not admitted to the table, the turn moved on.');
     return last;
   }
   return addMessage({ kind: 'notice', level: 'warn', blockedRound: round, names: [line],
-    text: line + ' · masaya alınmadı, söz sıradakine geçti.' });
+    text: line + window.T2(' · masaya alınmadı, söz sıradakine geçti.', ' · not admitted to the table, the turn moved on.') });
 }
 
 function addMessage(obj) {
@@ -3584,9 +4396,9 @@ async function runRound(opts = {}) {
       state.autoStopped = { round, kind: why0 };
       addMessage({ kind: 'notice', level: 'info', text:
         (why0 === 'max'
-          ? 'Tur tavanı doldu (' + maxRoundsSetting() + ' tur)'
-          : 'Masa doyuştu: bu turda hiçbir konuşmacı yeni bir nokta getirmedi') +
-        ' · boşuna token harcamamak için durduruldu, başkan özeti çıkarılıyor.' });
+          ? window.T2('Tur tavanı doldu (' + maxRoundsSetting() + ' tur)', 'Round cap reached (' + maxRoundsSetting() + ' rounds)')
+          : window.T2('Masa doyuştu: bu turda hiçbir konuşmacı yeni bir nokta getirmedi', 'The table is saturated: no speaker brought a new point this round')) +
+        window.T2(' · boşuna token harcamamak için durduruldu, başkan özeti çıkarılıyor.', ' · stopped so as not to waste tokens; the chair is writing the summary.') });
       renderTranscript();
       state.speaking = null; state.queue = []; state.phase = 'waiting';
       persistSession(); renderAll();
@@ -3612,10 +4424,14 @@ async function runRound(opts = {}) {
       state.autoStopped = { round, kind: why };
       addMessage({ kind: 'notice', level: 'info', text:
         why === 'max'
-          ? 'Tur tavanı doldu (' + maxRoundsSetting() + ' tur) · masa durduruldu, başkan özeti çıkarılıyor. Devam etmek istersen “Bir tur daha”.'
-          : 'Masa doyuştu: son iki turda ' + roundMsgs.length + ' konuşmacıdan ' +
+          ? window.T2('Tur tavanı doldu (' + maxRoundsSetting() + ' tur) · masa durduruldu, başkan özeti çıkarılıyor. Devam etmek istersen “Bir tur daha”.',
+                      'Round cap reached (' + maxRoundsSetting() + ' rounds) · table stopped, the chair is writing the summary. Say “One more round” to continue.')
+          : window.T2('Masa doyuştu: son iki turda ' + roundMsgs.length + ' konuşmacıdan ' +
             (fresh === 0 ? 'hiçbiri yeni bir nokta getirmedi' : 'yalnızca ' + fresh + ' tanesi yeni bir nokta getirdi') +
-            ' · boşuna token harcamamak için durduruldu, başkan özeti çıkarılıyor.' });
+            ' · boşuna token harcamamak için durduruldu, başkan özeti çıkarılıyor.',
+                      'The table is saturated: over the last two rounds, of ' + roundMsgs.length + ' speakers ' +
+            (fresh === 0 ? 'none brought a new point' : 'only ' + fresh + ' brought a new point') +
+            ' · stopped so as not to waste tokens; the chair is writing the summary.') });
       renderTranscript();
       state.speaking = null; state.queue = []; state.phase = 'waiting';
       if (state.tick) { clearInterval(state.tick); state.tick = null; }
@@ -4254,12 +5070,13 @@ function startSession(topic) {
   if (duelOn()) state.settings.chair = duelPid();
   state.autoStopped = null; state.webFallback = false;
   state.lastManual = false;
-  addMessage({ kind: 'msg', personaId: 'user', name: 'Sen', short: 'SEN', color: '#f5c76a', roleLabel: 'MASANIN SAHİBİ', text: topic, plain: plainOf(topic) });
+  addMessage({ kind: 'msg', personaId: 'user', name: window.T2('Sen', 'You'), short: window.T2('SEN', 'YOU'), color: '#f5c76a', roleLabel: window.T2('MASANIN SAHİBİ', 'TABLE OWNER'), text: topic, plain: plainOf(topic) });
   if ((!state.settings.mode || state.settings.mode === 'demo') && !tekKeyless()) {
-    addMessage({ kind: 'notice', level: 'info', text: 'Demo modu: aşağıdaki cevaplar hazır örnek metindir, her konuda aynıdır. Gerçek model cevapları için Ayarlar → Mod: Canlı.' });
+    addMessage({ kind: 'notice', level: 'info', text: window.T2('Demo modu: aşağıdaki cevaplar hazır örnek metindir, her konuda aynıdır. Gerçek model cevapları için Ayarlar → Mod: Canlı.', 'Demo mode: the answers below are canned sample text, the same for every topic. For real model answers use Settings → Mode: Live.') });
     const dl = langOf(topic);
-    if (dl && dl !== 'tr') {
-      addMessage({ kind: 'notice', level: 'info', text: 'Demo metinleri yalnızca Türkçe hazırlanmıştır; canlı modda cevaplar senin yazdığın dilde gelir.' });
+    /* demo metni arayüz dilinde oynar: İngilizce arayüzde uyarı gerekmez */
+    if (dl && dl !== 'tr' && !(window.I18N && window.I18N.isEn())) {
+      addMessage({ kind: 'notice', level: 'info', text: 'Demo metinleri arayüz dilinde gelir. İngilizce örnek konuşma için sağ üstten İngiliz bayrağını seç.' });
     }
   }
   renderTranscript();
@@ -4696,6 +5513,8 @@ function summaryText(blocks, tone) {
 function demoText(p, opt = {}) {
   const ctx = demoContext(p);
   const round = opt.round || state.round || 1;
+  /* arayüz İngilizceyken İngilizce örnek konuşma oynar (demoen.js) */
+  if (typeof DEMO_EN !== 'undefined' && window.I18N && window.I18N.isEn()) return demoTextEN(p, opt, ctx, round);
   const key = state.sessionGoal || state.settings.goal;
   const kit = KITS[key] || KITS.debate;
   const tone = state.settings.tone || 'chat';
@@ -4745,6 +5564,423 @@ async function demoStream(p, opt = {}) {
     opt.onDelta(tokens[i]);
     if (i % 2 === 0) await sleep(Math.max(3, base / state.settings.speed));
   }
+}
+
+
+/* ==========================================================================
+   DEMO — İNGİLİZCE İÇERİK
+   Arayüz İngilizceyken oynayan örnek konuşmalar. Yapı Türkçe kitlerle (KITS,
+   demo.js) birebir aynı: gündem başına rol fonksiyonları, ikinci tur (r2),
+   3. tur kısa notları (extras), başkan ara sözleri (chair1..3) ve özet.
+   Metinler canlı cevap gibi sunulmaz: mesajın modeli 'demo' olarak işaretlenir.
+   ========================================================================== */
+
+const DEMO_EN = {
+  kits: {
+
+    /* ---------------- DEBATE & CRITIQUE ---------------- */
+    debate: {
+      moderator: ctx => [
+        'The topic on the table: ' + ctx.topicPhrase + '. The one thing I keep coming back to is whether we actually do this in the next few weeks or just keep talking about it. If we want to land somewhere in two rounds, everyone defends one point, not five. ' +
+        to(ctx, 'analyst') + 'you are clearest on the concrete side, start us off: what do we have and what do we not?'
+      ],
+      analyst: ctx => [
+        'We have no verified number, let me say that first. So any figure about this today would be a guess. I would measure the decision on three things: do people actually want it, do they come back, does it pay for itself. If even one of the three is missing, the rest is decoration. ' +
+        to(ctx, 'critic') + 'tell us where it breaks.'
+      ],
+      critic: ctx => [
+        'Demand is the weak spot. Wanting is easy, paying is hard, and we keep treating them as the same thing. There is also maintenance nobody budgets for: once it exists, someone has to look after it every month. That is why I am for a small test I can undo. ' +
+        to(ctx, 'engineer') + 'how long would the smallest test take?'
+      ],
+      engineer: ctx => [
+        'The smallest test looks like this: one job, one unit, two or three weeks. We set a date and look at it on that date. Budget and scope get cut to fit the date, no "just a bit more" afterwards. The measure is simple too: out of ten attempts, how many repeat? ' +
+        to(ctx, 'moderator') + 'I think you can close the round.'
+      ],
+      researcher: ctx => [
+        'What I have seen in similar work: the risk shows up in the first three months, after that it turns into habit. I am not offering that as evidence. I have no measurement for this topic, and even if I did I could not paste it here.'
+      ],
+      r2: {
+        moderator: ctx => [
+          'We keep circling the same spot: what is the limit? Are we fixing time, budget or scope. One answer each, do not expand. ' + to(ctx, 'analyst') + 'you start.'
+        ],
+        analyst: ctx => [
+          'Fix the time: four weeks. Budget and scope are cut to fit the time; the other way round the work stretches and the scope swells. Every week we write one line: how many attempts, how many repeats, how much we spent. ' +
+          to(ctx, 'critic') + 'is that limit enough for you?'
+        ],
+        critic: ctx => [
+          'Four weeks works for me on one condition: the quit rule sits on paper. The sentence "if repeat users are zero, the test is not extended" has to be written. Otherwise in week four we all say "let us look a bit longer", and we all know it. ' +
+          to(ctx, 'engineer') + 'any trouble on your side?'
+        ],
+        engineer: ctx => [
+          'None. Three numbers live on a weekly table, one decision at the end of week four: continue or close. No extension in between. ' +
+          to(ctx, 'moderator') + 'you can close the table.'
+        ],
+        researcher: ctx => [
+          'One note: in narrow tests the answer usually settles between four and six weeks, and a longer run does not teach anything new. That is a tendency, not evidence.'
+        ]
+      },
+      chair1: ctx => [
+        'Round one is closed. The measure came down to three: interest, repeats, does it pay for itself. The objection stands in two places: demand is unproven, maintenance is not in the budget. On the practical side everyone is close to a narrow, dated test. The one open question is what we set the limit by. Say "One more round" if you want to go on.'
+      ],
+      chair2: ctx => [
+        'In round two the limit became clear: the date is fixed, scope is cut to fit the date. Four weeks, no second job, no growing the team. The quit rule is written too: if nobody repeats, the test is not extended. This week there is one job: five conversations and one page.'
+      ],
+      chair3: ctx => [
+        'No new argument came, I am closing the table. The one open uncertainty is demand; a four-week measurement answers it, more debate does not. Decision: a narrow test with a written quit rule. Say "Summarize" if you want it on one page.'
+      ],
+      summary: ctx => [
+        'The table talked for a long time and actually agreed on one thing: starting this big is the wrong move. What everyone accepts is a small, dated test first. Demand is still up in the air and nobody could prove it; four weeks of measurement settles it. My suggestion: five conversations this week, then one page.',
+        '**Result:** A narrow, dated test; no large investment.',
+        '**Agreed:** Four weeks, fixed date · One job, one unit · Quit rule written down',
+        '**Open objection:** Demand unproven; maintenance not in the budget',
+        '**First step:** Five conversations this week and a one-page draft'
+      ],
+      extras: {
+        moderator: ['I am not adding anything new. One question is left: is there demand? A four-week measurement answers it, debate does not.'],
+        analyst: ['No new point from me. The one missing number is how many people would really use it. The conversations answer that.'],
+        critic: ['I have no objection left to add. The remaining risk is demand, but the test is small enough to carry it.'],
+        engineer: ['Nothing new. The plan stands: one week, five people, one scenario.'],
+        researcher: ['No new data. The only comparison I have is that narrow scope survives longer, and that is not evidence either.']
+      }
+    },
+
+    /* ---------------- GENERATE IDEAS ---------------- */
+    ideas: {
+      moderator: ctx => [
+        'We are not hunting one right answer here, we are pulling out a few directions for this one. The rule: everyone says who they solve which problem for, and in how long. No floating "this would be nice" lines. ' +
+        to(ctx, 'analyst') + 'open the first direction.'
+      ],
+      analyst: ctx => [
+        'We do not know the constraint: budget and time are not written down, and either one changes the direction. What I suggest is one extra step inside the current flow instead of a new system. That is the cheapest thing we can test. ' +
+        to(ctx, 'critic') + 'where does that break for you?'
+      ],
+      critic: ctx => [
+        'It breaks here: people like the idea and then do not use it. Second, if we want three directions at once the first version falls apart. Third, maintenance never appears in the first budget. One direction keeps the risk small enough to carry. ' +
+        to(ctx, 'engineer') + 'what is the fastest test?'
+      ],
+      engineer: ctx => [
+        'The fastest one is not even code: one page, five conversations, one week. Let the measure be clear too: of five people, how many give a date to use it? I do not want a yes, I want a date. ' +
+        to(ctx, 'researcher') + 'what happened in similar work?'
+      ],
+      researcher: ctx => [
+        'For ideas like this the strong signal is repeat use, the weak signal is "this is great". I have no measurement specific to this topic; giving you a number would be inventing one.'
+      ],
+      r2: {
+        moderator: ctx => [
+          'We went from three directions to one, good. One question now: how do we test it in a week? The measure is a number, not an opinion. ' + to(ctx, 'analyst') + 'you write the measure.'
+        ],
+        analyst: ctx => [
+          'The measure: in five conversations, how many people gave a date to use it. Two or more and we continue, below that we change direction. Add one more question beside it: are they doing this by hand today? ' +
+          to(ctx, 'critic') + 'would that measure mislead us?'
+        ],
+        critic: ctx => [
+          'On its own it would: people give dates to be polite. Without "what do you use today" next to it we collect empty data. And watch this: we may have picked this direction because it is easy for us. ' +
+          to(ctx, 'engineer') + 'does it fit in one week?'
+        ],
+        engineer: ctx => [
+          'It fits: five conversations of half an hour plus a one-page summary. No code, no design, no deck. The output is one page, five lines, and the decision rides on it. ' +
+          to(ctx, 'moderator') + 'you can close it.'
+        ],
+        researcher: ctx => [
+          'One more: about half of the people who give a date drop out in the first week; the ones who come back in week two are more reliable. That ratio is a general tendency, not specific to this topic.'
+        ]
+      },
+      chair1: ctx => [
+        'Round one is closed. There were three directions and two were dropped. What remains is the one-step addition to the current flow. The objection holds: saying you are interested is not proof, you need a date and a repeat. The test is clear too, one week and five conversations, no prototype. The next question is which single direction.'
+      ],
+      chair2: ctx => [
+        'Round two produced the decision: one direction, one week of validation. The measure is clear: if two of five people give a date we continue. If not, the direction changes and we do not push. This week the only job is five conversations and one page.'
+      ],
+      chair3: ctx => [
+        'No new argument came, I am closing. The remaining uncertainty is whether the direction is actually wanted. Decision: one week of validation, one direction. The single step is five conversations.'
+      ],
+      summary: ctx => [
+        'The table discussed three directions and dropped two itself. What remains is a small step inside the current flow; nobody found building a new system sensible. Everyone kept returning to the same gap: proof. Whether people who say "we would want it" actually use it is unknown. The answer is simple too, five conversations in one week are enough.',
+        '**Result:** One direction instead of three: a single step inside the current flow.',
+        '**Agreed:** First version is one direction · Proof from five conversations · No prototype or code in week one',
+        '**Open objection:** Stated interest can be confused with intention to use',
+        '**First step:** Five conversations this week; if two people give no date, the direction changes'
+      ],
+      extras: {
+        moderator: ['I am not adding a direction. The one thing missing for a choice is who the target user is. Without that the ideas float.'],
+        analyst: ['No new point. The only open question is whether the user will make time for this. The conversations answer it.'],
+        critic: ['I have no objection left. The remaining risk is the maintenance load of even one direction. Do not start before it is written.'],
+        engineer: ['Nothing new. The plan stands: one week, five conversations, one page. No code in week one.'],
+        researcher: ['No new data. The only tendency I have is that narrow scope survives longer. That still needs measuring.']
+      }
+    },
+
+    /* ---------------- DECIDE ---------------- */
+    decide: {
+      moderator: ctx => [
+        'The question: ' + ctx.topicPhrase + '. There are two roads: keep the current arrangement or change it. Everyone picks one and gives the reason. "It depends" is not an answer, defend one of the two. ' +
+        to(ctx, 'analyst') + 'you name the deciding criterion.'
+      ],
+      analyst: ctx => [
+        'The decider is the cash buffer and the cost of coming back. On the change side there is one question: when does income start? Without a date this is not a decision, it is a wish. Let us write down now which number at six months would make us say "continue". ' +
+        to(ctx, 'critic') + 'which side has the worse worst case?'
+      ],
+      critic: ctx => [
+        'Both sides carry risk. The current arrangement risks missing the opportunity; the change risks losing income plus fixed costs. The second one is far harder to undo. Without a six-month buffer my suggestion is: keep the change on hold. ' +
+        to(ctx, 'engineer') + 'how would the bridge plan look?'
+      ],
+      engineer: ctx => [
+        'The bridge plan has three items: a six-month expense buffer, written targets for thirty, sixty and ninety days, and a date for the return door. Without those three a change is not a decision, it is a bet.'
+      ],
+      researcher: ctx => [
+        'The general tendency: people who start without cutting their income last longer. That is not data about your situation, your own numbers decide.'
+      ],
+      r2: {
+        moderator: ctx => [
+          'The criteria came down to two: the buffer and the return date. Last question: what do we set the threshold by, cash or time? ' + to(ctx, 'analyst') + 'you start.'
+        ],
+        analyst: ctx => [
+          'By cash. A six-month expense buffer; a time threshold means nothing before the cash runs out. The sum is simple, monthly expenses times six. If that number is not written down, no decision is made. ' +
+          to(ctx, 'critic') + 'what changes if the threshold is three months?'
+        ],
+        critic: ctx => [
+          'At three months the cash runs out in month four, the return door closes and the damage is permanent. At six months the worst case is a two-month loss. So the threshold is six. ' +
+          to(ctx, 'engineer') + 'is that threshold workable?'
+        ],
+        engineer: ctx => [
+          'It is. Monthly expenses times six, written on one line. If it drops below the threshold the change stops by itself, no exceptions. The targets sit on the same page. ' +
+          to(ctx, 'moderator') + 'you can close the table.'
+        ],
+        researcher: ctx => [
+          'In similar decisions the ones who set the buffer first stepped back less often. That is a tendency, not your numbers.'
+        ]
+      },
+      chair1: ctx => [
+        'Round one is closed. The table leans toward the change but with conditions: buffer and date written down. The objection sits in two places, lost income and fixed costs. The bridge plan came down to three items. The next question is what the threshold is set by.'
+      ],
+      chair2: ctx => [
+        'In round two the threshold became clear: a six-month expense buffer, cash-based. Drop below it and the change stops, no exceptions. Targets and the return door sit on the same page. Decision: a conditional change.'
+      ],
+      chair3: ctx => [
+        'No new argument, I am closing. The remaining uncertainty is when income starts. The decision is a conditional change, with buffer and return date written. Say "Summarize" if you want it on one page.'
+      ],
+      summary: ctx => [
+        'The table moved past "should we" and landed on "under which conditions". Nobody argued for starting today; everyone treated a six-month expense buffer as a precondition. The income side is still unclear and nobody showed it with a number. My suggestion: work out the buffer today, write it on one line, decide after that.',
+        '**Result:** A conditional change; the precondition is a six-month cash buffer.',
+        '**Agreed:** Buffer on a cash basis · Below it the change stops · Return door date written down',
+        '**Open objection:** It is unknown when income starts',
+        '**First step:** Monthly expenses times six, written on one line today'
+      ],
+      extras: {
+        moderator: ['I am not adding anything. The one gap is the date income starts. Without it this table comes back to the same spot.'],
+        analyst: ['No new point. The one missing number is monthly fixed cost. Without it the buffer cannot be computed.'],
+        critic: ['I have no objection left. The remaining risk is lost income, and the buffer can carry it.'],
+        engineer: ['Nothing new. The plan stands: buffer, targets, return date, one page.'],
+        researcher: ['No new data. The only tendency is that people who start without cutting their income last longer.']
+      }
+    }
+  },
+
+  /* ---- report tone ("net") skeleton: Result / Pros / Cons / First step ---- */
+  net: {
+    kit: {
+      moderator: [
+        ['**Result:** *{{t}}* will not close in one round; it has to split on three axes: evidence, cost, first step.',
+         '**Pros:** The agenda is clear: everyone answers the same question, the topic does not scatter.',
+         '**Cons:** There is no verified data on the table; any sentence with a number is an assumption.',
+         '**First step:** Each speaker writes one position and one reason.'],
+        ['**Result:** This round, the split came down to "how much evidence is there".',
+         '**Pros:** After two rounds the objections are concrete, no abstract criticism is left.',
+         '**Cons:** Neither side proposed a measurement criterion.',
+         '**First step:** Write the criterion in one sentence, then keep debating.'],
+        ['**Result:** The table keeps looping on the same two points; no new information is coming.',
+         '**Pros:** The agreed part is clear enough to decide on.',
+         '**Cons:** Continuing without measurement only spends tokens.',
+         '**First step:** Close the debate, start the pilot.']
+      ],
+      analyst: [
+        ['**Result:** None of the numbers on the table for *{{t}}* is verified.',
+         '**Pros:** The decision can be made on three criteria: interest, repeats, return on cost.',
+         '**Cons:** The thresholds for those criteria were not discussed; measurement without a threshold cannot be read.',
+         '**First step:** Collect the cheapest evidence, argue about investment after that.'],
+        ['**Result:** Assumption and evidence are separated: we only have assumptions.',
+         '**Pros:** The criteria list is ready; it is clear which data is needed.',
+         '**Cons:** Sample size was not computed; two weeks of data may be noise.',
+         '**First step:** Write how many observations you need, then start the pilot.'],
+        ['**Result:** No new data arrived; the uncertainties from the previous round stand.',
+         '**Pros:** The pilot can run with the current criteria, no extra prep needed.',
+         '**Cons:** There is still no failure threshold; the result can be read either way.',
+         '**First step:** Write the failure threshold today.']
+      ],
+      critic: [
+        ['**Result:** The weakest assumption is demand: wanting and paying are not the same thing.',
+         '**Pros:** A small, reversible test makes the risk carryable.',
+         '**Cons:** The hidden cost is not in the first budget: maintenance, fixed costs, time.',
+         '**First step:** Do not turn the test into an irreversible decision; write the exit condition.'],
+        ['**Result:** The proposed criterion is good, but "interest" alone does not show intent to pay.',
+         '**Pros:** The test being reversible is its strongest side.',
+         '**Cons:** Cost items are still missing; fixed costs were not counted.',
+         '**First step:** Add "number of paying customers" to the criterion, do not count interest alone.'],
+        ['**Result:** My objection has narrowed: the real risk is now picking the wrong criterion.',
+         '**Pros:** The other side\'s exit condition keeps the risk bounded.',
+         '**Cons:** Time cost was never discussed; two weeks is a cost too.',
+         '**First step:** Add time and fixed cost to the table.']
+      ],
+      engineer: [
+        ['**Result:** The smallest workable test for *{{t}}* needs 2–3 weeks of prep.',
+         '**Pros:** One scenario, one stage: keep the scope small and the output is measurable.',
+         '**Cons:** Without a fixed budget and a fixed date the test drags.',
+         '**First step:** Fix the budget and the end date today.'],
+        ['**Result:** Setup cost is low; the real load is in measurement and reporting.',
+         '**Pros:** It can start with existing tools, no extra investment.',
+         '**Cons:** Done by hand, two weeks will not produce reliable data.',
+         '**First step:** Automate the measurement, then open the pilot.'],
+        ['**Result:** No new obstacle on the technical side; the decision side is waiting.',
+         '**Pros:** The pilot setup takes a few days, the team load is low.',
+         '**Cons:** If no decision comes, the setup cost is wasted.',
+         '**First step:** With approval, the pilot opens within 3 days.']
+      ],
+      researcher: [
+        ['**Result:** I have no verified source for *{{t}}*; similar examples change with the topic.',
+         '**Pros:** In similar cases a cheap test produces more information than an expensive one.',
+         '**Cons:** None of those examples had the same conditions; they cannot be copied.',
+         '**First step:** Find one comparison with a source, treat the rest as assumption.'],
+        ['**Result:** Comparable data is missing; every transferred number is out of context.',
+         '**Pros:** The method transfers: small pilot, clear criterion, fixed date.',
+         '**Cons:** Another market\'s data cannot be moved here directly.',
+         '**First step:** Collect your own data, take only the method from outside.'],
+        ['**Result:** No new source; the uncertainty from the previous round continues.',
+         '**Pros:** The method to apply is clear, no extra research needed.',
+         '**Cons:** Talking about numbers without sources grows the error.',
+         '**First step:** Cite the source when a number is given, otherwise say "(no source)".']
+      ]
+    },
+    chair: [
+      ['**Result:** For *{{t}}* the table found common ground: measure first, invest after.',
+       '**Pros:** The criterion and the small pilot became clear in two rounds.',
+       '**Cons:** Open objection: a small sample makes the result misleading.',
+       '**First step:** Write the criterion and the failure threshold.'],
+      ['**Result:** The round is closed; agreement on measuring, the split is on which criterion.',
+       '**Pros:** The objections became concrete, no abstract criticism is left.',
+       '**Cons:** Time and fixed costs are still missing.',
+       '**First step:** Add fixed costs to the table, approve the pilot after that.'],
+      ['**Result:** The table is closed: no new information, enough ground to decide.',
+       '**Pros:** Criterion, pilot and exit condition are defined.',
+       '**Cons:** Not a single number is verified; all of them are assumptions.',
+       '**First step:** Start the pilot, come back with data in two weeks.']
+    ]
+  },
+
+  /* ---- Mirror (duel): iki taraf ayrı konuşur (A savunan, B itiraz eden) ---- */
+  duel: (ctx, round, side) => {
+    const even = round % 2 === 0;
+    if (side === 'a') {
+      return even ? [
+        'I accept the criterion objection, I want it too. But waiting also has a cost: if no decision comes this month, we will be having the same argument three months from now at a higher price. Let us write the criterion together and keep the test small.'
+      ] : [
+        'I think this should be done, and early. Here is why: the current arrangement gets a little more expensive every month, so the cost piles up the longer we wait. A small test produces data in two weeks and we decide with that data. Let me name my weak point too: I do not know how big demand is.'
+      ];
+    }
+    return even ? [
+      'We agree on the criterion, we split on the sample. Two weeks of ten attempts is not a measurement, it is an impression. Either stretch the time to six weeks or mark the result "qualitative" and decide afterwards.'
+    ] : [
+      'I would like that too, but the order is wrong. For this question there is not a single verified number; "cost is piling up" is not measured either. Run the two-week test on a small sample and everyone reads the result in their own favour. Write the criterion and the failure threshold first; the test starts after that.'
+    ];
+  },
+
+  duelSummary: ctx => [
+    'Both sides agreed on measuring; they split on what the criterion is and how big the sample should be. Where the defending side is right: waiting is a cost too. Where the objecting side is right: a test run without a written criterion produces no result. My verdict: the test starts once the criterion and threshold are written.',
+    '**Result:** Test after the criterion is written; sample size decided upfront.',
+    '**Strongest defence:** A narrow, cheap test produces data in two weeks.',
+    '**Strongest objection:** Without criterion and sample size the pilot misleads.',
+    '**Undecidable:** Whether the test will produce a large enough sample for this topic.',
+    '**First step:** Write the criterion and the failure threshold, start the test after that.'
+  ]
+};
+
+/* İngilizce demo metni — demoText() bunu çağırır (arayüz dili EN iken) */
+function demoTextEN(p, opt, ctx, round) {
+  const key = state.sessionGoal || state.settings.goal;
+  const kit = DEMO_EN.kits[key] || DEMO_EN.kits.debate;
+  const tone = state.settings.tone || 'chat';
+
+  if (opt.summary) return summaryText(opt.duel ? DEMO_EN.duelSummary(ctx) : kit.summary(ctx), tone);
+  if (p.duelSide) return DEMO_EN.duel(ctx, round, p.duelSide).join('\n');
+
+  if (tone === 'net') {
+    const vi = Math.min(2, Math.max(0, (round || 1) - 1));
+    const block = opt.isChair
+      ? DEMO_EN.net.chair[vi]
+      : (DEMO_EN.net.kit[p.role] || DEMO_EN.net.kit.analyst)[vi];
+    return block.map(l => l.replace('{{t}}', ctx.topicPhrase)).join('\n');
+  }
+
+  const say = arr => (tone === 'brief' ? briefify(arr[0]) : arr[0]);
+
+  if (opt.isChair) {
+    if (round <= 1) return say(kit.chair1(ctx));
+    if (round === 2) return say(kit.chair2(ctx));
+    return say(kit.chair3(ctx));
+  }
+  if (round <= 1) {
+    const fn = kit[p.role];
+    if (fn) return say(fn(ctx));
+    return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
+  }
+  if (round === 2 && kit.r2 && kit.r2[p.role]) return say(kit.r2[p.role](ctx));
+  return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
+}
+
+/* ==========================================================================
+   AJANLAR — demo iskeleti (İngilizce)
+   Türkçe karşılığı ajan.js → ajanDemoBody(). Etiketler İngilizce; ajan.js
+   parsePacket() GOAL/SETTLED/OPEN/EVIDENCE/CONSTRAINT/LIMIT/NEXT'i de okur.
+   ========================================================================== */
+function ajanDemoBodyEN(p, kind) {
+  if (kind === 'merge') {
+    const seats = ajanSeats();
+    return [
+      '**Summary:** (Demo) The hand-off packages of ' + seats.length + ' agents were merged into one delivery. In live mode this is where the project result appears.',
+      '',
+      '**What was done:**',
+      ...seats.map(pid => {
+        const q = personaById(pid) || {};
+        const t2 = ajanTaskOf(pid);
+        return '- ' + (q.name || pid) + ' — ' + (t2.role || 'task') + ': ' + (t2.out || 'output');
+      }),
+      '',
+      '**Delivery:**',
+      '- (Demo) The real output drawn from the agents\' packages appears in this section.',
+      '- SETTLED items move up here, OPEN items drop below.',
+      '',
+      '**Still open:**',
+      '- (Demo) With a live model, questions that could not be closed are listed here.',
+      '',
+      '**First step:** Settings → Mode: Live, then send the same project again.'
+    ].join('\n');
+  }
+  if (kind === 'plan') {
+    return [
+      '**Order:**',
+      ...ajanSeats().map((pid, i) => {
+        const q = personaById(pid) || {};
+        return (i + 1) + '. ' + (q.name || pid) + ' — ' + (ajanTaskOf(pid).role || 'task');
+      }),
+      '**Hand-off points:** each agent\'s delivery package goes to the next one.',
+      '**Risk:** (Demo) if the first agent\'s output is weak, the whole chain stays weak.'
+    ].join('\n');
+  }
+  const t = ajanTaskOf(p.id);
+  return [
+    '**Result:** (Demo) This seat\'s task: ' + (t.task || '—'),
+    '',
+    '- Expected output: ' + (t.out || '—'),
+    '- For a real answer: Settings → Mode: Live.',
+    '',
+    'HAND-OFF PACKAGE',
+    'GOAL: Demo — the task definition was passed to the next agent.',
+    'SETTLED: - (demo) ' + (t.out || 'output definition'),
+    'OPEN: - (demo) fills in once a real model is connected',
+    'EVIDENCE: - no evidence',
+    'CONSTRAINT: - demo text',
+    'LIMIT: no content is produced in demo mode',
+    'NEXT: DONE'
+  ].join('\n');
 }
 
 
@@ -5111,10 +6347,13 @@ const kadroStr = s => String(s || '').toLowerCase();
 /* Arama: Türkçe şablonlar + İngilizce kadro. Boş aramada yalnız Türkçe şablonlar döner. */
 function kadroSearch(q) {
   q = kadroStr(q).trim();
-  const tr = KADRO_TR.filter(k => !q || kadroStr(k.role + ' ' + k.tag + ' ' + k.task + ' ' + k.out).includes(q));
+  /* İngilizce arayüzde ana liste İngilizce kadro; Türkçe şablonlar gizlenir */
+  const enUi = !!(window.I18N && window.I18N.isEn());
+  const tr = enUi ? [] : KADRO_TR.filter(k => !q || kadroStr(k.role + ' ' + k.tag + ' ' + k.task + ' ' + k.out).includes(q));
   let en = [];
-  if (q) {
+  if (q || enUi) {
     en = kadroEN().filter(k =>
+      !q ||
       kadroStr(k.role).includes(q) ||
       kadroStr(k.task).includes(q) ||
       kadroStr(KADRO_DIV_TR[k.div] || '').includes(q));
@@ -5217,9 +6456,9 @@ function ajanImgCount() {
 }
 function ajanCostText() {
   const n = ajanImgCount();
-  if (!n) return '≈ ' + ajanEstimate() + ' istek';
-  if (imgCfg().engine === 'bedava') return '≈ ' + ajanEstimate() + ' istek · ' + n + ' görsel (ücretsiz)';
-  return '≈ ' + ajanEstimate() + ' istek · ' + n + ' görsel (ücretli)';
+  if (!n) return window.T2('≈ ' + ajanEstimate() + ' istek', '≈ ' + ajanEstimate() + ' requests');
+  if (imgCfg().engine === 'bedava') return window.T2('≈ ' + ajanEstimate() + ' istek · ' + n + ' görsel (ücretsiz)', '≈ ' + ajanEstimate() + ' requests · ' + n + ' image' + (n > 1 ? 's' : '') + ' (free)');
+  return window.T2('≈ ' + ajanEstimate() + ' istek · ' + n + ' görsel (ücretli)', '≈ ' + ajanEstimate() + ' requests · ' + n + ' image' + (n > 1 ? 's' : '') + ' (paid)');
 }
 function refreshAjanCost() {
   const el = document.getElementById('ajanCost');
@@ -5238,7 +6477,7 @@ function ajanEstimate() {
 /* ---------------- devir paketi ---------------- */
 function parsePacket(text) {
   const t = String(text || '');
-  const hit = /(?:^|\n)[ \t*_#>-]*DEV[İI]R[ \t]+PAKET[İI][ \t*_:]*\n?/i.exec(t);
+  const hit = /(?:^|\n)[ \t*_#>-]*(?:DEV[İI]R[ \t]+PAKET[İI]|HAND[ \t-]*OFF[ \t]+PACKET|HAND[ \t-]*OFF[ \t]+PACKAGE)[ \t*_:]*\n?/i.exec(t);
   if (!hit) return null;
   const body = t.slice(hit.index + hit[0].length);
   const out = {};
@@ -5246,9 +6485,12 @@ function parsePacket(text) {
   for (const raw of body.split(/\r?\n/)) {
     const line = raw.replace(/^[\s*_#>]+/, '').replace(/[\s*_]+$/, '');
     if (!line) continue;
-    const fu = line.match(/^(AMAÇ|AMAC|YERLEŞEN|YERLESEN|AÇIK|ACIK|KANIT|KISIT|SINIR|SONRAK[İI]|SONRAK[İI] ADIM)\s*:?\s*(.*)$/i);
+    const fu = line.match(/^(AMAÇ|AMAC|YERLEŞEN|YERLESEN|AÇIK|ACIK|KANIT|KISIT|SINIR|SONRAK[İI]|SONRAK[İI] ADIM|GOAL|SETTLED|OPEN|EVIDENCE|CONSTRAINT|LIMIT|NEXT)\s*:?\s*(.*)$/i);
     if (fu) {
-      const key = fu[1].toUpperCase()
+      /* etiketler Türkçe ya da İngilizce gelebilir (İngilizce arayüz / İngilizce cevap) */
+      const EN_PK = { GOAL: 'AMAÇ', SETTLED: 'YERLEŞEN', OPEN: 'AÇIK', EVIDENCE: 'KANIT', CONSTRAINT: 'KISIT', LIMIT: 'SINIR', NEXT: 'SONRAKİ' };
+      const up = fu[1].toUpperCase();
+      const key = EN_PK[up] || up
         .replace('AMAC', 'AMAÇ').replace('YERLESEN', 'YERLEŞEN').replace('ACIK', 'AÇIK')
         .replace(/^SONRAK[İI] ADIM$/, 'SONRAKİ');
       cur = (AJAN_FIELDS.find(f => f[1] === key) || [])[0];
@@ -5264,7 +6506,7 @@ function parsePacket(text) {
 }
 const packetBody = text => {
   const t = String(text || '');
-  const hit = /(?:^|\n)[ \t*_#>-]*DEV[İI]R[ \t]+PAKET[İI][ \t*_:]*\n?/i.exec(t);
+  const hit = /(?:^|\n)[ \t*_#>-]*(?:DEV[İI]R[ \t]+PAKET[İI]|HAND[ \t-]*OFF[ \t]+PACKET|HAND[ \t-]*OFF[ \t]+PACKAGE)[ \t*_:]*\n?/i.exec(t);
   return (hit ? t.slice(0, hit.index) : t).trim();
 };
 function packetText(p) {
@@ -5463,6 +6705,8 @@ async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) 
 
 /* demo: ajan akışının iskeletini gösterir, içerik üretmez (0 token) */
 function ajanDemoBody(p, kind) {
+  /* arayüz İngilizceyken İngilizce iskelet (demoen.js) */
+  if (typeof ajanDemoBodyEN === 'function' && window.I18N && window.I18N.isEn()) return ajanDemoBodyEN(p, kind);
   if (kind === 'merge') {
     const seats = ajanSeats();
     return [
@@ -5529,7 +6773,7 @@ function ajanStepMsg(pid, i, n, t) {
   const p = personaById(pid) || {};
   return addMessage({
     kind: 'notice', level: 'info',
-    text: 'Adım ' + i + '/' + n + ' · ' + (p.name || pid) + ' — ' + (t.role || p.roleLabel || 'görev') + ': ' + (t.task || '—')
+    text: window.T2('Adım ', 'Step ') + i + '/' + n + ' · ' + (p.name || pid) + ' — ' + (t.role || window.T2(p.roleLabel || 'görev', p.roleLabel ? (window.I18N.EN[p.roleLabel] || p.roleLabel) : 'task')) + ': ' + (t.task || '—')
   });
 }
 function handoffMsg(x) {
@@ -5543,7 +6787,7 @@ async function runAgents(opts = {}) {
   const extraPass = !!opts.extraPass;
   if (!extraPass) state.ajanNote = '';
   const seats = ajanSeats();
-  if (!seats.length) { addMessage({ kind: 'notice', level: 'err', text: 'Açık sandalye yok. Ayarlar → Masadaki modeller.' }); renderTranscript(); return; }
+  if (!seats.length) { addMessage({ kind: 'notice', level: 'err', text: window.T2('Açık sandalye yok. Ayarlar → Masadaki modeller.', 'No seat is open. Settings → Models at the table.') }); renderTranscript(); return; }
   // kaldığı yerden devam: kuyruk dışarıdan gelir, plan yeniden çıkarılmaz
   const jobs = (Array.isArray(opts.jobs) && opts.jobs.length) ? opts.jobs.slice() : null;
 
@@ -5567,11 +6811,18 @@ async function runAgents(opts = {}) {
   const packets = (extraPass && Array.isArray(state.ajanPackets)) ? state.ajanPackets.slice() : [];
   let planText = state.ajanPlan || '';
 
+  const EN_UI = !!(window.I18N && I18N.isEn());
+  const flowName = EN_UI
+    ? ({ sirali: 'Sequential', denetci: 'Supervisor', devir: 'Relay' }[cfg.flow] || cfg.flow)
+    : AJAN_FLOWS[cfg.flow].label;
   addMessage({ kind: 'notice', level: 'info', text: jobs
-    ? ('Kaldığı yerden devam · ' + jobs.length + ' adım kaldı · ' + seats.length + ' ajan')
-    : 'AJANLAR · ' + AJAN_FLOWS[cfg.flow].label + ' akışı · ' + seats.length + ' ajan' +
-    (jobs ? '' : (cfg.flow === 'devir' ? ' · devir tavanı ' + cfg.hopCap : ' · ' + cfg.passes + ' geçiş') +
-    ' · tahmini ' + ajanEstimate() + ' istek' + (state.settings.mode === 'live' ? '' : ' (demo: 0 istek)')) });
+    ? window.T2('Kaldığı yerden devam · ' + jobs.length + ' adım kaldı · ' + seats.length + ' ajan',
+                'Continue where you left off · ' + jobs.length + ' steps left · ' + seats.length + ' agents')
+    : window.T2('AJANLAR · ' + flowName + ' akışı · ' + seats.length + ' ajan', 'AGENTS · ' + flowName + ' flow · ' + seats.length + ' agents') +
+    (jobs ? '' : window.T2((cfg.flow === 'devir' ? ' · devir tavanı ' + cfg.hopCap : ' · ' + cfg.passes + ' geçiş') +
+      ' · tahmini ' + ajanEstimate() + ' istek' + (state.settings.mode === 'live' ? '' : ' (demo: 0 istek)'),
+      (cfg.flow === 'devir' ? ' · pass cap ' + cfg.hopCap : ' · ' + cfg.passes + ' pass' + (cfg.passes > 1 ? 'es' : '')) +
+      ' · ≈ ' + ajanEstimate() + ' requests' + (state.settings.mode === 'live' ? '' : ' (demo: 0 requests)'))) });
   renderTranscript();
 
   /* --- denetçi: başkan önce plan --- */
@@ -5720,7 +6971,8 @@ async function runAgents(opts = {}) {
       }
       /* görsel görevli sandalye: metin bitti, şimdi görsel */
       if (t.img && state.settings.mode !== 'live') {
-        addMessage({ kind: 'notice', level: 'info', text: p.name + ' için görsel çizimi istendi ama demo modunda görsel üretilmez (ağa çıkılmaz, hazır metinden anlamlı bir istem de çıkmaz). Canlı modda ajanın yazdığı istemle görsel motoru çizer; denemek istersen cevabın başındaki “🖼 Görsel üret” düğmesini kullan.' });
+        addMessage({ kind: 'notice', level: 'info', text: window.T2(p.name + ' için görsel çizimi istendi ama demo modunda görsel üretilmez (ağa çıkılmaz, hazır metinden anlamlı bir istem de çıkmaz). Canlı modda ajanın yazdığı istemle görsel motoru çizer; denemek istersen cevabın başındaki “🖼 Görsel üret” düğmesini kullan.',
+            p.name + ' was asked to draw an image, but nothing is generated in demo mode (no network, and a canned text yields no meaningful prompt). In live mode the image engine draws from the prompt the agent writes; to try it, use the “🖼 Generate image” button at the top of the answer.') });
         renderTranscript();
       } else if (t.img) {
         if (!state.imgConfirmed) {
@@ -5847,7 +7099,7 @@ function nextSeatFrom(text, fromPid, seats) {
 async function ajanMerge(chairP, packets, planText, token, tried) {
   state.speaking = chairP.id; state.queue = []; renderAll(); renderAjanBar();
   setStatus('running', (chairP.name || 'Başkan') + ' teslimatı birleştiriyor');
-  addMessage({ kind: 'notice', level: 'info', text: 'Birleştirme: başkan ' + packets.length + ' teslim paketini tek teslimata çeviriyor.' });
+  addMessage({ kind: 'notice', level: 'info', text: window.T2('Birleştirme: başkan ' + packets.length + ' teslim paketini tek teslimata çeviriyor.', 'Merge: the chair is turning ' + packets.length + ' hand-off packets into one delivery.') });
   renderTranscript();
 
   const draft = { id: uid(), ts: nowISO(), kind: 'msg', personaId: chairP.id, name: chairP.name, short: chairP.short, color: chairP.color, roleLabel: 'BAŞKAN · TESLİM', text: '', streaming: true };
@@ -5867,7 +7119,7 @@ async function ajanMerge(chairP, packets, planText, token, tried) {
   if (res && res.ok && res.text && res.text.trim()) {
     state.transcript = state.transcript.filter(m => m.id !== draft.id); removeMsgDOM(draft.id);
     const s = addMessage({ kind: 'summary', personaId: chairP.id, name: chairP.name, roleLabel: 'BAŞKAN',
-      color: chairP.color, title: 'EKİP TESLİMİ · ' + packets.length + ' ajan', text: res.text.trim(), plain: plainOf(res.text), model: res.model });
+      color: chairP.color, title: window.T2('EKİP TESLİMİ · ' + packets.length + ' ajan', 'TEAM DELIVERY · ' + packets.length + ' agents'), text: res.text.trim(), plain: plainOf(res.text), model: res.model });
     state.ajanResult = res.text.trim();
     state.ajanResultId = s.id;
     renderTranscript();
@@ -5904,25 +7156,27 @@ function kadroListHTML(q) {
   const r = kadroSearch(q);
   const tr = r.tr, en = r.en;
   let h = '';
+  const enUi = !!(window.I18N && window.I18N.isEn());
   if (tr.length) {
-    h += '<div class="kadroHead">Türkçe hazır şablon · ' + tr.length + '</div>';
+    h += '<div class="kadroHead">' + window.T2('Türkçe hazır şablon · ' + tr.length, 'Turkish templates · ' + tr.length) + '</div>';
     h += tr.map((k, i) => '<button type="button" class="kadroItem" data-kadrotr="' + i + '">' +
       '<b>' + esc(k.role) + '<i class="kadroTag">' + esc(k.tag) + '</i></b>' +
       '<span>' + esc(k.task) + '</span>' +
-      '<em>Çıktı: ' + esc(k.out) + '</em></button>').join('');
+      '<em>' + window.T2('Çıktı: ', 'Output: ') + esc(k.out) + '</em></button>').join('');
   }
-  if (q && en.length) {
-    h += '<div class="kadroHead">Uzman kadrosu · İngilizce · ' + en.length + ' sonuç</div>';
-    h += en.slice(0, 40).map((k, i) => '<button type="button" class="kadroItem" data-kadroen="' + i + '">' +
-      '<b>' + esc(k.role) + '<i class="kadroTag">' + esc(kadroDivLabel(k.div).split(' · ')[0]) + '</i></b>' +
+  if (en.length) {
+    const lim = enUi ? 60 : 40;
+    h += '<div class="kadroHead">' + window.T2('Uzman kadrosu · İngilizce · ' + en.length + ' sonuç', 'Expert roster · ' + en.length + ' results') + '</div>';
+    h += en.slice(0, lim).map((k, i) => '<button type="button" class="kadroItem" data-kadroen="' + i + '">' +
+      '<b>' + esc(k.role) + '<i class="kadroTag">' + esc(enUi ? k.div : kadroDivLabel(k.div).split(' · ')[0]) + '</i></b>' +
       '<span>' + esc(k.task) + '</span></button>').join('');
-    if (en.length > 40) h += '<div class="kadroMore">… ' + (en.length - 40) + ' sonuç daha var; aramayı daralt.</div>';
+    if (en.length > lim) h += '<div class="kadroMore">' + window.T2('… ' + (en.length - lim) + ' sonuç daha var; aramayı daralt.', '… ' + (en.length - lim) + ' more results; narrow the search.') + '</div>';
   }
   if (q && !tr.length && !en.length) {
-    h += '<div class="kadroEmpty">“' + esc(q) + '” için şablon yok. Başka bir kelime dene: finans · pazarlama · ürün · hukuk · veri · tasarım.</div>';
+    h += '<div class="kadroEmpty">' + window.T2('“' + esc(q) + '” için şablon yok. Başka bir kelime dene: finans · pazarlama · ürün · hukuk · veri · tasarım.', 'No match for “' + esc(q) + '”. Try another word: finance · marketing · product · legal · data · design.') + '</div>';
   }
-  if (!q) {
-    h += '<div class="kadroEmpty">İngilizce uzman kadrosunda <b>' + kadroEN().length + '</b> kişi var. Aramak için yukarıdaki kutuya yaz (ör. “finans”, “security”, “marketing”).</div>';
+  if (!q && !enUi) {
+    h += '<div class="kadroEmpty">' + window.T2('İngilizce uzman kadrosunda <b>' + kadroEN().length + '</b> kişi var. Aramak için yukarıdaki kutuya yaz (ör. “finans”, “security”, “marketing”).', 'The English expert roster holds <b>' + kadroEN().length + '</b> people. Type in the box above to search (e.g. “finance”, “security”, “marketing”).') + '</div>';
   }
   return h;
 }
@@ -5930,13 +7184,13 @@ function kadroListHTML(q) {
 function kadroBoxHTML(pid) {
   const nm = (PROVIDERS[pid] && PROVIDERS[pid].name) || pid;
   return '<div class="kadroBox" data-kadrobox="' + esc(pid) + '">' +
-    '<div class="kadroTitle">Kadro · <b>' + esc(nm) + '</b> sandalyesi</div>' +
+    '<div class="kadroTitle">' + window.T2('Kadro · <b>' + esc(nm) + '</b> sandalyesi', 'Roster · <b>' + esc(nm) + '</b> seat') + '</div>' +
     '<div class="kadroTop">' +
-      '<input type="text" id="kadroSearch" placeholder="ara: finans, pazarlama, ürün, hukuk, veri…" value="' + esc(kadroQuery) + '" spellcheck="false" autocomplete="off"/>' +
-      '<button type="button" class="mini" data-kadroclose="1">kapat</button>' +
+      '<input type="text" id="kadroSearch" placeholder="' + esc(window.T2('ara: finans, pazarlama, ürün, hukuk, veri…', 'search: finance, marketing, product, legal, data…')) + '" value="' + esc(kadroQuery) + '" spellcheck="false" autocomplete="off"/>' +
+      '<button type="button" class="mini" data-kadroclose="1">' + window.T2('kapat', 'close') + '</button>' +
     '</div>' +
     '<div class="kadroList" id="kadroList">' + kadroListHTML(kadroQuery) + '</div>' +
-    '<p class="kadroNote">Seçim yalnız <b>bu sandalyenin</b> rolünü, görevini ve beklenen çıktısını doldurur; sonra istediğin gibi değiştirebilirsin. Türkçe şablonlar DivanAI’nın; İngilizce listeler <a href="https://github.com/msitarzewski/agency-agents" target="_blank" rel="noopener">agency-agents</a> kadrosundan yalnız <b>ad + tek cümle</b> olarak alınmıştır (MIT).</p>' +
+    '<p class="kadroNote">' + window.T2('Seçim yalnız <b>bu sandalyenin</b> rolünü, görevini ve beklenen çıktısını doldurur; sonra istediğin gibi değiştirebilirsin. Türkçe şablonlar DivanAI’nın; İngilizce listeler <a href="https://github.com/msitarzewski/agency-agents" target="_blank" rel="noopener">agency-agents</a> kadrosundan yalnız <b>ad + tek cümle</b> olarak alınmıştır (MIT).', 'The pick fills only <b>this seat’s</b> role, task and expected output; you can change it afterwards. English entries come from the <a href="https://github.com/msitarzewski/agency-agents" target="_blank" rel="noopener">agency-agents</a> roster as <b>name + one sentence</b> only (MIT).') + '</p>' +
   '</div>';
 }
 
@@ -5946,20 +7200,20 @@ function kadroApply(pid, item) {
   const cur = cfg.tasks[pid] || {};
   if (String(cur.role || '').trim() || String(cur.task || '').trim()) {
     const nm = (PROVIDERS[pid] && PROVIDERS[pid].name) || pid;
-    if (!window.confirm('“' + nm + '” sandalyesinde zaten rol/görev yazılı. Kadrodan seçilenle değiştirilsin mi?')) return;
+    if (!window.confirm(window.T2('“' + nm + '” sandalyesinde zaten rol/görev yazılı. Kadrodan seçilenle değiştirilsin mi?', 'The “' + nm + '” seat already has a role/task. Replace it with the roster pick?'))) return;
   }
   cfg.tasks[pid] = {
     ...cur,
     role: item.role,
     task: item.task,
-    out: item.out !== undefined ? item.out : 'Madde madde somut çıktı (en çok 5 madde)'
+    out: item.out !== undefined ? item.out : window.T2('Madde madde somut çıktı (en çok 5 madde)', 'Concrete output, item by item (5 items at most)')
   };
   saveSettings();
   kadroPid = null;
   kadroQuery = '';
   if (typeof renderAjanSetup === 'function') renderAjanSetup();
   if (typeof refreshAjanCost === 'function') refreshAjanCost();
-  toast('“' + item.role + '” sandalyeye yazıldı.', 'ok');
+  toast(window.T2('“' + item.role + '” sandalyeye yazıldı.', '“' + item.role + '” written to the seat.'), 'ok');
 }
 
 /* ajan sayısı seçenekleri: 2 … açık sandalye sayısı (+ hepsi) */
@@ -5969,9 +7223,15 @@ function ajanCountOptions() {
   let h = '';
   for (let i = 2; i <= n; i++) {
     const sel = (i === n) ? (cur === 0 || cur === n) : (cur === i);
-    h += '<option value="' + i + '"' + (sel ? ' selected' : '') + '>' + i + (i === n ? ' (hepsi)' : '') + '</option>';
+    h += '<option value="' + i + '"' + (sel ? ' selected' : '') + '>' + i + (i === n ? window.T2(' (hepsi)', ' (all)') : '') + '</option>';
   }
   return h || '<option value="0">—</option>';
+}
+
+/* sözlükten tek metin çevirisi (HTML/öznitelik içine gömülen hazır notlar için) */
+function trNote(t) {
+  const en = window.I18N && window.I18N.isEn();
+  return en ? (window.I18N.EN[t] || t) : t;
 }
 
 /* ---------------- kurulum ekranı ---------------- */
@@ -5993,13 +7253,13 @@ function renderAjanSetup() {
     return '<div class="ajanCard" data-pid="' + pid + '">' +
       '<div class="ajanCardHead"><span class="ajanNo">' + (i + 1) + '</span>' +
         '<span class="ajanNm">' + esc(p.name || pid) + '</span>' +
-        '<input class="ajanRole" data-pid="' + pid + '" data-f="role" value="' + esc(t.role || '') + '" placeholder="' + esc(p.roleLabel || 'rol') + '" aria-label="' + esc((p.name || pid) + ' rolü') + '">' +
-        '<button type="button" class="kadroBtn' + (kadroPid === pid ? ' on' : '') + '" data-kadro="' + pid + '" aria-expanded="' + (kadroPid === pid) + '" title="Hazır kadrodan rol, görev ve beklenen çıktı seç">Kadro</button>' +
+        '<input class="ajanRole" data-pid="' + pid + '" data-f="role" value="' + esc(t.role || '') + '" placeholder="' + esc(window.T2(p.roleLabel || 'rol', (window.I18N.EN[p.roleLabel] || 'role'))) + '" aria-label="' + esc(window.T2((p.name || pid) + ' rolü', (p.name || pid) + ' role')) + '">' +
+        '<button type="button" class="kadroBtn' + (kadroPid === pid ? ' on' : '') + '" data-kadro="' + pid + '" aria-expanded="' + (kadroPid === pid) + '" title="' + esc(window.T2('Hazır kadrodan rol, görev ve beklenen çıktı seç', 'Pick role, task and expected output from the ready roster')) + '">' + window.T2('Kadro', 'Roster') + '</button>' +
       '</div>' +
-      '<label class="ajanLbl">Görev<textarea class="ajanIn" data-pid="' + pid + '" data-f="task" rows="2" placeholder="Bu ajan ne yapsın? Tek iş, tek cümle.">' + esc(t.task || '') + '</textarea></label>' +
-      '<label class="ajanLbl">Beklenen çıktı<textarea class="ajanIn" data-pid="' + pid + '" data-f="out" rows="2" placeholder="Kabul kriteri: hangi somut çıktı gelirse görev tamam?">' + esc(t.out || '') + '</textarea></label>' +
-      '<label class="chk ajanImgChk" title="Görseli bu model değil, yukarıda seçili görsel motoru çizer">' +
-        '<input type="checkbox" data-pid="' + pid + '" data-f="img"' + (t.img ? ' checked' : '') + '> Bu ajanın metninden görsel çizilsin</label>' +
+      '<label class="ajanLbl">' + window.T2('Görev', 'Task') + '<textarea class="ajanIn" data-pid="' + pid + '" data-f="task" rows="2" placeholder="' + esc(window.T2('Bu ajan ne yapsın? Tek iş, tek cümle.', 'What should this agent do? One job, one sentence.')) + '">' + esc(t.task || '') + '</textarea></label>' +
+      '<label class="ajanLbl">' + window.T2('Beklenen çıktı', 'Expected output') + '<textarea class="ajanIn" data-pid="' + pid + '" data-f="out" rows="2" placeholder="' + esc(window.T2('Kabul kriteri: hangi somut çıktı gelirse görev tamam?', 'Acceptance: which concrete output means the task is done?')) + '">' + esc(t.out || '') + '</textarea></label>' +
+      '<label class="chk ajanImgChk" title="' + esc(window.T2('Görseli bu model değil, yukarıda seçili görsel motoru çizer', 'The image is drawn by the engine selected above, not by this model')) + '">' +
+        '<input type="checkbox" data-pid="' + pid + '" data-f="img"' + (t.img ? ' checked' : '') + '> ' + window.T2('Bu ajanın metninden görsel çizilsin', 'Draw an image from this agent’s text') + '</label>' +
       '</div>';
   }).join('');
 
@@ -6008,41 +7268,41 @@ function renderAjanSetup() {
 
   box.innerHTML =
     '<div class="ajanSetupHead">' +
-      '<div><b>AJANLAR</b> <span>Her sandalyeye ayrı görev yaz. Ajanlar birbirine teslim paketi bırakarak ilerler.</span></div>' +
-      '<div class="ajanTpl"><span>Hazır proje:</span>' + tplBtns +
-        '<button type="button" class="mini ajanClear" id="ajanClearBtn" title="Görevleri, proje cümlesini ve konuşmayı temizle">✦ Temizle</button>' +
+      '<div><b>' + window.T2('AJANLAR', 'AGENTS') + '</b> <span>' + window.T2('Her sandalyeye ayrı görev yaz. Ajanlar birbirine teslim paketi bırakarak ilerler.', 'Give each seat its own task. Agents move forward by handing packages to each other.') + '</span></div>' +
+      '<div class="ajanTpl"><span>' + window.T2('Hazır proje:', 'Ready project:') + '</span>' + tplBtns +
+        '<button type="button" class="mini ajanClear" id="ajanClearBtn" title="' + esc(window.T2('Görevleri, proje cümlesini ve konuşmayı temizle', 'Clear the tasks, the project sentence and the conversation')) + '">✦ ' + window.T2('Temizle', 'Clear') + '</button>' +
       '</div>' +
     '</div>' +
     '<div class="flowRow" role="tablist" aria-label="Ajan akışı">' + flowBtns +
       '<div class="flowOpts">' +
         (cfg.flow === 'devir'
-          ? '<label>Devir tavanı <input type="number" id="ajanHop" min="2" max="20" value="' + cfg.hopCap + '"></label>'
-          : '<label>Geçiş <select id="ajanPass"><option value="1"' + (cfg.passes === 1 ? ' selected' : '') + '>1</option><option value="2"' + (cfg.passes === 2 ? ' selected' : '') + '>2</option><option value="3"' + (cfg.passes === 3 ? ' selected' : '') + '>3</option></select></label>') +
-        '<label class="chk"><input type="checkbox" id="ajanPause"' + (cfg.pause ? ' checked' : '') + '> Her adımda dur</label>' +
-        '<label class="ajanCountL">Ajan sayısı <select id="ajanCount">' + ajanCountOptions() + '</select></label>' +
+          ? '<label>' + window.T2('Devir tavanı', 'Pass cap') + ' <input type="number" id="ajanHop" min="2" max="20" value="' + cfg.hopCap + '"></label>'
+          : '<label>' + window.T2('Geçiş', 'Passes') + ' <select id="ajanPass"><option value="1"' + (cfg.passes === 1 ? ' selected' : '') + '>1</option><option value="2"' + (cfg.passes === 2 ? ' selected' : '') + '>2</option><option value="3"' + (cfg.passes === 3 ? ' selected' : '') + '>3</option></select></label>') +
+        '<label class="chk"><input type="checkbox" id="ajanPause"' + (cfg.pause ? ' checked' : '') + '> ' + window.T2('Her adımda dur', 'Pause at every step') + '</label>' +
+        '<label class="ajanCountL">' + window.T2('Ajan sayısı', 'Agent count') + ' <select id="ajanCount">' + ajanCountOptions() + '</select></label>' +
         (state.settings.active.includes('deepseek') ? ''
-          : '<button type="button" class="mini ajanAddSeat" data-addseat="deepseek" title="DeepSeek’i beşinci sandalye olarak masaya ekler">＋ DeepSeek’i ekle</button>') +
+          : '<button type="button" class="mini ajanAddSeat" data-addseat="deepseek" title="' + esc(window.T2('DeepSeek’i beşinci sandalye olarak masaya ekler', 'Adds DeepSeek to the table as the fifth seat')) + '">＋ ' + window.T2('DeepSeek’i ekle', 'Add DeepSeek') + '</button>') +
         '<span class="ajanCost" id="ajanCost">' + ajanCostText() + '</span>' +
       '</div>' +
     '</div>' +
     '<p class="ajanFlowDesc">' + esc(AJAN_FLOWS[cfg.flow].desc) + '</p>' +
-    '<div class="imgRow"><span class="imgRowLbl">Görsel</span>' +
+    '<div class="imgRow"><span class="imgRowLbl">' + window.T2('Görsel', 'Image') + '</span>' +
       Object.keys(IMG_ENGINES).map(k =>
-        '<button type="button" class="imgEngBtn' + (imgCfg().engine === k ? ' on' : '') + '" data-imgeng="' + k + '" title="Motor: ' + esc(IMG_ENGINES[k].note) + '">' +
+        '<button type="button" class="imgEngBtn' + (imgCfg().engine === k ? ' on' : '') + '" data-imgeng="' + k + '" title="' + esc(window.T2('Motor: ', 'Engine: ') + trNote(IMG_ENGINES[k].note)) + '">' +
           '<b>' + esc(IMG_ENGINES[k].label) + '</b><i>' + esc(IMG_ENGINES[k].short) + '</i></button>').join('') +
       '<span class="imgRowSep" aria-hidden="true"></span>' +
       IMG_RATIOS.map(r =>
-        '<button type="button" class="imgRatioBtn' + ((imgCfg().ratio || '1:1') === r.k ? ' on' : '') + '" data-imgratio="' + r.k + '" title="' + esc(r.note) + '">' +
+        '<button type="button" class="imgRatioBtn' + ((imgCfg().ratio || '1:1') === r.k ? ' on' : '') + '" data-imgratio="' + r.k + '" title="' + esc(trNote(r.note)) + '">' +
           '<b>' + esc(r.k) + '</b><i>' + esc(r.short) + '</i></button>').join('') +
-      '<span class="imgRowNote">' + esc(IMG_ENGINES[imgCfg().engine].note) + ' · Oran: ' + esc(imgRatioOf(imgCfg().ratio).note) + '</span>' +
+      '<span class="imgRowNote">' + esc(trNote(IMG_ENGINES[imgCfg().engine].note)) + window.T2(' · Oran: ', ' · Ratio: ') + esc(trNote(imgRatioOf(imgCfg().ratio).note)) + '</span>' +
     '</div>' +
-    '<div class="camRow"><span class="imgRowLbl">Kamera</span>' +
-      CAMS.map(c => '<button type="button" class="camBtn" data-cam="' + c.id + '" title="İstemin sonuna eklenir: ' + esc(c.line) + '">' + esc(c.label) + '</button>').join('') +
-      '<span class="camNote">Metin etiketi — kredi harcamaz, yalnız görsel istemine eklenir.</span>' +
+    '<div class="camRow"><span class="imgRowLbl">' + window.T2('Kamera', 'Camera') + '</span>' +
+      CAMS.map(c => '<button type="button" class="camBtn" data-cam="' + c.id + '" title="' + esc(window.T2('İstemin sonuna eklenir: ', 'Added to the end of the prompt: ') + c.line) + '">' + esc(c.label) + '</button>').join('') +
+      '<span class="camNote">' + window.T2('Metin etiketi — kredi harcamaz, yalnız görsel istemine eklenir.', 'Text tag — costs no credits, only added to the image prompt.') + '</span>' +
     '</div>' +
     '<div class="ajanCards">' + cards + '</div>' +
     (kadroPid ? kadroBoxHTML(kadroPid) : '') +
-    '<p class="ajanNote">Görev ve beklenen çıktı boş bırakılırsa o ajan atlanır. <b>“Bu ajanın metninden görsel çizilsin”</b> işaretliyse, o ajan metnini bitirdikten sonra <b>yukarıdaki görsel motoru</b> bir görsel çizer — görseli ajanın kendisi değil, motor üretir. Açılışta kaç görsel çizileceği sorulur; istemezsen tek tek de üretebilirsin.</p>';
+    '<p class="ajanNote">' + window.T2('Görev ve beklenen çıktı boş bırakılırsa o ajan atlanır. <b>“Bu ajanın metninden görsel çizilsin”</b> işaretliyse, o ajan metnini bitirdikten sonra <b>yukarıdaki görsel motoru</b> bir görsel çizer — görseli ajanın kendisi değil, motor üretir. Açılışta kaç görsel çizileceği sorulur; istemezsen tek tek de üretebilirsin.', 'If the task and expected output are left empty, that agent is skipped. With <b>“Draw an image from this agent’s text”</b> ticked, the <b>image engine above</b> draws an image once that agent finishes its text — the engine produces the image, not the agent itself. At the start you are asked how many images to draw; you can also make them one by one.') + '</p>';
 }
 
 /* kurulumu sıfırla: görevler + proje cümlesi + (varsa) konuşma */
@@ -6823,7 +8083,7 @@ function renderHero() {
   const badge = $('#metaBadge');
   if (badge) {
     const live = state.settings.mode === 'live' || tekKeyless();
-    badge.textContent = tekKeyless() ? 'CANLI · ANAHTARSIZ' : (live ? 'CANLI' : 'DEMO · ÖRNEK KONUŞMA');
+    badge.textContent = tekKeyless() ? window.T2('CANLI · ANAHTARSIZ', 'LIVE · KEYLESS') : (live ? window.T2('CANLI', 'LIVE') : window.T2('DEMO · ÖRNEK KONUŞMA', 'DEMO · SAMPLE CONVERSATION'));
     badge.classList.toggle('live', live);
   }
 }
@@ -6890,15 +8150,16 @@ function renderKeyState() {
   if (!el) return;
   const s = state.settings;
   const a = s.api;
+  const en = !!(window.I18N && window.I18N.isEn());
   let txt = '';
-  if (s.mode === 'demo' && tekKeyless()) txt = 'Canlı · <b>Pollinations · anahtarsız</b>';
-  else if (s.mode === 'demo') txt = 'Demo modu · <b>örnek konuşma</b>';
-  else if ((a.key || '').trim()) txt = 'Canlı · <b>' + esc(GATEWAYS[a.kind].label) + '</b>';
-  else txt = 'Canlı · <b>anahtar yok</b>';
+  if (s.mode === 'demo' && tekKeyless()) txt = en ? 'Live · <b>Pollinations · keyless</b>' : 'Canlı · <b>Pollinations · anahtarsız</b>';
+  else if (s.mode === 'demo') txt = en ? 'Demo mode · <b>sample conversation</b>' : 'Demo modu · <b>örnek konuşma</b>';
+  else if ((a.key || '').trim()) txt = (en ? 'Live · <b>' : 'Canlı · <b>') + esc(GATEWAYS[a.kind].label) + '</b>';
+  else txt = en ? 'Live · <b>no key</b>' : 'Canlı · <b>anahtar yok</b>';
   // günlük istek sayısı: yalnız canlı modda ve en az bir istek yapıldıysa
   if (s.mode !== 'demo') {
     const n = (typeof reqToday === 'function') ? reqToday() : 0;
-    if (n > 0) txt += ' · bugün <b>' + n + '</b> istek';
+    if (n > 0) txt += en ? ' · <b>' + n + '</b> requests today' : ' · bugün <b>' + n + '</b> istek';
   }
   el.innerHTML = '<span style="cursor:pointer" id="keyStateBtn">' + txt + '</span>';
   const btn = $('#keyStateBtn');
@@ -6910,10 +8171,39 @@ function renderModePill() {
   if (!pill) return;
   pill.dataset.mode = state.settings.mode;
   const s = state.settings;
-  if (s.mode === 'demo' && tekKeyless()) txt.textContent = 'Anahtarsız';
+  if (s.mode === 'demo' && tekKeyless()) txt.textContent = window.T2('Anahtarsız', 'Keyless');
   else if (s.mode === 'demo') txt.textContent = 'Demo';
-  else txt.textContent = 'Canlı · ' + GATEWAYS[s.api.kind].label;
-  const sp = $('#speedLbl'); if (sp) sp.textContent = state.settings.speed + '×';
+  else txt.textContent = window.T2('Canlı · ', 'Live · ') + GATEWAYS[s.api.kind].label;
+}
+
+/* arayüz dilini uygula: bayraklar, <html lang>, bütün statik metinler */
+function setUiLang(l) {
+  const next = l === 'en' ? 'en' : 'tr';
+  state.settings.uiLang = next;
+  saveSettings();
+  if (window.I18N) I18N.apply();
+  markLangPick();
+  renderAll();
+  renderHistList();
+  if (drawerOpen) renderDrawer();
+  toast(next === 'en' ? 'Interface language: English' : 'Arayüz dili: Türkçe', 'ok');
+  translateSoon();
+}
+function markLangPick() {
+  const cur = state.settings.uiLang === 'en' ? 'en' : 'tr';
+  const box = $('#langPick');
+  if (!box) return;
+  $$('#langPick [data-lang]').forEach(b => {
+    const on = b.getAttribute('data-lang') === cur;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+}
+/* render sonrası çeviri (dinamik HTML için) */
+function translateSoon() {
+  if (!window.I18N || !I18N.isEn()) return;
+  clearTimeout(translateSoon._t);
+  translateSoon._t = setTimeout(() => I18N.translateDom(document.body), 20);
 }
 
 function renderAll() {
@@ -6927,6 +8217,8 @@ function renderAll() {
   if (typeof renderAjanBar === 'function') renderAjanBar();
   renderModePill();
   if (typeof renderKeyState === 'function') renderKeyState();   // günlük istek sayacı tazelensin
+  markLangPick();
+  translateSoon();
 }
 
 /* ---------------- token sayacı ---------------- */
@@ -6968,18 +8260,23 @@ function msgNode(m) {
     wrap2.dataset.id = m.id;
     wrap2.style.setProperty('--sp', m.color || '#f5c76a');
     const pk = m.packet;
+    /* kart etiketleri arayüz diline uyar (parsePacket iki dili de okur) */
+    const ENP = !!(window.I18N && I18N.isEn());
+    const LBL = ENP
+      ? { amac: 'GOAL', yerlesen: 'SETTLED', acik: 'OPEN', kanit: 'EVIDENCE', kisit: 'CONSTRAINT', sinir: 'LIMIT', ham: 'RAW', title: 'HAND-OFF PACKET', warn: 'Format did not match — the next agent received this packet as raw text.' }
+      : { amac: 'AMAÇ', yerlesen: 'YERLEŞEN', acik: 'AÇIK', kanit: 'KANIT', kisit: 'KISIT', sinir: 'SINIR', ham: 'HAM', title: 'DEVİR PAKETİ', warn: 'Biçim tutmadı — sıradaki ajan bu paketin ham metnini aldı.' };
     const rows = pk
-      ? [['AMAÇ', pk.amac], ['YERLEŞEN', pk.yerlesen], ['AÇIK', pk.acik], ['KANIT', pk.kanit], ['KISIT', pk.kisit], ['SINIR', pk.sinir]]
+      ? [['amac', pk.amac], ['yerlesen', pk.yerlesen], ['acik', pk.acik], ['kanit', pk.kanit], ['kisit', pk.kisit], ['sinir', pk.sinir]]
           .filter(r => r[1] && r[1].trim())
-          .map(r => '<div class="pkRow"><span class="pkK">' + r[0] + '</span><span class="pkV">' + esc(r[1]) + '</span></div>').join('')
-      : '<div class="pkRow"><span class="pkK">HAM</span><span class="pkV">' + esc(String(m.raw || '').slice(0, 500)) + '</span></div>';
+          .map(r => '<div class="pkRow"><span class="pkK">' + LBL[r[0]] + '</span><span class="pkV">' + esc(r[1]) + '</span></div>').join('')
+      : '<div class="pkRow"><span class="pkK">' + LBL.ham + '</span><span class="pkV">' + esc(String(m.raw || '').slice(0, 500)) + '</span></div>';
     wrap2.innerHTML =
       '<div class="pkHead"><span class="pkNo">' + (m.no || 1) + '</span>' +
-        '<span class="pkTitle">DEVİR PAKETİ</span>' +
+        '<span class="pkTitle">' + LBL.title + '</span>' +
         '<span class="pkFrom">' + esc(m.name || '') + '</span>' +
         (pk && pk.sonraki ? '<span class="pkNext">→ ' + esc(pk.sonraki) + '</span>' : '') +
       '</div>' + rows +
-      (pk ? '' : '<div class="pkWarn">Biçim tutmadı — sıradaki ajan bu paketin ham metnini aldı.</div>');
+      (pk ? '' : '<div class="pkWarn">' + LBL.warn + '</div>');
     return wrap2;
   }
   if (m.kind === 'summary') {
@@ -7218,7 +8515,7 @@ function renderHistList() {
   const nFav = list.filter(r => r.fav).length;
   if (cnt) cnt.textContent = list.length ? (list.length - nFav) + '/' + HIST_MAX + (nFav ? ' · ' + nFav + ' favori' : '') : '';
   if (!list.length) {
-    box.innerHTML = '<p class="hpEmpty">Henüz kayıtlı konuşma yok.<br>İlk konuşman başladığında burada görünecek.</p>';
+    box.innerHTML = '<p class="hpEmpty">Henüz kayıtlı konuşma yok.<br> İlk konuşman başladığında burada görünecek.</p>';
     return;
   }
   /* favoriler başa: sonra tarihe göre yeniden eskiye */
@@ -7690,9 +8987,6 @@ function drawerBodyHTML() {
     '<div style="font-size:11.5px;color:var(--muted);margin:-4px 0 10px">Masa hafızası: eski turlar tek satırlık nota iner, modele yalnız o not + son mesajlar gider. Sohbet ekranında görünmez; yalnız token harcamasını düşürür.</div>' +
     '<label class="field"><span>Sıkıştırmada son kaç mesaj tam kalsın</span>' +
     '<input type="number" id="contextKeepIn" min="0" max="20" step="1" value="' + (d.contextKeep === 0 ? 0 : (Number(d.contextKeep) || 3)) + '"/></label>' +
-    '<div class="speedRow"><span style="font-size:11.5px;color:var(--muted)">Konuşma hızı</span><div class="seg" id="speedSeg">' +
-    [1, 2, 4].map(v => '<button type="button" data-speed="' + v + '" class="' + (d.speed === v ? 'on' : '') + '">' + v + '×</button>').join('') +
-    '</div></div>' +
     (d.goal === 'custom'
       ? '<label class="field"><span>Gündem adı (masanın başlığında görünür)</span>' +
         '<input type="text" id="customGoalLabel" placeholder="Örn: Ürün fiyatlandırma kararı" value="' + esc((d.customGoal && d.customGoal.label) || '') + '"/></label>' +
@@ -7970,13 +9264,6 @@ function renderDrawerBody() {
   const freeSeat = $('#freeSeat');
   if (freeSeat) freeSeat.addEventListener('change', () => { /* yalnız seçim */ });
 
-  const ss = $('#speedSeg');
-  if (ss) ss.addEventListener('click', e => {
-    const b = e.target.closest('button[data-speed]'); if (!b) return;
-    syncDraftFromDOM();
-    drawerDraft.speed = Number(b.dataset.speed);
-    renderDrawerBody();
-  });
   const rReset = $('#rolesReset');
   if (rReset) rReset.addEventListener('click', () => {
     syncDraftFromDOM();
@@ -8386,7 +9673,7 @@ function closeHelp() {
 function helpHTML() {
   return [
     '<h3>Masa nasıl çalışır?</h3>',
-    '<p style="color:#9aa2b5"><b>Dil:</b> Cevaplar senin yazdığın dilde gelir (Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce). Tartışmanın ortasında dil değiştirirsen modeller yeni dile geçer. Arayüz ve dışa aktarma başlıkları Türkçedir.</p>',
+    '<p style="color:#9aa2b5"><b>Dil:</b> Cevaplar senin yazdığın dilde gelir (Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce). Tartışmanın ortasında dil değiştirirsen modeller yeni dile geçer. Arayüz, dışa aktarma başlıkları ve demo örnek konuşmalar seçtiğin arayüz dilinde gelir.</p>',
     '<p style="color:#9aa2b5">Ücretsiz ve kilitsiz: abonelik, günlük limit, reklam, hesap yok. Model ücretini kendi anahtarınla sağlayıcıya ödersin; DivanAI aradan para almaz. Lisans: Apache 2.0 (kullan, değiştir, sat — kapalı kutuya çevirmek de serbest).</p>',
     '<h3>Verin nereye gidiyor?</h3>',
     '<p>Yazdığın konu ve konuşma, <b>doğrudan kendi tarayıcından</b> seçtiğin sağlayıcıya (OpenRouter vb.) gönderilir. DivanAI’nın sunucusu yoktur; bu metinleri toplayan, saklayan ya da okuyan bir yer yoktur. Konuşma geçmişi yalnızca bu tarayıcıda saklanır.</p>',
@@ -8843,12 +10130,12 @@ function boot() {
     saveSettings(); closeDrawer(); renderAll(); persistSession();
     toast('Demo moduna dönüldü.', 'ok');
   });
-  $('#speedBtn').addEventListener('click', () => {
-    const order = [1, 2, 4];
-    const i = order.indexOf(state.settings.speed);
-    state.settings.speed = order[(i + 1) % order.length];
-    saveSettings(); renderModePill();
-    toast('Hız: ' + state.settings.speed + '×', 'ok');
+  /* ---- arayüz dili: bayraklar ---- */
+  const langPick = $('#langPick');
+  if (langPick) langPick.addEventListener('click', e => {
+    const b = e.target.closest('[data-lang]');
+    if (!b) return;
+    setUiLang(b.getAttribute('data-lang'));
   });
 
   document.addEventListener('keydown', e => {
@@ -8859,6 +10146,8 @@ function boot() {
     }
   });
 
+  if (window.I18N) { I18N.apply(); I18N.observe(); }
+  markLangPick();
   renderAll();
   if (!restoreSession()) {
     $('#input') && $('#input').focus();
