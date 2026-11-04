@@ -128,14 +128,16 @@ a{color:#9fc6ff}
   background:rgba(8,9,13,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   position:relative;z-index:5;
 }
-.brand{display:flex;align-items:center;gap:11px;min-width:0}
+/* marka küçülebilir ama rozetin altına taşmaz: taşan kısım kırpılır */
+.brand{display:flex;align-items:center;gap:11px;min-width:0;flex:0 1 auto;overflow:hidden}
 .logo{color:#dbe2f0;flex:0 0 auto;width:34px;height:34px;filter:drop-shadow(0 2px 8px rgba(96,165,250,.28))}
 .brandtext{display:flex;flex-direction:column;line-height:1.05;min-width:0}
 /* marka artık karışık harf (DivanAI): büyük harf için konmuş geniş harf aralığı
    seyrek duruyor, normale yakın tutuldu */
-.brandtext b{font-size:20px;letter-spacing:-.005em;font-weight:700}
+.brandtext b{font-size:20px;letter-spacing:-.005em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .brandtext span{font-size:11px;color:var(--dim);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.topmid{flex:1;display:flex;justify-content:center;min-width:0}
+/* orta rozet alanı: daralınca kırpılır, markanın üstüne binmez */
+.topmid{flex:1;display:flex;justify-content:center;min-width:0;overflow:hidden}
 .topactions{display:flex;align-items:center;gap:8px}
 .langPick{display:inline-flex;align-items:center;gap:3px;padding:3px;border-radius:11px;
   background:rgba(255,255,255,.04);border:1px solid var(--line)}
@@ -151,7 +153,9 @@ a{color:#9fc6ff}
   font-size:11px;letter-spacing:.06em;text-transform:uppercase;
   padding:5px 10px;border-radius:999px;border:1px solid var(--line2);
   color:var(--muted);background:rgba(255,255,255,.03);white-space:nowrap;
+  max-width:100%;overflow:hidden;
 }
+#modePillText{overflow:hidden;text-overflow:ellipsis}
 .pill .led{width:6px;height:6px;border-radius:50%;background:var(--dim)}
 .pill[data-mode="demo"] .led{background:#f5c76a;box-shadow:0 0 10px rgba(245,199,106,.7)}
 .pill[data-mode="live"]{border-color:rgba(52,211,153,.35);color:#a7e8cd;background:rgba(52,211,153,.08)}
@@ -852,16 +856,28 @@ select optgroup{background:#151a24;color:#9aa2b5}
   .summaryCard{padding:13px 14px}
   .drawer{width:100%}
 }
-/* 340 px altı: DEMO rozeti yer kaplamasın */
-@media (max-width:345px){ .topmid{display:none} }
-/* çok dar ekran: marka yazısı yerine yalnız logo — üst şerit sıkışmasın */
+/* dar ekran: DEMO/CANLI rozeti yer kaplamasın (durum alttaki satırda da yazıyor) */
+@media (max-width:470px){ .topmid{display:none} }
+/* mobil: marka adı kalsın, alt cümle gitsin; üst şerit sıkışmasın */
 @media (max-width:560px){
-  .brandtext{display:none}
+  .brandtext span{display:none}
   .topbar{padding:8px 10px;gap:6px}
   .topactions{gap:6px}
   .langPick{padding:2px;gap:2px}
   .langBtn{width:26px;height:21px}
   .langBtn svg{width:19px;height:13px}
+  .brand{gap:8px}
+  .brandtext b{font-size:18px}
+}
+@media (max-width:400px){
+  .topactions{gap:4px}
+  .topactions .btn.ghost{padding:7px 6px}
+  .brandtext b{font-size:17px}
+}
+/* 360 px altı: marka adını kırpmak yerine yalnız logo bırak */
+@media (max-width:355px){
+  .brandtext{display:none}
+  .topmid{display:none}
 }
 @media (max-width:520px){
   .seats{grid-template-columns:repeat(2,minmax(0,1fr))}
