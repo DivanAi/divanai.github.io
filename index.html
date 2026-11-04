@@ -1249,6 +1249,7 @@ const GATEWAYS = {
     baseUrl: 'https://api.groq.com/openai/v1',
     keyHint: 'gsk_…',
     keyUrl: 'https://console.groq.com/keys',
+    lite: true,            // kısa talimat: bu katmanın token kotası düşük
     note: 'Çok hızlı çıkarım. Ücretsiz katman: günde 1.000 istek, dakikada 30 (modele göre). Kredi kartı istemez.',
     models: { gpt: 'openai/gpt-oss-120b', gemini: 'llama-3.3-70b-versatile',
               claude: 'llama-3.1-8b-instant', grok: 'openai/gpt-oss-20b',
@@ -1287,6 +1288,7 @@ const GATEWAYS = {
     baseUrl: 'https://api.cerebras.ai/v1',
     keyHint: 'csk-…',
     keyUrl: 'https://cloud.cerebras.ai/',
+    lite: true,            // kısa talimat: bu katmanın token kotası düşük
     note: 'Çok hızlı açık modeller. Ücretsiz katman: günde 1 milyon token, dakikada 30 istek.',
     models: { gpt: 'gpt-oss-120b', gemini: 'qwen-3.8-27b', claude: 'gpt-oss-120b',
                 grok: 'qwen-3.8-27b', deepseek: 'gpt-oss-120b' }
@@ -1470,10 +1472,10 @@ const DEFAULT_SETTINGS = {
   chair: 'gpt',
   goal: 'debate',
   tone: 'chat',          // 'chat' = doğal sohbet (varsayılan) · 'net' = rapor düzeni · 'brief' = kısa madde
-  v: 3,                  // ayar şeması sürümü (göç için)
-  maxWords: 130,         // cevap başına kelime sınırı (kullanıcı değiştirebilir)
-  context: 'full',       // 'full' = tüm geçmiş · 'compact' = eski mesajlar tek satır
-  contextKeep: 3,        // sıkıştırmada son kaç mesaj tam tutulur
+  v: 4,                  // ayar şeması sürümü (göç için)
+  maxWords: 100,         // cevap başına kelime sınırı (kullanıcı değiştirebilir)
+  context: 'memory',     // 'memory' = masa hafızası (varsayılan) · 'compact' = tek satır · 'full' = tüm geçmiş
+  contextKeep: 2,        // hafıza modunda son kaç mesaj tam tutulur
   customGoal: { label: '', line: '' },   // 'Özel gündem' seçilince kullanılır
   roles: {},             // pid → { roleLabel, brief }  (varsayılanı ezer)
   speed: 1,
@@ -1481,11 +1483,11 @@ const DEFAULT_SETTINGS = {
   maxRounds: 6,          // güvenlik tavanı: bu turdan sonra devam etmez
   passOn: true,          // yeni noktası olmayan sandalye "PAS" yazar: boşuna cevap yazılmaz
   seatTimeout: 120,      // saniye: bir sandalye bu sürede bitirmezse sıra atlanır (0 = kapalı)
-  restMin: 5,            // dakika: 429/kredi hatası alan sağlayıcı bu süre hiç denenmez (0 = kapalı)
+  restMin: 1,            // dakika: hız/kota hatası alan sağlayıcı bu süre denenmez (0 = kapalı)
   web: false,            // OpenRouter :online — internetten bilgi (kredi harcar)
   table: 'konsey',       // 'konsey' = 4 ayrı model · 'ayna' = aynı model iki sandalyede
   duel: { on: false, pid: 'grok' },   // ayna modunun eski alanı (table ile eşitlenir)
-  v: 3
+  v: 4
 };
 
 function mergeSettings(stored) {
@@ -1563,7 +1565,7 @@ function mergeSettings(stored) {
   if (typeof s.autoStop !== 'boolean') s.autoStop = true;
   if (typeof s.passOn !== 'boolean') s.passOn = true;
   s.seatTimeout = Number.isFinite(Number(s.seatTimeout)) ? Math.max(0, Math.min(600, Math.round(Number(s.seatTimeout)))) : 120;
-  s.restMin = Number.isFinite(Number(s.restMin)) ? Math.max(0, Math.min(120, Math.round(Number(s.restMin)))) : 5;
+  s.restMin = Number.isFinite(Number(s.restMin)) ? Math.max(0, Math.min(120, Math.round(Number(s.restMin)))) : 1;
   if (typeof s.web !== 'boolean') s.web = false;
   if (!s.duel || typeof s.duel !== 'object') s.duel = { on: false, pid: 'grok' };
   if (!PROVIDERS[s.duel.pid]) s.duel.pid = 'grok';
@@ -1579,6 +1581,14 @@ function mergeSettings(stored) {
     s.v = 3;
   }
   if (!['chat', 'brief', 'net'].includes(s.tone)) s.tone = 'chat';
+  /* v4 · token tasarrufu: sohbet geçmişini olduğu gibi taşımak yerine masa hafızası.
+     Eski kayıtta 'full' seçili olsa bile bir kez hafızaya geçilir (kullanıcı geri bildirimi:
+     "her turda bir sürü mesajı baştan okumak kabul edilemez"). */
+  if (!s.v || s.v < 4) {
+    s.context = 'memory';
+    s.v = 4;
+  }
+  if (!['memory', 'compact', 'full'].includes(s.context)) s.context = 'memory';
   if (s.table === 'ayna') s.chair = s.duel.pid; else if (!s.active.includes(s.chair)) s.chair = s.active[0];
   return s;
 }
@@ -1864,26 +1874,59 @@ function ritualSignals(roundMsgs, prevMsgs) {
   return { hits, repeat, meta, cover, facts, ritual };
 }
 
+/* Masa hafızası — kullanıcıya GÖSTERİLMEZ.
+   Amaç: her istekte bütün geçmişi taşımak yerine, eski turları tek satırlık
+   notlara indirip modele hatırlatmak. Ekstra API çağrısı yapılmaz; not
+   masadaki cümlelerden yerelde kesilir. */
+function memoryDigest(msgs) {
+  const per = new Map();
+  for (const m of msgs) {
+    const name = m.personaId === 'user' ? 'Kullanıcı' : (m.name || 'Masa');
+    const d = digestLine(m.text);
+    if (!d) continue;
+    if (m.kind === 'summary') { per.set('_ozet', '- Masanın önceki özeti: ' + d); continue; }
+    per.set(m.personaId || name, '- ' + name + ': ' + d);
+  }
+  let lines = [...per.values()];
+  if (lines.length > 7) lines = lines.slice(-7);
+  let text = lines.join('\n');
+  if (text.length > 850) text = text.slice(text.length - 850);
+  return text;
+}
+
 function buildHistory(pid) {
   const out = [];
-  const compact = state.settings.context === 'compact';
+  const mode = state.settings.context || 'memory';
+  const compact = mode === 'compact';
+  const mem = mode === 'memory';
   const live = state.transcript.filter(m => (m.kind === 'msg' || m.kind === 'summary') && m.text && String(m.text).trim());
   const keep = Math.max(0, Math.min(20, Number(state.settings.contextKeep) || 3));
   const keepFrom = Math.max(0, live.length - keep);   // son N mesaj her zaman tam
+
+  const firstUser = live.find(m => m.personaId === 'user') || null;
+  if (mem) {
+    /* 1) konu: kullanıcının ilk sorusu her zaman birebir gider */
+    if (firstUser) out.push({ role: 'user', content: '[Kullanıcının masaya yazdığı asıl soru]:\n' + (firstUser.plain || firstUser.text) });
+    /* 2) hafıza notu: ilk soru ile son mesajlar arasındaki her şey tek blokta */
+    const older = live.filter(m => m !== firstUser).slice(0, Math.max(0, keepFrom - (firstUser ? 1 : 0)));
+    const memText = older.length ? memoryDigest(older) : '';
+    if (memText) out.push({ role: 'user', content: '[Masa hafızası — kullanıcı bu notu görmez; önceki turlarda kim ne dedi]:\n' + memText });
+    /* 3) son mesajlar tam metin (aşağıdaki döngü ekler) */
+  }
+
   for (const m of state.transcript) {
-    const old = compact && live.indexOf(m) > -1 && live.indexOf(m) < keepFrom;
+    const idx = live.indexOf(m);
+    const old = (compact || mem) && idx > -1 && idx < keepFrom;
+    if (mem && old) continue;                          // hafıza bloğunda yaşıyor
+    if (mem && firstUser && m === firstUser) continue;   // konu yukarıda birebir gitti
     const bodyTxt = old ? (digestLine(m.text) || m.plain || '') : m.plain;
     if (m.kind === 'msg') {
       if (!m.text || !String(m.text).trim()) continue;
       if (m.personaId === 'user') out.push({ role: 'user', content: '[Masaya yazıldı — kullanıcı]:\n' + bodyTxt });
       else if (m.personaId === 'system') out.push({ role: 'user', content: '[Masa başkanı, önceki oturumu özetledi]:\n' + bodyTxt });
       else if (pid && m.personaId === pid) {
-        // kendi cevabı: etiketsiz, assistant rolünde
         out.push({ role: 'assistant', content: (old ? '(özet) ' : '') + bodyTxt });
       } else {
-        // BAŞKA konuşmacının cevabı: user rolünde ve kim olduğu yazılı.
-        // (Eskiden hepsi 'assistant' gidiyordu; model başkasının metnini kendi
-        //  cevabı sanıp birebir tekrarlıyordu.)
         out.push({ role: 'user', content: '[' + m.name + ' · ' + m.roleLabel + ' konuştu]' + (old ? ' (özet):\n' : ':\n') + bodyTxt });
       }
     } else if (m.kind === 'summary') {
@@ -2066,6 +2109,19 @@ async function fetchQuota() {
 }
 
 /* bu masa kaç istek harcar?  {min, max} */
+/* D4 · masa başlamadan önce token tahmini.
+   Hesap kaba ama dürüst: talimat + bağlam her istekte yeniden gider,
+   cevaplar bir sonraki isteklerde taşınır. Sayı uydurulmaz, varsayımdır. */
+function estimateTokens() {
+  const est = estimateRequests();
+  const words = Number(state.settings.maxWords) || 100;
+  const ctxWords = state.settings.context === 'memory' ? 220 : (state.settings.context === 'compact' ? 420 : 900);
+  const promptTok = state.settings.litePrompt === 'lite' ? 380 : 780;   // kısa/tam talimat
+  const perCall = promptTok + ctxWords + Math.round(words * 2.2);
+  const calls = est.typical;
+  return { perCall, calls, total: perCall * calls, max: perCall * est.max };
+}
+
 function estimateRequests() {
   if (duelOn()) return { min: 5, max: 5 };            // 2 tur × 2 + hakem
   const chairs = personas().length || 4;
@@ -2083,10 +2139,17 @@ function quotaGuard() {
   if (q.remaining <= 0) {
     addMessage({ kind: 'notice', level: 'err', text:
       'Günlük ücretsiz istek hakkın doldu (0 / ' + (q.limit || 50) + '). ' +
-      'OpenRouter kotası her gün 00:00 UTC’de yenilenir; yerel saatinle ' + quotaTimeTR() + ' (' + quotaLeftText() + ' sonra). ' +
+      'Kota 00:00 UTC’de yenilenir; yerel saatinle ' + quotaTimeTR() + ' (' + quotaLeftText() + ' sonra). ' +
       'Bu arada Ayarlar → Mod: Demo ile masayı ücretsiz deneyebilirsin; demo hiç istek harcamaz.' });
     renderTranscript();
     return false;
+  }
+  if (state.settings.context === 'memory' || state.settings.tone === 'chat') {
+    const t = estimateTokens();
+    addMessage({ kind: 'notice', level: 'info', text:
+      'Tahmini harcama: **~' + Math.round(t.total / 1000) + ' bin token** (' + t.calls + ' istek × ~' + Math.round(t.perCall / 100) / 10 + ' bin). ' +
+      ((state.settings.context === 'memory') ? 'Masa hafızası açık: eski turlar tek satıra iniyor. ' : '') +
+      'Bu bir tahmindir; gerçek sayı oturum sonunda üstteki sayaçta görünür.' });
   }
   if (q.remaining < est.typical) {
     const msg = 'Kalan ücretsiz istek hakkın: ' + q.remaining + ' / ' + (q.limit || 50) + '\n\n' +
@@ -2104,7 +2167,33 @@ function tokenBudget() {
   return Math.max(1600, Math.min(4000, Math.round(w * 9) + 800));
 }
 
+/* Kısa talimat (free katman): aynı kurallar, 1/3 uzunlukta.
+   Groq/Cerebras gibi token kotası düşük servislerde varsayılan. */
+function liteSystem(p) {
+  const chat = (state.settings.tone || 'chat') === 'chat';
+  const chair = chairPersona();
+  const isChair = chair && p.id === chair.id;
+  const others = personas().filter(x => x.id !== p.id).map(x => x.name).join(', ');
+  const gg = goalOf();
+  return [
+    'Sen "' + p.name + '" adlı yapay zekâsın. Rolün: ' + p.roleLabel + ' — ' + (p.roleBrief || 'kendi açında konuş') + '.',
+    'Masada başka yapay zekâlar var: ' + (others || '—') + '.' + (isChair ? ' Sen başkansın, son sözü sen söyle.' : ' Başkan değilsin, masayı yönetme.'),
+    'Amaç: ' + gg.label + '. Görevin: ' + (p.duelSide ? DUEL_SIDES[p.duelSide].task : gg[p.role]) + '.',
+    'Kullanıcı kodlama bilmiyor; sade ve somut yaz.',
+    '',
+    chat
+      ? 'KURALLAR: İlk cümle doğrudan cevabın olsun. En fazla ' + words() + ' kelime, düz paragraf; madde imi, başlık, "Sonuç:/Artı:/Eksi:/İlk adım:" etiketi YASAK. Cümle 20 kelimeyi geçmesin, bir cümlede tek fikir. Kısa kelime seç. "Elbette", "harika soru", "umarım yardımcı olur" gibi açılış yok. Fikrin olsun: "bence", "sanırım" serbest, bir tarafı tut. "X dedi ama", "X’in dediği gibi fakat" gibi alıntı açılışı YASAK; itirazın varsa doğrudan yaz.'
+      : 'KURALLAR: En fazla ' + words() + ' kelime. İlk cümle doğrudan bilgi versin, giriş cümlesi ve kapanış özeti olmasın.',
+    'Somut ol: örnek, araç adı, adım ya da sayı ver. Uydurma sayı yasak; emin değilsen "kabaca" de. Aynı noktayı iki kez yazma. Model adı, komut ve hata metni değişmeden yazılır.',
+    sessionLang() === 'tr' ? 'Türkçe yaz; de/da, ki, mi eklerine dikkat.' : 'Yazım kurallarına uy.',
+    ...(p.duelSide ? ['Rakibin de aynı model. Rakibin en zayıf halkasını hedefle, kendi iddianın nerede çökebileceğini de yaz.'] : [])
+  ].filter(Boolean).join('\n');
+}
+
 function systemPrompt(p) {
+  const gwLite = !!(GATEWAYS[(state.settings.api || {}).kind] || {}).lite;
+  const liteOn = state.settings.litePrompt === 'lite' || (state.settings.litePrompt !== 'full' && gwLite);
+  if (liteOn) return liteSystem(p);
   const g = goalOf();
   const tone = state.settings.tone || 'chat';
   const net = tone === 'net';
@@ -2149,14 +2238,28 @@ function systemPrompt(p) {
         '   **Eksi:** 1–2 madde — maliyet, risk, sınır; kendi önerinin en kırılgan yanı burada olmalı.\n' +
         '   **İlk adım:** tek cümle — bugün yapılabilecek en küçük işlem.'
       : (chat
-        ? '1. **Sohbet gibi yaz:** 3–6 cümle, en fazla ' + words() + ' kelime. Birbirine bağlı akan tek paragraf; madde imi, başlık, numara yok. "Sonuç:", "Artı:", "Eksi:", "İlk adım:", "Kanıt:", "Ölçüt:" gibi etiketler YASAK — bunlar rapor dili, sohbet değil. İlk cümle doğrudan işe girsin; "Elbette", "Harika soru", "Öncelikle" gibi açılışlar yok.'
+        ? '1. **Cevap önce:** ilk cümle sorunun cevabı olsun, gerekçe arkasından gelsin. "Elbette", "harika soru", "öncelikle", "umarım yardımcı olur" gibi açılış ve kapanış yok.'
         : '1. **Kısa yaz:** en fazla ' + words() + ' kelime. Tek paragraf ya da en fazla 3 madde. Giriş cümlesi, özet cümlesi, nezaket kalıbı yok — ilk cümle doğrudan bilgi versin.'),
+    chat
+      ? '1b. **Cümle kısa olsun:** cümle 20 kelimeyi geçmesin, bir cümlede tek fikir. Uzun zincirleme cümle yok. Kısa kelime seç: "gerçekleştirmek" değil "yapmak", "implementasyon" değil "kurulum".'
+      : null,
+    chat
+      ? '1c. **Fikrin olsun:** "bence", "sanırım", "bana kalırsa" serbest. Bir tarafı tut ve nedenini söyle; "her iki tarafın da haklı yanı var" gibi ortada kalan cevap yazma.'
+      : null,
+    chat
+      ? '1d. **Alıntıyla başlama:** "X dedi ama", "X’in dediği gibi fakat", "Claude’un itirazı yerinde ancak", "Gemini’nin önerisi mantıklı, ama" gibi kalıplar YASAK. İtiraz edeceksen doğrudan kendi cümlenle başla: "Ölçüt yazılmadan deneme yanıltır." Katıldığın noktayı da kalıpla değil, içeriğiyle söyle.'
+      : null,
+    chat
+      ? '1e. **Somut ol:** soyut cümle yerine örnek, araç adı, adım ya da sayı ver. Emin olmadığın sayıyı uydurma — "kabaca", "tahminimce" de ve tahmin olduğunu belirt. Uydurma sayı en büyük hatadır. Her sayının arkasına "(kaynak yok)" yazmak zorunda değilsin.'
+      : null,
+    chat
+      ? '1f. **Taklit yok:** kısalığı gösteriye çevirme. "Ben düşünürüm", "taş kafa", "mağara adamı" gibi sahte üslup yasak. Kısalık, düşünceyi kırpmadan süsü atar; anlamı değil.'
+      : null,
     ...(chat
       ? [
-        '2. **Fikrin olsun:** "bence", "sanırım", "bana kalırsa" serbest. Bir tarafı tut ve nedenini söyle; "her iki tarafın da haklı yanı var" gibi ortada kalan cevap yazma.',
-        '3. **Somut ol:** soyut cümle yerine örnek, araç adı, adım ya da sayı ver. Emin olmadığın sayıyı uydurma — "kabaca", "tahminimce" de ve tahmin olduğunu söyle. Uydurma sayı en büyük hatadır.',
-        '4. **Karşılık ver:** senden önce konuşanın söylediği bir cümleye doğrudan değin; adını anman serbest ("Claude’un maliyet itirazı yerinde ama…"). Katıl, itiraz et ya da ekle; ardından kendi noktanı söyle. Daha önce söylenmiş şeyi tekrar etme.',
-        '5. **Dolgu yok:** "çok önemli", "kritik nokta", "unutmayın", "sonuç olarak" gibi kalıplar yok. Kısa cümle kur, süsleme yapma.'
+        '2. **Tekrar etme:** aynı noktayı aynı gerekçeyle ikinci kez yazma. Yeni bir gerekçe, örnek ya da karşı örnekle derinleştirmek serbest.',
+        '3. **Dolgu yasak:** "çok önemli", "kritik nokta", "unutmayın", "sonuç olarak", "kısacası", "genel olarak" gibi kalıplar yok.',
+        '4. **Yük aynen:** model adı, komut, dosya yolu, hata metni, sayı ve birim değişmeden yazılır. Bunları kısaltma, sadeleştirme.'
       ]
       : [
         '2. **Objektif ol:** övgü, duygusal dil, taraf tutma yok ("harika", "kesinlikle", "bence", "çok güzel" gibi ifadeler kullanma). İddialarını gerekçeyle kur; veri yoksa "kanıt yok" de. Sayı, istatistik, fiyat, kaynak uydurma.',
@@ -2164,11 +2267,13 @@ function systemPrompt(p) {
         '2c. **Sayının kaynağı:** fiyat, süre, oran veya tarih yazıyorsan kaynağını da yaz; kaynak yoksa sonuna "(kaynak yok)" ekle ve tahmin olduğunu belirt. Uydurma sayı, en büyük hatadır.',
         '3. **Kendi görüşünün zayıf yerini yaz:** her cevapta savunduğun noktanın en kırılgan yanını tek cümleyle belirt ("Bunu çürütecek şey: …"). Karşı argüman üretmek zorunlu, taraf tutmak yasak.',
         '3b. **Tekrar etme:** aynı noktayı aynı gerekçeyle ikinci kez yazma. Aynı noktayı **yeni bir gerekçe, örnek veya karşı örnekle derinleştirmek serbest** — tartışma böyle ilerler. Söyleyecek gerçekten yeni bir şey yoksa aynen şunu yaz: "Yeni nokta yok; kalan tek belirsizlik: …"',
-        '4. **Alıntı yapma:** "X şunu dedi / masaya şunu bıraktı / X ile aynı yerdeyim" gibi ifadelerle başlama; başkasının cümlesini tekrarlama. İtiraz edeceksen doğrudan kendi cümlenle başla: "Kapsam itirazı geçersiz, çünkü…"',
-        net
-          ? '5. Soru sormak veya sözü birine devretmek zorunlu değil. Sohbet akışı gerektiriyorsa birine tek cümleyle cevap ver; "@isim" etiketi kullanma.'
-          : '5. Tartışma turlarında son cümlede tek bir soru sor ve sözü tek kişiye bırak. Kapanış/özet turlarında soru sorma.'
+        '4. **Alıntı yapma:** "X şunu dedi / masaya şunu bıraktı / X ile aynı yerdeyim" gibi ifadelerle başlama; başkasının cümlesini tekrarlama. İtiraz edeceksen doğrudan kendi cümlenle başla: "Kapsam itirazı geçersiz, çünkü…"'
       ]),
+    chat
+      ? '5. Soru sormak veya sözü birine devretmek zorunlu değil. İçerik gerektiriyorsa birine tek cümleyle cevap ver; "@isim" etiketi kullanma.'
+      : (net
+        ? '5. Soru sormak veya sözü birine devretmek zorunlu değil. Sohbet akışı gerektiriyorsa birine tek cümleyle cevap ver; "@isim" etiketi kullanma.'
+        : '5. Tartışma turlarında son cümlede tek bir soru sor ve sözü tek kişiye bırak. Kapanış/özet turlarında soru sorma.'),
     sessionLang() === 'tr'
       ? '6. Türkçe: de/da, ki, mi eklerine dikkat. Teknik terimi ilk kullanışta bir cümleyle açıkla.'
       : '6. Yazım ve dilbilgisi kurallarına uy. Teknik terimi ilk kullanışta bir cümleyle açıkla.',
@@ -2178,7 +2283,7 @@ function systemPrompt(p) {
       : []),
     ...(p.duelSide
       ? ['9. **Aynı modelin iki rolü:** rakibin de aynı modelsin. Kendini tanıtma, "ben yapay zekâyım" deme. Rakibin son iddiasındaki en zayıf halkayı hedefle; kendi iddianın çökeceği durumu da yaz.',
-         '9b. **Ritüel yasağı:** rakibinin açılış cümlesini tekrarlayarak başlama ("X de yanıltıcı:" gibi). Tartışmayı tartışma: "ölçüt nedir, varsayım nedir, neye kanıt denir" gibi meta konulara kayma — kullanıcının sorusuna somut cevap ver.',
+         '9b. **Ritüel yasağı:** rakibinin açılış cümlesini tekrarlayarak başlama ("X de yanıltıcı:", "X dedi ama" gibi). Tartışmayı tartışma: "ölçüt nedir, varsayım nedir, neye kanıt denir" gibi meta konulara kayma — kullanıcının sorusuna somut cevap ver.',
          '9c. **Yeni bilgi zorunlu:** her cevapta en az bir yeni somut şey olsun: sayı, araç adı, adım ya da kaynak. Ekleyecek gerçekten yeni bir şey yoksa aynen şunu yaz: "Yeni nokta yok; kalan tek belirsizlik: …" ve bitir.']
       : []),
     '',
@@ -2192,7 +2297,7 @@ function systemPrompt(p) {
   if (said.length) {
     lines.push('', '## Masada şu ana kadar söylenenler (tekrar etme)', ...said);
   }
-  return lines.join('\n');
+  return lines.filter(l => l != null).join('\n');
 }
 
 /* ---------------- HTTP / SSE ---------------- */
@@ -2250,10 +2355,17 @@ function friendlyError(status, bodyText, providerName) {
       detail = (j.error && (j.error.message || j.error.code)) || j.message || (typeof j.error === 'string' ? j.error : '');
     } catch (e) { detail = raw.replace(/\s+/g, ' ').slice(0, 200); }
   }
+  const pn = providerName || 'Sağlayıcı';
   if ((status === 403 || status === 429) && /key limit exceeded|spend limit|limit reached/i.test(raw)) {
-    return 'Anahtar geçerli ama harcama limiti dolu/0 (403 · Key limit exceeded). ' +
-      'OpenRouter → Settings → Keys → anahtarın “Limit”ini artır ya da limitsiz yeni anahtar oluştur. Kredi eklemek tek başına yetmez.' +
-      (providerName ? ' · ' + providerName : '');
+    /* E1 · hata metni HER ZAMAN gerçek bağlantının adını söyler.
+       Eskiden sağlayıcı ne olursa olsun "OpenRouter" yazıyordu; Groq kullanan
+       kullanıcıyı yanlış yere gönderiyordu. */
+    const isOR = /openrouter/i.test(pn);
+    return pn + ': anahtarın harcama limiti dolu ya da 0 (403). ' +
+      (isOR
+        ? 'OpenRouter → Settings → Keys → anahtarın “Limit”ini artır ya da limitsiz yeni anahtar oluştur.'
+        : pn + ' konsolunda anahtarın/kotamın limitine bak; ücretsiz katmanda günlük limit dolmuş olabilir.') +
+      ' Kredi eklemek tek başına yetmez.';
   }
   const base = status === 401 ? 'API anahtarı reddedildi (401) — anahtar geçersiz.'
     : status === 403 ? 'Erişim reddedildi (403) — anahtar izni/limiti ya da bölge kısıtı.'
@@ -2368,6 +2480,12 @@ async function callChat(cfg, model, system, messages, maxTokens, onDelta, signal
     // düşünme (reasoning) tokenları bütçeyi yiyip metni yarım bırakabiliyor
     body.reasoning = { enabled: false };
   }
+  /* D2 · gpt-oss ailesi her zaman "düşünür"; tamamen kapatılamaz.
+     Groq/Cerebras yalnız low/medium/high kabul eder ('none' 400 döner).
+     En düşük kademe: ekranda görünmeyen ama kotadan düşen tokenları azaltır. */
+  if (/(api\.groq\.com|cerebras\.ai)/i.test(ep.base) && /gpt-oss/i.test(model)) {
+    body.reasoning_effort = 'low';
+  }
 
   const call = async (b) => {
     try {
@@ -2377,7 +2495,7 @@ async function callChat(cfg, model, system, messages, maxTokens, onDelta, signal
           : 'Bağlantı kurulamadı. İnternet, adres ve anahtarı kontrol et. Tarayıcı engelliyorsa OpenRouter/Groq gibi bir geçit kullan.');
     } catch (err) {
       // geçit "reasoning" alanını reddettiyse parametresiz tekrar dene
-      if (b.reasoning && /reasoning|invalid|unsupported|400/i.test(String(err && err.message))) {
+      if ((b.reasoning || b.reasoning_effort) && /reasoning|invalid|unsupported|400/i.test(String(err && err.message))) {
         const b2 = { ...b }; delete b2.reasoning;
         return await openAICompatStream(ep.url, headers, b2, onDelta, signal, model,
           'Bağlantı kurulamadı. İnternet, adres ve anahtarı kontrol et.');
@@ -2549,7 +2667,8 @@ async function testConnections(cfgMain, seats, onProgress) {
   const results = [];
   for (const seat of seats) {
     const cfg = seat.cfg || cfgMain;
-    const out = { id: seat.id, name: seat.name, model: seat.model, ok: false, msg: '', tips: [], url: '' };
+    const out = { id: seat.id, name: seat.name, model: seat.model, ok: false, msg: '', tips: [], url: '',
+      provider: (GATEWAYS[(cfg && cfg.kind) || ''] || {}).label || String((cfg && cfg.kind) || 'Bağlantı') };
     try {
       if (!seat.model) throw new Error('model kimliği boş');
       const ep = endpointOf(cfg);
@@ -2575,9 +2694,9 @@ async function testConnections(cfgMain, seats, onProgress) {
         }
         out.msg = res.status + ' · ' + String(detail).replace(/\s+/g, ' ').slice(0, 180);
         if (res.status === 403 && /key limit exceeded|spend limit/i.test(String(detail))) {
-          out.msg = '403 · Anahtarın harcama limiti dolu/0 — OpenRouter → Settings → Keys → Limit’i artır (kredi eklemek tek başına yetmez).';
+          out.msg = out.provider + ' · 403 — anahtarın harcama limiti dolu ya da 0. Sağlayıcının konsolundan limitine bak.';
         } else if (res.status === 402) {
-          out.msg = '402 · Kredi yok — OpenRouter → Credits’ten kredi ekle ya da :free model dene.';
+          out.msg = '402 · Kredi yok — ' + (out.provider || 'sağlayıcı') + ' hesabında kredi bitmiş. Kredi ekle ya da ücretsiz bir model dene.';
         }
       } else {
         let content = '';
@@ -2848,6 +2967,14 @@ async function runRound(opts = {}) {
     state.queue = speakers.slice(i + 1);
     state.pending.done = i;
     renderSeats(); updateStatus();
+    /* E4 · nefes payı: aynı bağlantı (özellikle ücretsiz katman) dakikada N token
+       sınırı koyuyor. Sandalyeler art arda konuşunca sınır ilk turda doluyor.
+       Aynı sağlayıcı bir öncekiyle aynıysa kısa bir bekleme yapılır. */
+    const prevSeat = i > 0 ? personaById(speakers[i - 1]) : null;
+    if (prevSeat && seatKindOf(prevSeat.provider) === seatKindOf(p.provider)) {
+      const gw = GATEWAYS[seatKindOf(p.provider)] || {};
+      if (gw.lite) await sleep(Math.max(0, Math.min(3000, (Number(state.settings.seatGap) || 1.2) * 1000)));
+    }
 
     // boş "yazıyor" baloncuğu
     const draftMsg = { id: uid(), ts: nowISO(), kind: 'msg', round: round, personaId: p.id, name: p.name, short: p.short, color: p.color, roleLabel: p.roleLabel, text: '', streaming: true };
@@ -3045,11 +3172,14 @@ async function runRound(opts = {}) {
       }
       if (!fallbackReported) {
         const daily = isDailyQuota(state.lastError);
+        const gwKind = seatKindOf(p.provider);
+        const gwLabel = (GATEWAYS[gwKind] || {}).label || gwKind || 'Bağlantı';
+        const modelId = (effModel && effModel(p.provider)) || modelFor(p.provider) || '—';
         addMessage({ kind: 'notice', level: 'err', text: daily
-          ? 'Günlük ücretsiz istek hakkı doldu. OpenRouter kotası her gün 00:00 UTC’de yenilenir; yerel saatinle ' +
-            quotaTimeTR() + ' (' + quotaLeftText() + ' sonra). ' +
+          ? 'Günlük ücretsiz istek hakkı doldu — bağlantı: **' + gwLabel + '**. ' +
+            'Kota sıfırlanınca devam eder; yerel saatinle ' + quotaTimeTR() + ' (' + quotaLeftText() + ' sonra). ' +
             'Bu arada Ayarlar → Mod: Demo ile devam edebilirsin; demo istek harcamaz.'
-          : p.name + ' konuşamadı: ' + state.lastError });
+          : p.name + ' konuşamadı · ' + gwLabel + ' · model: ' + modelId + '\n' + state.lastError });
         renderTranscript();
         if (daily) {
           fetchQuota();
@@ -3339,7 +3469,15 @@ function localSummaryText() {
   const chair = chairPersona();
   const head = (chair && last[chair.id]) ? last[chair.id] : msgs[msgs.length - 1];
   const lines = [];
-  lines.push('**Sonuç:** ' + (ozetKes(al(ozetCumleler(head.text)), 170) || '—'));
+  /* 2026 · önce başkan ağzından kısa bir anlatım, altında kısa döküm.
+     Bu metin masadaki cümlelerden kesilip birleştirilir; yeni cümle üretilmez. */
+  const ilk = ozetKes(al(ozetCumleler(head.text)), 150);
+  const son = ozetKes((ozetCumleler(head.text) || [])[1] || '', 130);
+  lines.push((ilk || 'Masa toparlandı.') +
+    (son ? ' ' + son : '') +
+    ' Özet, masadaki cümlelerden kesilip birleştirildi; yeni cümle üretilmedi.');
+  lines.push('');
+  lines.push('**Sonuç:** ' + (ilk || '—'));
   lines.push('');
   lines.push('**Masadaki son noktalar**');
   for (const p of personas()) {
@@ -3413,18 +3551,24 @@ async function summarize(opts = {}) {
   const sys = systemPrompt({ ...chair, duelSide: null, role: 'chair', roleLabel: 'HAKEM', roleBrief: 'tarafsız hakem' }) +
     (duelOn()
       ? '\n\n## Görev: hakem kararı\n' +
-        'İki taraf da aynı modelin iki rolüydü (savunan ve itiraz eden). En fazla 140 kelime, markdown:\n' +
-        '1. **Sonuç:** hangi taraf hangi noktada haklı — tek cümle, taraf tutmadan.\n' +
-        '2. **Savunmanın en güçlü 2 argümanı.**\n' +
-        '3. **İtirazın en güçlü 2 argümanı.**\n' +
-        '4. **Karar verilemeyen nokta** (varsa) ve bunun için gereken veri.\n' +
-        '5. **İlk adım:** tek cümle.\n' +
+        'İki taraf da aynı modelin iki rolüydü (savunan ve itiraz eden). İki bölüm yaz.\n' +
+        '**Birinci bölüm:** hakem ağzından, sohbet eder gibi 3–5 cümle. Hangi tarafın nerede haklı olduğunu ' +
+        'kendi cümlelerinle anlat ve kararını ver. Etiket, madde, başlık YOK.\n' +
+        '**İkinci bölüm:** boş satır bırakıp şu satırları yaz:\n' +
+        '**Sonuç:** hangi taraf hangi noktada haklı — tek cümle, taraf tutmadan.\n' +
+        '**Savunmanın güçlü yanı:** tek satır.\n**İtirazın güçlü yanı:** tek satır.\n' +
+        '**Karar verilemeyen:** varsa tek satır ve gereken veri.\n**İlk adım:** tek cümle.\n' +
         'Yeni argüman üretme, sadece masada söyleneni tart. Süsleme yok. ' +
-        'İlk satırdaki **Sonuç:** mutlaka kullanıcının sorusuna verilen CEVABI söylesin; tartışmanın nasıl geçtiğini değil.'
+        '**Sonuç:** satırı mutlaka kullanıcının sorusuna verilen CEVABI söylesin; tartışmanın nasıl geçtiğini değil.'
       : '\n\n## Görev: masa özeti\n' +
-        'Konuşmayı başkan olarak toparla. En fazla 120 kelime, markdown:\n' +
-        '1. Tek cümlelik sonuç.\n2. Uzlaşılan 2–3 madde.\n3. Açık kalan itiraz (varsa).\n4. Net ilk adım.\n' +
-        'Tekrar yok, yeni tartışma yok, süsleme yok.');
+        'Masa sustu; söz sende. İki bölüm yaz, sırası önemli.\n' +
+        '**Birinci bölüm:** kendi ağzından, sohbet eder gibi 3–5 cümle. Neye varıldığını anlat, ' +
+        'nerede anlaşılmadığını söyle, ne yapılması gerektiğine dair kendi fikrini ver. Etiket, madde imi, başlık YOK. ' +
+        '"Sonuç:", "Artı:", "Eksi:" gibi kalıplarla başlama.\n' +
+        '**İkinci bölüm:** boş satır bırakıp şu dört satırı yaz (tek satır, uzun paragraf değil):\n' +
+        '**Sonuç:** tek cümle.\n**Uzlaşılan:** 2–3 kısa madde, orta nokta ile ayrılmış.\n' +
+        '**Açık itiraz:** varsa tek satır.\n**İlk adım:** tek satır.\n' +
+        'Yeni tartışma açma, süsleme yapma. Birinci bölümde ikinci bölümü tekrar etme.');
   const hist = buildHistory(chair.id);
   const sl = sessionLang();
   hist.push({ role: 'user', content: (sl && sl !== 'tr'
@@ -3847,8 +3991,15 @@ function resetSession() {
 /* ============================================================
    DivanAI — demo motoru
    Anahtar olmadan masanın nasıl çalıştığını gösterir.
-   İlkeler: objektif, tekrar yok, alıntı yok. Üslup ayarına göre
-   metin ya madde madde (kısa) ya da düz paragraf (sohbet) olarak verilir.
+
+   2026 · kullanıcı geri bildirimi: cevaplar "Sonuç / Artı / Eksi /
+   İlk adım" iskeletiyle robotikti ve konuyla ilgisiz sabit metinler
+   dönüyordu. Artık demo metinleri:
+     · doğal sohbet dilinde (etiket yok, madde yok),
+     · kullanıcının yazdığı konuya bağlı ({{t}} yerine gerçek konu),
+     · birbirine cevap veren cümlelerle yazılı,
+     · "X dedi ama" kalıbıyla başlamıyor.
+   "Rapor düzeni" (net) üslubu seçilirse eski iskelet korunur.
    ============================================================ */
 'use strict';
 
@@ -3875,382 +4026,219 @@ function demoContext(p) {
   };
 }
 
-// sözü sıradaki konuşmacıya (yoksa role) bırakır
+/* sıradaki konuşmacının adı: "Gemini, " — doğal sohbet devri
+   (eski "@isim," biçimi sohbet üslubunda yasak) */
 function to(ctx, role) {
-  // sıradaki konuşmacı yoksa sözü başkana bırak
   const target = ctx.next || (role && ctx[role]) || ctx.chair;
-  return target ? '@' + target.name + ', ' : '';
+  return target ? target.name + ', ' : '';
 }
 
 /* ============================================================
-   Gündem türüne göre içerik setleri
-   Her metin: en fazla ~90 kelime, gerekçeli, süslü ifade yok.
+   Gündem türüne göre içerik setleri — sohbet dili
+   Kural: 3–5 cümle, tek paragraf, etiket yok, konu adı geçer.
    ============================================================ */
 const KITS = {
 
   /* ---------------- TARTIŞ & ELEŞTİR ---------------- */
   debate: {
     moderator: ctx => [
-      '**Gündem:** *' + ctx.topicPhrase + '*',
-      'Üç soru: 1) ne kanıt, ne varsayım? 2) en pahalı hata nerede? 3) bu hafta atılabilecek tek adım?',
-      '',
-      'Kural: en fazla 90 kelime, tekrar yok. ' + to(ctx, 'analyst') + 'kanıt–varsayım ayrımını yap.'
+      'Konu şu: ' + ctx.topicPhrase + '. Benim aklıma takılan tek şey, bunu bu ay mı yapacağız yoksa konuşmakla mı yetineceğiz. İki turda bir yere varmak istiyorsak herkes tek bir noktayı savunsun, çoğaltmasın. ' +
+      to(ctx, 'analyst') + 'sende somut taraf daha net, sen başla: elimizde ne var, ne yok?'
     ],
     analyst: ctx => [
-      '- **Kanıt:** bu konuda doğrulanmış veri yok; masadaki sayılar varsayım.',
-      '- **Ölçüt:** deneme üç şeyle değerlendirilsin — ilgi, tekrar, maliyetin geri dönüşü.',
-      '- **Sıra:** önce en ucuz kanıt, sonra yatırım.',
-      '',
-      to(ctx, 'critic') + 'en zayıf varsayım hangisi?'
+      'Elimizde doğrulanmış tek bir sayı yok, onu baştan söyleyeyim. Yani ' + ctx.t + ' konusunda bugün söylenecek her rakam tahmin olur. Bence kararı üç şeyle ölçelim: insanlar gerçekten istiyor mu, tekrar kullanıyor mu, parası çıkıyor mu. Bu üçünden biri bile yoksa gerisi hikâye. ' +
+      to(ctx, 'critic') + 'sen neresinin en zayıf olduğunu söyle.'
     ],
     critic: ctx => [
-      'En zayıf üç nokta:',
-      '1. **Talep:** istemek ile ödeme farklı; ikincisi kanıtlanmadı.',
-      '2. **Gizli maliyet:** bakım, sabit gider, zaman — ilk hesapta yok.',
-      '3. **Geri dönüş:** karar tersine çevrilemiyorsa risk büyür.',
-      '',
-      'Deneme küçük tutulursa risk taşınabilir. ' + to(ctx, 'engineer') + 'en küçük deneme ne kadar sürer?'
+      'En zayıf yer talep. İstemek kolay, ödemek zor, biz ikisini aynı şey sanıyoruz. Bir de kimsenin hesaba katmadığı bakım var: bir kere kurulunca her ay biri onunla ilgilenecek. O yüzden küçük ve geri alınabilir bir denemeden yanayım. ' +
+      to(ctx, 'engineer') + 'en küçük deneme ne kadar sürer sence?'
     ],
     engineer: ctx => [
-      'En küçük deneme:',
-      '- Tek senaryo, tek aşama; 2–3 hafta hazırlık.',
-      '- Sabit bütçe, sabit tarih; sonradan ek kalem yok.',
-      '- Ölçüt: 10 denemeden kaçı tekrar ediyor?',
-      '',
-      to(ctx, 'moderator') + 'turu kapatabilirsin.'
+      'En küçük deneme şöyle olur: tek bir iş, tek bir birim, iki üç hafta. Bir tarih koyarız, o tarihte bakarız. Bütçe ve kapsam o tarihe göre kesilir, sonradan "biraz daha" olmaz. Ölçüt de basit: on denemeden kaçı tekrar ediyor? ' +
+      to(ctx, 'moderator') + 'bence turu kapatabilirsin.'
     ],
     researcher: ctx => [
-      'Benzer durumlarda görülen: risk ilk 3 ayda en yüksek; sabit gider çıkışı zorlaştırıyor.',
-      '',
-      'Bu bir eğilim, kanıt değil — bu konuya özel veri elimizde yok.'
+      'Benzer işlerde gördüğüm şu: risk en çok ilk üç ayda çıkıyor, sonrası alışkanlığa dönüyor. Ama bunu kanıt diye sunmam. Bu konuya ait elimde ölçüm yok, olsa da buraya kopyalanamaz.'
     ],
     r2: {
       moderator: ctx => [
-        'Ölçüt üçe indi, tekrar yok. Kalan soru tek: **denemenin sınırı ne?**',
-        '',
-        'Herkes tek madde söylesin: süre mi, bütçe mi, kapsam mı sabitlenecek? ' + to(ctx, 'analyst') + 'sen başla.'
+        'Bakıyorum aynı yere dönüyoruz: sınır ne olacak? Süre mi, bütçe mi, kapsam mı sabitleyeceğiz. Tek tek cevap verin, uzatmayın. ' + to(ctx, 'analyst') + 'sen başla.'
       ],
       analyst: ctx => [
-        '- **Sabitlenecek olan süre:** 4 hafta. Bütçe ve kapsam buna göre kesilir.',
-        '- **Neden:** süre esnerse kapsam büyür; kapsam esnerse süre uzar.',
-        '- **Ölçüm:** haftalık tek satır — deneme sayısı, tekrar sayısı, harcama.',
-        '',
-        to(ctx, 'critic') + 'bu sınır yeterli mi?'
+        'Süre sabitlensin, dört hafta. Bütçe ve kapsam süreye göre kesilir, tersi olursa iş uzar, kapsam şişer. Her hafta tek satır yazarız: kaç deneme, kaç tekrar, ne kadar harcadık. ' +
+        to(ctx, 'critic') + 'bu sınır sana yeter mi?'
       ],
       critic: ctx => [
-        '- **Yetersiz:** süre sabit ama vazgeçme koşulu yazılı değilse 4. haftada “biraz daha” denir.',
-        '- **Ek koşul:** tekrar eden kullanıcı sıfırsa deneme uzatılmaz, kapatılır.',
-        '',
-        to(ctx, 'engineer') + 'kapanışı uygulanabilir kılar mı?'
+        'Dört hafta bana da uyar ama tek şartla: vazgeçme koşulu kâğıtta duracak. "Tekrar eden kullanıcı sıfırsa deneme uzatılmaz" cümlesi yazılı olsun. Yoksa dördüncü hafta hep birlikte "biraz daha bakalım" deriz, bunu hepimiz biliyoruz. ' +
+        to(ctx, 'engineer') + 'uygulamada sıkıntı çıkar mı?'
       ],
       engineer: ctx => [
-        'Uygulanabilir:',
-        '- Haftalık 3 sayı (deneme, tekrar, harcama) tek tabloda.',
-        '- 4. hafta sonu tek karar: devam / kapat. Ara uzatma yok.',
-        '',
+        'Çıkmaz. Üç sayı haftalık tabloda durur, dördüncü haftanın sonunda tek karar verilir: devam mı, kapat mı. Ara uzatma yok. ' +
         to(ctx, 'moderator') + 'masayı kapatabilirsin.'
       ],
       researcher: ctx => [
-        'Ek veri: dar denemelerde karar genelde 4–6 haftada netleşiyor; daha uzun süreler belirsizliği azaltmıyor.',
-        '',
-        'Bu eğilim, kanıt değil.'
+        'Not düşeyim: dar denemelerde karar genelde dört ile altı hafta arasında netleşiyor, daha uzun süre yeni bir şey öğretmiyor. Bu bir eğilim, kanıt değil.'
       ]
     },
     chair1: ctx => [
-      '**Tur 1 kapandı.**',
-      '- **Ölçüt:** ilgi, tekrar, maliyetin geri dönüşü.',
-      '- **İtiraz:** talep kanıtı ve gizli maliyet.',
-      '- **Pratik:** 2–3 haftalık dar deneme.',
-      '',
-      'Açık tek soru: denemenin sınırı ne? Devam için “Bir tur daha”.'
+      'İlk tur kapandı. Ölçüt üçe indi: ilgi, tekrar, parasının çıkması. İtiraz iki yerde duruyor: talep kanıtlanmadı, bakım maliyeti hesapta yok. Pratik tarafta herkes dar ve tarihli bir denemeye yakın. Kalan tek soru, sınırı neyle koyacağımız. Devam etmek istersen "Bir tur daha" de.'
     ],
     chair2: ctx => [
-      '**Tur 2 kapandı. Karar:** tarihli, dar deneme.',
-      '- **Tarih sabit, kapsam esnek.** Tarih kapsama göre esnerse iş bitmez.',
-      '- **Deneme dışı:** ikinci şube/ikinci ürün, ek personel, süsleme.',
-      '- **Vazgeçme koşulu:** 4. haftada tekrar eden tek kullanıcı bile yoksa plan değişir.',
-      '',
-      '**Bu haftanın tek adımı:** 5 görüşme ve tek sayfalık taslak.'
+      'İkinci turda sınır netleşti: tarih sabit, kapsam tarihe göre kesilir. Dört hafta, ikinci bir iş yok, ekip büyütmek yok. Vazgeçme koşulu da yazıldı: tekrar eden kimse yoksa deneme uzatılmaz. Bu hafta tek iş var, beş görüşme ve tek sayfa.'
     ],
     chair3: ctx => [
-      '**Yeni argüman yok; masayı kapatıyorum.**',
-      '- Kalan tek belirsizlik: talep. Ölçüm bunu 4 haftada netleştirir.',
-      '- Karar: dar deneme, vazgeçme koşulu yazılı.',
-      '',
-      'Tek adım: 5 görüşme. “Özet çıkar” ile tek sayfaya iner.'
+      'Yeni bir argüman gelmedi, masayı kapatıyorum. Kalan tek belirsizlik talep; onu dört haftalık ölçüm cevaplar, tartışma cevaplamaz. Karar: dar deneme, vazgeçme koşulu yazılı. İstersen "Özet çıkar" ile tek sayfaya indirebiliriz.'
     ],
     summary: ctx => [
-      '**Sonuç:** kapsamı küçültüp tarihi sabitlemek. Masada buna karşı argüman gelmedi.',
-      '',
-      '**Uzlaşılan**',
-      '- 4 haftalık dar deneme; tarih sabit, kapsam tarihe göre kesilir.',
-      '- Denemede ikinci şube/ürün, ek personel ve süsleme yok.',
-      '- Ölçüt: ilgi, tekrar, maliyetin geri dönüşü.',
-      '',
-      '**Açık itiraz**',
-      '- Talep varsayımı kanıtlanmadı; bu konuda veri gelmedi.',
-      '',
-      '**İlk adım**',
-      '- Bu hafta 5 kısa görüşme ve tek sayfalık taslak.'
+      'Masa uzun tartıştı ama aslında tek bir yerde anlaştı: ' + ctx.t + ' işini büyük başlatmak doğru değil. Herkesin kabul ettiği şey, önce küçük ve tarihli bir deneme yapmak. Talep tarafı hâlâ havada, bunu kimse kanıtlayamadı; dört haftalık ölçüm netleştirir. Benim önerim, bu hafta beş görüşme yapıp tek sayfaya inmek.',
+      '**Sonuç:** Dar ve tarihli deneme; büyük yatırım yok.',
+      '**Uzlaşılan:** Dört hafta sabit tarih · Tek iş, tek birim · Vazgeçme koşulu yazılı',
+      '**Açık itiraz:** Talep kanıtlanmadı; bakım maliyeti hesapta yok',
+      '**İlk adım:** Bu hafta beş görüşme ve tek sayfalık taslak'
     ],
     extras: {
-      moderator: ['Masa aynı yerde dönüyor. Tek soruya indiriyorum: **talep var mı?** Buna 4 haftalık ölçüm cevap verir.', '', 'Yeni argüman gelmezse tartışmayı kapatıyorum.'],
-      analyst: ['Yeni nokta eklemiyorum. Karar için eksik tek veri: hedef kullanıcı sayısı ve erişim maliyeti.', '', 'Bu ikisi gelmeden kapsam tartışması sonuç vermez.'],
-      critic: ['Ekleyecek yeni itirazım yok. Kalan risk talep; deneme küçük olduğu için kabul edilebilir.', '', 'Koşul: vazgeçme ölçütü yazılı kalsın.'],
-      engineer: ['Yeni bir şey eklemiyorum. Test planı net: 1 hafta, 5 kişi, tek senaryo.', '', 'Sonuç ne olursa olsun kapsam büyütülmeyecek.'],
-      researcher: ['Yeni veri yok. Eldeki tek karşılaştırma: dar kapsamlı denemeler daha uzun yaşıyor.', '', 'Bu bir eğilim, kanıt değil; ölçümle doğrulanmalı.']
+      moderator: ['Ben yeni bir şey eklemiyorum. Tek soru kaldı: talep var mı? Dört haftalık ölçüm bunu cevaplar, tartışma cevaplamaz.'],
+      analyst: ['Yeni nokta yok bende. Eksik tek veri, kaç kişinin bunu gerçekten kullanacağı. Onu görüşme söyler.'],
+      critic: ['Ekleyecek itirazım kalmadı. Kalan risk talep ama deneme küçük olduğu için taşınır.'],
+      engineer: ['Yeni bir şey yok. Plan aynı: bir hafta, beş kişi, tek senaryo.'],
+      researcher: ['Yeni veri gelmedi. Elimdeki tek karşılaştırma dar kapsamın daha uzun yaşadığı, o da kanıt değil.']
     }
   },
 
   /* ---------------- FİKİR ÜRET ---------------- */
   ideas: {
     moderator: ctx => [
-      '**Gündem:** *' + ctx.topicPhrase + '*',
-      'Tek doğru cevap aramıyoruz. Herkes şunu söylesin: kime, hangi sorunu, ne kadar sürede?',
-      '',
-      'En fazla 90 kelime, aynı yönü ikinci kez yazmak yok. ' + to(ctx, 'analyst') + 'ilk yönü sen aç.'
+      'Burada tek doğru cevap aramıyoruz, ' + ctx.t + ' için birkaç yön çıkaracağız. Kural şu: herkes kime, hangi sorunu, ne kadar sürede çözeceğini söylesin. Havada kalan "iyi olur" cümlesi istemiyorum. ' +
+      to(ctx, 'analyst') + 'ilk yönü sen aç.'
     ],
     analyst: ctx => [
-      '- **Kısıt:** bütçe ve zaman yazılı değil; ikisi de yön seçimini belirler.',
-      '- **Ayrım:** yeni bir şey mi, var olan akışın iyileştirmesi mi?',
-      '- **Ölçüt:** en ucuz test edilebilen yön önce.',
-      '',
-      'İlk yön: mevcut akışa eklenen tek adımlık çözüm. ' + to(ctx, 'critic') + 'bu yön nerede kırılır?'
+      'Kısıtı bilmiyoruz: bütçe ve zaman yazılı değil, ikisi de yönü değiştirir. Ben şunu öneriyorum, yeni bir şey kurmak yerine mevcut akışa tek adım ekleyelim. En ucuz test edilebilen yön budur. ' +
+      to(ctx, 'critic') + 'sence bu nerede kırılır?'
     ],
     critic: ctx => [
-      'Üç risk:',
-      '1. **İstenen ama ödenmeyen fikir:** ilgi beyanı zayıf sinyal.',
-      '2. **Üç yönü birden istemek:** ilk sürüm dağılır.',
-      '3. **Bakım yükü:** ilk hesapta görünmez.',
-      '',
-      'Tek yön seçilirse risk taşınabilir. ' + to(ctx, 'engineer') + 'en hızlı test ne?'
+      'Kırıldığı yer şu: insanlar fikri sever ama kullanmaz. İkincisi, üç yönü birden istersek ilk sürüm dağılır. Üçüncüsü, bakım yükü ilk hesapta hiç görünmez. Tek yön seçilirse risk taşınabilir hale gelir. ' +
+      to(ctx, 'engineer') + 'en hızlı test ne olur?'
     ],
     engineer: ctx => [
-      'En hızlı test: tek sayfa anlatım + 5 görüşme (1 hafta). Kod ya da prototip gerekmez.',
-      '',
-      'Ölçüt: 5 kişiden kaçı kullanmak için tarih veriyor? Söz değil, tarih.',
-      '',
-      to(ctx, 'researcher') + 'benzer örneklerde ne olmuş?'
+      'En hızlısı kod bile değil: tek sayfa anlatım, beş görüşme, bir hafta. Ölçüt de net olsun, beş kişiden kaçı kullanmak için tarih veriyor? Söz istemiyorum, tarih istiyorum. ' +
+      to(ctx, 'researcher') + 'benzer işlerde ne olmuş?'
     ],
     researcher: ctx => [
-      'Benzer fikirlerde güçlü sinyal tekrar kullanım; ilgi beyanı zayıf sinyal.',
-      '',
-      'Elimizde bu konuya özel ölçüm yok; verilecek rakam uydurma olur.'
+      'Benzer fikirlerde güçlü sinyal tekrar kullanım, zayıf sinyal "çok güzel olmuş" demek. Bu konuya özel ölçüm elimizde yok, rakam verirsem uydurmuş olurum.'
     ],
     r2: {
       moderator: ctx => [
-        'Yön sayısı üçten bire indi. Şimdi tek soru: **bu yönü bir haftada nasıl test ederiz?**',
-        '',
-        'Testin ölçütü sayı olsun, görüş değil. ' + to(ctx, 'analyst') + 'ölçütü sen yaz.'
+        'Yön üçten bire indi, güzel. Şimdi tek soru var: bunu bir haftada nasıl test ederiz? Ölçüt sayı olacak, görüş değil. ' + to(ctx, 'analyst') + 'ölçütü sen yaz.'
       ],
       analyst: ctx => [
-        '- **Ölçüt:** 5 görüşmede kaç kişi kullanmak için tarih veriyor?',
-        '- **Eşik:** 2 ve üzeri = devam, altı = yön değişir.',
-        '- **Yan ölçüt:** kaç kişi şu an aynı işi elle yapıyor?',
-        '',
-        to(ctx, 'critic') + 'bu ölçüt yanıltıcı olabilir mi?'
+        'Ölçüt şu: beş görüşmede kaç kişi kullanmak için tarih verdi. İki ve üzeriyse devam, altıysa yön değişir. Yanına bir soru daha koyalım: şu an aynı işi elle mi yapıyor? ' +
+        to(ctx, 'critic') + 'bu ölçüt yanıltır mı?'
       ],
       critic: ctx => [
-        '- **Yanıltıcı olabilir:** tarih vermek nezaket olabilir. Tarih + “şu an ne kullanıyorsun?” sorusu birlikte sorulmalı.',
-        '- **Ek risk:** yön seçimi kullanıcıya değil, bize kolay gelen şeye göre yapılmış olabilir.',
-        '',
-        to(ctx, 'engineer') + 'testi bir haftada bitirebilir miyiz?'
+        'Tek başına yanıltır, insanlar nezaketen tarih verir. Yanına "şu an ne kullanıyorsun" sorusunu koymazsak boş veri toplarız. Bir de şuna dikkat: yönü bize kolay geldiği için seçmiş olabiliriz. ' +
+        to(ctx, 'engineer') + 'bir haftada biter mi?'
       ],
       engineer: ctx => [
-        'Biter: 5 görüşme (5 × 30 dk) + tek sayfa özet. Kod, tasarım ve sunum gerekmez.',
-        '',
-        'Çıktı: tek sayfa, 5 satır. Karar bu sayfayla verilir.',
-        '',
-        to(ctx, 'moderator') + 'masayı kapatabilirsin.'
+        'Biter: beş görüşme, her biri yarım saat, artı tek sayfa özet. Kod, tasarım, sunum yok. Çıktı tek sayfa beş satır olacak, karar onunla verilecek. ' +
+        to(ctx, 'moderator') + 'kapatabilirsin.'
       ],
       researcher: ctx => [
-        'Benzer testlerde tarih verenlerin yaklaşık yarısı ilk hafta vazgeçiyor; ikinci hafta dönüş daha güvenilir.',
-        '',
-        'Oran bu konuya özel değil; genel eğilim.'
+        'Şunu ekleyeyim: tarih verenlerin yaklaşık yarısı ilk hafta vazgeçiyor, ikinci hafta dönen daha güvenilir. Bu oran bu konuya özel değil, genel eğilim.'
       ]
     },
     chair1: ctx => [
-      '**Tur 1 kapandı.**',
-      '- **Yön:** tek adımlık, mevcut akışa eklenen çözüm öne çıktı.',
-      '- **İtiraz:** ilgi beyanı kanıt sayılmaz; tarih ve tekrar gerekli.',
-      '- **Test:** 1 hafta, 5 görüşme, prototip yok.',
-      '',
-      'Açık soru: hangi tek yön? Devam için “Bir tur daha”.'
+      'İlk tur kapandı. Üç yön vardı, ikisi elendi. Kalan yön, mevcut akışa eklenen tek adımlık çözüm. İtiraz yerinde: ilgi beyanı kanıt sayılmaz, tarih ve tekrar gerekiyor. Test de belli, bir hafta ve beş görüşme, prototip yok. Sıradaki soru hangi tek yön olduğu.'
     ],
     chair2: ctx => [
-      '**Tur 2 kapandı. Karar:** tek yön, 1 haftalık doğrulama.',
-      '- **Yön:** mevcut akışa eklenen tek adımlık çözüm.',
-      '- **Ölçüt:** 5 kişiden 2’si tarih veriyor mu?',
-      '- **Vazgeçme:** tarih veren yoksa yön değişir, ısrar edilmez.',
-      '',
-      '**Bu haftanın tek adımı:** 5 görüşme ve tek sayfa.'
+      'İkinci turda karar çıktı: tek yön, bir haftalık doğrulama. Ölçüt net, beş kişiden ikisi tarih verirse devam. Vermezse yön değişir, ısrar edilmez. Bu haftanın tek işi beş görüşme ve tek sayfa.'
     ],
     chair3: ctx => [
-      '**Yeni argüman yok; kapatıyorum.**',
-      '- Kalan belirsizlik: yönün gerçekten istenip istenmediği.',
-      '- Karar: 1 haftalık doğrulama, tek yön.',
-      '',
-      'Tek adım: 5 görüşme.'
+      'Yeni argüman gelmedi, kapatıyorum. Kalan belirsizlik, yönün gerçekten istenip istenmediği. Karar: bir haftalık doğrulama, tek yön. Tek adım beş görüşme.'
     ],
     summary: ctx => [
-      '**Sonuç:** üç yön yerine tek yön seçildi: mevcut akışa eklenen tek adımlık çözüm.',
-      '',
-      '**Uzlaşılan**',
-      '- İlk sürüm tek yön; diğer ikisi sonraya.',
-      '- Kanıt: 5 görüşmede tarih veren kişi sayısı.',
-      '- Prototip, kod ve tasarım ilk haftada yok.',
-      '',
-      '**Açık itiraz**',
-      '- İlgi beyanı ile ödeme niyeti karışabilir.',
-      '',
-      '**İlk adım**',
-      '- Bu hafta 5 görüşme; 2 kişi tarih vermezse yön değişir.'
+      'Masa üç yönü konuştu, ikisini kendi eledi. Kalan tek yön, mevcut akışa eklenen küçük bir adım; yeni bir sistem kurmak kimseye mantıklı gelmedi. Herkesin üzerinde durduğu şey kanıt eksikliği: bugüne kadar "isteriz" dediler mi, gerçekten kullanırlar mı, bu bilinmiyor. Çözüm de basit çıktı, bir haftada beş görüşme yeter.',
+      '**Sonuç:** Üç yön yerine tek yön: mevcut akışa eklenen tek adımlık çözüm.',
+      '**Uzlaşılan:** İlk sürüm tek yön · Kanıt beş görüşmeden · Prototip ve kod ilk hafta yok',
+      '**Açık itiraz:** İlgi beyanı ile kullanma niyeti karışabilir',
+      '**İlk adım:** Bu hafta beş görüşme; iki kişi tarih vermezse yön değişir'
     ],
     extras: {
-      moderator: ['Yeni yön eklemiyorum. Seçim için tek eksik: hedef kullanıcının kim olduğu.', '', 'Bu netleşmezse fikirler havada kalır.'],
-      analyst: ['Yeni nokta yok. Kalan tek belirsizlik: kullanıcı bu iş için para/zaman ayırır mı?', '', 'Bunu görüşme cevaplar, tartışma değil.'],
-      critic: ['Ekleyecek yeni itirazım yok. Kalan risk: tek yönün de bakım yükü.', '', 'Bakım maliyeti yazılmadan başlanmasın.'],
-      engineer: ['Yeni bir şey eklemiyorum. Test planı aynı: 1 hafta, 5 görüşme, tek sayfa.', '', 'Kod ilk haftada yok.'],
-      researcher: ['Yeni veri yok. Elimizdeki tek eğilim: dar kapsam daha uzun yaşıyor.', '', 'Kanıt değil; ölçümle doğrulanmalı.']
+      moderator: ['Yeni yön eklemiyorum. Seçim için tek eksik, hedef kullanıcının kim olduğu. Bu netleşmezse fikirler havada kalır.'],
+      analyst: ['Yeni nokta yok. Kalan tek belirsizlik, kullanıcının bu iş için zaman ayırıp ayırmayacağı. Onu görüşme cevaplar.'],
+      critic: ['Ekleyecek itirazım kalmadı. Kalan risk, tek yönün de bakım yükü. Bakım yazılmadan başlanmasın.'],
+      engineer: ['Yeni bir şey yok. Plan aynı: bir hafta, beş görüşme, tek sayfa. Kod ilk haftada yok.'],
+      researcher: ['Yeni veri gelmedi. Eldeki tek eğilim, dar kapsamın daha uzun yaşadığı. O da ölçümle doğrulanmalı.']
     }
   },
 
   /* ---------------- KARAR VER ---------------- */
   decide: {
     moderator: ctx => [
-      '**Gündem:** *' + ctx.topicPhrase + '*',
-      'İki seçenek var: **A** mevcut düzen, **B** değişiklik. Herkes tek seçenek söylesin, gerekçesiyle.',
-      '',
-      '“Duruma göre” cevabı kabul değil. En fazla 90 kelime. ' + to(ctx, 'analyst') + 'belirleyici ölçütü sen söyle.'
+      'Konu ' + ctx.t + '. İki yol var: mevcut düzen devam etsin ya da değiştirelim. Herkes tek birini seçsin ve gerekçesini söylesin. "Duruma göre" cevabı kabul değil, ikisinden birini savunun. ' +
+      to(ctx, 'analyst') + 'belirleyici ölçütü sen söyle.'
     ],
     analyst: ctx => [
-      '- **Belirleyici ölçüt:** geri dönüş maliyeti ve nakit tamponu.',
-      '- **B için soru:** gelir ne zaman başlıyor? Tarih yoksa bu karar değil, dilek.',
-      '- **Ölçüt:** 6 ay sonunda hangi sayı “devam” dedirtir?',
-      '',
+      'Belirleyici şey nakit tamponu ve geri dönüş maliyeti. Değişiklik tarafında tek soru var: gelir ne zaman başlıyor? Tarih yoksa bu karar değil, dilek. Altı ay sonunda hangi sayı "devam" dedirtir, onu şimdi yazalım. ' +
       to(ctx, 'critic') + 'en kötü senaryo hangisinde daha ağır?'
     ],
     critic: ctx => [
-      '- **A’nın riski:** fırsat maliyeti, konfor alışkanlığı.',
-      '- **B’nin riski:** gelir kesintisi + sabit gider; çıkış maliyeti daha yüksek.',
-      '',
-      'İki senaryo da yazılmalı. B’de 6 aylık gider tamponu yoksa öneri: ertelene kadar B yok.',
-      '',
+      'İki tarafın da riski var. Mevcut düzenin riski fırsatı kaçırmak, değişikliğin riski gelir kesintisi artı sabit gider. İkincisinin geri dönüşü çok daha zor. Altı aylık gider tamponu yoksa önerim şu: değişiklik beklemede kalsın. ' +
       to(ctx, 'engineer') + 'köprü planı nasıl kurulur?'
     ],
     engineer: ctx => [
-      'B için köprü planı:',
-      '- 6 aylık gider tamponu.',
-      '- 30/60/90 gün hedefleri, yazılı.',
-      '- Dönüş kapısı tarihi: kötü giderse A’ya dönüş.',
-      '',
-      'Üçü yazılmadan B, karar değil kumar olur.'
+      'Köprü planı üç maddelik: altı aylık gider tamponu, otuz altmış doksan gün hedefleri yazılı, bir de dönüş kapısı tarihi. Üçü yazılmadan değişiklik karar değil kumar olur.'
     ],
     researcher: ctx => [
-      'Genel eğilim: gelir kesintisi olmadan başlayanlar daha uzun dayanıyor.',
-      '',
-      'Bu eğilim, kanıt değil; kişisel durum belirleyici. Elimizde sana özel veri yok.'
+      'Genel eğilim şu: gelir kesintisi olmadan başlayanlar daha uzun dayanıyor. Ama bu senin durumuna ait veri değil, kişisel tablo belirleyici.'
     ],
     r2: {
       moderator: ctx => [
-        'Ölçüt ikiye indi: tampon ve dönüş tarihi. Son soru tek: **eşik neye göre konur — nakit mi, süre mi?**',
-        '',
-        'Herkes tek cevap versin. ' + to(ctx, 'analyst') + 'önce sen.'
+        'Ölçüt ikiye indi: tampon ve dönüş tarihi. Son soru şu: eşiği neyle koyacağız, nakitle mi süreyle mi? ' + to(ctx, 'analyst') + 'sen başla.'
       ],
       analyst: ctx => [
-        '- **Eşik nakit olmalı:** 6 aylık gider tamponu. Süre eşiği, nakit bitmeden anlam taşımaz.',
-        '- **Hesap:** aylık gider × 6. Bu sayı yazılı değilse karar verilmez.',
-        '- **Kontrol:** ayda bir tek satır güncelleme.',
-        '',
-        to(ctx, 'critic') + 'eşik 3 ay olsa ne değişir?'
+        'Nakitle. Altı aylık gider tamponu; süre eşiği, nakit bitmeden bir şey ifade etmiyor. Hesap basit, aylık gider çarpı altı. Bu sayı yazılı değilse karar verilmez. ' +
+        to(ctx, 'critic') + 'eşik üç ay olsa ne değişir?'
       ],
       critic: ctx => [
-        '- **3 ayda:** 4. ayda nakit bitiyor; dönüş kapısı kapanıyor. En kötü senaryo kalıcı hasar bırakıyor.',
-        '- **6 ayda:** en kötü senaryo 2 aylık kayıpla sınırlı.',
-        '',
-        'Bu yüzden öneri: eşik 6 ay. ' + to(ctx, 'engineer') + 'bu eşik uygulanabilir mi?'
+        'Üç ayda dördüncü ay nakit bitiyor, dönüş kapısı kapanıyor, hasar kalıcı oluyor. Altı ayda en kötü senaryo iki aylık kayıpla sınırlı. O yüzden eşik altı ay. ' +
+        to(ctx, 'engineer') + 'bu eşik uygulanabilir mi?'
       ],
       engineer: ctx => [
-        'Uygulanabilir:',
-        '- Aylık gider × 6 hesaplanır, tek satır yazılır.',
-        '- Eşik altına inilirse B otomatik durur; istisna yok.',
-        '- 30/60/90 gün hedefleri aynı sayfada.',
-        '',
+        'Uygulanabilir. Aylık gider çarpı altı hesaplanır, tek satır yazılır. Eşiğin altına inilirse değişiklik kendiliğinden durur, istisna yok. Hedefler de aynı sayfada durur. ' +
         to(ctx, 'moderator') + 'masayı kapatabilirsin.'
       ],
       researcher: ctx => [
-        'Genel eğilim: nakit eşiği yazılı olan girişimlerde erken kapanma daha kontrollü; süre eşiği tek başına yetmiyor.',
-        '',
-        'Kanıt değil; kişisel durum belirleyici.'
+        'Benzer kararlarda tamponu önce ayarlayanlar daha az geri adım attı. Bu bir eğilim, senin rakamların değil.'
       ]
     },
     chair1: ctx => [
-      '**Tur 1 kapandı.**',
-      '- **Ölçüt:** geri dönüş maliyeti ve nakit tamponu.',
-      '- **İtiraz:** B’de gelir tarihi ve tampon yoksa risk ağır.',
-      '- **Pratik:** köprü planı üç maddeye indi.',
-      '',
-      'Açık soru: tampon kaç ay? Devam için “Bir tur daha”.'
+      'İlk tur kapandı. Masanın çoğunluğu değişiklikten yana ama şartlı: tampon ve tarih yazılı olacak. İtiraz iki yerde, gelir kesintisi ve sabit gider. Köprü planı üç maddede toplandı. Sıradaki soru eşiğin neye göre konacağı.'
     ],
     chair2: ctx => [
-      '**Tur 2 kapandı. Karar:** B, ancak köprü planı yazılıysa.',
-      '- **Koşul:** 6 aylık gider tamponu + dönüş kapısı tarihi.',
-      '- **Ölçüt:** 6. ayda B geliri giderin altındaysa A’ya dönülür.',
-      '- **Vazgeçme:** tampon 3 ayın altına inerse B durur.',
-      '',
-      '**Bu haftanın tek adımı:** tamponu ve dönüş tarihini tek paragrafa yaz.'
+      'İkinci turda eşik netleşti: altı aylık gider tamponu, nakit bazlı. Altına inilirse değişiklik durur, istisna yok. Hedefler ve dönüş kapısı aynı sayfada duracak. Karar: şartlı değişiklik.'
     ],
     chair3: ctx => [
-      '**Yeni argüman yok; kapatıyorum.**',
-      '- Belirsizlik: tampon ve gelir tarihi. İkisi de yazıyla netleşir.',
-      '- Karar: koşullu B.',
-      '',
-      'Tek adım: tek paragraf köprü planı.'
+      'Yeni argüman yok, kapatıyorum. Kalan belirsizlik gelirin ne zaman başlayacağı. Karar şartlı değişiklik, tampon ve dönüş tarihi yazılı olacak. İstersen "Özet çıkar" ile tek sayfaya indirelim.'
     ],
     summary: ctx => [
-      '**Sonuç:** B (değişiklik), yalnızca köprü planı yazılırsa.',
-      '',
-      '**Uzlaşılan**',
-      '- 6 aylık gider tamponu ve dönüş kapısı tarihi zorunlu.',
-      '- 6. ayda B geliri giderin altındaysa A’ya dönülür.',
-      '- Tampon 3 ayın altına inerse B durur.',
-      '',
-      '**Açık itiraz**',
-      '- Gelir tarihi belirsiz; B’nin en kötü senaryosu hesaplanmadı.',
-      '',
-      '**İlk adım**',
-      '- Tampon ve dönüş tarihini bu hafta tek paragrafa yaz.'
+      'Masa "yapalım mı" sorusunu geçti, "hangi şartla yapalım" sorusuna indi. Kimse bugün başlamayı savunmadı, herkes altı aylık gider tamponunu ön koşul saydı. Gelir tarafı hâlâ belirsiz, bunu kimse sayıyla göstermedi. Benim önerim, tamponu bugün hesaplayıp tek satır yazmak, karar ondan sonra.',
+      '**Sonuç:** Şartlı değişiklik; ön koşul altı aylık nakit tamponu.',
+      '**Uzlaşılan:** Tampon nakit bazlı · Altına inilirse durur · Dönüş kapısı tarihi yazılı',
+      '**Açık itiraz:** Gelirin ne zaman başlayacağı bilinmiyor',
+      '**İlk adım:** Aylık gider çarpı altı, bugün tek satır olarak yazılsın'
     ],
     extras: {
-      moderator: ['Yeni argüman yok. Karar için tek eksik: tampon süresi ve dönüş tarihi.', '', 'Yazılmadan tartışma ilerlemez.'],
-      analyst: ['Yeni nokta eklemiyorum. Kalan tek veri: aylık sabit gider ve mevcut birikim.', '', 'İkisi olmadan karar hesabı yapılamaz.'],
-      critic: ['Ekleyecek yeni itirazım yok. Kalan risk: en kötü senaryoda çıkış maliyeti.', '', 'Tampon bunu sınırlıyor.'],
-      engineer: ['Yeni bir şey eklemiyorum. Plan net: tampon, dönüş tarihi, 30/60/90 gün.', '', 'Üçü yazılırsa uygulanabilir.'],
-      researcher: ['Yeni veri yok. Eldeki tek eğilim: gelir kesintisi olmadan başlayanlar daha uzun dayanıyor.', '', 'Kanıt değil; kişisel durum belirleyici.']
+      moderator: ['Yeni bir şey eklemiyorum. Tek eksik, gelirin başlayacağı tarih. O yazılmadan bu masa yine aynı yere döner.'],
+      analyst: ['Yeni nokta yok. Eksik tek sayı, aylık sabit gider. O gelmeden tampon hesabı yapılmaz.'],
+      critic: ['Ekleyecek itirazım kalmadı. Kalan risk gelir kesintisi, tampon onu taşıyabilir.'],
+      engineer: ['Yeni bir şey yok. Plan aynı: tampon, hedefler, dönüş tarihi, tek sayfa.'],
+      researcher: ['Yeni veri gelmedi. Eldeki tek eğilim, gelir kesintisi olmadan başlayanların daha uzun dayandığı.']
     }
   }
 };
 
-/* Sohbet üslubu: demo metnindeki etiketleri, madde imlerini ve
-   "@isim, ..." söz devirlerini temizleyip düz paragrafa çevirir. */
-function prosify(text) {
-  let out = String(text).split('\n')
-    .filter(l => !/^\s*Kural:/.test(l))
-    .map(l => l
-      .replace(/^\s*[-*•]\s+/, '')
-      .replace(/^\s*\d+[.)]\s+/, '')
-      .replace(/\*\*/g, '')
-      .replace(/\*(.+?)\*/g, '$1'))
-    .filter(l => l.trim())
-    .join(' ');
-  out = out.replace(/@[^,]{1,24},[^.?!]*[.?!]/g, ' ');   // söz devri cümleleri
-  out = out.replace(/\s+([.,;:!?])/g, '$1').replace(/\s{2,}/g, ' ').trim();
-  return out;
-}
-
-/* ---- net üslup için yazılmış demo metinleri ----
-   Etiketler uydurma değil: her satır gerçekten o başlığa ait.
-   v1 / v2 / v3 tur numarasına göre döner; kopya kalkanına takılmasın. */
+/* ---- "rapor düzeni" (net) üslubu için hazır iskelet metinleri ----
+   Seçenek olarak duruyor; varsayılan üslup artık sohbet. */
 const NET_KIT = {
   moderator: [
     ['**Sonuç:** *' + '{{t}}' + '* tek turda kapanmaz; üç eksende ayrılmalı: kanıt, maliyet, ilk adım.',
@@ -4352,45 +4340,59 @@ function netify(text) {
   return ['**Sonuç:** ' + son, '**Artı:** ' + arti, '**Eksi:** ' + eksi, '**İlk adım:** ' + adim].join('\n');
 }
 
-/* kapışma demosu: aynı modelin iki rolü, tur başına farklı metin */
+/* "kısa madde" üslubu: düz paragrafı en fazla üç kısa maddeye çevirir */
+function briefify(text) {
+  const sents = String(text).replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(s => s.trim());
+  if (!sents.length) return String(text).trim();
+  const out = [];
+  let cur = '';
+  for (const s of sents) {
+    if (cur && (cur + ' ' + s).split(/\s+/).length > 22) { out.push(cur); cur = s; }
+    else cur = cur ? cur + ' ' + s : s;
+    if (out.length === 2) break;
+  }
+  if (cur) out.push(cur);
+  return out.slice(0, 3).map(l => '- ' + l).join('\n') || String(text).trim();
+}
+
+/* ---- kapışma (Ayna) demosu: aynı modelin iki rolü, konuya bağlı sohbet ---- */
 function duelDemo(p, ctx, round) {
   const even = round % 2 === 0;
-  const t = ctx.topicPhrase;
+  const t = ctx.t;
   if (p.duelSide === 'a') {
     return even ? [
-      '**Sonuç:** *' + t + '* için ölçülebilir bir kazanç var; karşı tarafın “ölçülemez” itirazı bu turda çürüdü.',
-      '**Artı:** Tek bir dar denemeyle 2 haftada veri çıkar; yatırım kararı veriden sonra verilir.',
-      '**Eksi:** Benim de açığım şu: talep tahmini hâlâ varsayım, elde ölçüm yok.',
-      '**İlk adım:** En ucuz denemeyi kur, 10 işlemle sonucu ölç.'
+      'Ölçüt itirazını kabul ediyorum, zaten ben de onu istiyorum. Ama beklemenin de bir maliyeti var: bu ay karar çıkmazsa aynı tartışmayı üç ay sonra daha pahalıya yaparız. Ölçütü birlikte yazalım, deneme yine küçük kalsın.'
     ] : [
-      '**Sonuç:** *' + t + '* ertelenmemeli; maliyet her geçen ay artıyor.',
-      '**Artı:** Küçük bir pilot iki haftada karar için yeterli veri üretir.',
-      '**Eksi:** Pilotun ölçütü şimdiden net değilse sonuç yorumlanamaz.',
-      '**İlk adım:** Ölçütü (ilgi, tekrar, maliyet) bugün yaz, yarın pilotu başlat.'
+      'Bence ' + t + ' işi yapılmalı, hem de erken. Sebebi şu: bugünkü düzen her ay biraz daha pahalıya geliyor, erteledikçe maliyet birikiyor. Küçük bir denemeyle iki haftada veri çıkar, kararı o veriyle veririz. Zayıf noktamı da söyleyeyim: talebin ne kadar olduğunu bilmiyorum.'
     ];
   }
   return even ? [
-    '**Sonuç:** Savunan taraf hâlâ talep varsayımını kanıt sayıyor; pilot “kazanç” değil “maliyet” üretir.',
-    '**Artı:** Ölçüm fikri doğru, ama ölçüt seçilmeden yapılırsa boşa gider.',
-    '**Eksi:** Karşı tarafın en zayıf yeri: 2 haftada örneklem çok küçük, gürültü kararı yanıltır.',
-    '**İlk adım:** Pilot süresini ve örneklem büyüklüğünü önce yaz.'
+    'Ölçütte anlaşıyoruz, ayrıldığımız yer örneklem. İki haftada on işlem görürsen bu ölçüm değil, izlenim olur. Ya süreyi altı haftaya çıkar ya da sonucu "niteliksel" diye işaretle, sonra karar ver.'
   ] : [
-    '**Sonuç:** İtirazım geçerli: *' + t + '* için elde tek bir doğrulanmış sayı yok.',
-    '**Artı:** Karşı tarafın “dar deneme” önerisi ucuz, buna itirazım yok.',
-    '**Eksi:** Ama deneme sonucu ölçüt tanımlı değilse her iki taraf da kendi lehine okur.',
-    '**İlk adım:** Ölçüt ve başarısızlık eşiği yazılmadan pilot başlamasın.'
+    'Ben de isterim ama sıra yanlış. ' + t + ' için ortada tek bir doğrulanmış sayı yok, "maliyet birikiyor" cümlesi de ölçülmüş değil. İki haftalık deneme küçük bir örneklemle yapılırsa sonucu herkes kendi lehine okur. Önce ölçüt ve başarısızlık eşiği yazılsın, deneme ondan sonra başlasın.'
   ];
 }
 
-function duelSummaryLines(ctx) {
-  const t = ctx.topicPhrase;
+/* Ayna özeti: önce hakemin ağzından, altında kısa döküm */
+function duelSummary(ctx) {
   return [
-    '**Sonuç:** İki taraf da ölçümde anlaştı; ayrıldıkları yer ölçütün ne olacağı.',
-    '- **Savunmanın güçlü yanı:** dar ve ucuz pilot, iki haftada veri.',
-    '- **İtirazın güçlü yanı:** ölçüt ve örneklem yazılmadan pilot yanıltıcı olur.',
-    '**Karar verilemeyen:** pilotun tek başına *' + t + '* için yeterli örneklem üretip üretmeyeceği.',
-    '**İlk adım:** Ölçütü + başarısızlık eşiğini yaz; pilotu ondan sonra başlat.'
+    'İki taraf da ölçümde anlaştı, ayrıldıkları yer ölçütün ne olacağı ve örneklemin büyüklüğü. Savunan taraf haklı olduğu yerde şu: beklemek de maliyet. İtiraz eden tarafın haklı olduğu yer ise ölçüt yazılmadan yapılan denemenin sonuç üretmemesi. Benim kararım, ölçüt ve eşik yazıldıktan sonra denemenin başlaması.',
+    '**Sonuç:** Ölçüt yazıldıktan sonra deneme; örneklem büyüklüğü önceden belirlenecek.',
+    '**Savunmanın güçlü yanı:** Dar ve ucuz deneme, iki haftada veri üretir.',
+    '**İtirazın güçlü yanı:** Ölçüt ve örneklem yazılmazsa pilot yanıltıcı olur.',
+    '**Karar verilemeyen:** Denemenin bu konu için yeterli örneklem üretip üretmeyeceği.',
+    '**İlk adım:** Ölçütü ve başarısızlık eşiğini yaz, denemeyi ondan sonra başlat.'
   ];
+}
+
+/* özeti üsluba göre birleştirir: sohbet → paragraf + kısa döküm,
+   rapor düzeni (net) → yalnız kısa döküm, kısa madde → maddeler */
+function summaryText(blocks, tone) {
+  const list = (blocks || []).slice();
+  if (!list.length) return '';
+  if (tone === 'net') return list.slice(1).join('\n');
+  if (tone === 'brief') return briefify(list[0]) + '\n\n' + list.slice(1).join('\n');
+  return list.join('\n\n');
 }
 
 function demoText(p, opt = {}) {
@@ -4398,14 +4400,13 @@ function demoText(p, opt = {}) {
   const round = opt.round || state.round || 1;
   const key = state.sessionGoal || state.settings.goal;
   const kit = KITS[key] || KITS.debate;
-  const tone = state.settings.tone;
-  const out = s => (tone === 'net' ? netify(s) : (tone === 'chat' ? prosify(s) : s));
+  const tone = state.settings.tone || 'chat';
 
-  if (opt.summary) return (opt.duel ? duelSummaryLines(ctx) : kit.summary(ctx)).join('\n');
-  if (p.duelSide) return out(duelDemo(p, ctx, round).join('\n'));
+  if (opt.summary) return summaryText(opt.duel ? duelSummary(ctx) : kit.summary(ctx), tone);
+  if (p.duelSide) return duelDemo(p, ctx, round).join('\n');
 
   if (tone === 'net') {
-    // net üslup: iskeleti hazır metinlerden kur (etiketler gerçekten uyumlu)
+    // rapor düzeni: iskeleti hazır metinlerden kur (etiketler gerçekten uyumlu)
     const vi = Math.min(2, Math.max(0, (round || 1) - 1));
     const block = opt.isChair
       ? NET_CHAIR[vi]
@@ -4413,23 +4414,25 @@ function demoText(p, opt = {}) {
     return block.map(l => l.replace('{{t}}', ctx.topicPhrase)).join('\n');
   }
 
+  const say = arr => (tone === 'brief' ? briefify(arr[0]) : arr[0]);
+
   if (opt.isChair) {
-    if (round <= 1) return out(kit.chair1(ctx).join('\n'));
-    if (round === 2) return out(kit.chair2(ctx).join('\n'));
-    return out(kit.chair3(ctx).join('\n'));
+    if (round <= 1) return say(kit.chair1(ctx));
+    if (round === 2) return say(kit.chair2(ctx));
+    return say(kit.chair3(ctx));
   }
 
   if (round <= 1) {
     const fn = kit[p.role];
-    if (fn) return out(fn(ctx).join('\n'));
-    return out((kit.extras[p.role] || kit.extras.analyst).join('\n'));
+    if (fn) return say(fn(ctx));
+    return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
   }
   if (round === 2 && kit.r2 && kit.r2[p.role]) {
-    return out(kit.r2[p.role](ctx).join('\n'));
+    return say(kit.r2[p.role](ctx));
   }
 
   // 3. tur ve sonrası: tekrar yok, açıkça söylenir
-  return out((kit.extras[p.role] || kit.extras.analyst).join('\n'));
+  return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
 }
 
 async function demoStream(p, opt = {}) {
@@ -7127,9 +7130,11 @@ function drawerBodyHTML() {
     '<label class="field"><span>Cevap sınırı (kelime) · 30–500</span>' +
     '<input type="number" id="maxWordsIn" min="30" max="500" step="10" value="' + (Number(d.maxWords) || 130) + '"/></label>' +
     '<label class="field"><span>Bağlam (token tasarrufu)</span><select id="contextSel">' +
-    '<option value="full" ' + ((d.context || 'full') === 'full' ? 'selected' : '') + '>Tam geçmiş — en iyi tartışma</option>' +
-    '<option value="compact" ' + (d.context === 'compact' ? 'selected' : '') + '>Sıkıştırılmış — eski mesajlar tek satır (~%30 az token)</option>' +
+    '<option value="memory" ' + ((d.context || 'memory') === 'memory' ? 'selected' : '') + '>Masa hafızası — en az token (önerilen)</option>' +
+    '<option value="compact" ' + (d.context === 'compact' ? 'selected' : '') + '>Sıkıştırılmış — eski mesajlar tek satır</option>' +
+    '<option value="full" ' + (d.context === 'full' ? 'selected' : '') + '>Tam geçmiş — en çok token</option>' +
     '</select></label>' +
+    '<div style="font-size:11.5px;color:var(--muted);margin:-4px 0 10px">Masa hafızası: eski turlar tek satırlık nota iner, modele yalnız o not + son mesajlar gider. Sohbet ekranında görünmez; yalnız token harcamasını düşürür.</div>' +
     '<label class="field"><span>Sıkıştırmada son kaç mesaj tam kalsın</span>' +
     '<input type="number" id="contextKeepIn" min="0" max="20" step="1" value="' + (d.contextKeep === 0 ? 0 : (Number(d.contextKeep) || 3)) + '"/></label>' +
     '<div class="speedRow"><span style="font-size:11.5px;color:var(--muted)">Konuşma hızı</span><div class="seg" id="speedSeg">' +

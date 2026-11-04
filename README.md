@@ -84,9 +84,9 @@ onu **Dışa aktar** ile alırsın.
 
 | Ayar | Ne işe yarar | Varsayılan |
 |---|---|---|
-| **Üslup** | Doğal sohbet (normal konuşma gibi) · Rapor düzeni (Sonuç/Artı/Eksi/İlk adım) · Kısa madde | **Doğal sohbet** |
+| **Üslup** | Doğal sohbet (kısa cümle, dolgu yok) · Rapor düzeni (Sonuç/Artı/Eksi/İlk adım) · Kısa madde | **Doğal sohbet** |
 | **Cevap sınırı** | Konuşmacı başına en fazla kelime (30–500) | 130 |
-| **Bağlam** | Tam geçmiş ya da sıkıştırılmış (~%30 az token) | Tam |
+| **Bağlam** | Masa hafızası (en az token) · Sıkıştırılmış · Tam geçmiş | **Masa hafızası** |
 | **En fazla tur** | Tur tavanı (2–20); dolunca masa durur ve özet çıkarır | 6 |
 | **Doyunca dur** | Son iki turda yeni fikir gelmezse kendiliğinden durur | Açık |
 | **İnternetten bilgi** | Yalnız OpenRouter'da çalışır ve **kredi harcar**; kapalı tutmak ücretsizdir | Kapalı |
@@ -133,6 +133,11 @@ değişmez.
 
 ![Yedekleme](ekranlar/15-yedekleme.jpg)
 
+**Masa hafızası (varsayılan).** Her sandalye konuşmadan önce bütün geçmişi baştan okumaz. Program eski
+turları tek satırlık notlara indirir; modele yalnız **senin ilk sorun + o not + son iki mesaj** gider.
+Not sohbet ekranında **görünmez** — yalnız token harcamasını düşürür. Aynı masada harcama kabaca
+altıda bire iner: günde 2–3 masa yerine 10–15 masa.
+
 **Boşa token harcamamak için üç kural.** Hepsi Ayarlar → *Token tasarrufu* altında; istemezsen kapatabilirsin.
 
 - **Geçme (açık, Konsey).** 2. turdan sonra söyleyecek yeni bir şeyi olmayan sandalye cevap yazmaz, yalnız `PAS` der.
@@ -140,7 +145,7 @@ değişmez.
   Masada tek satır görünür: *"Gemini yeni bir nokta görmedi · geçti, cevap yazılmadı."*
 - **Sandalye zaman aşımı (120 sn).** Bir sandalye süresi içinde bitiremezse **yalnız o** kesilir, masa
   beklemede kalmaz. Yarıda kalan metin 30 karakterden uzunsa **korunur** ve "yarıda kesildi" etiketiyle masaya konur.
-- **Sağlayıcı dinlenmesi (5 dk).** 429 ya da "kredi bitti" hatası alan **bağlantı** bu süre boyunca hiç
+- **Sağlayıcı dinlenmesi (1 dk).** 429 ya da "kredi bitti" hatası alan **bağlantı** bu süre boyunca hiç
   denenmez; sandalyede `dinleniyor · 16:19` rozeti çıkar. Hepsi dinleniyorsa masa duraklatılır, süre dolunca
   **▶ Kaldığı yerden devam** ile sürer. **Dinlenmeyi bitir** düğmesi beklemeden açar.
 
