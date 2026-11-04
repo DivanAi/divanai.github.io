@@ -59,6 +59,7 @@ Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya,
 | **Hız** | Üst sağdaki `1× / 2× / 4×` | Yalnız ekrandaki yazma hızını değiştirir; istek sayısını değiştirmez |
 | **Model** | Ayna ve TekeTek'te listenin yanındaki seçici | TekeTek'te: **Pollinations · anahtarsız** ya da **kendi bağlantın** |
 | **Geçmiş** | Üst şeritteki saat simgesi | Bu tarayıcıdaki son 10 konuşma + **favoriler** · aç, devam et, sil |
+| **Bir daha gösterme** | Anahtar kartının sağ üstü | “Canlı modeller için 3 adım” kartını kalıcı olarak gizler (ana ekrandaki anahtar istemini kapatır) |
 
 **Konuşma sürerken:**
 - Alta **araya not** yazabilirsin — sıradaki konuşmacılar onu görür.
