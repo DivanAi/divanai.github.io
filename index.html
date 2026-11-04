@@ -173,6 +173,42 @@ a{color:#9fc6ff}
 .supportPop{position:fixed;z-index:80;width:290px;padding:10px;border-radius:14px;
   background:#15161c;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 42px rgba(0,0,0,.55)}
 .spHead{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim,#8b93a1);padding:2px 6px 8px}
+
+/* ---------------- Geçmiş paneli ---------------- */
+.histPop{position:fixed;z-index:80;width:352px;max-width:calc(100vw - 16px);padding:10px;border-radius:14px;
+  background:#15161c;border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 42px rgba(0,0,0,.55)}
+.hpHead{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim,#8b93a1);
+  padding:2px 6px 8px;display:flex;gap:6px;align-items:baseline}
+.hpCount{font-size:10px;letter-spacing:.04em;color:#6f788c;text-transform:none}
+.hpList{display:flex;flex-direction:column;gap:4px;max-height:min(56vh,340px);overflow-y:auto;padding-right:2px}
+.hpList::-webkit-scrollbar{width:8px}
+.hpList::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:8px;border:2px solid transparent;background-clip:padding-box}
+.hpItem{display:flex;align-items:stretch;gap:2px;border-radius:10px;border:1px solid transparent;transition:.14s}
+.hpItem:hover{background:rgba(245,199,106,.07);border-color:rgba(245,199,106,.26)}
+.hpItem.fav{background:rgba(245,199,106,.045)}
+.hpItem.fav:hover{background:rgba(245,199,106,.1)}
+.hpStar{flex:0 0 auto;width:26px;background:none;border:0;color:#6f788c;font-size:14px;line-height:1;cursor:pointer;
+  border-radius:8px;transition:.14s;padding:0}
+.hpStar:hover{color:#f7d089;background:rgba(245,199,106,.12)}
+.hpStar.on{color:#f5c76a}
+.hpStar.on:hover{color:#ffd98a}
+.hpSep{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6f788c;padding:7px 8px 3px}
+.hpSep:first-child{padding-top:2px}
+.hpItem.on{background:rgba(245,199,106,.1);border-color:rgba(245,199,106,.4)}
+.hpOpen{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;text-align:left;background:none;border:0;
+  padding:8px 4px 8px 9px;cursor:pointer;font:inherit;color:inherit}
+.hpTopic{font-size:12.5px;font-weight:600;color:#e9ecf4;line-height:1.35;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hpMeta{font-size:10.5px;color:#8b93a1}
+.hpDel{flex:0 0 auto;width:26px;background:none;border:0;color:#6f788c;font-size:15px;line-height:1;cursor:pointer;
+  border-radius:8px;transition:.14s}
+.hpDel:hover{background:rgba(255,120,120,.14);color:#ff9b9b}
+.hpEmpty{margin:8px 4px 10px;font-size:11.5px;line-height:1.5;color:#8b93a1;text-align:center}
+.hpFoot{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.07)}
+.hpFoot .btn{flex:1 1 auto;justify-content:center;font-size:11.5px}
+.hpNote{margin:8px 4px 2px;font-size:10.5px;line-height:1.5;color:#6f788c}
+.hpNote b{color:#9aa3b2;font-weight:600}
+
 .spList{display:flex;flex-direction:column;gap:4px}
 .spRow{display:grid;grid-template-columns:1fr auto;grid-template-areas:"name arrow" "desc arrow";
   gap:1px 8px;align-items:center;text-decoration:none;padding:8px 9px;border-radius:10px;
@@ -977,6 +1013,9 @@ select optgroup{background:#151a24;color:#9aa2b5}
       <button class="btn ghost icon" id="helpBtn" title="Yardım · nasıl çalışır?" aria-label="Yardım">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.7 2.3c-.8.5-1.3 1-1.3 2"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>
       </button>
+      <button class="btn ghost icon" id="historyBtn" title="Geçmiş konuşmalar · bu tarayıcıda" aria-label="Geçmiş konuşmalar" aria-expanded="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12a8.4 8.4 0 1 0 2.5-6"/><path d="M3.2 3.6v4.2h4.2"/><path d="M12 7.8V12l3 1.8"/></svg>
+      </button>
       <button class="btn ghost icon" id="supportTopBtn" title="Destek" aria-label="Destek">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 0 1 6.5 6.5z"/></svg>
       </button>
@@ -986,6 +1025,19 @@ select optgroup{background:#151a24;color:#9aa2b5}
       </button>
     </div>
   </header>
+
+  <!-- geçmiş paneli: saat simgesine basınca açılır (liste ui.js doldurur) -->
+  <div class="histPop" id="histPop" hidden role="dialog" aria-label="Geçmiş konuşmalar">
+    <div class="hpHead">Geçmiş konuşmalar <span class="hpCount" id="histCount"></span></div>
+    <div class="hpList" id="histList"></div>
+    <div class="hpFoot">
+      <button type="button" class="btn ghost sm" id="histSave">↓ Oturumu dosyaya kaydet</button>
+      <button type="button" class="btn ghost sm" id="histOpenFile">↑ Dosyadan aç</button>
+      <button type="button" class="btn ghost sm" id="histClear">Listeyi temizle</button>
+    </div>
+    <p class="hpNote">Bu liste yalnız <b>bu tarayıcıda</b> durur; hesap ve sunucu yok. Başka cihazda devam etmek için <b>dosyaya kaydet</b>, öbür cihazda <b>dosyadan aç</b>.</p>
+    <input type="file" id="histFile" accept=".json,application/json" hidden>
+  </div>
 
   <!-- destek paneli: kalp simgesine basınca açılır (içeriği ui.js doldurur) -->
   <div class="supportPop" id="supportPop" hidden role="dialog" aria-label="Destek ol">
@@ -1654,6 +1706,7 @@ const state = {
   paused: null,             // { reason:'kota', table, round|jobs, at } — kaldığı yerden devam için
   rest: {},                 // pid → { until, why } — 429/kredi alan sağlayıcı kısa süre hiç denenmez
   topic: '',
+  sessionId: null,          // geçmişte bu konuşmanın kimliği (yeni konuda yenilenir)
   sessionGoal: null,
   transcript: [],
   round: 0,
@@ -4137,6 +4190,7 @@ function startSession(topic) {
   if (state.abort) { try { state.abort.abort(); } catch (e) {} state.abort = null; }
   if (state.tick) { clearInterval(state.tick); state.tick = null; }
   state.topic = topic;
+  state.sessionId = null;                    // her yeni konu geçmişte ayrı bir kayıt olur
   state.seatAlt = {};
   state.novelty = [];
   state.ritual = [];
@@ -4174,6 +4228,7 @@ function startSession(topic) {
 
 function resetSession() {
   stopRun();
+  state.sessionId = null;          // yeni konu = yeni kayıt (eskisi geçmişte kalır)
   state.topic = '';
   state.sessionGoal = null;
   state.transcript = [];
@@ -6994,31 +7049,223 @@ function resumePaused() {
   runRound({ round: pz.round, speakers: pz.speakers });
 }
 
-/* ---------------- oturum kalıcılığı ---------------- */
-function persistSession() {
-  if (!state.topic || state.transcript.length < 2) return;
-  const clean = state.transcript.map(m => {
+/* ---------------- oturum kalıcılığı + geçmiş ----------------
+   İki katman var:
+     1) divanai_session_v1  → açık olan konuşma (sayfa yenilenince kendiliğinden gelir)
+     2) divanai_history_v1  → bu tarayıcıdaki son 10 konuşma (Geçmiş paneli)
+   Hesap, sunucu, anahtar yok: her ikisi de yalnız bu tarayıcının deposunda durur.
+   Başka cihaza taşımak için "Oturumu dosyaya kaydet" / "Dosyadan aç" kullanılır. */
+const HIST_KEY = 'divanai_history_v1';
+const HIST_MAX = 10;
+
+/* görsellerin baytı saklanmaz (yer kaplar); geri gelince "kayboldu" işaretlenir */
+function cleanTranscript(list) {
+  return (list || []).map(m => {
     const c = { ...m, streaming: false };
-    if (c.kind === 'image') { c.src = ''; if (c.status === 'run') c.status = 'lost'; }   // bayt saklanmaz
+    if (c.kind === 'image') { c.src = ''; if (c.status === 'run') c.status = 'lost'; }
     return c;
   });
-  store.set('divanai_session_v1', { topic: state.topic, round: state.round, goal: state.settings.goal, ts: nowISO(), transcript: clean,
-    seatAlt: state.seatAlt || {}, paused: state.paused || null, rest: state.rest || {} });
 }
+function histLoad() {
+  const list = store.get(HIST_KEY, []);
+  if (!Array.isArray(list)) return [];
+  return list.filter(r => r && r.id && r.topic && Array.isArray(r.transcript));
+}
+/* Kırpma: en yeni 10 normal konuşma + bütün favoriler tutulur.
+   Depo koruması için toplam 30 kaydı geçmez; taşarsa en eski favori düşer. */
+const HIST_FAV_CAP = 30;
+function histTrim(list) {
+  const favs = list.filter(r => r.fav);
+  const rest = list.filter(r => !r.fav).slice(0, HIST_MAX);
+  const out = rest.concat(favs);
+  if (out.length > HIST_FAV_CAP) {
+    const keepFavs = favs.slice(0, Math.max(0, HIST_FAV_CAP - rest.length));
+    return rest.concat(keepFavs);
+  }
+  return out;
+}
+function histWrite(list) {
+  let arr = histTrim(list);
+  for (let i = 0; i < 4; i++) {
+    try { localStorage.setItem(HIST_KEY, JSON.stringify(arr)); return true; }
+    catch (e) {                                  // yer doldu: en eskiyi at, tekrar dene
+      if (arr.length <= 1) return false;
+      arr = arr.slice(0, arr.length - 1);
+    }
+  }
+  return false;
+}
+function sessionRecord() {
+  if (!state.sessionId) state.sessionId = uid();
+  return {
+    id: state.sessionId, ts: nowISO(), topic: state.topic,
+    table: state.settings.table, goal: state.settings.goal, round: state.round,
+    transcript: cleanTranscript(state.transcript),
+    seatAlt: state.seatAlt || {}, paused: state.paused || null, rest: state.rest || {}
+  };
+}
+function histUpsert(rec) {
+  const old = histLoad().find(r => r.id === rec.id);
+  if (old && old.fav) rec = { ...rec, fav: true };     // üzerine yazarken favori damgası kaybolmasın
+  const list = histLoad().filter(r => r.id !== rec.id);
+  list.unshift(rec);
+  return histWrite(list);
+}
+
+function persistSession() {
+  if (!state.topic || state.transcript.length < 2) return;
+  const rec = sessionRecord();
+  store.set('divanai_session_v1', rec);
+  histUpsert(rec);
+}
+
+/* bir kaydı masaya yükle (geçmişten ya da dosyadan) */
+function openSessionRecord(rec, opts) {
+  if (!rec || !rec.topic || !Array.isArray(rec.transcript) || !rec.transcript.length) return false;
+  if (state.phase === 'running') stopRun();
+  state.runToken++;
+  state.sessionId = rec.id || uid();
+  state.topic = rec.topic;
+  state.transcript = rec.transcript.map(m => ({ ...m, streaming: false }));
+  state.round = rec.round || 1;
+  state.seatAlt = (rec.seatAlt && typeof rec.seatAlt === 'object') ? rec.seatAlt : {};
+  state.paused = (rec.paused && rec.paused.reason) ? rec.paused : null;
+  state.rest = (rec.rest && typeof rec.rest === 'object' && !Array.isArray(rec.rest)) ? rec.rest : {};
+  if (rec.table) setTable(rec.table);
+  if (rec.goal && GOALS[rec.goal]) state.settings.goal = rec.goal;
+  state.phase = 'waiting';
+  state.queue = []; state.speaking = null; state.lastError = ''; state.autoStopped = null;
+  state.dom.forEach(x => x.el && x.el.remove());
+  state.dom.clear();
+  renderHero(); renderTranscript(); renderAll();
+  persistSession();
+  if (!opts || !opts.silent) {
+    toast('Konuşma açıldı: ' + String(rec.topic).replace(/\n/g, ' ').slice(0, 48), 'ok');
+  }
+  return true;
+}
+
 function restoreSession() {
   const saved = store.get('divanai_session_v1', null);
   if (!saved || !saved.topic || !Array.isArray(saved.transcript) || saved.transcript.length < 2) return false;
-  state.topic = saved.topic;
-  state.round = saved.round || 1;
-  state.transcript = saved.transcript.map(m => ({ ...m, streaming: false }));
-  state.seatAlt = (saved.seatAlt && typeof saved.seatAlt === 'object') ? saved.seatAlt : {};
-  state.paused = (saved.paused && saved.paused.reason) ? saved.paused : null;
-  state.rest = (saved.rest && typeof saved.rest === 'object' && !Array.isArray(saved.rest)) ? saved.rest : {};
-  if (saved.goal && GOALS[saved.goal]) state.settings.goal = saved.goal;
-  state.phase = 'waiting';
-  renderHero(); renderTranscript(); renderAll();
-  toast('Son oturum geri yüklendi · "Yeni konu" ile temizleyebilirsin.', 'ok');
+  const ok = openSessionRecord(saved, { silent: true });
+  if (!ok) return false;
+  toast('Son oturum geri yüklendi · “Yeni konu” ile temizleyebilirsin.', 'ok');
   return true;
+}
+
+/* ---------------- geçmiş paneli ---------------- */
+const HIST_MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+function histDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const p = n => String(n).padStart(2, '0');
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  const day = sameDay ? 'Bugün' : (d.getDate() + ' ' + HIST_MONTHS[d.getMonth()]);
+  return day + ' · ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function tableLabelOf(t) {
+  return t === 'ayna' ? 'Ayna' : t === 'ajan' ? 'Ajanlar' : t === 'tek' ? 'TekeTek' : 'Konsey';
+}
+function renderHistList() {
+  const box = document.getElementById('histList');
+  const cnt = document.getElementById('histCount');
+  if (!box) return;
+  const list = histLoad();
+  const nFav = list.filter(r => r.fav).length;
+  if (cnt) cnt.textContent = list.length ? (list.length - nFav) + '/' + HIST_MAX + (nFav ? ' · ' + nFav + ' favori' : '') : '';
+  if (!list.length) {
+    box.innerHTML = '<p class="hpEmpty">Henüz kayıtlı konuşma yok.<br>İlk konuşman başladığında burada görünecek.</p>';
+    return;
+  }
+  /* favoriler başa: sonra tarihe göre yeniden eskiye */
+  const shown = list.slice().sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || String(b.ts).localeCompare(String(a.ts)));
+  let seenFav = false, seenRest = false;
+  box.innerHTML = shown.map(r => {
+    const n = (r.transcript || []).filter(m => m.kind === 'msg').length;
+    const topic = String(r.topic).replace(/\s+/g, ' ').slice(0, 96);
+    let sep = '';
+    if (r.fav && !seenFav) { seenFav = true; sep = '<div class="hpSep">Favoriler</div>'; }
+    if (!r.fav && seenFav && !seenRest) { seenRest = true; sep = '<div class="hpSep">Diğerleri</div>'; }
+    return sep +
+      '<div class="hpItem' + (r.fav ? ' fav' : '') + (r.id === state.sessionId ? ' on' : '') + '">' +
+      '<button type="button" class="hpStar' + (r.fav ? ' on' : '') + '" data-fav="' + esc(r.id) + '" ' +
+        'title="' + (r.fav ? 'Favoriden çıkar' : 'Favorilere ekle') + '" aria-pressed="' + (r.fav ? 'true' : 'false') + '" ' +
+        'aria-label="Favori">' + (r.fav ? '★' : '☆') + '</button>' +
+      '<button type="button" class="hpOpen" data-open="' + esc(r.id) + '">' +
+        '<span class="hpTopic">' + esc(topic) + '</span>' +
+        '<span class="hpMeta">' + esc(histDate(r.ts)) + ' · ' + esc(tableLabelOf(r.table)) + ' · ' + n + ' mesaj</span>' +
+      '</button>' +
+      '<button type="button" class="hpDel" data-del="' + esc(r.id) + '" title="Bu konuşmayı listeden sil" aria-label="Sil">×</button>' +
+    '</div>';
+  }).join('');
+}
+function openHistPop() {
+  const pop = document.getElementById('histPop');
+  const btn = document.getElementById('historyBtn');
+  if (!pop) return;
+  renderHistList();
+  if (pop.parentElement !== document.body) document.body.appendChild(pop);
+  pop.hidden = false;
+  if (btn) btn.setAttribute('aria-expanded', 'true');
+  const r = btn ? btn.getBoundingClientRect() : { right: window.innerWidth - 12, bottom: 56 };
+  const w = pop.offsetWidth || 340;
+  pop.style.top = Math.round(r.bottom + 8) + 'px';
+  pop.style.left = Math.round(Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8))) + 'px';
+}
+function closeHistPop() {
+  const pop = document.getElementById('histPop');
+  const btn = document.getElementById('historyBtn');
+  if (pop) pop.hidden = true;
+  if (btn) btn.setAttribute('aria-expanded', 'false');
+}
+function toggleHistPop() {
+  const pop = document.getElementById('histPop');
+  if (!pop) return;
+  if (pop.hidden) openHistPop(); else closeHistPop();
+}
+
+/* ---- oturumu dosyaya kaydet / dosyadan aç (cihaz taşıma) ---- */
+function sessionFileName() {
+  const t = new Date();
+  const p = n => String(n).padStart(2, '0');
+  return 'divanai-oturum-' + t.getFullYear() + p(t.getMonth() + 1) + p(t.getDate()) + '-' + p(t.getHours()) + p(t.getMinutes()) + '.json';
+}
+function downloadSessionFile() {
+  if (!state.topic || state.transcript.length < 2) { toast('Kaydedilecek konuşma yok.', 'err'); return; }
+  try {
+    const pack = { app: 'divanai', kind: 'session', v: 1, ...sessionRecord() };
+    const blob = new Blob([JSON.stringify(pack, null, 1)], { type: 'application/json;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = sessionFileName();
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('Oturum dosyaya kaydedildi. Başka cihazda “Dosyadan aç” ile devam edebilirsin.', 'ok');
+  } catch (e) {
+    toast('Dosya oluşturulamadı: ' + (e.message || e), 'err');
+  }
+}
+async function openSessionFile(file) {
+  if (!file) return;
+  try {
+    const txt = await file.text();
+    const j = JSON.parse(txt);
+    if (!j || !j.topic || !Array.isArray(j.transcript) || !j.transcript.length) {
+      toast('Bu dosya bir DivanAI oturumu değil.', 'err');
+      return;
+    }
+    if (j.kind && j.kind !== 'session') { toast('Bu dosya oturum değil (' + j.kind + ').', 'err'); return; }
+    if (state.topic && state.transcript.length > 1) persistSession();   // açık konuşma geçmişte kalsın
+    const rec = { ...j, id: uid() };          // içe aktarılan kayıt ayrı bir kopya olsun
+    if (!openSessionRecord(rec)) { toast('Dosya açılamadı.', 'err'); return; }
+    histUpsert(sessionRecord());
+    closeHistPop();
+    toast('Oturum dosyadan açıldı · ' + String(j.topic).replace(/\n/g, ' ').slice(0, 40), 'ok');
+  } catch (e) {
+    toast('Dosya okunamadı (bozuk ya da JSON değil).', 'err');
+  }
 }
 
 /* ---------------- gönderme ---------------- */
@@ -8135,6 +8382,8 @@ function helpHTML() {
       '<li>Bir model hata verirse masa durmaz; <b>aynı sandalyeye yedek model</b> geçer ve konuşma sürer. Cevabın başlığında <b>↺ model</b> etiketi görünür.</li>',
       '<li>Bir konuşmacı başkasının cevabını <b>kopyalarsa</b> masaya alınmaz; “kopyasıydı” notu düşer, söz sıradakine geçer.</li>',
       '<li><b>Masa türünü</b> üstteki <b>Konsey / Ayna / Ajanlar / TekeTek</b> düğmelerinden seçersin; konuşma sırasında da değiştirebilirsin (masa temizlenir, önce onay ister).</li>',
+      '<li><b>Geçmiş:</b> üst şeritteki <b>saat simgesi</b> bu tarayıcıdaki son 10 konuşmayı gösterir; tıklayıp kaldığın yerden devam edersin. Satırdaki <b>yıldıza</b> basarsan konuşma <b>favori</b> olur: listenin başında kalır ve 10’luk sınıra takılmaz.',
+      '<li>Başka cihaza taşımak için aynı paneldeki <b>Oturumu dosyaya kaydet</b> → öbür cihazda <b>Dosyadan aç</b>.</li>',
       '<li><b>TekeTek:</b> anahtarın yoksa <b>TekeTek</b> sekmesini seç — Pollinations üzerinden <b>gpt-oss 20B</b> cevaplar, kayıt ve anahtar istemez. Sınırı: aynı internet bağlantısından <b>45 saniyede 1 yanıt</b>; art arda yazarsan masa birkaç saniye bekleyip kendisi tekrar dener.</li>',
       '<li>Masa <b>kendiliğinden durur</b>: son iki turda yeni fikir gelmezse ya da <b>tur tavanı</b> (varsayılan 6) dolunca başkan özeti çıkarır. Boşuna token harcanmaz; devam etmek istersen <b>Bir tur daha</b>.</li>',
       '<li>Dışa aktarılan dosyada her cevabın <b>künyesi</b> vardır: <i>tur · saat · model</i> (yedekse hangi model).</li>',
@@ -8310,6 +8559,63 @@ function boot() {
       }
     });
   }
+
+  /* ---- geçmiş konuşmalar ---- */
+  const hBtn = $('#historyBtn');
+  if (hBtn) hBtn.addEventListener('click', e => { e.stopPropagation(); toggleHistPop(); });
+  const hList = document.getElementById('histList');
+  if (hList) hList.addEventListener('click', e => {
+    const st = e.target.closest('[data-fav]');
+    if (st) {
+      const id = st.getAttribute('data-fav');
+      const list = histLoad().map(r => r.id === id ? { ...r, fav: !r.fav } : r);
+      histWrite(list);
+      renderHistList();
+      const now = histLoad().find(r => r.id === id);
+      toast(now && now.fav ? 'Favorilere eklendi — listenin başında durur.' : 'Favoriden çıkarıldı.', 'ok');
+      return;
+    }
+    const del = e.target.closest('[data-del]');
+    if (del) {
+      const delId = del.getAttribute('data-del');
+      const isOpen = delId === state.sessionId;
+      histWrite(histLoad().filter(r => r.id !== delId));
+      renderHistList();
+      toast(isOpen
+        ? 'Listeden silindi. Açık konuşma bu; yazmaya devam edersen listeye geri döner.'
+        : 'Konuşma listeden silindi.', 'ok');
+      return;
+    }
+    const op = e.target.closest('[data-open]');
+    if (op) {
+      const rec = histLoad().find(r => r.id === op.getAttribute('data-open'));
+      if (rec && openSessionRecord(rec)) closeHistPop();
+    }
+  });
+  const hSave = $('#histSave');
+  if (hSave) hSave.addEventListener('click', downloadSessionFile);
+  const hOpenBtn = $('#histOpenFile');
+  if (hOpenBtn) hOpenBtn.addEventListener('click', () => { const f = $('#histFile'); if (f) f.click(); });
+  const hFile = $('#histFile');
+  if (hFile) hFile.addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    openSessionFile(f);
+    e.target.value = '';           // aynı dosya tekrar seçilebilsin
+  });
+  const hClearBtn = $('#histClear');
+  if (hClearBtn) hClearBtn.addEventListener('click', () => {
+    if (!histLoad().length) { toast('Liste zaten boş.', 'err'); return; }
+    if (!window.confirm('Geçmiş listesindeki bütün konuşmalar bu tarayıcıdan silinecek.\n\nDışa aktardığın dosyalar silinmez. Devam edilsin mi?')) return;
+    store.del(HIST_KEY);
+    renderHistList();
+    toast('Geçmiş listesi temizlendi.', 'ok');
+  });
+  document.addEventListener('click', e => {
+    const pop = document.getElementById('histPop');
+    if (!pop || pop.hidden) return;
+    if (e.target.closest('#histPop') || e.target.closest('#historyBtn')) return;
+    closeHistPop();
+  });
 
   const kcTek = $('#keyCardTek');
   if (kcTek) kcTek.addEventListener('click', () => switchTable('tek'));
@@ -8507,6 +8813,7 @@ function boot() {
     if (e.key === 'Escape') {
       if (drawerOpen) closeDrawer();
       else if (!$('#helpModal').hidden) closeHelp();
+      else closeHistPop();
     }
   });
 

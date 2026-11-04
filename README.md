@@ -58,10 +58,27 @@ Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya,
 | **Gündem** | Konunun altındaki çipler | **Fikir üret · Tartış & eleştir · Karar ver** — yalnız Konsey'de; Ayna'da gündem sabittir |
 | **Hız** | Üst sağdaki `1× / 2× / 4×` | Yalnız ekrandaki yazma hızını değiştirir; istek sayısını değiştirmez |
 | **Model** | Ayna ve TekeTek'te listenin yanındaki seçici | TekeTek'te: **Pollinations · anahtarsız** ya da **kendi bağlantın** |
+| **Geçmiş** | Üst şeritteki saat simgesi | Bu tarayıcıdaki son 10 konuşma + **favoriler** · aç, devam et, sil |
 
 **Konuşma sürerken:**
 - Alta **araya not** yazabilirsin — sıradaki konuşmacılar onu görür.
 - **Durdur** ile masayı anında kesebilirsin; yazılmış cevaplar silinmez.
+
+### 1b · Geçmiş konuşmalar ve cihaz taşıma
+
+Hesap yok, giriş yok. Buna karşılık konuşmalar kaybolmasın diye üç şey var:
+
+| Ne | Nerede | Ne işe yarar |
+|---|---|---|
+| **Son oturum** | Kendiliğinden | Sayfayı yenileyince ya da sekmeyi kapatıp açınca konuşma yerinde durur |
+| **Geçmiş listesi** | Üst şerit → **saat simgesi** | Bu tarayıcıdaki son **10 konuşma**: tarih, mod, mesaj sayısı. Tıkla → kaldığı yerden devam. `×` ile tek tek, alttaki düğmeyle hepsi silinir |
+| **Favoriler** | Satırdaki **yıldız** (☆) | Önemli konuşmayı işaretle: listenin **en başında** ayrı bölümde kalır ve 10’luk sınır onları **silmez** (en fazla 30 favori) |
+| **Oturum dosyası** | Aynı panel → **Oturumu dosyaya kaydet / Dosyadan aç** | Başka cihaza taşımak için `.json` dosyası. WhatsApp/Drive/e-posta ile kendine gönder, öbür cihazda aç |
+
+Geçmiş listesi **yalnız o tarayıcının deposunda** durur; sunucuya gitmez, hesap gerekmez. Tarayıcı verilerini
+temizlersen liste de gider — bu yüzden önemli konuşmaları **dosyaya kaydet** ya da **Dışa aktar** ile sakla.
+Görsellerin kendisi saklanmaz (yer kaplamasın diye); listeden açılan eski konuşmada görsel kutusu “kayboldu”
+olarak görünür.
 
 ### 2 · Tur bitince
 
