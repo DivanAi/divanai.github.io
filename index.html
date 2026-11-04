@@ -85,11 +85,12 @@ html,body{height:100%}
   --dim:#6b7387;
   --acc:#f5c76a;
   --acc2:#f0b03c;
-  --gpt:#34d399;
-  --gemini:#5ea8ff;
-  --claude:#f3a944;
-  --grok:#b18cff;
-  --user:#f5c76a;
+  --gpt:hsl(152 58% 46%);
+  --gemini:hsl(232 78% 58%);
+  --claude:hsl(352 62% 52%);
+  --grok:hsl(288 52% 66%);
+  --deepseek:hsl(190 72% 70%);
+  --user:hsl(45 90% 66%);
   --radius:18px;
   --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
   --serif:ui-serif,Georgia,"Iowan Old Style","Palatino Linotype",Palatino,"Times New Roman",serif;
@@ -114,6 +115,7 @@ a{color:#9fc6ff}
 [data-sp="gemini"]{--sp:var(--gemini)}
 [data-sp="claude"]{--sp:var(--claude)}
 [data-sp="grok"]{--sp:var(--grok)}
+[data-sp="deepseek"]{--sp:var(--deepseek)}
 [data-sp="user"]{--sp:var(--user)}
 [data-sp="chair"]{--sp:var(--acc)}
 
@@ -346,13 +348,26 @@ a{color:#9fc6ff}
   color:var(--sp);background:color-mix(in srgb,var(--sp) 14%,transparent);
   border:1px solid color-mix(in srgb,var(--sp) 28%,transparent);
 }
+/* Cevap kutuları: her konuşmacı kendi renginde, kutu kutu ayrılır.
+   Denge: renk net görünsün ama dolgu saydam kalsın — göz yorulmaz,
+   metin kontrastı bozulmaz. (Rengin dozu tek yerden: --tint / --edge) */
 .bubble{
+  --tint:30%;            /* dolgu dozu */
+  --tint2:14%;           /* alt köşe dozu */
+  --edge:34%;            /* kenarlık dozu */
   position:relative;min-width:0;padding:11px 14px 12px;border-radius:4px 15px 15px 15px;
-  background:rgba(255,255,255,.036);border:1px solid var(--line);
+  background:linear-gradient(168deg,
+      color-mix(in srgb, var(--sp) var(--tint), rgba(12,14,20,.55)),
+      color-mix(in srgb, var(--sp) var(--tint2), rgba(12,14,20,.72)));
+  border:1px solid color-mix(in srgb, var(--sp) var(--edge), transparent);
+  box-shadow:0 1px 0 rgba(255,255,255,.03) inset;
+  transition:background .25s ease, border-color .25s ease;
 }
-.bubble::before{content:"";position:absolute;left:-1px;top:11px;bottom:11px;width:2px;border-radius:2px;background:var(--sp);opacity:.5}
+.bubble::before{content:"";position:absolute;left:-1px;top:9px;bottom:9px;width:4px;border-radius:4px;background:var(--sp);opacity:1}
+/* yazarken hafif parlama (dikkat dağıtmayacak kadar) */
+.msg.streaming .bubble{border-color:color-mix(in srgb, var(--sp) 62%, transparent)}
 .mhead{display:flex;align-items:baseline;gap:8px;margin-bottom:4px;flex-wrap:wrap}
-.mhead .nm{font-size:12.5px;font-weight:650;color:#f2f4f9}
+.mhead .nm{font-size:12.5px;font-weight:650;color:color-mix(in srgb, var(--sp) 55%, #ffffff)}
 .mhead .rl{font-size:10px;color:var(--dim);letter-spacing:.05em;text-transform:uppercase}
 .mhead .rd{margin-left:auto;font-size:10px;color:var(--dim);letter-spacing:.06em;white-space:nowrap}
 .md{font-size:14.5px;line-height:1.66;color:#dfe3ec;overflow-wrap:anywhere}
@@ -367,7 +382,7 @@ a{color:#9fc6ff}
 .md h4{margin:.5em 0 .25em;font-size:13px;letter-spacing:.02em;color:#fff}
 
 .msg.summary{grid-template-columns:1fr}
-.msg.user .bubble{background:rgba(245,199,106,.07);border-color:rgba(245,199,106,.22);border-radius:15px}
+.msg.user .bubble{background:linear-gradient(168deg,rgba(245,199,106,.20),rgba(245,199,106,.07));border-color:rgba(245,199,106,.38);border-radius:15px}
 .md .mention{color:#ffd899;background:rgba(245,199,106,.1);border-radius:5px;padding:0 4px;font-weight:600;white-space:nowrap}
 .caret{display:inline-block;width:2px;height:1em;margin-left:2px;vertical-align:-2px;background:currentColor;opacity:.5;animation:pulse .85s infinite}
 .msg.user .bubble::before{display:none}
@@ -1158,11 +1173,11 @@ const SUPPORT = {
 };
 
 const PROVIDERS = {
-  gpt:      { name: 'ChatGPT',  short: 'GPT', color: '#34d399', role: 'moderator',  roleLabel: 'MODERATÖR',  keyName: 'OpenAI' },
-  gemini:   { name: 'Gemini',   short: 'GEM', color: '#5ea8ff', role: 'analyst',    roleLabel: 'ANALİST',    keyName: 'Google AI' },
-  claude:   { name: 'Claude',   short: 'CLA', color: '#f3a944', role: 'critic',     roleLabel: 'ELEŞTİRMEN', keyName: 'Anthropic' },
-  grok:     { name: 'Grok',     short: 'GRK', color: '#b18cff', role: 'engineer',   roleLabel: 'MÜHENDİS',   keyName: 'xAI' },
-  deepseek: { name: 'DeepSeek', short: 'DSK', color: '#6fd6c0', role: 'researcher', roleLabel: 'ARAŞTIRMACI',keyName: 'DeepSeek' }
+  gpt:      { name: 'ChatGPT',  short: 'GPT', color: 'hsl(152 58% 46%)', role: 'moderator',  roleLabel: 'MODERATÖR',  keyName: 'OpenAI' },
+  gemini:   { name: 'Gemini',   short: 'GEM', color: 'hsl(232 78% 58%)', role: 'analyst',    roleLabel: 'ANALİST',    keyName: 'Google AI' },
+  claude:   { name: 'Claude',   short: 'CLA', color: 'hsl(352 62% 52%)', role: 'critic',     roleLabel: 'ELEŞTİRMEN', keyName: 'Anthropic' },
+  grok:     { name: 'Grok',     short: 'GRK', color: 'hsl(288 52% 66%)', role: 'engineer',   roleLabel: 'MÜHENDİS',   keyName: 'xAI' },
+  deepseek: { name: 'DeepSeek', short: 'DSK', color: 'hsl(190 72% 70%)', role: 'researcher', roleLabel: 'ARAŞTIRMACI',keyName: 'DeepSeek' }
 };
 const PROVIDER_ORDER = ['gpt', 'gemini', 'claude', 'grok', 'deepseek'];
 const ROLES = {
