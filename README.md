@@ -12,17 +12,26 @@ başkan toparlayıp özetliyor. Sekmeler arasında kopyala-yapıştır yok.
 **Anahtarsız demo.** Hiçbir yere kayıt olmadan bütün akışı deneyebilirsin (demo metinleri canlı cevap
 gibi sunulmaz).
 
-| **Konsey** | **Ayna** | **Ajanlar** |
-|---|---|---|
-| ![Konsey](ekranlar/1-konsey.jpg) | ![Ayna](ekranlar/3-ayna.jpg) | ![Ajanlar](ekranlar/11-ajan-kurulum.jpg) |
-| 3–5 ayrı şirketin modeli, roller, başkan özeti | Aynı model iki sandalyede: savunan + itiraz eden, hakem kararı | Her sandalyeye ayrı görev, zincirleme teslim, tek teslimat |
+| **Konsey** | **Ayna** | **Ajanlar** | **TekeTek** |
+|---|---|---|---|
+| ![Konsey](ekranlar/1-konsey.jpg) | ![Ayna](ekranlar/3-ayna.jpg) | ![Ajanlar](ekranlar/11-ajan-kurulum.jpg) | ![TekeTek](ekranlar/26-teketek.jpg) |
+| 3–5 ayrı şirketin modeli, roller, başkan özeti | Aynı model iki sandalyede: savunan + itiraz eden, hakem kararı | Her sandalyeye ayrı görev, zincirleme teslim, tek teslimat | Tek yapay zekâ, doğrudan cevap; **anahtarsız** da çalışır |
+
+Tek sohbet istersen **TekeTek**: masada tek yapay zekâ olur, yazdığını doğrudan cevaplar. **Anahtarsız
+seçenek hazır gelir** — kayıt olmadan, anahtar girmeden gerçek cevap alırsın (gpt-oss 20B, Pollinations).
 
 ---
 
 ## Hemen başla (30 saniye)
 
 1. `divanai` klasörünü indir, içindeki **`index.html`**'e çift tıkla. (Python, kurulum, internet gerekmez.)
-2. Ekranın üstünden masa türünü seç: **Konsey · Ayna · Ajanlar**.
+2. Ekranın üstünden masa türünü seç: **Konsey · Ayna · Ajanlar · TekeTek**.
+
+**Hiç anahtar girmek istemiyorsan:** **TekeTek** sekmesini seç. Masa, **Pollinations** üzerinden
+**gpt-oss 20B** modeliyle cevap verir — **kayıt yok, anahtar yok, ücret yok**. Sınırı: aynı internet
+bağlantısından **45 saniyede 1 yanıt**; art arda yazarsan uygulama kaç saniye bekleyeceğini söyleyip
+kendisi tekrar dener. Bu sınır yüzünden anahtarsız seçenek yalnız **TekeTek**'te önerilir; Konsey ve Ayna
+tek turda birden çok istek attığı için orada kendi anahtarın gerekir.
 3. Kutuya konuyu yaz ve `Enter`. *(Örnek: "Bursa'da küçük bir kahve dükkânı açmak mantıklı mı?")*
 4. Demo modunda cevaplar hazır metindir; akışı görürsün, **hiç istek harcanmaz**.
 
@@ -44,11 +53,11 @@ Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya,
 
 | Ne | Nerede | Not |
 |---|---|---|
-| **Masa türü** | En üstteki üç düğme | Değiştirirsen mevcut konuşma temizlenir (önce uyarır) |
+| **Masa türü** | En üstteki dört düğme | Değiştirirsen mevcut konuşma temizlenir (önce uyarır) |
 | **Konu** | Alttaki yazı kutusu | `Enter` başlatır, `Shift+Enter` alt satır |
 | **Gündem** | Konunun altındaki çipler | **Fikir üret · Tartış & eleştir · Karar ver** — yalnız Konsey'de; Ayna'da gündem sabittir |
 | **Hız** | Üst sağdaki `1× / 2× / 4×` | Yalnız ekrandaki yazma hızını değiştirir; istek sayısını değiştirmez |
-| **Model** | Ayna'da listenin yanındaki seçici | "Ayna'da kapışacak model" |
+| **Model** | Ayna ve TekeTek'te listenin yanındaki seçici | TekeTek'te: **Pollinations · anahtarsız** ya da **kendi bağlantın** |
 
 **Konuşma sürerken:**
 - Alta **araya not** yazabilirsin — sıradaki konuşmacılar onu görür.
@@ -186,6 +195,25 @@ Başlık da ayara uyar — 5 sandalye açtığında "Beş yapay zekâ, tek masa"
 **Her konuşmacı için üç kural** (sistem talimatına gömülü): **kısa** (süsleme, giriş cümlesi yok),
 **objektif** (uydurma sayı/fiyat yasak, veri yoksa "kanıt yok"), **tekrar yok** (masada söylenenin
 tekrarı ve "X şunu dedi" kalıbı yasak). Yeni bir şey yoksa açıkça söyler.
+
+---
+
+## TekeTek
+
+![TekeTek · anahtarsız](ekranlar/26-teketek.jpg)
+
+Masada tek yapay zekâ var; tartışma, sıra, başkan yok. Yazdığını doğrudan cevaplar, yazmaya devam
+ettikçe sohbetin hafızası açık kalır. İki seçenek var:
+
+| Seçenek | Ne gerekir | Ne zaman |
+|---|---|---|
+| **Pollinations · anahtarsız** | Hiçbir şey — kayıt ve anahtar yok | İlk deneme, tek soru-cevap, ücretsiz kullanım |
+| **Kendi bağlantım** | Ayarlar → Bağlantı'da bir sağlayıcı + anahtar | Zaten anahtarın varsa, sınır istemiyorsan |
+
+**Anahtarsız seçeneğin tek sınırı:** aynı internet bağlantısından **45 saniyede 1 yanıt**. Hızlı yazarsan
+uygulama bekler ve “45 saniyede 1 yanıt · 12 sn bekleyip tekrar deniyorum…” der — boş hata ekranı görmezsin.
+Sunucu “en iyi çaba” ile çalışır; ara ara yavaşlayabilir. Modelin **iç konuşması (reasoning)** ekrana basılmaz,
+yalnız cevabı görürsün. Sohbetin bir yere kaydedilmez; anahtar kullanılmadığı için kaybedilecek bir şey de yok.
 
 ---
 

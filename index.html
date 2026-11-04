@@ -128,13 +128,13 @@ a{color:#9fc6ff}
   background:rgba(8,9,13,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   position:relative;z-index:5;
 }
-.brand{display:flex;align-items:center;gap:10px;min-width:0}
-.logo{color:#cfd6e6;flex:0 0 auto}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{color:#dbe2f0;flex:0 0 auto;width:34px;height:34px;filter:drop-shadow(0 2px 8px rgba(96,165,250,.28))}
 .brandtext{display:flex;flex-direction:column;line-height:1.05;min-width:0}
 /* marka artık karışık harf (DivanAI): büyük harf için konmuş geniş harf aralığı
    seyrek duruyor, normale yakın tutuldu */
-.brandtext b{font-size:17px;letter-spacing:.01em;font-weight:700}
-.brandtext span{font-size:10.5px;color:var(--dim);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brandtext b{font-size:20px;letter-spacing:-.005em;font-weight:700}
+.brandtext span{font-size:11px;color:var(--dim);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topmid{flex:1;display:flex;justify-content:center;min-width:0}
 .topactions{display:flex;align-items:center;gap:8px}
 .pill{
@@ -352,9 +352,9 @@ a{color:#9fc6ff}
    Denge: renk net görünsün ama dolgu saydam kalsın — göz yorulmaz,
    metin kontrastı bozulmaz. (Rengin dozu tek yerden: --tint / --edge) */
 .bubble{
-  --tint:30%;            /* dolgu dozu */
-  --tint2:14%;           /* alt köşe dozu */
-  --edge:34%;            /* kenarlık dozu */
+  --tint:15%;            /* dolgu dozu */
+  --tint2:7%;            /* alt köşe dozu */
+  --edge:26%;            /* kenarlık dozu */
   position:relative;min-width:0;padding:11px 14px 12px;border-radius:4px 15px 15px 15px;
   background:linear-gradient(168deg,
       color-mix(in srgb, var(--sp) var(--tint), rgba(12,14,20,.55)),
@@ -514,6 +514,13 @@ input.fieldErr, select.fieldErr{border-color:rgba(255,90,90,.65)!important;box-s
   position:relative;z-index:4;
 }
 .dockin{max-width:1080px;margin:0 auto}
+/* boş ekran (konuşma yok): içerik dikeyde ortalanır, yazı kutusu başlığın altına taşınır */
+#scroll.idle{display:flex;flex-direction:column}
+#scroll.idle .wrap{margin-top:auto;margin-bottom:auto}
+#scroll.idle .modes{position:static}
+.dock.inhero{padding:16px 0 0;background:none;z-index:1}
+.dock.inhero .dockin{max-width:720px;margin:0}
+.dock.inhero .hint{padding-top:9px}
 .composer{
   display:flex;align-items:flex-end;gap:10px;
   background:rgba(255,255,255,.045);border:1px solid var(--line2);border-radius:19px;
@@ -593,11 +600,11 @@ input.fieldErr, select.fieldErr{border-color:rgba(255,90,90,.65)!important;box-s
   box-shadow:0 0 0 1px rgba(245,199,106,.14) inset}
 .modeBtn.on .mIco{color:var(--acc)}
 .modeBtn.on .mTxt i{color:#c9b48a}
-.modeModel{display:flex;align-items:center;gap:8px;flex:0 0 auto;padding:0 2px}
+.modeModel{display:flex;align-items:center;gap:8px;flex:0 1 auto;min-width:0;padding:0 2px;margin-left:auto}
 .modeModel[hidden]{display:none}
 .modeModel>span{font-size:11px;color:var(--dim);white-space:nowrap}
 .modeModel select{width:auto;min-width:120px;padding:8px 10px;font-size:12px}
-.modeCost{font-style:normal;font-size:10.5px;color:var(--dim);white-space:nowrap;opacity:.8}
+.modeCost{font-style:normal;font-size:10.5px;color:var(--dim);white-space:nowrap;opacity:.8;overflow:hidden;text-overflow:ellipsis;min-width:0}
 @media (max-width:640px){
   .modes{gap:8px;padding:10px 0 4px}
   .modeBtn{flex:1 1 140px;padding:9px 10px;gap:8px}
@@ -1009,6 +1016,16 @@ select optgroup{background:#151a24;color:#9aa2b5}
           </span>
           <span class="mTxt"><b>Ajanlar</b><i>her sandalyeye ayrı görev · zincirleme teslim</i></span>
         </button>
+        <button type="button" class="modeBtn" id="modeTek" data-table="tek" role="tab" aria-selected="false">
+          <span class="mIco" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-8.5-8.5"/><path d="M12 8.2v7.6M8.6 12h6.8"/></svg>
+          </span>
+          <span class="mTxt"><b>TekeTek</b><i>tek yapay zekâ · anahtarsız da çalışır</i></span>
+        </button>
+        <label class="modeModel" id="modeTekWrap" hidden>
+          <span>Konuşacağın yapay zekâ</span>
+          <select id="modeTekSel" aria-label="TekeTek modunda kullanılacak yapay zekâ"></select>
+        </label>
         <label class="modeModel" id="modeModelWrap" hidden>
           <span>Ayna’da kapışacak model</span>
           <select id="modeModelSel" aria-label="Ayna modunda kullanılacak model"></select>
@@ -1027,6 +1044,7 @@ select optgroup{background:#151a24;color:#9aa2b5}
             <li><b>Buraya yapıştır</b> — Ayarlar → Mod: Canlı → OpenRouter → Anahtar.</li>
           </ol>
           <div class="kcRow">
+            <button type="button" class="btn sm" id="keyCardTek">TekeTek ile başla — anahtar gerekmez</button>
             <a class="btn sm" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Anahtar sayfasını aç</a>
             <button type="button" class="btn sm" id="keyCardOpen">Ayarları aç</button>
             <button type="button" class="mini" id="keyCardHide">Bir daha gösterme</button>
@@ -1057,9 +1075,12 @@ select optgroup{background:#151a24;color:#9aa2b5}
 
       <section class="ajanSetup" id="ajanSetup" hidden></section>
 
+      <!-- boş ekranda yazı kutusu buraya taşınır (hero’nun hemen altı) -->
+      <div class="dockHost" id="dockHost"></div>
+
       <section class="session" id="session" hidden>
         <div class="topicCard">
-          <div class="tag">GÜNDEM</div>
+          <div class="tag" id="topicTag">GÜNDEM</div>
           <div class="topicText" id="topicText"></div>
           <div class="topicMeta">
             <span id="metaPeople">4 model</span><span class="dotsep">·</span>
@@ -1205,6 +1226,23 @@ const GATEWAYS = {
     models: { gpt: 'openai/gpt-6-luna', gemini: 'google/gemini-3.8-flash',
               claude: 'anthropic/claude-haiku-5.5', grok: 'x-ai/grok-4.3',
               deepseek: 'deepseek/deepseek-v4.1-flash' }
+  },
+  pollinations: {
+    group: 'keyless',
+    card: 'kartsız',
+    label: 'Pollinations',
+    sub: 'anahtar yok · kayıt yok · ücretsiz',
+    baseUrl: 'https://text.pollinations.ai/openai',
+    optionalKey: true,          // anahtar istemez
+    keyless: true,
+    keyHint: '(gerekmiyor)',
+    keyUrl: 'https://pollinations.ai',
+    lite: true,
+    note: 'Anahtar yok, kayıt yok, ücretsiz. Model: <b>gpt-oss 20B</b> (açık model). ' +
+      'Sınır: aynı internet bağlantısından <b>45 saniyede 1 yanıt</b>. Bu yüzden <b>Tek</b> modu için uygundur; ' +
+      'Konsey/Ayna aynı turda birden çok istek attığı için orada kullanılmaz. ' +
+      'Sunucu “en iyi çaba” ile çalışır, kesinti olabilir.',
+    models: { gpt: 'openai', gemini: 'openai', claude: 'openai', grok: 'openai', deepseek: 'openai' }
   },
   vercel: {
     group: 'gateway',
@@ -1500,7 +1538,7 @@ const DEFAULT_SETTINGS = {
   seatTimeout: 120,      // saniye: bir sandalye bu sürede bitirmezse sıra atlanır (0 = kapalı)
   restMin: 1,            // dakika: hız/kota hatası alan sağlayıcı bu süre denenmez (0 = kapalı)
   web: false,            // OpenRouter :online — internetten bilgi (kredi harcar)
-  table: 'konsey',       // 'konsey' = 4 ayrı model · 'ayna' = aynı model iki sandalyede
+  table: 'konsey',       // 'konsey' = 4 ayrı model · 'ayna' = ayna · 'ajan' = ajanlar · 'tek' = tek yapay zekâ
   duel: { on: false, pid: 'grok' },   // ayna modunun eski alanı (table ile eşitlenir)
   v: 4
 };
@@ -1586,7 +1624,7 @@ function mergeSettings(stored) {
   if (!PROVIDERS[s.duel.pid]) s.duel.pid = 'grok';
   if (typeof s.duel.on !== 'boolean') s.duel.on = false;
   // masa türü: eski kayıtlarda duel.on varsa ondan türet
-  if (!['konsey', 'ayna', 'ajan'].includes(s.table)) s.table = s.duel.on ? 'ayna' : 'konsey';
+  if (!['konsey', 'ayna', 'ajan', 'tek'].includes(s.table)) s.table = s.duel.on ? 'ayna' : 'konsey';
   s.duel.on = s.table === 'ayna';   // iki alan tek gerçeğe bağlı
   /* v3 · kullanıcı geri bildirimi: "Sonuç / Artı / Eksi / İlk adım" iskeleti robotik
      bulundu; masa artık normal sohbet gibi konuşur. Eski kayıttaki 'net' bir kez
@@ -1667,8 +1705,71 @@ const DUEL_SIDES = {
   }
 };
 const duelOn = () => state.settings.table === 'ayna' || !!(state.settings.duel && state.settings.duel.on);
-const setTable = (t) => { state.settings.table = (t === 'ayna' || t === 'ajan') ? t : 'konsey'; state.settings.duel.on = state.settings.table === 'ayna'; return state.settings.table; };
+const setTable = (t) => { state.settings.table = ['ayna', 'ajan', 'tek'].includes(t) ? t : 'konsey'; state.settings.duel.on = state.settings.table === 'ayna'; return state.settings.table; };
+const tekOn = () => state.settings.table === 'tek';
+/* masa türünü tek yerden oku (eski duel.on alanıyla uyumlu) */
+function tableNow() {
+  const t = state.settings.table;
+  if (t === 'ajan' || t === 'tek') return t;
+  return duelOn() ? 'ayna' : 'konsey';
+}
+
+/* ---- TekeTek: masada tek yapay zekâ ----
+   TekeTek'te sandalye = başkan. İki kaynak var:
+     'pollinations' → anahtarsız, ücretsiz (sandalye kendi bağlantısını kullanır)
+     'own'          → kullanıcının kendi bağlantısı (Ayarlar → Bağlantı)
+   Seçim sandalyenin kendi bağlantısında (seatSrc/seatKey/models) tutulur, yani
+   Konsey'in ayarlarına dokunmaz. */
+function tekSeat() {
+  const s = state.settings;
+  return s.active.includes(s.chair) ? s.chair : (s.active[0] || 'gpt');
+}
+function tekChoice() {
+  const pid = tekSeat();
+  const src = (state.settings.seatSrc || {})[pid];
+  return src === 'pollinations' ? 'pollinations' : 'own';
+}
+function tekChoices() {
+  const out = [{ id: 'pollinations', label: 'Pollinations · anahtarsız · gpt-oss' }];
+  const g = GATEWAYS[state.settings.api.kind] || {};
+  const hasKey = !!String(keyOfKind(state.settings.api.kind) || '').trim();
+  out.push({ id: 'own', label: (hasKey ? 'Kendi bağlantım · ' : 'Kendi bağlantım (anahtar gerekir) · ') + (g.label || state.settings.api.kind) });
+  return out;
+}
+/* anahtarsız seçenek fiilen canlı mı? (demo modunda bile gerçek cevap gelsin diye) */
+function tekKeyless() {
+  if (!tekOn()) return false;
+  const pid = tekSeat();
+  return (state.settings.seatSrc || {})[pid] === 'pollinations';
+}
+function tekPidNeedsSwitch(src) {
+  const pid = tekSeat();
+  const s = state.settings;
+  s.seatSrc = s.seatSrc || {}; s.seatKey = s.seatKey || {}; s.models = s.models || {};
+  if (src === 'pollinations') {
+    s.seatSrc[pid] = 'pollinations';
+    s.models[pid] = (GATEWAYS.pollinations.models || {}).gpt || 'openai';
+    if (!s.active.includes(pid)) s.active = s.active.concat([pid]);
+  } else {
+    delete s.seatSrc[pid];
+  }
+  return pid;
+}
+/* TekeTek'e ilk geçişte: anahtar yoksa anahtarsız seçeneği kendiliğinden kur */
+function ensureTek() {
+  const s = state.settings;
+  if (s._tekSeeded) return;                 // kullanıcının kendi seçimini her gelişte ezme
+  s._tekSeeded = true;
+  const hasKey = !!String(keyOfKind(s.api.kind) || '').trim();
+  if (!hasKey) tekPidNeedsSwitch('pollinations');   // anahtar yoksa kurulum istemeyiz
+}
 const duelPid = () => (state.settings.duel && PROVIDERS[state.settings.duel.pid]) ? state.settings.duel.pid : 'grok';
+/* Ayna'nın kendi renk çifti — Konsey paletinden BAĞIMSIZ.
+   İki taraf zıt sıcaklıkta: savunan serin (turkuaz), itiraz eden sıcak (turuncu).
+   Böylece Konsey'de renkleri değiştirmek Ayna'yı etkilemez. */
+/* Ayna çifti: koyu mavi (savunan) — açık ahududu (itiraz eden).
+   Konsey paletiyle hiçbir tonu paylaşmaz; iki taraf arasında hem ton hem açıklık farkı var. */
+const DUEL_COLORS = { a: 'hsl(205 62% 44%)', b: 'hsl(330 60% 60%)' };
 
 const personas = () => {
   if (duelOn()) {
@@ -1682,13 +1783,31 @@ const personas = () => {
         model: state.settings.models[pid] || '',
         name: base.name + ' ' + s.tag,
         short: (base.short + s.tag).slice(0, 4),
-        color: base.color,
+        color: DUEL_COLORS[side] || base.color,
         role: s.role,
         roleLabel: s.roleLabel,
         roleBrief: s.brief,
         duelSide: side
       };
     });
+  }
+  if (tekOn()) {
+    /* tek yapay zekâ: masanın başkanı (yoksa ilk açık sandalye) tek başına konuşur */
+    const pid = state.settings.active.includes(state.settings.chair) ? state.settings.chair : state.settings.active[0];
+    const p = PROVIDERS[pid];
+    if (!p) return [];
+    /* ekranda görünen ad gerçek sağlayıcıyı söylemeli: anahtarsız seçenekte
+       sandalye ChatGPT değil, Pollinations üzerinden gpt-oss. */
+    const keyless = (state.settings.seatSrc || {})[pid] === 'pollinations';
+    return [{
+      id: pid, provider: pid, model: state.settings.models[pid] || '',
+      name: keyless ? 'gpt-oss 20B' : p.name,
+      short: keyless ? 'GPT-OSS' : p.short,
+      vendor: keyless ? 'Pollinations (anahtarsız)' : '',
+      color: p.color,
+      role: 'moderator', roleLabel: 'DANIŞMAN', roleBrief: 'soruyu doğrudan cevaplar, konuyu dağıtmaz',
+      single: true
+    }];
   }
   return state.settings.active.map(pid => {
     const p = PROVIDERS[pid];
@@ -1909,7 +2028,7 @@ function memoryDigest(msgs) {
   return text;
 }
 
-function buildHistory(pid) {
+function buildHistory(pid, skipId) {
   const out = [];
   const mode = state.settings.context || 'memory';
   const compact = mode === 'compact';
@@ -1930,6 +2049,7 @@ function buildHistory(pid) {
   }
 
   for (const m of state.transcript) {
+    if (skipId && m.id === skipId) continue;          // kendi boş baloncuğu isteme girmesin
     const idx = live.indexOf(m);
     const old = (compact || mem) && idx > -1 && idx < keepFrom;
     if (mem && old) continue;                          // hafıza bloğunda yaşıyor
@@ -2182,6 +2302,13 @@ function tokenBudget() {
   return Math.max(1600, Math.min(4000, Math.round(w * 9) + 800));
 }
 
+/* Kullanıcının konusu: talimatın içinde açıkça durur.
+   (Ayna'da ilk cevabın konudan kopmasının sebebi buydu: kısa talimatta konu hiç yoktu.) */
+function topicLine() {
+  const t = String(state.topic || '').trim().split(/[.!?\n]/)[0] || (goalOf() || {}).label || '';
+  return t.length > 140 ? t.slice(0, 140) + '…' : t;
+}
+
 /* Kısa talimat (free katman): aynı kurallar, 1/3 uzunlukta.
    Groq/Cerebras gibi token kotası düşük servislerde varsayılan. */
 function liteSystem(p) {
@@ -2193,19 +2320,40 @@ function liteSystem(p) {
   return [
     'Sen "' + p.name + '" adlı yapay zekâsın. Rolün: ' + p.roleLabel + ' — ' + (p.roleBrief || 'kendi açında konuş') + '.',
     'Masada başka yapay zekâlar var: ' + (others || '—') + '.' + (isChair ? ' Sen başkansın, son sözü sen söyle.' : ' Başkan değilsin, masayı yönetme.'),
-    'Amaç: ' + gg.label + '. Görevin: ' + (p.duelSide ? DUEL_SIDES[p.duelSide].task : gg[p.role]) + '.',
+    'Kullanıcının konusu: ' + topicLine(),
+    'Amaç: ' + gg.label + '. Görevin: ' + (p.single ? 'kullanıcının sorusunu doğrudan cevapla; masada başkası yok, söz devretme, tartışma başlatma' : (p.duelSide ? DUEL_SIDES[p.duelSide].task : gg[p.role])) + '.',
     'Kullanıcı kodlama bilmiyor; sade ve somut yaz.',
     '',
     chat
       ? 'KURALLAR: İlk cümle doğrudan cevabın olsun. En fazla ' + words() + ' kelime, düz paragraf; madde imi, başlık, "Sonuç:/Artı:/Eksi:/İlk adım:" etiketi YASAK. Cümle 20 kelimeyi geçmesin, bir cümlede tek fikir. Kısa kelime seç. "Elbette", "harika soru", "umarım yardımcı olur" gibi açılış yok. Fikrin olsun: "bence", "sanırım" serbest, bir tarafı tut. "X dedi ama", "X’in dediği gibi fakat" gibi alıntı açılışı YASAK; itirazın varsa doğrudan yaz.'
       : 'KURALLAR: En fazla ' + words() + ' kelime. İlk cümle doğrudan bilgi versin, giriş cümlesi ve kapanış özeti olmasın.',
     'Somut ol: örnek, araç adı, adım ya da sayı ver. Uydurma sayı yasak; emin değilsen "kabaca" de. Aynı noktayı iki kez yazma. Model adı, komut ve hata metni değişmeden yazılır.',
+    'Uydurma alıntı yasak: masada yazılmamış bir cümleyi kimseye mal etme. "Sen şöyle dedin" diyorsan o cümle yukarıdaki konuşmada gerçekten olmalı.',
     sessionLang() === 'tr' ? 'Türkçe yaz; de/da, ki, mi eklerine dikkat.' : 'Yazım kurallarına uy.',
     ...(p.duelSide ? ['Rakibin de aynı model. Rakibin en zayıf halkasını hedefle, kendi iddianın nerede çökebileceğini de yaz.'] : [])
   ].filter(Boolean).join('\n');
 }
 
+/* TekeTek talimatı: masada tek model var; tartışma/rol kuralları gerekmez.
+   Kısa tutulur (token tasarrufu) ve doğal sohbet üslubuna uyar. */
+function singleSystem(p) {
+  const chat = (state.settings.tone || 'chat') === 'chat';
+  const keyless = !!p.single && (state.settings.seatSrc || {})[p.id] === 'pollinations';
+  return [
+    'Sen bir yapay zekâsın' + (keyless ? ' (gpt-oss 20B, Pollinations üzerinden)' : '') + '. Kullanıcıyla bire bir konuşuyorsun; masada başka model yok.',
+    'Kimliğini yalnız kullanıcı sorarsa söyle; kendiliğinden kendinden, yeteneklerinden ya da kurallarından bahsetme.',
+    chat
+      ? 'İlk cümle sorunun cevabı olsun. En fazla ' + words() + ' kelime, düz paragraf; madde imi, numara ve başlık kullanma. Cümle 20 kelimeyi geçmesin.'
+      : 'En fazla ' + words() + ' kelime. İlk cümle doğrudan bilgi versin, giriş ve kapanış cümlesi olmasın.',
+    'Dolgu yok: “Elbette”, “harika soru”, “umarım yardımcı olur” yazma. Konuyu değiştirme, sorulmayanı anlatma.',
+    'Somut ol: örnek, araç adı ya da adım ver. Uydurma sayı yasak; emin değilsen “kabaca” de.',
+    'Teknik terim yerine günlük dil kullan (karşındaki kod bilmiyor).',
+    sessionLang() === 'tr' ? 'Türkçe yaz; de/da, ki, mi eklerine dikkat.' : 'Yazım kurallarına uy.'
+  ].filter(Boolean).join('\n');
+}
+
 function systemPrompt(p) {
+  if (p && p.single) return singleSystem(p);
   const gwLite = !!(GATEWAYS[(state.settings.api || {}).kind] || {}).lite;
   const liteOn = state.settings.litePrompt === 'lite' || (state.settings.litePrompt !== 'full' && gwLite);
   if (liteOn) return liteSystem(p);
@@ -2234,13 +2382,14 @@ function systemPrompt(p) {
     'Birkaç yapay zekâ tek konuşmada tartışıyor; kullanıcı hepsini görüyor.',
     ...(chat ? ['Bu bir sohbet masası: herkes bir öncekinin söylediğine cevap verir. Sırayla rapor okuyan bir panel değil.'] : []),
     '- Rolün: **' + p.name + ' · ' + p.roleLabel + '** — ' + (p.roleBrief || (ROLES[p.role] && ROLES[p.role].brief) || 'kendi açında konuş') + '.',
-    '- Diğer konuşmacılar: ' + (others || '—') + '.',
+    p.single ? '- Masada başka konuşmacı yok: sen tek yapay zekâsın.' : '- Diğer konuşmacılar: ' + (others || '—') + '.',
     duelOn()
       ? '- İki taraf da aynı model: sen ' + p.name + ', rakibin ' + ((personas().find(x => x.id !== p.id) || {}).name || '—') + '. Hakem de aynı model — taraf tutmaz.'
       : '- Başkan: ' + (chair ? chair.name : '—') + '.',
     '',
     '## Bu oturumun amacı: ' + g.label,
-    '- Görevin: ' + (p.duelSide ? DUEL_SIDES[p.duelSide].task : g[p.role]) +
+    '- Kullanıcının konusu: ' + topicLine(),
+    '- Görevin: ' + (p.single ? 'kullanıcının sorusunu doğrudan cevapla; masada başkası yok, söz devretme, tartışma başlatma.' : (p.duelSide ? DUEL_SIDES[p.duelSide].task : g[p.role])) +
       (customGoalLine() ? '\n- **Kullanıcının özel görevi (buna uy):** ' + customGoalLine() : ''),
     '',
     ...langRule(),
@@ -2292,12 +2441,13 @@ function systemPrompt(p) {
     sessionLang() === 'tr'
       ? '6. Türkçe: de/da, ki, mi eklerine dikkat. Teknik terimi ilk kullanışta bir cümleyle açıkla.'
       : '6. Yazım ve dilbilgisi kurallarına uy. Teknik terimi ilk kullanışta bir cümleyle açıkla.',
-    isChair ? '7. Sen başkansın: tartışmayı toparla, son sözü sen söyle.' : '7. Başkan değilsin: masayı yönetmeye çalışma, kendi açında kal.',
+    p.single ? '7. Karşındaki kullanıcı; toparlanacak bir tartışma yok.' : (isChair ? '7. Sen başkansın: tartışmayı toparla, son sözü sen söyle.' : '7. Başkan değilsin: masayı yönetmeye çalışma, kendi açında kal.'),
     ...(webOn()
       ? ['8. **İnternet açık:** sana eklenen güncel arama sonuçlarını kullan. Dış bilgiyi [1], [2] diye numaralandır ve cevabın sonunda tek satır yaz: "Kaynaklar: 1) başlık — url". Kaynak yoksa "güncel veri yok" de, uydurma.']
       : []),
     ...(p.duelSide
       ? ['9. **Aynı modelin iki rolü:** rakibin de aynı modelsin. Kendini tanıtma, "ben yapay zekâyım" deme. Rakibin son iddiasındaki en zayıf halkayı hedefle; kendi iddianın çökeceği durumu da yaz.',
+         '9a. **Uydurma alıntı yasak:** masada yazılmamış bir cümleyi rakibine mal etme; "sen şöyle dedin" diyorsan o cümle yukarıda gerçekten olmalı. Rakip henüz konuşmadıysa ona atıf yapma, doğrudan kullanıcının sorusuna cevap ver.',
          '9b. **Ritüel yasağı:** rakibinin açılış cümlesini tekrarlayarak başlama ("X de yanıltıcı:", "X dedi ama" gibi). Tartışmayı tartışma: "ölçüt nedir, varsayım nedir, neye kanıt denir" gibi meta konulara kayma — kullanıcının sorusuna somut cevap ver.',
          '9c. **Yeni bilgi zorunlu:** her cevapta en az bir yeni somut şey olsun: sayı, araç adı, adım ya da kaynak. Ekleyecek gerçekten yeni bir şey yoksa aynen şunu yaz: "Yeni nokta yok; kalan tek belirsizlik: …" ve bitir.']
       : []),
@@ -2358,7 +2508,7 @@ async function streamSSE(resp, onEvent) {
   }
 }
 
-function friendlyError(status, bodyText, providerName) {
+function friendlyError(status, bodyText, providerName, retryAfter) {
   const raw = String(bodyText || '');
   let detail = '';
   if (/^\s*</.test(raw)) {
@@ -2381,6 +2531,13 @@ function friendlyError(status, bodyText, providerName) {
         ? 'OpenRouter → Settings → Keys → anahtarın “Limit”ini artır ya da limitsiz yeni anahtar oluştur.'
         : pn + ' konsolunda anahtarın/kotamın limitine bak; ücretsiz katmanda günlük limit dolmuş olabilir.') +
       ' Kredi eklemek tek başına yetmez.';
+  }
+  if (status === 402 && /FREE_LIMIT|free limit|pollen/i.test(raw)) {
+    const m = raw.match(/"retryAfter"\s*:\s*(\d+)|retry after (\d+)|wait (\d+) second/i);
+    const sec = String(retryAfter || '').trim() || (m ? (m[1] || m[2] || m[3]) : '');
+    return pn + ': ücretsiz sınır — IP başına 45 saniyede 1 yanıt. ' +
+      (sec ? sec + ' saniye sonra tekrar dene.' : 'Kısa bir bekleme sonrası tekrar dene.') +
+      ' Sınırsız kullanım için kendi anahtarını alabilirsin.';
   }
   const base = status === 401 ? 'API anahtarı reddedildi (401) — anahtar geçersiz.'
     : status === 403 ? 'Erişim reddedildi (403) — anahtar izni/limiti ya da bölge kısıtı.'
@@ -2426,7 +2583,20 @@ async function openAICompatStream(url, headers, body, onDelta, signal, providerN
         return await openAICompatStream(url, headers, body, onDelta, signal, providerName, netHint, true);
       }
     }
-    throw new Error(friendlyError(resp.status, raw, providerName));
+    // Pollinations 45 sn kuralı: kısa bekleme ise sessizce bekle ve bir kez tekrar dene
+    if (resp.status === 402 && /FREE_LIMIT/i.test(raw) && !retried) {
+      const ra = Number(resp.headers.get('retry-after') || 0);
+      if (ra > 0 && ra <= 50) {
+        /* kullanıcı boşuna beklemesin: ne olduğunu söyle */
+        try {
+          if (typeof toast === 'function') toast('Ücretsiz sınır: 45 saniyede 1 yanıt. ' + ra + ' sn bekleyip tekrar deniyorum…', 'ok');
+          else if (typeof setStatus === 'function') setStatus('45 saniye sınırı · ' + ra + ' sn bekleniyor…');
+        } catch (e0) {}
+        await sleep(ra * 1000 + 600);
+        return await openAICompatStream(url, headers, body, onDelta, signal, providerName, netHint, true);
+      }
+    }
+    throw new Error(friendlyError(resp.status, raw, providerName, resp.headers.get('retry-after')));
   }
   if (!resp.body) throw new Error('Yanıt akışı alınamadı.');
   let text = '';
@@ -2445,7 +2615,10 @@ async function openAICompatStream(url, headers, body, onDelta, signal, providerN
 
 function endpointOf(cfg) {
   const base = (cfg.baseUrl || GATEWAYS[cfg.kind].baseUrl || '').replace(/\/+$/, '');
-  return { url: base + '/chat/completions', base };
+  /* Pollinations gibi servislerde sohbet adresi /openai ile biter; sonuna
+     /chat/completions eklenirse 404 döner. */
+  const suffix = /\/(openai|chat\/completions)$/.test(base) ? '' : '/chat/completions';
+  return { url: base + suffix, base };
 }
 
 /* ---- internetten bilgi (OpenRouter :online) ----
@@ -2756,7 +2929,7 @@ function cfgOfKind(kind, key) {
 }
 
 function resolveRoute(pid) {
-  if (state.settings.mode !== 'live') return { kind: 'demo' };
+  if (state.settings.mode !== 'live' && !tekKeyless()) return { kind: 'demo' };   // TekeTek + anahtarsız: demo'ya düşmez
   const kind = seatKindOf(pid);
   const a = state.settings.api;
   const model = (state.settings.seatSrc || {})[pid]
@@ -2900,6 +3073,7 @@ function seatTimeoutSec() {
 /* durmalı mı? 'max' | 'saturated' | null */
 function autoStopReason(round, lastTwo, opts) {
   const s = state.settings;
+  if (tekOn()) return null;   // tek diyalog: masa kendi kendine tur açmaz, cevap bitince bekler
   if (opts && opts.noStop) return null;                 // özet/özel çağrılar
   if (opts && opts.manual) return null;                 // elle devam: ne tavan ne doygunluk
   if (round >= maxRoundsSetting()) return 'max';        // tavan her zaman geçerli
@@ -2999,7 +3173,7 @@ async function runRound(opts = {}) {
 
     let sys = systemPrompt(p);
     const g = goalOf();
-    if (round === 1 && i === 0) {
+    if (round === 1 && i === 0 && !p.single) {
       sys += '\n\n## Açılış (masayı sen açıyorsun)\n' +
         'İlk cümlende kullanıcının sorusunu KENDİ kelimelerinle tek cümlede netleştir (alıntı yapma, "kullanıcı şunu sordu" deme). ' +
         'Hemen ardından o soruya verilecek İLK SOMUT ADIMI söyle. ' +
@@ -3011,27 +3185,37 @@ async function runRound(opts = {}) {
         sys += '\n\n## Kapanış turu\nBu son tur: yeni itiraz açma, yeni konu getirme. Kendi pozisyonunu tek cümleyle sabitle, ' +
           'karşı tarafın en güçlü noktasını kabul et ve hangi noktada anlaşamadığını yaz.';
       }
-    } else if (isLast && isChair && round <= 1) {
+    } else if (!p.single && isLast && isChair && round <= 1) {
       sys += '\n\n## Tur kapanışı\nBaşkansın ve turun son konuşmacısısın. En fazla 80 kelime: turun 1–2 güçlü noktası ve açık kalan tek soru. Yeni konu açma.';
-    } else if (isLast && isChair) {
+    } else if (!p.single && isLast && isChair) {
       sys += '\n\n## Tur kapanışı\nBaşkansın, en fazla 90 kelime. ' + g.chair;
-    } else if (isLast) {
+    } else if (!p.single && isLast) {
       sys += '\n\n## Tur kapanışı\nTurun son konuşmacısısın: tek cümleyle kapat, sözü başkana bırak.';
     }
     // "pas geç" izni: 2. turdan sonra, kapanış konuşmacısı olmayan sandalyelere
     if (state.settings.passOn !== false && round >= 2 && !isLast && !duelOn()) {
       sys += '\n\n## Geçme\nBu turda söyleyecek YENİ ve kendi rolüne ait bir şeyin yoksa — söylenmiş bir şeyi tekrar etmekten başka katkın olmayacaksa — yalnız tek kelime yaz: PAS\nBaşka hiçbir şey yazma. Yeni bir noktan varsa normal cevabını ver; cevabının içinde “PAS” kelimesini kullanma.';
     }
-    let hist = buildHistory(p.id);
-    hist = hist.slice(0, -1); // kendi boş baloncuğunu çıkar
+    /* Kendi boş baloncuğu id ile dışlanır. (Eskiden slice(0,-1) ile son eleman
+       atılıyordu; tek mesajlık ilk turda bu, kullanıcının sorusunun kendisini
+       siliyordu — model konuyu hiç görmüyordu.) */
+    let hist = buildHistory(p.id, draftMsg.id);
     const tone = state.settings.tone;
-    const directive =
-      tone === 'net'
+    let directive = p.single
+      ? 'Kullanıcının son mesajını cevapla (' + round + '. mesaj). En fazla ' + words() + ' kelime. ' +
+        (tone === 'net' ? 'İskeleti koru: **Sonuç:** / **Artı:** / **Eksi:** / **İlk adım:**.' : 'Düz paragraf yaz; madde imi, numara ve başlık yok.') +
+        ' Kendi önceki cevabını tekrar etme. Masada başka konuşmacı yok, söz devretme.'
+      : tone === 'net'
         ? 'Şimdi sıra sende (' + round + '. tur). En fazla ' + words() + ' kelime. İskeleti koru: **Sonuç:** / **Artı:** / **Eksi:** / **İlk adım:**. ' +
           'Dolgu cümle yok, geçen turda söyleneni tekrar yok. Sayı veriyorsan kaynağını yaz, kaynak yoksa “(kaynak yok)” ekle.'
         : tone === 'brief'
         ? 'Şimdi sıra sende (' + round + '. tur). En fazla ' + words() + ' kelime. Doğrudan konuya gir; daha önce söyleneni tekrar etme. Sonunda tek bir soru sor ve sözü tek kişiye bırak.'
         : 'Şimdi sıra sende (' + round + '. tur). En fazla ' + words() + ' kelime. Senden önce konuşanın söylediği bir cümleye doğrudan cevap vererek başla (adını anabilirsin), ardından kendi noktanı ekle. Düz paragraf yaz: madde imi, başlık, "Sonuç / Artı / Eksi / İlk adım" etiketi yok. Daha önce söyleneni tekrar etme. Soru sormak zorunda değilsin.';
+    if (p.duelSide) {
+      directive += round <= 1
+        ? '\nÖNEMLİ: Rakip henüz konuşmadı. Ona atıf yapma, olmayan bir cümlesini alıntılama; doğrudan kullanıcının sorusuna cevap vererek kendi tarafını kur.'
+        : '\nYalnız masada gerçekten yazılmış cümlelere atıf yap; uydurma alıntı yasak.';
+    }
     hist.push({ role: 'user', content: directive });
 
     // kendi son iki cevabı birbirine benziyorsa modele açıkça söyle (ek çağrı yok)
@@ -3041,7 +3225,9 @@ async function runRound(opts = {}) {
     }
 
     let acc = '';
-    let modelUsed = state.settings.mode === 'live' ? (effModel(p.provider) || '—') : 'demo';
+    let modelUsed = (state.settings.mode === 'live' || tekKeyless())
+      ? (tekKeyless() ? 'gpt-oss 20B' : (effModel(p.provider) || '—'))
+      : 'demo';
     state.lastUsage = null; state.lastFinish = null;
     const onDelta = piece => {
       if (token !== state.runToken) return;
@@ -3973,7 +4159,7 @@ function startSession(topic) {
   state.autoStopped = null; state.webFallback = false;
   state.lastManual = false;
   addMessage({ kind: 'msg', personaId: 'user', name: 'Sen', short: 'SEN', color: '#f5c76a', roleLabel: 'MASANIN SAHİBİ', text: topic, plain: plainOf(topic) });
-  if (!state.settings.mode || state.settings.mode === 'demo') {
+  if ((!state.settings.mode || state.settings.mode === 'demo') && !tekKeyless()) {
     addMessage({ kind: 'notice', level: 'info', text: 'Demo modu: aşağıdaki cevaplar hazır örnek metindir, her konuda aynıdır. Gerçek model cevapları için Ayarlar → Mod: Canlı.' });
     const dl = langOf(topic);
     if (dl && dl !== 'tr') {
@@ -6167,7 +6353,7 @@ function renderSeats() {
   const box = $('#seats');
   if (!box) return;
   const ps = personas();
-  const chairId = duelOn() ? '' : state.settings.chair;   // kapışmada iki taraf eşit, başkan rozeti yok
+  const chairId = (duelOn() || tekOn()) ? '' : state.settings.chair;   // Ayna'da iki taraf eşit, Tek'te tek sandalye
   const running = state.phase === 'running';
   let html = seatHTML({ id: 'user', name: 'Sen', short: 'SEN', color: '#f5c76a', role: 'masanın sahibi', host: true, state: running ? 'queued' : '' });
   for (const p of ps) {
@@ -6245,12 +6431,13 @@ function renderCtrls() {
   const more = $('#moreRoundBtn'), sum = $('#summaryBtn'), stop = $('#stopBtn'), expWrap = $('#expWrap'), mdBtn = $('#mdBtn'), copyB = $('#copyBtn');
   const ajanM = typeof ajanOn === 'function' && ajanOn();
   const waitingGate = !!state.ajanResume;
+  const tekM2 = state.settings.table === 'tek';
   if (more) {
-    more.hidden = ajanM ? !(state.phase === 'waiting' && state.transcript.length > 1 && !!state.ajanResult && !waitingGate)
-                        : !(state.phase === 'waiting' && state.round >= 1 && state.transcript.length > 1);
+    more.hidden = tekM2 ? true : (ajanM ? !(state.phase === 'waiting' && state.transcript.length > 1 && !!state.ajanResult && !waitingGate)
+                        : !(state.phase === 'waiting' && state.round >= 1 && state.transcript.length > 1));
     more.textContent = ajanM ? '+ Bir geçiş daha' : '+ Bir tur daha';
   }
-  if (sum) sum.hidden = ajanM ? true : !(state.phase === 'waiting' && has);
+  if (sum) sum.hidden = (ajanM || tekM2) ? true : !(state.phase === 'waiting' && has);
   const gate = $('#ajanNextBtn');
   if (gate) gate.hidden = !waitingGate;
   const restB = $('#restBtn');
@@ -6320,13 +6507,20 @@ function sayiTR(n) {
 }
 /** Konsey'de masadaki sandalye sayısı (Ayna sabit 2) */
 function konseySeats() {
-  try { return (personas() || []).length || 1; } catch (e) { return 1; }
+  try {
+    if (tekOn()) return Math.max(1, (state.settings.active || []).length);   // Tek moddayken Konsey yazısı bozulmasın
+    return (personas() || []).length || 1;
+  } catch (e) { return 1; }
 }
 
 const TABLE_COPY = {
   konsey: {
     title: 'Dört yapay zekâ, <em>tek masa</em>.',   // renderModes içinde sandalye sayısına göre yazılır
     sub: 'Konuyu bir kez yaz. Modeller sırayla konuşsun, birbirine itiraz etsin, en sonunda başkan toparlayıp özetlesin. Sekme sekme kopyala-yapıştır yok.'
+  },
+  tek: {
+    title: 'TekeTek: tek yapay zekâ, <em>doğrudan cevap</em>.',
+    sub: 'Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek hazır gelir — kurulum yapmadan konuşmaya başlarsın.'
   },
   ayna: {
     title: 'Aynı model, <em>kendi kendine karşı</em>.',
@@ -6350,11 +6544,20 @@ function renderModes() {
 
   const bar = $('#modeBar');
   if (!bar) return;
-  const t = state.settings.table === 'ajan' ? 'ajan' : (duelOn() ? 'ayna' : 'konsey');
-  const kb = $('#modeKonsey'), ab = $('#modeAyna'), jb = $('#modeAjan');
+  const t = tableNow();
+  const kb = $('#modeKonsey'), ab = $('#modeAyna'), jb = $('#modeAjan'), tb = $('#modeTek');
+  if (tb) { tb.classList.toggle('on', t === 'tek'); tb.setAttribute('aria-selected', t === 'tek' ? 'true' : 'false'); }
   if (kb) { kb.classList.toggle('on', t === 'konsey'); kb.setAttribute('aria-selected', t === 'konsey' ? 'true' : 'false'); }
   if (ab) { ab.classList.toggle('on', t === 'ayna'); ab.setAttribute('aria-selected', t === 'ayna' ? 'true' : 'false'); }
   if (jb) { jb.classList.toggle('on', t === 'ajan'); jb.setAttribute('aria-selected', t === 'ajan' ? 'true' : 'false'); }
+  const twrap = $('#modeTekWrap'), tsel2 = $('#modeTekSel');
+  if (twrap) twrap.hidden = t !== 'tek';
+  if (tsel2 && t === 'tek') {
+    const cur = tekChoice();
+    tsel2.innerHTML = tekChoices().map(o =>
+      '<option value="' + esc(o.id) + '" ' + (o.id === cur ? 'selected' : '') + '>' + esc(o.label) + '</option>').join('');
+
+  }
   const wrap = $('#modeModelWrap'), sel = $('#modeModelSel');
   if (wrap) wrap.hidden = t !== 'ayna';
   if (sel && t === 'ayna') {
@@ -6362,9 +6565,9 @@ function renderModes() {
     sel.innerHTML = PROVIDER_ORDER.map(pid =>
       '<option value="' + pid + '" ' + (pid === cur ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + '</option>').join('');
   }
-  // gündem seçenekleri yalnız Konsey'de anlamlı (Ayna'da gündem sabit)
+  // gündem seçenekleri yalnız Konsey'de anlamlı (Ayna'da sabit, Tek'te sohbet)
   const gc = $('#goalChips');
-  if (gc) gc.hidden = (t === 'ayna');
+  if (gc) gc.hidden = (t === 'ayna' || t === 'tek' || t === 'ajan');   // Ajanlar'da gündem çipi yok
   const h1 = $('#heroTitle'), sub = $('#heroSub');
   // Konsey başlığı sabit "Dört" demez: kaç sandalye açıksa o yazar
   const nSeat = konseySeats();
@@ -6375,6 +6578,8 @@ function renderModes() {
   }
   const ksub = $('#modeKonseySub');
   if (ksub) ksub.textContent = nSeat + ' ayrı model · başkan özetler';
+  const tsb = $('#modeTekSub');
+  if (tsb) tsb.textContent = tekChoice() === 'pollinations' ? 'anahtarsız · 45 sn’de 1 yanıt' : 'tek model · doğrudan cevap';
   if (sub) sub.textContent = TABLE_COPY[t].sub;
   bar.dataset.table = t;
   if (typeof renderAjanSetup === 'function') renderAjanSetup();
@@ -6382,26 +6587,49 @@ function renderModes() {
 
 /* mod değiştir: masa yeni türle baştan kurulur (yarım kalan konuşma karışmasın) */
 function switchTable(t) {
-  t = (t === 'ayna' || t === 'ajan') ? t : 'konsey';
-  if ((state.settings.table === 'ajan' ? 'ajan' : (duelOn() ? 'ayna' : 'konsey')) === t) return;
+  t = ['ayna', 'ajan', 'tek'].includes(t) ? t : 'konsey';
+  if (tableNow() === t) return;
   // Konsey'e dönerken Ayna'nın dayattığı başkanı değil, kullanıcının eski başkanını geri koy
-  const from = state.settings.table === 'ajan' ? 'ajan' : (duelOn() ? 'ayna' : 'konsey');
+  const from = tableNow();
   if (from === 'konsey') state.prevChair = state.settings.chair;
   else if (state.prevChair && state.settings.active.includes(state.prevChair)) state.settings.chair = state.prevChair;
   const had = state.transcript.length > 1;
   if (had && !window.confirm('Masa türünü değiştirince mevcut konuşma temizlenir.\n\nÖnce “Dışa aktar” ile saklayabilirsin.\n\nDevam edilsin mi?')) return;
   if (state.phase === 'running') stopRun();
   setTable(t);
+  if (t === 'tek') ensureTek();
   if (had) { resetSession(); store.del('divanai_session_v1'); }
   saveSettings();
   renderAll();
   const input = $('#input');
   if (input) input.focus();
-  toast(t === 'ayna'
+  toast(t === 'tek'
+    ? (tekChoice() === 'pollinations'
+        ? 'TekeTek: yazdığını gpt-oss 20B cevaplar — anahtar gerekmez. Kurulum yok.' + (had ? ' Masa temizlendi.' : '')
+        : 'TekeTek: yazdığını ' + PROVIDERS[tekSeat()].name + ' cevaplar.' + (had ? ' Masa temizlendi.' : ''))
+    : t === 'ayna'
     ? 'Ayna modu: aynı model iki sandalyede (savunan + itiraz eden). Konuyu yaz.' + (had ? ' Masa temizlendi.' : '')
     : (t === 'ajan'
       ? 'Ajanlar modu: her sandalyeye görev yaz, projeyi gönder. İstek sayısı üstte görünür.' + (had ? ' Masa temizlendi.' : '')
       : 'Konsey modu: ' + konseySeats() + ' ayrı model + başkan. Konuyu yaz.' + (had ? ' Masa temizlendi.' : '')), 'ok');
+}
+
+/* Yazı kutusu boş ekranda başlığın hemen altında durur (ortada, davetkâr);
+   konuşma başlayınca sayfanın altına, alışıldık yerine döner. */
+function placeDock(inHero) {
+  const dock = document.querySelector('#app > .dock') || document.getElementById('dock') || document.querySelector('.dock');
+  const host = document.getElementById('dockHost');
+  const app = document.getElementById('app');
+  if (!dock || !host || !app) return;
+  const want = inHero ? host : app;
+  if (dock.parentElement !== want) {
+    want.appendChild(dock);
+    dock.classList.toggle('inhero', inHero);
+    const inp = document.getElementById('input');
+    if (!inHero && inp && state.phase !== 'running') { try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); } }
+  } else {
+    dock.classList.toggle('inhero', inHero);
+  }
 }
 
 function renderHero() {
@@ -6412,24 +6640,35 @@ function renderHero() {
   session.hidden = idle;
   const sc = document.getElementById('scroll');
   if (sc) sc.classList.toggle('started', !idle);
+  /* Ajanlar'da kurulum paneli var; telefonda da içerik uzun olduğu için
+     yazı kutusu alışıldık yerinde (altta) kalır. */
+  const heroDock = idle && state.settings.table !== 'ajan' && window.innerWidth > 720;
+  if (sc) sc.classList.toggle('idle', heroDock);
+  placeDock(heroDock);
   $$('#goalChips button').forEach(b => b.classList.toggle('on', b.dataset.goal === state.settings.goal));
   const g = goalOf();
   const chair = chairPersona();
   const setTxt = (sel, val) => { const el = $(sel); if (el) el.textContent = val; };
   setTxt('#topicText', state.topic);
+  setTxt('#topicTag', state.settings.table === 'tek' ? 'SORU' : 'GÜNDEM');
   const ayna = duelOn();
   const ajanM = state.settings.table === 'ajan';
-  setTxt('#metaPeople', ayna ? 'Ayna · 2 sandalye' : (ajanM ? 'Ajanlar · ' + ajanSeats().length + ' sandalye' : personas().length + ' model'));
-  setTxt('#metaGoal', ajanM ? AJAN_FLOWS[(typeof ajanCfg === 'function' ? ajanCfg().flow : 'sirali')].label : g.label);
-  setTxt('#metaChair', ayna
+  const tekM = state.settings.table === 'tek';
+  setTxt('#metaPeople', tekM ? 'TekeTek · 1 sandalye' : (ayna ? 'Ayna · 2 sandalye' : (ajanM ? 'Ajanlar · ' + ajanSeats().length + ' sandalye' : personas().length + ' model')));
+  setTxt('#metaGoal', tekM ? 'Sohbet' : (ajanM ? AJAN_FLOWS[(typeof ajanCfg === 'function' ? ajanCfg().flow : 'sirali')].label : g.label));
+  setTxt('#metaChair', tekM
+    ? 'Model: ' + (tekChoice() === 'pollinations' ? 'gpt-oss-20b' : (chair ? chair.name : '—'))
+    : ayna
     ? 'Hakem: ' + PROVIDERS[duelPid()].name
     : 'Başkan: ' + (chair ? chair.name : '—'));
-  setTxt('#metaVendors', ayna ? 'aynı model, iki rol' : (ajanM ? 'zincirleme teslim' : (vendorLine().split(':')[0] || '—')));
+  setTxt('#metaVendors', tekM
+    ? (tekChoice() === 'pollinations' ? 'anahtarsız · ücretsiz' : 'kendi bağlantın')
+    : (ayna ? 'aynı model, iki rol' : (ajanM ? 'zincirleme teslim' : (vendorLine().split(':')[0] || '—'))));
   const setup = document.getElementById('ajanSetup');
   if (setup) setup.hidden = !(ajanM && idle);
   const goalsRow = document.querySelector('#hero .goals');
   const exRow = document.querySelector('#hero .examples');
-  if (goalsRow) goalsRow.hidden = ajanM;
+  if (goalsRow) goalsRow.hidden = ajanM || tekM;
   if (exRow) exRow.hidden = ajanM;
   /* destek satırı — ana ekranda her zaman görünür.
      Adres varsa gerçek bağlantı; yoksa "yakında" olarak durur (kırık bağlantı yok).
@@ -6477,17 +6716,17 @@ function renderHero() {
 
   const kcard = document.getElementById('keyCard');
   if (kcard) {
-    const liveNow = state.settings.mode === 'live';
+    const liveNow = state.settings.mode === 'live' || tekKeyless();
     let saidNo = false;
     /* kartı gizleme tercihi: yeni anahtar yoksa eski (MASA dönemi) anahtara bak */
     try { saidNo = localStorage.getItem('divanai.keyCardHidden') === '1'
       || localStorage.getItem('masa.keyCardHidden') === '1'; } catch (e) { saidNo = false; }
-    kcard.hidden = liveNow || saidNo;
+    kcard.hidden = liveNow || saidNo || state.settings.table === 'tek';   // TekeTek'te anahtar istemeyiz
   }
   const badge = $('#metaBadge');
   if (badge) {
-    const live = state.settings.mode === 'live';
-    badge.textContent = live ? 'CANLI' : 'DEMO · ÖRNEK KONUŞMA';
+    const live = state.settings.mode === 'live' || tekKeyless();
+    badge.textContent = tekKeyless() ? 'CANLI · ANAHTARSIZ' : (live ? 'CANLI' : 'DEMO · ÖRNEK KONUŞMA');
     badge.classList.toggle('live', live);
   }
 }
@@ -6497,20 +6736,27 @@ function renderComposer() {
   const input = $('#input'), send = $('#sendBtn'), hint = $('#hintText');
   if (send) send.disabled = running;
   if (input) {
-    const ajanIdle = state.settings.table === 'ajan' && state.transcript.length === 0;
+    const tbl = state.settings.table;
+    const ajanIdle = tbl === 'ajan' && state.transcript.length === 0;
+    const tekM = tbl === 'tek';
     input.placeholder = running
-      ? (state.settings.table === 'ajan' ? 'Ajanlar çalışırken araya not bırakabilirsin…' : 'Masa konuşurken araya not bırakabilirsin…')
-      : (ajanIdle ? 'Projeyi yaz… (örn: Küçük bir sabun markası için 6 haftalık lansman planı çıkar.)'
-        : (state.settings.table === 'ajan' ? 'Ek talimat yaz: eksik kalan işi söyle, ajanlar yeni geçişte uysun…'
-          : (state.transcript.length <= 1 ? 'Masaya bir konu at… (örn: Bu yazılım fikrimi 3 ayda çıkarabilir miyim?)' : 'Masaya yaz: itiraz, ek bilgi, yeni soru…')));
+      ? (tbl === 'ajan' ? 'Ajanlar çalışırken araya not bırakabilirsin…' : (tekM ? 'Cevap yazılıyor…' : 'Masa konuşurken araya not bırakabilirsin…'))
+      : (tekM
+        ? (state.transcript.length === 0 ? 'Ne sormak istiyorsun? (örn: Kredi kartı borcumu nasıl düzene sokarım?)' : 'Yazmaya devam et…')
+        : (ajanIdle ? 'Projeyi yaz… (örn: Küçük bir sabun markası için 6 haftalık lansman planı çıkar.)'
+        : (tbl === 'ajan' ? 'Ek talimat yaz: eksik kalan işi söyle, ajanlar yeni geçişte uysun…'
+          : (state.transcript.length <= 1 ? 'Masaya bir konu at… (örn: Bu yazılım fikrimi 3 ayda çıkarabilir miyim?)' : 'Masaya yaz: itiraz, ek bilgi, yeni soru…'))));
   }
   if (hint) {
     if (running) {
       const p = state.speaking ? personaById(state.speaking) : null;
-      hint.innerHTML = '<span>Masa konuşurken yazarsan <b>sıradaki konuşmacılar görür</b></span>';
+      hint.innerHTML = state.settings.table === 'tek'
+        ? '<span>Cevap geliyor…</span>'
+        : '<span>Masa konuşurken yazarsan <b>sıradaki konuşmacılar görür</b></span>';
     } else {
       hint.innerHTML = '<kbd>Enter</kbd> gönder · <kbd>Shift</kbd>+<kbd>Enter</kbd> alt satır' +
-        (state.transcript.length > 1 ? ' · yazdığın yeni mesaj yeni bir tur başlatır' : '');
+        (state.settings.table === 'tek' ? ' · sohbet hafızası bu sekmede açık kalır'
+          : (state.transcript.length > 1 ? ' · yazdığın yeni mesaj yeni bir tur başlatır' : ''));
     }
   }
   renderKeyState();
@@ -6548,7 +6794,8 @@ function renderKeyState() {
   const s = state.settings;
   const a = s.api;
   let txt = '';
-  if (s.mode === 'demo') txt = 'Demo modu · <b>örnek konuşma</b>';
+  if (s.mode === 'demo' && tekKeyless()) txt = 'Canlı · <b>Pollinations · anahtarsız</b>';
+  else if (s.mode === 'demo') txt = 'Demo modu · <b>örnek konuşma</b>';
   else if ((a.key || '').trim()) txt = 'Canlı · <b>' + esc(GATEWAYS[a.kind].label) + '</b>';
   else txt = 'Canlı · <b>anahtar yok</b>';
   // günlük istek sayısı: yalnız canlı modda ve en az bir istek yapıldıysa
@@ -6566,7 +6813,8 @@ function renderModePill() {
   if (!pill) return;
   pill.dataset.mode = state.settings.mode;
   const s = state.settings;
-  if (s.mode === 'demo') txt.textContent = 'Demo';
+  if (s.mode === 'demo' && tekKeyless()) txt.textContent = 'Anahtarsız';
+  else if (s.mode === 'demo') txt.textContent = 'Demo';
   else txt.textContent = 'Canlı · ' + GATEWAYS[s.api.kind].label;
   const sp = $('#speedLbl'); if (sp) sp.textContent = state.settings.speed + '×';
 }
@@ -6976,6 +7224,7 @@ function drawerBodyHTML() {
     }
     h += '<div class="gwGrid" id="gwGrid">';
     const GW_GROUPS = [
+      ['keyless', 'Anahtarsız · kurulum yok'],
       ['gateway', 'Tek anahtar · çok model'],
       ['single', 'Tek sağlayıcı · kendi anahtarın'],
       ['custom', 'Kendi eklediğin bağlantılar']
@@ -7121,7 +7370,7 @@ function drawerBodyHTML() {
 
   /* --- kendi kendisiyle kapışma --- */
   h += '<div class="sec"><h3>Ayna’da kapışacak model</h3>' +
-    '<p class="note" style="margin-top:0">Masa türünü <b>ana ekrandan</b> seçersin: <b>Konsey</b> (ayrı modeller), <b>Ayna</b> (aynı model iki sandalyede) ya da <b>Ajanlar</b> (her sandalyeye ayrı görev). Burada yalnız Ayna’nın modelini belirlersin; Ajanlar’ın görevleri ana ekrandaki panelde yazılır.</p>' +
+    '<p class="note" style="margin-top:0">Masa türünü <b>ana ekrandan</b> seçersin: <b>Konsey</b> (ayrı modeller), <b>Ayna</b> (aynı model iki sandalyede), <b>Ajanlar</b> (her sandalyeye ayrı görev) ya da <b>TekeTek</b> (tek yapay zekâ, anahtarsız da çalışır). Burada yalnız Ayna’nın modelini belirlersin; Ajanlar’ın görevleri ana ekrandaki panelde yazılır.</p>' +
     '<label class="field"><span>Model (Ayna seçiliyken geçerli)</span><select id="duelPid">' +
       PROVIDER_ORDER.map(pid => '<option value="' + pid + '" ' + ((d.duel && d.duel.pid) === pid ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + '</option>').join('') +
     '</select></label>' +
@@ -7681,7 +7930,7 @@ function saveDrawer() {
     if (kv) d.api.keys[d.api.kind] = kv; else delete d.api.keys[d.api.kind];
   }
   refreshGateways(d.api.customs || []);
-  d.table = (d.table === 'ayna' || d.table === 'ajan') ? d.table : 'konsey';
+  d.table = ['ayna', 'ajan', 'tek'].includes(d.table) ? d.table : 'konsey';
   d.duel = d.duel || { on: false, pid: 'grok' };
   d.duel.on = d.table === 'ayna';
   if (d.table === 'ayna') d.chair = d.duel.pid;
@@ -7885,7 +8134,8 @@ function helpHTML() {
       '<li><b>Kopyala</b> (konuşma bitince alttaki çubukta) tüm masayı markdown olarak panoya alır; bir yere yapıştırmak için hazırdır. <b>Dışa aktar</b> ise dosya indirir (Word · metin · markdown).</li>',
       '<li>Bir model hata verirse masa durmaz; <b>aynı sandalyeye yedek model</b> geçer ve konuşma sürer. Cevabın başlığında <b>↺ model</b> etiketi görünür.</li>',
       '<li>Bir konuşmacı başkasının cevabını <b>kopyalarsa</b> masaya alınmaz; “kopyasıydı” notu düşer, söz sıradakine geçer.</li>',
-      '<li><b>Masa türünü</b> üstteki <b>Konsey / Ayna / Ajanlar</b> düğmelerinden seçersin; konuşma sırasında da değiştirebilirsin (masa temizlenir, önce onay ister).</li>',
+      '<li><b>Masa türünü</b> üstteki <b>Konsey / Ayna / Ajanlar / TekeTek</b> düğmelerinden seçersin; konuşma sırasında da değiştirebilirsin (masa temizlenir, önce onay ister).</li>',
+      '<li><b>TekeTek:</b> anahtarın yoksa <b>TekeTek</b> sekmesini seç — Pollinations üzerinden <b>gpt-oss 20B</b> cevaplar, kayıt ve anahtar istemez. Sınırı: aynı internet bağlantısından <b>45 saniyede 1 yanıt</b>; art arda yazarsan masa birkaç saniye bekleyip kendisi tekrar dener.</li>',
       '<li>Masa <b>kendiliğinden durur</b>: son iki turda yeni fikir gelmezse ya da <b>tur tavanı</b> (varsayılan 6) dolunca başkan özeti çıkarır. Boşuna token harcanmaz; devam etmek istersen <b>Bir tur daha</b>.</li>',
       '<li>Dışa aktarılan dosyada her cevabın <b>künyesi</b> vardır: <i>tur · saat · model</i> (yedekse hangi model).</li>',
     '</ul>',
@@ -8061,6 +8311,8 @@ function boot() {
     });
   }
 
+  const kcTek = $('#keyCardTek');
+  if (kcTek) kcTek.addEventListener('click', () => switchTable('tek'));
   const kcOpen = $('#keyCardOpen');
   if (kcOpen) kcOpen.addEventListener('click', () => openDrawer());
   const kcHide = $('#keyCardHide');
@@ -8078,6 +8330,21 @@ function boot() {
       const b = e.target.closest('.modeBtn');
       if (b) switchTable(b.dataset.table);
     });
+    const tsel = $('#modeTekSel');
+    if (tsel) tsel.addEventListener('change', () => {
+      const v = tsel.value === 'pollinations' ? 'pollinations' : 'own';
+      if (v === 'own' && !String(keyOfKind(state.settings.api.kind) || '').trim()) {
+        toast('Kendi bağlantın için Ayarlar → Bağlantı’da API anahtarı gerekir. Şimdilik anahtarsız seçenek açık.', 'err');
+        renderModes();
+        return;
+      }
+      tekPidNeedsSwitch(v);
+      saveSettings();
+      renderAll();
+      toast(v === 'pollinations'
+        ? 'TekeTek: gpt-oss 20B (Pollinations, anahtarsız). Yaz, cevaplasın.'
+        : 'TekeTek: kendi bağlantın (' + (GATEWAYS[state.settings.api.kind].label) + ').', 'ok');
+    });
     const sel = $('#modeModelSel');
     if (sel) sel.addEventListener('change', () => {
       state.settings.duel = state.settings.duel || { on: true, pid: 'grok' };
@@ -8092,6 +8359,12 @@ function boot() {
   }
 
   // gönderme
+  let resizeT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => { if (typeof renderHero === 'function') renderHero(); }, 180);
+  });
+
   $('#sendBtn').addEventListener('click', send);
   const input = $('#input');
   input.addEventListener('input', () => autoGrow(input));
