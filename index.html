@@ -1238,13 +1238,13 @@ select optgroup{background:#151a24;color:#9aa2b5}
             <button type="button" class="mini kcHide" id="keyCardHide" title="Bu kartı gizle">Bir daha gösterme</button>
           </div>
           <ol class="kcSteps">
-            <li><b>Hesap aç</b> — OpenRouter’da; ücretsiz modeller için kredi kartı istemez.</li>
-            <li><b>Anahtarı kopyala</b> — <code>sk-or-v1-…</code> ile başlayan uzun satır.</li>
-            <li><b>Buraya yapıştır</b> — Ayarlar → Mod: Canlı → OpenRouter → Anahtar.</li>
+            <li><b>Hesap aç</b> — Google AI Studio’da; kredi kartı istemez, Flash modelleri ücretsiz.</li>
+            <li><b>Anahtarı kopyala</b> — <code>AIza…</code> ile başlayan satır.</li>
+            <li><b>Buraya yapıştır</b> — Ayarlar → Mod: Canlı → Google AI Studio → Anahtar.</li>
           </ol>
           <div class="kcRow">
             <button type="button" class="btn sm" id="keyCardTek">Anahtarsız dene: TekeTek (yavaş)</button>
-            <a class="btn sm" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Anahtar sayfasını aç</a>
+            <a class="btn sm" href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener">Anahtar sayfasını aç</a>
             <button type="button" class="btn sm" id="keyCardOpen">Ayarları aç</button>
           </div>
         </div>
@@ -1418,6 +1418,22 @@ select optgroup{background:#151a24;color:#9aa2b5}
     'Bir daha gösterme': 'Don’t show again',
     'Hesap aç': 'Create an account',
     'OpenRouter’da; ücretsiz modeller için kredi kartı istemez.': 'at OpenRouter; free models need no credit card.',
+    'Google AI Studio’da; kredi kartı istemez, Flash modelleri ücretsiz.': 'at Google AI Studio; no credit card, the Flash models are free.',
+    'hızlı · deneme kredisi': 'fast · trial credit',
+    'ücretsiz GLM · yayınlanmış kota yok': 'free GLM · no published quota',
+    'ücretsiz GLM · kotasız': 'free GLM · no quota',
+    'anahtarsız · aynı anda 1 istek': 'keyless · 1 request at a time',
+    'anahtarsız · dakikada 2 istek': 'keyless · 2 requests a minute',
+    'Çok hızlı çıkarım. Ücretsiz katman: günde 1.000 istek, dakikada 30 (modele göre), kredi kartı istemez. Llama 3.1 ve 3.3 modelleri 16 Ağustos 2026’da kaldırıldı (Groq’un kendi duyurusu); ön ayar gpt-oss ve Qwen 3.8’e taşındı.': 'Very fast inference. Free tier: 1,000 requests a day, 30 a minute (per model), no credit card. The Llama 3.1 and 3.3 models were removed on 16 August 2026 (Groq’s own announcement), so the preset moved to gpt-oss and Qwen 3.8.',
+    'Çok hızlı açık modeller. Kalıcı ücretsiz katman yok (Cerebras’ın kendi belgesi): 30 günlük 5 $ deneme kredisi, doğrulanmış ödeme yöntemi ister; dakikada 5 istek / 30 bin token.': 'Very fast open models. There is no permanent free tier (Cerebras’ own docs): a 30-day $5 trial credit with a verified payment method; 5 requests a minute / 30k tokens.',
+    'GLM-4.7-Flash ve GLM-4.5-Flash fiyat listesinde ücretsiz yazıyor (docs.z.ai, 5 Kasım 2026). Yayınlanmış istek kotası yok; ağır kullanımda dakikalık sınır çıkabilir. Anahtar kartsız alınır. Düşünme modu kapalı gönderilir — açık kalırsa cevap gecikir ya da boş gelir.': 'GLM-4.7-Flash and GLM-4.5-Flash are listed as free (docs.z.ai, 5 November 2026). No published request quota; heavy use may hit a per-minute limit. The key needs no card. Thinking mode is sent switched off — left on, the answer is delayed or comes back empty.',
+    'Anahtar yok, kayıt yok. Ölçtüğüm sınır: aynı anda 1 istek, saniyede 1. Bu yüzden yalnız tek sandalye için (TekeTek ya da tek sandalyeli masa); dört sandalye aynı anda gönderirse üçü 429 alır. Akıl yürütmeyen modeller seçildi (Mistral Nemo, Codestral) — gpt-oss 20B ölçümde boş cevap verdi, o yüzden koymadım.': 'No key, no signup. What I measured: 1 request at a time, one per second. So it is for a single seat only (OneOnOne, or a one-seat table); four seats sending at once leaves three on 429. Models that do not reason are preset (Mistral Nemo, Codestral) — gpt-oss 20B returned an empty answer when measured, so it is not included.',
+    'Anahtar yok, Avrupa’da barındırılıyor. Ölçtüğüm sınır: IP başına dakikada 2 istek. Yalnız tek sandalye için. Llama 3.3 70B ve Mistral Small 3.2 düz cevap veriyor; Qwen3.8 ve gpt-oss yalnız akıl yürütme üretiyor (ölçtüm: boş cevap), uygulama onu göstermediği için koymadım.': 'No key, hosted in Europe. What I measured: 2 requests a minute per IP. For a single seat only. Llama 3.3 70B and Mistral Small 3.2 answer directly; Qwen3.8 and gpt-oss emit reasoning only (measured: empty answer), which the app does not display, so they are not included.',
+    '— Google AI Studio’da; kredi kartı istemez, Flash modelleri ücretsiz.': '— at Google AI Studio; no credit card, the Flash models are free.',
+    '— Ayarlar → Mod: Canlı → Google AI Studio → Anahtar.': '— Settings → Mode: Live → Google AI Studio → Key.',
+    'ile başlayan satır.': 'line.',
+    'AIza… ile başlayan satır.': 'the line that starts with AIza…',
+    'Ayarlar → Mod: Canlı → Google AI Studio → Anahtar.': 'Settings → Mode: Live → Google AI Studio → Key.',
     'Anahtarı kopyala': 'Copy the key',
     'ile başlayan uzun satır.': 'the long line starting with it.',
     'Buraya yapıştır': 'Paste it here',
@@ -2288,7 +2304,79 @@ const GATEWAYS = {
     note: 'OpenAI uyumlu her servis: kendi LiteLLM/Bifrost proxy’n, Cloudflare AI Gateway ya da başka bir sağlayıcı. Adresi /v1 dahil yaz (ör. https://benim-proxy.workers.dev/v1).',
     models: { gpt: '', gemini: '', claude: '', grok: '', deepseek: '' }
   },
+  llm7: {
+    group: 'keyless',
+    card: 'kartsız',
+    label: 'LLM7.io',
+    sub: 'anahtarsız · aynı anda 1 istek',
+    baseUrl: 'https://api.llm7.io/v1',
+    optionalKey: true, keyless: true,
+    keyHint: '(gerekmiyor)',
+    keyUrl: 'https://llm7.io',
+    lite: true,
+    note: 'Anahtar yok, kayıt yok. <b>Ölçtüğüm sınır:</b> aynı anda <b>1 istek</b>. ' +
+      'Uygulama bu bağlantıda istekleri <b>kendisi sıraya sokar</b>: dört sandalye de seçilebilir, ' +
+      'ama cevaplar teker teker gelir (arada ~1 sn) — 429 yağmuru olmaz, masa yavaşlar. ' +
+      'Akıl yürütmeyen modeller seçildi (Mistral Nemo, Codestral) — gpt-oss 20B ' +
+      'ölçümde boş cevap verdi, o yüzden koymadım.',
+    noteEn: 'No key, no signup. What I measured: 1 request at a time. The app <b>queues</b> requests on this ' +
+      'connection itself: any number of seats can use it, but answers arrive one by one (~1 s apart) — no 429 storm, ' +
+      'just a slower table. Models that do not reason are preset (Mistral Nemo, Codestral) — gpt-oss 20B returned ' +
+      'an empty answer when measured, so it is not included.',
+    subEn: 'keyless · 1 request at a time',
+    models: { gpt: 'mistral-Nemo-Instruct-2407', gemini: 'codestral-latest',
+              claude: 'mistral-Nemo-Instruct-2407', grok: 'codestral-latest',
+              deepseek: 'mistral-Nemo-Instruct-2407' }
+  },
+  ovh: {
+    group: 'keyless',
+    card: 'kartsız',
+    label: 'OVH AI Endpoints',
+    sub: 'anahtarsız · dakikada 2 istek',
+    baseUrl: 'https://oai.endpoints.kepler.ai.cloud.ovh.net/v1',
+    optionalKey: true, keyless: true,
+    keyHint: '(gerekmiyor)',
+    keyUrl: 'https://endpoints.ai.cloud.ovh.net/',
+    lite: true,
+    note: 'Anahtar yok, Avrupa’da barındırılıyor. <b>Ölçtüğüm sınır:</b> IP başına <b>dakikada 2 istek</b>. ' +
+      'Uygulama istekleri <b>30 saniye arayla sıraya sokar</b>; dört sandalyeli masada bir tur ~2 dakika sürer, ' +
+      'bu yüzden <b>TekeTek</b> için daha uygun. Llama 3.3 70B ve Mistral Small 3.2 düz cevap veriyor; Qwen3.8 ve gpt-oss ' +
+      'yalnız akıl yürütme üretiyor (ölçtüm: boş cevap), uygulama onu göstermediği için koymadım.',
+    noteEn: 'No key, hosted in Europe. What I measured: 2 requests a minute per IP. The app queues requests 30 seconds ' +
+      'apart, so a four-seat round takes about 2 minutes — better suited to <b>OneOnOne</b>. ' +
+      'Llama 3.3 70B and Mistral Small 3.2 answer directly; Qwen3.8 and gpt-oss emit reasoning only (measured: empty ' +
+      'answer), which the app does not display, so they are not included.',
+    subEn: 'keyless · 2 requests a minute',
+    models: { gpt: 'Meta-Llama-3_3-70B-Instruct', gemini: 'Mistral-Small-3.2-24B-Instruct-2506',
+              claude: 'Mistral-Small-3.2-24B-Instruct-2506', grok: 'Meta-Llama-3_3-70B-Instruct',
+              deepseek: 'Meta-Llama-3_3-70B-Instruct' }
+  },
   /* --- tek sağlayıcı, kendi anahtarınla (hepsi OpenAI uyumlu /chat/completions) --- */
+  google: {
+    group: 'single',
+    card: 'kartsız',
+    label: 'Google AI Studio',
+    sub: 'kartsız · ücretsiz · görsel okuyor',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    keyHint: 'AIza…',
+    keyUrl: 'https://aistudio.google.com/api-keys',
+    note: 'Kredi kartı istemez, ücret yok: bütün Flash ve Flash-Lite modelleri <b>ücretsiz</b> (Google’ın fiyat sayfası, 5 Kasım 2026). ' +
+      'Günlük hak <b>her model için ayrı</b> sayılır — ama modeller eşit değil: ' +
+      'AI Studio’nun <i>Rate limits</i> ekranındaki okumaya göre <b>Flash-Lite ≈ günde 500</b>, ' +
+      '<b>3.8 / 3.6 Flash ise ≈ günde 20</b> istek. Bu yüzden ön ayar <b>yalnız Flash-Lite</b> kullanır: ' +
+      'iki sandalye 3.5 Flash-Lite, iki sandalye 3.1 Flash-Lite → iki ayrı kota, dört sandalye ≈ <b>250 tur</b>. ' +
+      '3.8 Flash’ı masaya koyarsan o sandalye 20 istekte durur (tek başına denemek için <b>TekeTek</b> iyi). ' +
+      'Görsel okuyabilir (dosya eklemede fotoğraf gönderebilirsin). Ücretsiz katmanda Google, yazdıklarını ürün geliştirmek için kullanabilir.',
+    noteEn: 'No credit card, no charge: every Flash and Flash-Lite model is free (Google’s pricing page, 5 November 2026). ' +
+      'The daily allowance is counted <b>per model</b> — but the models are not equal: on AI Studio’s <i>Rate limits</i> screen ' +
+      '<b>Flash-Lite ≈ 500 a day</b>, while <b>3.8 / 3.6 Flash is ≈ 20</b>. So the preset uses <b>Flash-Lite only</b>: ' +
+      'two seats on 3.5 Flash-Lite and two on 3.1 Flash-Lite → two separate allowances, four seats ≈ <b>250 rounds</b>. ' +
+      'Put 3.8 Flash on the table and that seat stops after 20 requests (fine as a single seat in <b>OneOnOne</b>). ' +
+      'It reads images (you can attach a photo). On the free tier Google may use what you write to improve its products.',
+    models: { gpt: 'gemini-3.5-flash-lite', gemini: 'gemini-3.1-flash-lite',
+              claude: 'gemini-3.5-flash-lite', grok: 'gemini-3.1-flash-lite',
+              deepseek: 'gemini-3.5-flash-lite' }
+  },
   groq: {
     group: 'single',
     card: 'kartsız',
@@ -2298,10 +2386,31 @@ const GATEWAYS = {
     keyHint: 'gsk_…',
     keyUrl: 'https://console.groq.com/keys',
     lite: true,            // kısa talimat: bu katmanın token kotası düşük
-    note: 'Çok hızlı çıkarım. Ücretsiz katman: günde 1.000 istek, dakikada 30 (modele göre). Kredi kartı istemez.',
-    models: { gpt: 'openai/gpt-oss-120b', gemini: 'llama-3.3-70b-versatile',
-              claude: 'llama-3.1-8b-instant', grok: 'openai/gpt-oss-20b',
-              deepseek: 'llama-3.3-70b-versatile' }
+    note: 'Çok hızlı çıkarım. Ücretsiz katman: günde 1.000 istek, dakikada 30 (modele göre), kredi kartı istemez. ' +
+      'Llama 3.1 ve 3.3 modelleri 16 Ağustos 2026’da kaldırıldı (Groq’un kendi duyurusu); ön ayar gpt-oss ve Qwen 3.8’e taşındı.',
+    noteEn: 'Very fast inference. Free tier: 1,000 requests a day, 30 a minute (per model), no credit card. ' +
+      'The Llama 3.1 and 3.3 models were removed on 16 August 2026 (Groq’s own announcement); the preset moved to gpt-oss and Qwen 3.8.',
+    models: { gpt: 'openai/gpt-oss-120b', gemini: 'qwen/qwen3.8-27b',
+              claude: 'openai/gpt-oss-20b', grok: 'qwen/qwen3.8-27b',
+              deepseek: 'openai/gpt-oss-120b' }
+  },
+  zai: {
+    group: 'single',
+    card: 'kartsız',
+    label: 'Z.ai (GLM)',
+    sub: 'ücretsiz GLM · yayınlanmış kota yok',
+    baseUrl: 'https://api.z.ai/api/paas/v4',
+    keyHint: 'Z.ai anahtarı',
+    keyUrl: 'https://z.ai/manage-apikey/apikey-list',
+    note: '<b>GLM-4.7-Flash</b> ve <b>GLM-4.5-Flash</b> fiyat listesinde <b>ücretsiz</b> yazıyor (docs.z.ai, 5 Kasım 2026). ' +
+      'Yayınlanmış istek kotası yok; ağır kullanımda dakikalık sınır çıkabilir. Anahtar kartsız alınır. ' +
+      'Düşünme modu kapalı gönderilir — açık kalırsa cevap gecikir ya da boş gelir.',
+    noteEn: 'GLM-4.7-Flash and GLM-4.5-Flash are listed as free (docs.z.ai, 5 November 2026). No published request quota; ' +
+      'heavy use may hit a per-minute limit. The key needs no card. Thinking mode is sent switched off — left on, ' +
+      'the answer is delayed or comes back empty.',
+    subEn: 'free GLM · no published quota',
+    models: { gpt: 'glm-4.7-flash', gemini: 'glm-4.5-flash', claude: 'glm-4.7-flash',
+              grok: 'glm-4.5-flash', deepseek: 'glm-4.7-flash' }
   },
   deepseek: {
     group: 'single',
@@ -2330,14 +2439,18 @@ const GATEWAYS = {
   },
   cerebras: {
     group: 'single',
-    card: 'kartsız',
+    card: 'kart',
     label: 'Cerebras',
-    sub: 'hızlı · ücretsiz katman',
+    sub: 'hızlı · deneme kredisi',
     baseUrl: 'https://api.cerebras.ai/v1',
     keyHint: 'csk-…',
     keyUrl: 'https://cloud.cerebras.ai/',
     lite: true,            // kısa talimat: bu katmanın token kotası düşük
-    note: 'Çok hızlı açık modeller. Ücretsiz katman: günde 1 milyon token, dakikada 30 istek.',
+    note: 'Çok hızlı açık modeller. <b>Kalıcı ücretsiz katman yok</b> (Cerebras’ın kendi belgesi): ' +
+      '30 günlük 5 $ deneme kredisi, doğrulanmış ödeme yöntemi ister; dakikada 5 istek / 30 bin token.',
+    noteEn: 'Very fast open models. There is no permanent free tier (Cerebras’ own docs): a 30-day $5 trial credit ' +
+      'with a verified payment method; 5 requests a minute / 30k tokens.',
+    subEn: 'fast · trial credit',
     models: { gpt: 'gpt-oss-120b', gemini: 'qwen-3.8-27b', claude: 'gpt-oss-120b',
                 grok: 'qwen-3.8-27b', deepseek: 'gpt-oss-120b' }
   },
@@ -2811,14 +2924,33 @@ const personas = () => {
   return state.settings.active.map(pid => {
     const p = PROVIDERS[pid];
     const o = (state.settings.roles && state.settings.roles[pid]) || {};
+    const model = state.settings.models[pid] || '';
+    /* Sandalye "ChatGPT" diye yazıp altında Gemini çalıştırmak yanıltıcı olur:
+       başka bir sağlayıcının bağlantısı oturuyorsa baloncukta GERÇEK adı yazar. */
+    const kimlik = seatVendorName(pid, model);
     return {
-      id: pid, provider: pid, model: state.settings.models[pid] || '',
-      name: p.name, short: p.short, color: p.color, role: p.role,
+      id: pid, provider: pid, model,
+      name: kimlik ? kimlik.name : p.name,
+      short: kimlik ? kimlik.short : p.short,
+      vendor: kimlik ? kimlik.vendor : '',
+      color: p.color, role: p.role,
       roleLabel: ajanRoleLabel(pid) || (o.roleLabel || '').trim() || p.roleLabel,
       roleBrief: (o.brief || '').trim() || ROLES[p.role].brief
     };
   });
 };
+/** Sandalyenin bağlantısı, adından farklı bir şirketse ekranda gerçek model adı görünür. */
+function seatVendorName(pid, model) {
+  const kind = seatKindOf(pid);
+  if (kind === 'google') {
+    const m = String(model || '').replace(/^google\//, '');
+    const sayi = (m.match(/gemini-([0-9.]+)/) || [])[1] || '';
+    const lite = /lite/i.test(m);
+    const ad = 'Gemini' + (sayi ? ' ' + sayi : '') + (lite ? ' Flash-Lite' : /flash/i.test(m) ? ' Flash' : '');
+    return { name: ad.trim() || 'Gemini', short: ('G' + sayi).replace(/G$/, 'GEM'), vendor: 'Google AI Studio' };
+  }
+  return null;
+}
 const personaById = pid => personas().find(p => p.id === pid) || null;
 const chairPersona = () => personaById(state.settings.chair) || personas()[0] || null;
 
@@ -3033,6 +3165,36 @@ function memoryDigest(msgs) {
 /* Görsel okuyamayan bağlantılar: anahtarsız Pollinations (gpt-oss 20B) görsel
    girdisinde 400 döndürüyor (ölçüldü). Bilinmeyen bağlantılarda bir kez denenir,
    "görsel desteklenmiyor" hatası alınırsa o bağlantı için görsel bir daha gönderilmez. */
+/* ---- yavaş / tek sandalyelik anahtarsız sağlayıcılar ----
+   Ölçüm (5 Kasım 2026): LLM7 aynı anda 1 istek kabul ediyor ("Too many concurrent
+   requests", 10 sn), OVH IP başına dakikada 2. Konsey 4 sandalyeyi aynı anda
+   gönderdiği için istekleri KENDİLİĞİNDEN sıraya sokuyoruz: hızlı değil ama
+   429 yağmuru olmuyor. aralik = iki istek arası en az süre (ms). */
+const SIRALI_GATEWAY = {
+  llm7: { aralik: 1200 },     // eşzamanlılık 1 + saniyede 1
+  ovh:  { aralik: 31000 }     // dakikada 2 → iki istek arası 30 sn
+};
+const _sira = Object.create(null);   // kind → { zincir, son }
+function sirayaAl(kind, is, signal) {
+  if (!SIRALI_GATEWAY[kind]) return is();
+  const s = _sira[kind] || (_sira[kind] = { zincir: Promise.resolve(), son: 0 });
+  const onceki = s.zincir;
+  const p = onceki.then(async () => {
+    if (signal && signal.aborted) throw Object.assign(new Error('aborted'), { name: 'AbortError' });
+    const bekle = s.son + SIRALI_GATEWAY[kind].aralik - Date.now();
+    if (bekle > 1500) {
+      const sn = Math.ceil(Math.min(bekle, 60000) / 1000);
+      try {
+        if (typeof setStatus === 'function') setStatus('running',
+          (window.T2 ? window.T2('sıra bekleniyor', 'queued') : 'sıra bekleniyor') + ' · ' + sn + ' sn');
+      } catch (e0) {}
+    }
+    if (bekle > 0) await sleep(Math.min(bekle, 60000));
+    try { return await is(); } finally { s.son = Date.now(); }
+  });
+  s.zincir = p.then(() => {}, () => {});   // zincir kopmasın
+  return p;
+}
 const GORSEL_YOK = Object.create(null);   // sağlayıcı/bağlantı anahtarı → true
 function gorselAnahtari(pid) {
   const kind = seatKindOf(pid);
@@ -3235,10 +3397,36 @@ function bumpReq() {
    ============================================================ */
 const QUOTA_STORE = 'divanai_quota_v1';
 
-/* bir sonraki sıfırlanma anı (UTC 00:00) */
+/* Günlük kota hangi saatte sıfırlanır?
+   Google AI Studio: Pasifik gece yarısı (Google'ın kendi belgesi).
+   OpenRouter ve diğerleri: UTC gece yarısı. */
+function quotaResetTZ() {
+  const st = state.settings || {};
+  const k = (st.api && st.api.kind) || '';
+  const googleVar = k === 'google' || Object.values(st.seatSrc || {}).includes('google');
+  return googleVar ? 'America/Los_Angeles' : 'UTC';
+}
+function tzOffsetMs(tz, d) {
+  const p = {};
+  new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, hour12: false,
+    year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'
+  }).formatToParts(d).forEach(x => { if (x.type !== 'literal') p[x.type] = x.value; });
+  const yerel = Date.UTC(+p.year, +p.month - 1, +p.day, (+p.hour) % 24, +p.minute, +p.second);
+  return yerel - Math.floor(d.getTime() / 1000) * 1000;
+}
+/* bir sonraki sıfırlanma anı */
 function quotaResetAt() {
   const n = new Date();
-  return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1, 0, 0, 0));
+  const tz = quotaResetTZ();
+  if (tz === 'UTC') return new Date(Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate() + 1, 0, 0, 0));
+  const p = {};
+  new Intl.DateTimeFormat('en-US', { timeZone: tz, hour12: false, year: 'numeric', month: '2-digit', day: '2-digit' })
+    .formatToParts(n).forEach(x => { if (x.type !== 'literal') p[x.type] = x.value; });
+  const duz = Date.UTC(+p.year, +p.month - 1, +p.day + 1, 0, 0, 0);
+  let hedef = duz - tzOffsetMs(tz, new Date(duz));
+  hedef = duz - tzOffsetMs(tz, new Date(hedef));    // yaz saati geçişinde bir kez düzelt
+  return new Date(hedef);
 }
 function quotaLeftText(at) {
   const ms = Math.max(0, (at || quotaResetAt()).getTime() - Date.now());
@@ -3576,7 +3764,10 @@ function friendlyError(status, bodyText, providerName, retryAfter) {
     detail = 'sunucu HTML hata sayfası döndürdü (adres doğru mu?)';
   } else {
     try {
-      const j = JSON.parse(raw);
+      let j = JSON.parse(raw);
+      /* Google (OpenAI uyumlu uç) hatayı DİZİ içinde döndürüyor: [{ "error": {…} }] */
+      if (Array.isArray(j)) j = j[0] || {};
+      if (j && Array.isArray(j.error)) j = Object.assign({}, j, { error: j.error[0] || {} });
       detail = (j.error && (j.error.message || j.error.code)) || j.message || (typeof j.error === 'string' ? j.error : '');
     } catch (e) { detail = raw.replace(/\s+/g, ' ').slice(0, 200); }
   }
@@ -3599,6 +3790,12 @@ function friendlyError(status, bodyText, providerName, retryAfter) {
       (sec ? sec + ' saniye sonra tekrar dene.' : 'Kısa bir bekleme sonrası tekrar dene.') +
       ' Sınırsız kullanım için kendi anahtarını alabilirsin.';
   }
+  /* Google geçersiz anahtarda 401 değil 400 döndürüyor ("Please pass a valid API key") */
+  if (status === 400 && /api key not valid|pass a valid api key|api_key_invalid|invalid api key/i.test(raw)) {
+    return pn + ': anahtar geçersiz (400) — anahtarı olduğu gibi, boşluksuz yapıştırdığından emin ol.' +
+      (/google|ai studio|gemini/i.test(pn + ' ' + raw) ? ' Yeni anahtar: aistudio.google.com/api-keys' : ' Yeni anahtar oluşturup tekrar dene.') +
+      (detail ? ' — ' + detail : '');
+  }
   const base = status === 401 ? 'API anahtarı reddedildi (401) — anahtar geçersiz.'
     : status === 403 ? 'Erişim reddedildi (403) — anahtar izni/limiti ya da bölge kısıtı.'
     : status === 402 ? 'Kredi yetersiz (402).'
@@ -3607,8 +3804,11 @@ function friendlyError(status, bodyText, providerName, retryAfter) {
         const daily = /per[- ]day|daily|\brpd\b|quota/i.test(raw);
         const perMin = /per[- ]min|\brpm\b|rate.?limit/i.test(raw);
         if (daily) {
+          const sifir = /google|ai studio|gemini/i.test(pn + ' ' + raw) ? 'Google AI Studio’da gece yarısı Pasifik saati'
+            : /openrouter/i.test(pn + ' ' + raw) ? 'OpenRouter ücretsiz modellerde gece yarısı UTC'
+            : 'sağlayıcının günlük sıfırlama saatinde';
           return 'Günlük ücretsiz kota doldu (429). Dakikalık değil, GÜNLÜK sınırdır: birkaç dakika beklemek çözmez, ' +
-            'kota sıfırlanana kadar (OpenRouter ücretsiz modellerde gece yarısı UTC) beklemen gerekir. ' +
+            'kota sıfırlanana kadar (' + sifir + ') beklemen gerekir. ' +
             'Not: bu limit anahtara bağlıdır, tek modele değil — masadaki tüm modeller aynı havuzu harcar.';
         }
         if (perMin) return 'Dakikalık istek sınırı aşıldı (429). 30–60 saniye bekle, sonra devam et.';
@@ -3735,13 +3935,18 @@ async function callChat(cfg, model, system, messages, maxTokens, onDelta, signal
   if (/(api\.groq\.com|cerebras\.ai)/i.test(ep.base) && /gpt-oss/i.test(model)) {
     body.reasoning_effort = 'low';
   }
+  /* Z.ai GLM-4.7 serisinde düşünme VARSAYILAN AÇIK ve max_tokens bütçesini yiyor;
+     akışta yalnız delta.content okunduğu için cevap boş/güdük kalıyor. Kapat. */
+  if (/api\.z\.ai/i.test(ep.base) && /glm-4\.7/i.test(String(model))) {
+    body.thinking = { type: 'disabled' };
+  }
 
   const call = async (b) => {
     try {
-      return await openAICompatStream(ep.url, headers, b, onDelta, signal, model,
+      return await sirayaAl(cfg.kind, () => openAICompatStream(ep.url, headers, b, onDelta, signal, model,
         isLocalUrl(ep.base)
           ? 'Yerel sunucuya ulaşılamadı (' + ep.base + '). Sunucu açık mı? DivanAI’yı file:// yerine python3 server.py → http://localhost:8080 üzerinden aç; tarayıcı yerel ağ izni istiyorsa “İzin ver”.'
-          : 'Bağlantı kurulamadı. İnternet, adres ve anahtarı kontrol et. Tarayıcı engelliyorsa OpenRouter/Groq gibi bir geçit kullan.');
+          : 'Bağlantı kurulamadı. İnternet, adres ve anahtarı kontrol et. Tarayıcı engelliyorsa OpenRouter/Groq gibi bir geçit kullan.'), signal);
     } catch (err) {
       /* Bağlantı görsel girdisini reddettiyse: görselleri çıkarıp BİR KEZ daha dene.
          Bu bağlantı için not düşülür; sonraki mesajlarda görsel hiç gönderilmez. */
@@ -3753,11 +3958,11 @@ async function callChat(cfg, model, system, messages, maxTokens, onDelta, signal
           'This connection cannot read images; continuing without them. Any text in the document was still sent.') });
         if (typeof renderTranscript === 'function') renderTranscript();
         b = { ...b, messages: gorselleriCikar(b.messages) };
-        return await openAICompatStream(ep.url, headers, b, onDelta, signal, model, 'Bağlantı kurulamadı.');
+        return await sirayaAl(cfg.kind, () => openAICompatStream(ep.url, headers, b, onDelta, signal, model, 'Bağlantı kurulamadı.'), signal);
       }
       // geçit "reasoning" alanını reddettiyse parametresiz tekrar dene
-      if ((b.reasoning || b.reasoning_effort) && /reasoning|invalid|unsupported|400/i.test(String(err && err.message))) {
-        const b2 = { ...b }; delete b2.reasoning;
+      if ((b.reasoning || b.reasoning_effort || b.thinking) && /reasoning|thinking|invalid|unsupported|400/i.test(String(err && err.message))) {
+        const b2 = { ...b }; delete b2.reasoning; delete b2.thinking;
         return await openAICompatStream(ep.url, headers, b2, onDelta, signal, model,
           'Bağlantı kurulamadı. İnternet, adres ve anahtarı kontrol et.');
       }
@@ -10011,7 +10216,7 @@ function quotaBoxHTML() {
 }
 
 /* sandalye kendi bağlantısını kullanabiliyor mu? (kota çeşitliliği) */
-const SEAT_SRC_GROUPS = ['gateway', 'single', 'custom'];
+const SEAT_SRC_GROUPS = ['keyless', 'gateway', 'single', 'custom'];
 function seatSrcHTML(pid, d) {
   if (d.mode !== 'live') return '';
   const cur = (d.seatSrc || {})[pid] || '';
@@ -10022,7 +10227,9 @@ function seatSrcHTML(pid, d) {
   for (const grp of SEAT_SRC_GROUPS) {
     const items = Object.entries(GATEWAYS).filter(([, g]) => (g.group || 'gateway') === grp);
     if (!items.length) continue;
-    h += '<optgroup label="' + esc(grp === 'gateway' ? 'Tek anahtar · çok model' : grp === 'single' ? 'Tek sağlayıcı' : 'Kendi bağlantıların') + '">';
+    h += '<optgroup label="' + esc(grp === 'keyless' ? 'Anahtarsız'
+      : grp === 'gateway' ? 'Tek anahtar · çok model'
+      : grp === 'single' ? 'Tek sağlayıcı' : 'Kendi bağlantıların') + '">';
     for (const [id, g] of items) {
       h += '<option value="' + esc(id) + '"' + (cur === id ? ' selected' : '') + '>' + esc(g.label) + '</option>';
     }
@@ -10081,14 +10288,20 @@ function drawerBodyHTML() {
           : id === 'nanogpt' ? 'tek anahtar · 900+ model'
           : id === 'aimlapi' ? 'tek anahtar · çok sağlayıcı'
           : id === 'compat' ? 'tek seferlik adres (OpenAI uyumlu)'
+          : id === 'google' ? 'kartsız · ücretsiz · görsel okuyor'
+          : id === 'zai' ? 'ücretsiz GLM · kotasız'
+          : id === 'llm7' ? 'anahtarsız · aynı anda 1 istek'
+          : id === 'ovh' ? 'anahtarsız · dakikada 2 istek'
+          : id === 'groq' ? 'hızlı · günde 1.000 istek'
           : 'doğrudan bu sağlayıcı');
+        const subDil = (g.subEn && window.T2) ? window.T2(sub, g.subEn) : sub;
         const kc = g.card || '';   // kartsız | kart | değişebilir
         const kcCls = kc === 'kartsız' ? 'ok' : kc === 'kart' ? 'no' : 'mid';
         const kcTxt = kc === 'kartsız' ? 'kart istemez' : kc === 'kart' ? 'kart ister' : kc === 'değişebilir' ? 'kart: değişken' : '';
         h += '<button type="button" class="gw' + (a.kind === id ? ' on' : '') + (kcTxt ? ' hascard' : '') + '" data-gw="' + esc(id) + '">' +
           (g.custom ? '<span class="gwDel" data-gwdel="' + esc(g.customId) + '" title="Bu bağlantıyı sil">×</span>' : '') +
           (kcTxt ? '<span class="gwCard ' + kcCls + '">' + kcTxt + '</span>' : '') +
-          '<b>' + esc(g.label) + '</b><span>' + sub + '</span></button>';
+          '<b>' + esc(g.label) + '</b><span>' + esc(subDil) + '</span></button>';
       }
     }
     h += '<div class="gwTitle">Yeni</div><button type="button" class="gw gwNew" data-gwnew="1">' +
@@ -10102,7 +10315,9 @@ function drawerBodyHTML() {
     h += '<p class="note">' + (blankCustom
       ? 'Yeni bağlantı: <b>adını</b> ve <b>adresini</b> yaz (OpenAI uyumlu servislerin çoğu <code>…/v1</code> ile biter). ' +
         'Anahtarını yapıştır; yerel sunucu (Ollama, LM Studio) kullanıyorsan boş bırakabilirsin.'
-      : gw.note) + (!blankCustom && gw.keyUrl ? ' <a href="' + gw.keyUrl + '" target="_blank" rel="noopener">Anahtar al →</a>' : '') + '</p>';
+      : ((gw.noteEn && window.T2) ? window.T2(gw.note, gw.noteEn) : gw.note)) +
+      (!blankCustom && gw.keyUrl ? ' <a href="' + gw.keyUrl + '" target="_blank" rel="noopener">' +
+        (window.T2 ? window.T2('Anahtar al →', 'Get a key →') : 'Anahtar al →') + '</a>' : '') + '</p>';
     /* --- alanlar --- */
     {
       const customRec = (a.kind.indexOf('c:') === 0)

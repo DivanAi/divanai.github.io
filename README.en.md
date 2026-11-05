@@ -38,9 +38,10 @@ Council and Mirror send several requests per round and need your own key.
 3. Type the topic into the box and press `Enter`. *(Example: "Is opening a small coffee shop in Bursa sensible?")
 4. In demo mode the answers are canned text; you see the flow and **no requests are spent**.
 
-**To talk to real models (3 steps):** ① create an account at OpenRouter — **no credit card** for free
-models, ② copy the key, ③ Settings → **Mode: Live** → **OpenRouter** → paste the key → **⇅ Test
-connection** → **Save and apply**. Every card on the connection screen carries a **no card / card
+**To talk to real models (3 steps):** ① create an account with a free provider — the most generous free
+tier is **Google AI Studio** (no credit card, and the daily allowance is counted **per model**); ② copy
+the key, ③ Settings → **Mode: Live** → **Google AI Studio** → paste the key → **⇅ Test connection** →
+**Save and apply**. OpenRouter works too, but its free allowance is capped at 50 requests a day. Every card on the connection screen carries a **no card / card
 required** tag before you pick it. The **3 steps** card on the main screen keeps these in view.
 The key is kept **in this browser only** (`localStorage`); it never goes to a server, a file or a store.
 To try something free, put an id ending in `:free` — e.g. `google/gemma-4-31b-it:free`.
@@ -122,9 +123,18 @@ not part of the settings backup; take it with **Export**.
 | **Web search** | Works on OpenRouter only and **spends credits**; leaving it off is free | Off |
 
 **Connection**
-The most practical start is **OpenRouter**: one key, 400+ models, some free (`:free`). If you want a
-single provider you can connect directly with its own key — **Groq, Cerebras, DeepSeek, Mistral, xAI,
-OpenAI**. Your own OpenAI-compatible address (LiteLLM, Cloudflare AI Gateway) goes on the **Custom
+To stay free, start with **Google AI Studio**: no credit card, the Flash and Flash-Lite models are free,
+and the daily allowance is counted **per model** — so four seats on four different Gemini models use four
+separate allowances. (The exact daily numbers live in AI Studio → *Rate limits*; Google can change them
+per country.) It reads images, so you can attach a photo. **Z.ai (GLM)** is card-free too: GLM-4.7-Flash and GLM-4.5-Flash are listed as *free* with no
+published request quota (a per-minute limit may apply). Two **keyless** options also exist: **LLM7.io**
+(1 request at a time) and **OVH AI Endpoints** (2 requests a minute) — single-seat only, but no signup.
+**OpenRouter** gives many models behind one key
+(free `:free` models, **50 requests a day**); **Groq** is the fast one (**1,000 a day**, but 8k tokens a
+minute). If you want a single provider you can connect directly with its own key — **Groq, DeepSeek,
+Mistral, xAI, OpenAI**. **Cerebras** no longer offers a permanent free tier (a 30-day $5 trial credit,
+with a verified payment method). Groq's free models changed as well: **llama-3.1/3.3 were removed on
+16 August 2026**, so the preset now uses `openai/gpt-oss-120b`, `openai/gpt-oss-20b` and `qwen/qwen3.8-27b`. Your own OpenAI-compatible address (LiteLLM, Cloudflare AI Gateway) goes on the **Custom
 address** card. The key never reaches any server: it stays in your browser.
 
 ![Connection test and diagnostics](ekranlar/10-teshis.jpg)
@@ -137,8 +147,9 @@ address** card. The key never reaches any server: it stays in your browser.
 > Go to `openrouter.ai/settings/keys` → the key → raise **Limit** (adding credit alone is not enough).
 
 **Per-seat connection.** Each seat can use its own provider; the daily free allowance stacks. Example:
-ChatGPT → OpenRouter (50/day), Gemini → **Groq** (1,000/day), Claude → **Cerebras** (~1M tokens/day),
-Grok → **Mistral**. A seat with its own connection that hits 429 rests **alone**; on a shared connection
+ChatGPT → **Google AI Studio** (Gemini 3.8 Flash), Gemini → **Google AI Studio** (Gemini 3.5 Flash-Lite),
+Claude → **Google AI Studio** (Gemini 3.6 Flash), Grok → **Groq** (1,000/day). All four are card-free;
+three of them are Gemini models, so they draw on three separate model allowances. A seat with its own connection that hits 429 rests **alone**; on a shared connection
 all seats rest together (see *Not wasting tokens* below). Settings → *Models at the table* → the list
 under the row. A seat with its own connection shows a badge such as `⛁ Groq` on the table screen.
 

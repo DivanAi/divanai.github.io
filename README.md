@@ -38,9 +38,10 @@ tek turda birden çok istek attığı için orada kendi anahtarın gerekir.
 3. Kutuya konuyu yaz ve `Enter`. *(Örnek: "Bursa'da küçük bir kahve dükkânı açmak mantıklı mı?")*
 4. Demo modunda cevaplar hazır metindir; akışı görürsün, **hiç istek harcanmaz**.
 
-**Gerçek modellerle konuşmak için (3 adım):** ① OpenRouter'da hesap aç — ücretsiz modeller için
-**kredi kartı istemez**, ② anahtarı kopyala, ③ Ayarlar → **Mod: Canlı** → **OpenRouter** → anahtarı
-yapıştır → **⇅ Bağlantıyı test et** → **Kaydet ve uygula**. Bağlantı ekranındaki her kartın üstünde
+**Gerçek modellerle konuşmak için (3 adım):** ① ücretsiz bir sağlayıcıda hesap aç — en cömert ücretsiz
+katman **Google AI Studio**'da (kart istemez, günlük hak **her model için ayrı**); ② anahtarı kopyala,
+③ Ayarlar → **Mod: Canlı** → **Google AI Studio** → anahtarı yapıştır → **⇅ Bağlantıyı test et** →
+**Kaydet ve uygula**. OpenRouter da olur ama ücretsiz hakkı günde 50 istekle sınırlıdır. Bağlantı ekranındaki her kartın üstünde
 **kart ister / kart istemez** etiketi yazar, seçmeden önce görürsün. Ana ekrandaki **3 adım** kartı
 bu adımları her zaman hatırlatır.
 Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya, depoya gitmez.
@@ -123,9 +124,20 @@ onu **Dışa aktar** ile alırsın.
 | **İnternetten bilgi** | Yalnız OpenRouter'da çalışır ve **kredi harcar**; kapalı tutmak ücretsizdir | Kapalı |
 
 **Bağlantı**
-En pratik başlangıç **OpenRouter**: tek anahtarla 400+ model, bazıları ücretsiz (`:free`).
-Tek sağlayıcı kullanmak istersen **Groq, Cerebras, DeepSeek, Mistral, xAI, OpenAI** gibi servislerin
-kendi anahtarıyla doğrudan bağlanabilirsin. Kendi OpenAI uyumlu adresini (LiteLLM, Cloudflare AI Gateway)
+Ücretsiz kalmak istiyorsan başlangıç **Google AI Studio**: kredi kartı istemez, Flash ve Flash-Lite
+modelleri ücretsiz; günlük istek hakkı **her model için ayrı** sayıldığı için dört sandalyeye dört ayrı
+Gemini modeli yazınca dört ayrı kota kullanılır. (Kesin günlük sayılar AI Studio → *Rate limits*
+sayfasında yazar; Google bunları ülkeden ülkeye değiştirebiliyor.) Görsel okuyabilir: fotoğraf ekleyebilirsin.
+**Z.ai (GLM)** de kartsız: GLM-4.7-Flash ve GLM-4.5-Flash fiyat listesinde *ücretsiz* yazar ve yayınlanmış
+istek kotası yoktur (dakikada sınır çıkabilir). **Anahtarsız** iki seçenek daha var: **LLM7.io** (aynı anda
+1 istek) ve **OVH AI Endpoints** (dakikada 2 istek) — ikisi de tek sandalyelik, ama kayıt istemez.
+Tek anahtarla çok model isteyenler için **OpenRouter** (ücretsiz `:free` modeller, **günde 50 istek**),
+hız isteyenler için **Groq** (**günde 1.000 istek** ama dakikada 8 bin token sınırı). Tek sağlayıcı
+kullanmak istersen **Groq, DeepSeek, Mistral, xAI, OpenAI** gibi servislerin kendi anahtarıyla doğrudan
+bağlanabilirsin. **Cerebras** artık kalıcı ücretsiz katman vermiyor (30 günlük 5 $ deneme kredisi,
+doğrulanmış ödeme yöntemi ister). Groq'un ücretsiz modelleri de değişti: **llama-3.1/3.3 modelleri
+16 Ağustos 2026'da kaldırıldı**, ön ayar artık `openai/gpt-oss-120b`, `openai/gpt-oss-20b` ve
+`qwen/qwen3.8-27b` kullanıyor. Kendi OpenAI uyumlu adresini (LiteLLM, Cloudflare AI Gateway)
 **Özel adres** kartına yazabilirsin. Anahtar hiçbir sunucuya gitmez: yalnızca kendi tarayıcında durur.
 
 ![Bağlantı testi ve teşhis](ekranlar/10-teshis.jpg)
@@ -138,8 +150,9 @@ kendi anahtarıyla doğrudan bağlanabilirsin. Kendi OpenAI uyumlu adresini (Lit
 > `openrouter.ai/settings/keys` → anahtar → **Limit**'i artır (kredi eklemek tek başına yetmez).
 
 **Sandalye başına bağlantı.** Her sandalye kendi sağlayıcısını kullanabilir; günlük ücretsiz hak katlanır.
-Örnek: ChatGPT → OpenRouter (50/gün), Gemini → **Groq** (1.000/gün), Claude → **Cerebras** (~1M token/gün),
-Grok → **Mistral**. Kendi bağlantısı olan sandalye 429 alırsa **yalnız o** beklemede kalır; ortak bağlantıda
+Örnek: ChatGPT → **Google AI Studio** (Gemini 3.8 Flash), Gemini → **Google AI Studio** (Gemini 3.5
+Flash-Lite), Claude → **Google AI Studio** (Gemini 3.6 Flash), Grok → **Groq** (1.000/gün). Dördü de
+kartsız; üçü Gemini olduğu için üç ayrı model kotası harcar. Kendi bağlantısı olan sandalye 429 alırsa **yalnız o** beklemede kalır; ortak bağlantıda
 bütün sandalyeler birlikte bekler (aşağıya bak: *Boşa token harcamamak için*).
 Ayarlar → *Masadaki modeller* → satırın altındaki liste. Seçtiğin sandalyede masa ekranında `⛁ Groq`
 gibi bir rozet görünür.
