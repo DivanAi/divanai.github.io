@@ -201,6 +201,21 @@ table spending drops roughly six-fold: 10–15 tables a day instead of 2–3.
   have none at all. One line appears on the table: *"Gemini saw no new point · passed, no answer written."*
 - **Seat timeout (120 s).** If a seat cannot finish in time **only that seat** is cut, the table does not
   hang. Text longer than 30 characters is **kept** and placed on the table marked “cut short”.
+- **Keyless seats cap at 60 s.** Free services slow down under load; and on services that queue (OVH, two
+  requests a minute) **time spent in the queue does not count** towards the timeout (at most 45 s is added).
+  A request that is actually working is therefore not cut just because it was waiting in line.
+- **The backup-model note is one line.** The line “could not answer · trying a backup model…” is updated
+  when the job finishes (“Codestral took over” or “could not speak this round”); no second, contradictory
+  sentence is added underneath.
+- **Reasoning text only.** Some models (OVH's Qwen 3.8, for example) produce only reasoning text instead of
+  a visible answer. The app does **not** call that “gave no answer”: it says “produced no visible answer ·
+  only reasoning text arrived” and names which model on that service does answer directly.
+- **If the chair cannot write the summary** the table is not left empty-handed: the card is produced as a
+  **local summary** from the last sentences (“The summary could not be written by a model: the chair seat
+  did not answer”) and one line explains what happened. The card is credited to **“Local summary · local
+  only”**, not to the chair — no one signs text they did not write.
+
+![One seat gave an empty answer, another produced only reasoning text: every case on one line, the table never stopped](ekranlar/37-sandalye-durumlari.jpg)
 - **Provider cooldown (1 min).** A **connection** that returns 429 or “out of credits” is not tried at
   all for this period; the seat shows `resting · 16:19`. If all are resting the table pauses and resumes
   with **▶ Continue where you left off** when the time is up. **End cooldown** reopens without waiting.

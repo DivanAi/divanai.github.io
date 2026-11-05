@@ -203,6 +203,19 @@ altıda bire iner: günde 2–3 masa yerine 10–15 masa.
   Masada tek satır görünür: *"Gemini yeni bir nokta görmedi · geçti, cevap yazılmadı."*
 - **Sandalye zaman aşımı (120 sn).** Bir sandalye süresi içinde bitiremezse **yalnız o** kesilir, masa
   beklemede kalmaz. Yarıda kalan metin 30 karakterden uzunsa **korunur** ve "yarıda kesildi" etiketiyle masaya konur.
+- **Anahtarsız sandalyelerde tavan 60 sn.** Ücretsiz servisler yoğunlukta yavaşlıyor; ayrıca sıraya giren
+  servislerde (OVH dakikada 2) **kuyrukta geçen süre zaman aşımına sayılmaz** (en çok 45 sn eklenir).
+  Böylece çalışan bir istek, sıra beklediği için kesilmiyor.
+- **Yedek model notu tek satırdır.** "yanıt veremedi · yedek model deneniyor…" satırı, iş bitince aynı satır
+  güncellenir ("yerine Codestral geçti" ya da "bu turda konuşamadı"); altına ikinci, çelişkili cümle eklenmez.
+- **Yalnız düşünme metni.** Bazı modeller (ör. OVH'de Qwen 3.8) ekranda görünen cevap yerine yalnız düşünme
+  metni üretir. Uygulama bunu **"cevap vermedi" diye yazmaz**: "görünür cevap üretmedi · yalnız düşünme metni
+  geldi" der ve hangi modelin düz cevap verdiğini o servis için söyler.
+- **Başkan özet yazamazsa** masa eli boş kalmaz: kart, masadaki son cümlelerden **yerel özet** olarak çıkar
+  ("Özet modelle yazılamadı: başkan sandalyesi yanıt vermedi") ve ne olduğu tek satırda yazar.
+  Kartın künyesinde başkanın adı değil **"Yerel özet · yalnız yerel"** yazar — yazmadığı metne imza atılmaz.
+
+![Bir sandalye boş yanıt verdi, biri yalnız düşünme metni üretti: her durum tek satırda, masa durmadı](ekranlar/37-sandalye-durumlari.jpg)
 - **Sağlayıcı dinlenmesi (1 dk).** 429 ya da "kredi bitti" hatası alan **bağlantı** bu süre boyunca hiç
   denenmez; sandalyede `dinleniyor · 16:19` rozeti çıkar. Hepsi dinleniyorsa masa duraklatılır, süre dolunca
   **▶ Kaldığı yerden devam** ile sürer. **Dinlenmeyi bitir** düğmesi beklemeden açar.

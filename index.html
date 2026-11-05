@@ -2214,6 +2214,7 @@ select optgroup{background:#151a24;color:#9aa2b5}
     return ({
       'dakikalık limit': 'per-minute limit', 'hata': 'error', 'kota': 'quota',
       'yanıt yok': 'no answer', 'boş yanıt': 'empty answer', 'kredi bitti': 'out of credit',
+      'yalnız düşünme metni': 'reasoning text only', 'dakikalık limit': 'per-minute limit',
       'zaman aşımı': 'timeout', 'sağlayıcı hatası': 'provider error', 'günlük kota': 'daily quota'
     })[w] || String(w || '').replace(/^günlük kota.*/, 'daily quota');
   };
@@ -3048,7 +3049,7 @@ function seatVendorName(pid, model) {
   }
   if (kind === 'ovh') {
     const ad = /llama/i.test(m) ? 'Llama 3.3 70B' : /mistral/i.test(m) ? 'Mistral Small' : /qwen/i.test(m) ? 'Qwen' : 'OVH modeli';
-    return { name: ad, short: /llama/i.test(m) ? 'L33' : 'MSM', vendor: 'OVH AI Endpoints (anahtarsız)' };
+    return { name: ad, short: /llama/i.test(m) ? 'L33' : /qwen/i.test(m) ? 'QWN' : 'MSM', vendor: 'OVH AI Endpoints (anahtarsız)' };
   }
   if (kind === 'pollinations') {
     return { name: 'gpt-oss 20B', short: 'G-OSS', vendor: 'Pollinations (anahtarsız)' };
@@ -3286,6 +3287,16 @@ const SIRALI_GATEWAY = {
   llm7: { aralik: 1200 },     // eşzamanlılık 1 + saniyede 1
   ovh:  { aralik: 31000 }     // dakikada 2 → iki istek arası 30 sn
 };
+/* Sıraya giren servislerde istek, kuyruk yüzünden dakikalarca bekleyebiliyor.
+   Sandalye zaman aşımı kuyrukta geçen süreyi saymamalı (OVH'de 30 sn aralık +
+   30 sn zaman aşımı = her istek kesiliyordu). */
+function siraBeklemesiMs(kind) {
+  const g = SIRALI_GATEWAY[kind];
+  if (!g) return 0;
+  const s = _sira[kind];
+  if (!s) return 0;
+  return Math.max(0, s.son + g.aralik - Date.now());
+}
 const _sira = Object.create(null);   // kind → { zincir, son }
 function sirayaAl(kind, is, signal) {
   if (!SIRALI_GATEWAY[kind]) return is();
@@ -3995,6 +4006,9 @@ async function openAICompatStream(url, headers, body, onDelta, signal, providerN
   if (_ctype && !/event-stream/.test(_ctype)) {
     const _raw = await resp.text().catch(() => '');
     let _j = null; try { _j = JSON.parse(_raw); } catch (e0) {}
+    const _rz0 = _j && _j.choices && _j.choices[0] && _j.choices[0].message &&
+      (_j.choices[0].message.reasoning || _j.choices[0].message.reasoning_content);
+    if (_rz0) state.reasoningChars = (state.reasoningChars || 0) + String(_rz0).length;
     const _c = _j && _j.choices && _j.choices[0] &&
       ((_j.choices[0].message && _j.choices[0].message.content) ||
        (_j.choices[0].delta && _j.choices[0].delta.content));
@@ -4003,6 +4017,14 @@ async function openAICompatStream(url, headers, body, onDelta, signal, providerN
       state.lastFinish = _j.choices[0].finish_reason || 'stop';
       onDelta(String(_c));
       return String(_c);
+    }
+    /* Metin de hata da yok: model BOŞ yanıt verdi. Bunu "bağlantı hatası" gibi gösterme —
+       yedek model zinciri ancak bu mesajla devreye giriyor (ekran görüntüsü: "sağlayıcı hatası"). */
+    if (!(_j && (_j.message || _j.error || _j.detail)) && !_c) {
+      /* düşünme sayacı bu serviste paylaşılan bir alan: sandalye kapandığında başka
+         sandalyenin sayacı da görülebiliyor. Sebebi yalnız AKIŞTAKİ delta ile ayır. */
+      throw new Error(_rz0 ? 'boş yanıt (model yalnız düşünme metni üretti): görünür metin yok'
+                           : 'boş yanıt (model metin döndürmedi)');
     }
     const _m = (_j && (_j.message || (typeof _j.error === 'string' ? _j.error : (_j.error && _j.error.message)) || _j.detail)) || _raw || 'Yanıt okunamadı.';
     const _txt = typeof _m === 'string' ? _m : JSON.stringify(_m);
@@ -4020,6 +4042,12 @@ async function openAICompatStream(url, headers, body, onDelta, signal, providerN
     const fr = j.choices && j.choices[0] && j.choices[0].finish_reason;
     if (fr) state.lastFinish = fr;
     const d = j.choices && j.choices[0] && (j.choices[0].delta || {});
+    /* düşünme (reasoning) parçaları ekranda gösterilmez; yalnız SAYILIR.
+       Boş sanılan yanıtın gerçekte "yalnız düşünme" olup olmadığını ayırt etmek için. */
+    if (d) {
+      const rz = d.reasoning || d.reasoning_content;
+      if (rz) state.reasoningChars = (state.reasoningChars || 0) + String(rz).length;
+    }
     const piece = d && (d.content || (Array.isArray(d.content) ? d.content.map(x => x.text || '').join('') : ''));
     if (piece) { text += piece; onDelta(piece); }
   });
@@ -4222,6 +4250,17 @@ function fallbackCandidates(pid, limit) {
 // "deepseek/deepseek-v4.1-flash" → "deepseek"; "qwen/qwen3-32b:free" → "qwen3"
 function modelShort(m) {
   const tail = String(m || '').split('/').pop().replace(/:free$/i, '');
+  /* Bilinen aileler: notta "codestral" değil "Codestral" yazsın (marka adı gibi) */
+  if (/^codestral/i.test(tail)) return 'Codestral';
+  if (/^mistral-nemo/i.test(tail)) return 'Mistral Nemo';
+  if (/^mistral-small/i.test(tail)) return 'Mistral Small';
+  if (/^mistral/i.test(tail)) return 'Mistral';
+  if (/nemotron/i.test(tail)) return 'Nemotron';
+  if (/minimax/i.test(tail)) return 'MiniMax';
+  if (/^meta-llama-3_?3/i.test(tail)) return 'Llama 3.3 70B';
+  if (/^llama/i.test(tail)) return 'Llama';
+  if (/^qwen/i.test(tail)) return 'Qwen';
+  if (/gpt-oss/i.test(tail)) return 'gpt-oss';
   return (tail.split(/[-_.:]/)[0] || tail).slice(0, 14);
 }
 
@@ -4241,8 +4280,21 @@ function isPassReply(s) {
 }
 
 // kullanıcıya gösterilecek kısa sebep
+/* düşünme (reasoning) üreten model yavaş kalınca ne yapmalı: servise göre tek cümle */
+function seatSlowHint(pid) {
+  const k = (typeof seatKindOf === 'function') ? seatKindOf(pid) : '';
+  const T = (a, b) => (window.T2 ? window.T2(a, b) : a);
+  if (k === 'ovh') return T('OVH’de Llama 3.3 70B ve Mistral Small 3.2 düz cevap veriyor; Ayarlar → Masadaki modeller’den onu seç.',
+    'On OVH, Llama 3.3 70B and Mistral Small 3.2 answer directly; pick one of them in Settings → Models at the table.');
+  if (k === 'groq') return T('Groq’ta düşünme üreten modeller uzun sürebiliyor; Ayarlar → Masadaki modeller’den düz cevap veren bir model seç.',
+    'On Groq, models that reason can be slow; pick a model that answers directly in Settings → Models at the table.');
+  return T('Ayarlar → Masadaki modeller’de düşünme üretmeyen bir model seç.',
+    'In Settings → Models at the table, pick a model that does not produce reasoning text.');
+}
+
 function whyShort(msg) {
   const t = String(msg || '');
+  if (/boş yanıt/.test(t)) return /düşünme/.test(t) ? 'yalnız düşünme metni' : 'boş yanıt';
   if (isDailyQuota(t)) {
     /* yenilenme saati yalnız Google için sabit (Pasifik gece yarısı); diğerlerinde uydurma saat yazma */
     return /google|gemini|ai studio/i.test(t) ? 'günlük kota (yenilenme ' + quotaTimeTR() + ')' : 'günlük kota';
@@ -4709,20 +4761,26 @@ async function runRound(opts = {}) {
     };
 
     let route = null, failed = false, fallbackReported = false;
+    let noticeMsg = null;          // yedek model notu (tek satır; catch'te de güncellenir)
+    let denenen = 0;               // kaç aday gerçekten denendi
     /* ---- sandalye zaman aşımı ----
        Kullanıcının "Durdur"undan bağımsız: yalnız BU sandalyeyi keser, masa devam eder.
        Tek sandalye asılı kalınca bütün masa süresiz beklemesin. */
-    /* anahtarsız servisler hızlıdır (ölçüm: 5–21 sn) ama sıkışınca asılı kalır:
-       süreyi 30 sn ile sınırla — masa 2 dakika boş beklemesin */
+    /* anahtarsız servisler bedava olduğu için sıkışınca yavaşlıyor (ölçüm: OVH 16–20 sn,
+       kuyrukta daha uzun). Tavanı 60 sn tutuyoruz: 30 sn'de kesmek çalışan sandalyeyi
+       de atıyordu (ekran görüntüsü: "30 sn içinde cevap vermedi"). */
     const _gwK = (typeof seatKindOf === 'function') ? seatKindOf(p.provider) : '';
     const _keylessS = !!(GATEWAYS[_gwK] && GATEWAYS[_gwK].keyless);
-    const toSec = _keylessS ? Math.min(seatTimeoutSec() || 30, 30) : seatTimeoutSec();
+    const toSec = _keylessS ? Math.min(seatTimeoutSec() || 60, 60) : seatTimeoutSec();
     const seatCtrl = new AbortController();
     let seatTimedOut = 0;
     const userSig = state.abort && state.abort.signal;
     const onUserAbort = () => { try { seatCtrl.abort(); } catch (e0) {} };
     if (userSig) { try { userSig.addEventListener('abort', onUserAbort); } catch (e0) {} }
-    const toTimer = toSec ? setTimeout(() => { seatTimedOut = toSec; try { seatCtrl.abort(); } catch (e0) {} }, toSec * 1000) : null;
+    /* kuyruk beklemesi zaman aşımına eklenir (en çok 45 sn): OVH'de istekler
+       31 sn arayla sıraya giriyor, süre kuyrukta dolmasın */
+    const toMs = toSec ? toSec * 1000 + Math.min(siraBeklemesiMs(_gwK), 45000) : 0;
+    const toTimer = toMs ? setTimeout(() => { seatTimedOut = toSec; try { seatCtrl.abort(); } catch (e0) {} }, toMs) : null;
     try {
       route = resolveRoute(p.provider);
       if (route.kind === 'missing') throw new Error(route.why || 'Bağlantı yok');
@@ -4736,8 +4794,6 @@ async function runRound(opts = {}) {
         // yedek zinciri: [mevcut model, ...adaylar] — kota/hata olursa sıradakine geçilir
         const chain = [route.model].concat(fallbackCandidates(p.provider, 5).filter(m => !triedNow.has(m)));
         let lastErr = null;
-        let noticeMsg = null;
-        let denenen = 0;                 // kaç aday gerçekten denendi (mesajda doğru sayı yazsın)
         for (let ci = 0; ci < chain.length; ci++) {
           const candidate = chain[ci];
           if (ci > 0) {
@@ -4746,6 +4802,7 @@ async function runRound(opts = {}) {
             route.model = candidate; triedNow.add(candidate); denenen++;
             if (!noticeMsg) {
               const why0 = whyShort(lastErr && lastErr.message);
+              /* "boş yanıt" ise düşünme metni gelmiş miydi: sayaç deneme başında sıfırlanıyor */
               noticeMsg = addMessage({ kind: 'notice', level: 'warn', text:
                 p.name + ' yanıt veremedi (' + why0 + ') · yedek model deneniyor…' });
               noticeMsg.why = why0;
@@ -4757,6 +4814,7 @@ async function runRound(opts = {}) {
             let budget = tokenBudget();
             for (let attempt = 1; ; attempt++) {
               state.lastFinish = null;
+              state.reasoningChars = 0;
               bumpReq();
               modelUsed = route.model;
               if (!route.model) throw new Error('Model kimliği boş: Ayarlar → Masadaki modeller.');
@@ -4805,7 +4863,9 @@ async function runRound(opts = {}) {
             if (noticeMsg) { noticeMsg.level = 'err'; noticeMsg.text = p.name + ' bu turda konuşamadı · denenen yedekler boş yanıt verdi.'; renderTranscript(); }
             break;                                     // aday kalmadı: aşağıdaki boş yanıt uyarısı
           }
-          lastErr = new Error('boş yanıt (model metin döndürmedi)');
+          lastErr = new Error(state.reasoningChars
+            ? 'boş yanıt (model yalnız düşünme metni üretti, görünür cevap yok)'
+            : 'boş yanıt (model metin döndürmedi)');
         }
       }
     } catch (e) {
@@ -4814,19 +4874,48 @@ async function runRound(opts = {}) {
         return;
       }
       if (seatTimedOut && token === state.runToken) {
-        // zaman aşımı: kullanıcı durdurmadı — kısmi metni koru, sıradaki sandalyeye geç
+        /* zaman aşımı: kullanıcı durdurmadı — kısmi metni koru, sıradaki sandalyeye geç.
+           Yedek model için zaten bir satır yazıldıysa O SATIR güncellenir; altına ikinci,
+           çelişkili bir cümle eklenmez (ekran görüntüsü: "yedeği deneniyor…" satırının
+           hemen altında "bu sıra atlandı" satırı vardı). */
         const kept = String(draftMsg.text || '').trim();
+        const rz = state.reasoningChars || 0;
+        const T = (a, b) => (window.T2 ? window.T2(a, b) : a);
+        const secText = T(seatTimedOut + ' sn', seatTimedOut + ' s');
         if (visibleLen(kept) >= 30) {
           draftMsg.streaming = false;
           draftMsg.timedOut = seatTimedOut;
           finalizeMsg(draftMsg);
-          addMessage({ kind: 'notice', level: 'warn', text:
-            p.name + ' ' + seatTimedOut + ' sn içinde cevabını bitirmedi · o ana kadarki kısmi cevap korundu, sıradaki sandalyeye geçildi.' });
+          const tail = T('içinde cevabını bitiremedi', 'did not finish within') ;
+          const metin = T(
+            p.name + ' ' + secText + ' içinde cevabını bitiremedi · o ana kadarki kısmi cevap korundu'
+              + (denenen ? ' (önce ' + denenen + ' yedek model denendi)' : '') + ', sıradaki sandalyeye geçildi.',
+            p.name + ' did not finish within ' + secText + ' · the partial answer up to that point was kept'
+              + (denenen ? ' (' + denenen + (denenen === 1 ? ' backup model tried first' : ' backup models tried first') + ')' : '') + ', moved on to the next seat.');
+          if (noticeMsg) { noticeMsg.level = 'warn'; noticeMsg.text = metin; }
+          else addMessage({ kind: 'notice', level: 'warn', text: metin });
         } else {
           state.transcript = state.transcript.filter(m => m.id !== draftMsg.id);
           removeMsgDOM(draftMsg.id);
-          addMessage({ kind: 'notice', level: 'warn', text:
-            p.name + ' ' + seatTimedOut + ' sn içinde cevap vermedi · bu sıra atlandı, diğer sandalyeler devam etti.' });
+          if (noticeMsg) {
+            noticeMsg.level = 'err';
+            noticeMsg.text = T(
+              p.name + ' bu turda konuşamadı (' + secText + ' içinde yanıt yok'
+                + (denenen ? '; ' + denenen + ' yedek denendi' : '') + '). Diğer sandalyeler devam etti.',
+              p.name + ' could not speak this round (no answer within ' + secText
+                + (denenen ? '; ' + denenen + (denenen === 1 ? ' backup tried' : ' backups tried') : '') + '). The other seats carried on.');
+          } else if (rz > 0) {
+            /* ekranda hiç metin görünmedi ama model düşünme üretti: "cevap vermedi" demek yanlış olur */
+            addMessage({ kind: 'notice', level: 'warn', text: T(
+              p.name + ' ' + secText + ' içinde görünür cevap üretmedi · yalnız düşünme metni geldi (ekranda gösterilmez). ' +
+              seatSlowHint(p.provider) + ' Bu sıra atlandı, diğer sandalyeler devam etti.',
+              p.name + ' produced no visible answer within ' + secText + ' · only reasoning text arrived (not shown). ' +
+              seatSlowHint(p.provider) + ' This turn was skipped; the other seats carried on.') });
+          } else {
+            addMessage({ kind: 'notice', level: 'warn', text: T(
+              p.name + ' ' + secText + ' içinde cevap vermedi · bu sıra atlandı, diğer sandalyeler devam etti.',
+              p.name + ' gave no answer within ' + secText + ' · this turn was skipped; the other seats carried on.') });
+          }
         }
         renderTranscript();
         state.queue = state.queue.filter(id => id !== p.id);
@@ -5197,7 +5286,10 @@ function localSummaryText() {
     const t = ozetKes(al(ozetCumleler(m.text)), 150);
     if (t) lines.push('- **' + p.name + '** (' + p.roleLabel + '): ' + t);
   }
-  const tail = msgs.slice(-6).map(m => String(m.text)).join(' ');
+  /* "açık kalan" ararken kullanıcının sorusunu da tara: masada henüz cevap
+     konuşması yoksa bile açık kalan şey kullanıcının sorusudur */
+  const kullanici = state.transcript.filter(m => m.kind === 'msg' && m.personaId === 'user' && m.text).slice(-2);
+  const tail = kullanici.map(m => String(m.text)).concat(msgs.slice(-6).map(m => String(m.text))).join(' ');
   const qs = tail.match(/[^.?!\n]{8,}\?/g);
   lines.push('');
   lines.push('**Açık kalan:** ' + (qs && qs.length ? ozetKes(ozetTemiz(qs[qs.length - 1]), 160) : 'Masada açıkça sorulmuş bir soru bulunmadı.'));
@@ -5217,17 +5309,36 @@ function buildLocalSummary(opts = {}) {
     state.transcript = state.transcript.filter(x => x.id !== o.id);
     if (typeof removeMsgDOM === 'function') removeMsgDOM(o.id);
   }
-  const msg = { id: uid(), ts: nowISO(), kind: 'summary', personaId: chair.id, name: chair.name, short: chair.short, color: chair.color,
-    roleLabel: 'ÖZET · YEREL', title: 'Yerel özet · model çağrılmadı', text: text, plain: plainOf(text),
+  /* başkan yanıt vermediyse bu özeti "gpt-oss 20B yazdı" gibi gösterme:
+     künyede masa sahibi yerine açıkça "yerel" yazar */
+  const kim = (opts.why === 'chair')
+    ? { name: window.T2 ? window.T2('Yerel özet', 'Local summary') : 'Yerel özet', short: 'YRL' }
+    : { name: chair.name, short: chair.short };
+  const msg = { id: uid(), ts: nowISO(), kind: 'summary', personaId: chair.id, name: kim.name, short: kim.short, color: chair.color,
+    roleLabel: window.T2 ? window.T2('YALNIZ YEREL', 'LOCAL ONLY') : 'YALNIZ YEREL',
+    title: window.T2 ? window.T2('Yerel özet · model çağrılmadı', 'Local summary · no model called') : 'Yerel özet · model çağrılmadı',
+    text: text, plain: plainOf(text),
     local: true, round: state.round, streaming: false, model: 'yerel' };
   state.transcript.push(msg);
   if (typeof appendMsgDOM === 'function') appendMsgDOM(msg);
-  addMessage({ kind: 'notice', level: 'warn', text:
-    (opts.why === 'kota'
-      ? 'Özet modelle yazılamadı: günlük istek hakkı doldu. '
-      : 'Yerel özet seçildi: hiç istek harcanmadı. ') +
-    'Aşağıdaki kart masadaki son cümlelerden **kesilip birleştirildi** — yeni cümle üretilmedi, model çağrılmadı. ' +
-    'Kota yenilendiğinde ' + '“Özet çıkar” ile tam özeti alabilirsin.' });
+  {
+    const T = (a, b) => (window.T2 ? window.T2(a, b) : a);
+    const sebep = (window.WHY2 ? window.WHY2(opts.reason || 'yanıt yok') : (opts.reason || 'yanıt yok'));
+    addMessage({ kind: 'notice', level: 'warn', text: opts.why === 'chair'
+      ? T('Özet modelle yazılamadı: başkan sandalyesi yanıt vermedi (' + sebep + '). ' +
+          'Aşağıdaki kart masadaki son cümlelerden **kesilip birleştirildi** — yeni cümle üretilmedi, model çağrılmadı. ' +
+          'Başkan sandalyesi yanıt verdiğinde “Özet çıkar” ile tam özeti alabilirsin.',
+          'The summary could not be written by a model: the chair seat did not answer (' + sebep + '). ' +
+          'The card below was **cut and joined** from the last sentences at the table — no new sentence was generated and no model was called. ' +
+          'Once the chair seat answers, use “Summarise” to get the full summary.')
+      : (opts.why === 'kota'
+        ? T('Özet modelle yazılamadı: günlük istek hakkı doldu. ', 'The summary could not be written by a model: the daily request allowance is used up. ')
+        : T('Yerel özet seçildi: hiç istek harcanmadı. ', 'Local summary chosen: no request was spent. ')) +
+        T('Aşağıdaki kart masadaki son cümlelerden **kesilip birleştirildi** — yeni cümle üretilmedi, model çağrılmadı. ' +
+          'Kota yenilendiğinde “Özet çıkar” ile tam özeti alabilirsin.',
+          'The card below was **cut and joined** from the last sentences at the table — no new sentence was generated and no model was called. ' +
+          'When the allowance renews, use “Summarise” to get the full summary.') });
+  }
   if (typeof renderTranscript === 'function') renderTranscript();
   if (typeof persistSession === 'function') persistSession();
   if (typeof renderAll === 'function') renderAll();
@@ -5301,16 +5412,23 @@ async function summarize(opts = {}) {
   appendMsgDOM(msg);
   scrollBump(true);
   let acc = '';
-  let localFallback = false;
+  let localFallback = false, localWhy = 'kota', localReason = '';
   const onDelta = piece => {
     if (token !== state.runToken) return;
     acc += piece; msg.text = acc; updateMsgDOM(msg); scrollBump(false);
   };
+  state.reasoningChars = 0;
   try {
     const route = resolveRoute(chair.provider);
     if (route.kind === 'missing') throw new Error((route.why || 'Bağlantı yok') + ' (Ayarlar → Bağlantı).');
     if (route.kind === 'demo') await demoStream(chair, { summary: true, duel: duelOn(), onDelta, signal: state.abort.signal });
     else await callChat(route.cfg, route.model, sys, hist, Math.min(2600, tokenBudget()), onDelta, state.abort.signal);
+    /* boş yanıt: boş bir "özet" kartı bırakma — aşağıdaki yakalama yerel özete düşürsün */
+    if (route.kind !== 'demo' && visibleLen(acc) < 2) {
+      throw new Error(state.reasoningChars
+        ? 'boş yanıt (model yalnız düşünme metni üretti)'
+        : 'boş yanıt (model metin döndürmedi)');
+    }
     msg.model = state.settings.mode === 'live' ? (route.model || effModel(chair.provider) || '') : 'demo';
     msg.round = state.round;
     msg.streaming = false; msg.plain = plainOf(msg.text);
@@ -5324,12 +5442,17 @@ async function summarize(opts = {}) {
     state.transcript = state.transcript.filter(m => m.id !== msg.id);
     removeMsgDOM(msg.id);
     if (e && e.name === 'AbortError') toast('Özet durduruldu.', 'ok');
-    else if (isQuotaErr(e && e.message)) localFallback = true;      // kota/kredi: model özeti olmadı, yerel özet
-    else { addMessage({ kind: 'notice', level: 'err', text: 'Özet çıkarılamadı: ' + (e.message || e) }); toast('Özet çıkarılamadı.', 'err'); }
+    else if (isQuotaErr(e && e.message)) { localFallback = true; localWhy = 'kota'; }
+    else {
+      /* Başkan modeli özet yazamadı (zaman aşımı, boş yanıt, bağlantı): kartı boş bırakma,
+         masadaki cümlelerden yerel özet çıkar — "Özet çıkarılamadı" deyip eli boş bırakmak yok. */
+      localFallback = true; localWhy = 'chair';
+      localReason = whyShort(e && e.message);
+    }
   }
   if (token !== state.runToken) return;
   state.speaking = null; state.phase = 'waiting';
-  if (localFallback) buildLocalSummary({ why: 'kota' });
+  if (localFallback) buildLocalSummary({ why: localWhy, reason: localReason });
   persistSession();
   renderTranscript();
   renderAll();
@@ -8255,7 +8378,10 @@ async function runAgents(opts = {}) {
     const userSig = state.abort && state.abort.signal;
     const onUserAbort = () => { try { jobCtrl.abort(); } catch (e0) {} };
     if (userSig && userSig.addEventListener) { try { userSig.addEventListener('abort', onUserAbort); } catch (e0) {} }
-    const jobTimer = toSec ? setTimeout(() => { jobTimedOut = toSec; try { jobCtrl.abort(); } catch (e0) {} }, toSec * 1000) : null;
+    /* kuyruk beklemesi zaman aşımına eklenir (OVH: 31 sn aralık) */
+    const _kq = (typeof seatKindOf === 'function') ? seatKindOf(p.provider) : '';
+    const jobMs = toSec ? toSec * 1000 + Math.min((typeof siraBeklemesiMs === 'function' ? siraBeklemesiMs(_kq) : 0), 45000) : 0;
+    const jobTimer = jobMs ? setTimeout(() => { jobTimedOut = toSec; try { jobCtrl.abort(); } catch (e0) {} }, jobMs) : null;
     try {
       res = await ajanCall(p, sys, hist, draft, token, tried, undefined, jobCtrl.signal);
     } catch (e) {
@@ -8805,7 +8931,10 @@ async function runPanel(opts = {}) {
 
     const toSec = seatTimeoutSec();
     let zamanAsimi = 0;
-    const toTimer = toSec ? setTimeout(() => { zamanAsimi = toSec; try { seatCtrl.abort(); } catch (e) {} }, toSec * 1000) : null;
+    /* kuyruk beklemesi zaman aşımına eklenir (OVH: 31 sn aralık) */
+    const _kq = (typeof seatKindOf === 'function') ? seatKindOf(p.provider) : '';
+    const toMs = toSec ? toSec * 1000 + Math.min((typeof siraBeklemesiMs === 'function' ? siraBeklemesiMs(_kq) : 0), 45000) : 0;
+    const toTimer = toMs ? setTimeout(() => { zamanAsimi = toSec; try { seatCtrl.abort(); } catch (e) {} }, toMs) : null;
 
     try {
       const route = resolveRoute(p.provider);
