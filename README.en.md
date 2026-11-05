@@ -17,11 +17,11 @@ live answer).
 | **Council** | **Panel** | **Mirror** | **Agents** | **OneOnOne** |
 |---|---|---|---|---|
 | ![Council](ekranlar/1-konsey.jpg) | ![Panel](ekranlar/27-panel.jpg) | ![Mirror](ekranlar/3-ayna.jpg) | ![Agents](ekranlar/11-ajan-kurulum.jpg) | ![OneOnOne](ekranlar/26-teketek.jpg) |
-| Models from 3–5 different companies, roles, a chair summary | Seats answer **at once**, blind to each other; **the comparison is yours** | One model in two seats: defender + objector, judge verdict | A task per seat, chained hand-off, one delivery | A single AI, direct answer; the keyless option is **slow** (1 request per 45 s) |
+| Models from 3–5 different companies, roles, a chair summary | Seats answer **at once**, blind to each other; **the comparison is yours** | One model in two seats: defender + objector, judge verdict | A task per seat, chained hand-off, one delivery | A single AI, direct answer; the keyless option is **slow** |
 
 If you just want a plain chat, pick **OneOnOne**: one AI at the table answers directly. A **keyless
-option ships ready** (gpt-oss 20B, through Pollinations) — real answers with no signup, but it allows
-**one request per 45 seconds per IP**, so a proper test is better with a free key.
+option ships ready** (gpt-oss 20B, through Pollinations) — real answers with no signup; it is slow
+(5–8 seconds in my measurement), so a proper test is better with a free key.
 
 ---
 
@@ -30,21 +30,28 @@ option ships ready** (gpt-oss 20B, through Pollinations) — real answers with n
 1. Download the `divanai` folder and double-click **`index.html`**. (No Python, no install, no internet needed.)
 2. Pick the table type at the top: **Council · Panel · Mirror · Agents · OneOnOne**.
 
-**If you do not want to enter any key:** pick **OneOnOne**. The table answers through **Pollinations**
-with the **gpt-oss 20B** model — **no signup, no key, no charge**. Its limit: **1 answer every 45
-seconds** per internet connection; if you write again quickly the app tells you how many seconds to
-wait and retries by itself. Because of that limit the keyless option is only recommended for OneOnOne;
-Council and Mirror send several requests per round and need your own key.
+**Start with no setup at all.** The app opens in **Live** mode and sets up **three keyless seats**:
+**Pollinations** (gpt-oss 20B), **LLM7.io** (Mistral Nemo), **OVH AI Endpoints** (Llama 3.3 70B) — three
+separate services, **no signup, no key, no card**. The first round is slow: when I measured it, the three
+answers arrived in **~21 seconds** in parallel (LLM7 takes one request at a time, OVH two a minute).
+**OneOnOne** also works keyless (Pollinations); there the answers arrive one after another.
 3. Type the topic into the box and press `Enter`. *(Example: "Is opening a small coffee shop in Bursa sensible?")
 4. In demo mode the answers are canned text; you see the flow and **no requests are spent**.
 
-**To talk to real models (3 steps):** ① create an account with a free provider — the most generous free
-tier is **Google AI Studio** (no credit card, and the daily allowance is counted **per model**); ② copy
-the key, ③ Settings → **Mode: Live** → **Google AI Studio** → paste the key → **⇅ Test connection** →
-**Save and apply**. OpenRouter works too, but its free allowance is capped at 50 requests a day. Every card on the connection screen carries a **no card / card
-required** tag before you pick it. The **3 steps** card on the main screen keeps these in view.
+**Faster is optional (3 steps):** ① create an account with a free provider — the most generous free tier
+is **Google AI Studio** (no credit card, and the daily allowance is counted **per model**); ② copy the
+key, ③ Settings → **Free · your own key** → **Google AI Studio** → paste the key → **⇅ Test connection** →
+**Save and apply**. Clicking a connection card applies that service to **every seat**; the app tells you so
+with a notice. Paid services (**Vercel, Requesty, NanoGPT, AIMLAPI**…) are not in the main list — they sit
+folded under **Other services**, so leave them closed unless you need them. Every card carries a
+**no card / card required** tag.
 The key is kept **in this browser only** (`localStorage`); it never goes to a server, a file or a store.
 To try something free, put an id ending in `:free` — e.g. `google/gemma-4-31b-it:free`.
+
+![Settings — three keyless seats](ekranlar/30-ayarlar-sade.jpg)
+
+*Settings opens like this: mode at the top, then the **three keyless services** (Pollinations · LLM7.io ·
+OVH), then free services that need a key; paid ones stay folded under **Other services**.*
 
 **On a phone:** the same file works; the layout holds down to 360 px.
 
@@ -158,8 +165,16 @@ under the row. A seat with its own connection shows a badge such as `⛁ Groq` o
 **Daily quota.** The bottom bar shows `7 / 50` and `resets in 23h 24m` (green: plenty, yellow: low,
 red: out). Click the label → the quota box opens. OpenRouter free allowance is **50 a day**, reset at
 **03:00**; Groq **1,000/day**; Gemini depends on the model, **10:00**. The counter spends no requests.
+For services whose reset time is unknown the app does **not invent a clock** — it says “at the provider's
+own daily reset”.
 
-**When the quota runs out the work is not lost.** The table stays where it is and a green button appears:
+**When the quota runs out.** Two cases:
+
+- **Every seat on its own service** (the default setup: Pollinations · LLM7 · OVH): only the seat whose quota
+  ran out stops, with a one-line notice (`Mistral Nemo is done for today…`). **The table carries on** —
+  the other seats keep talking on their own services.
+- **Seats sharing one key** (a single Google/OpenRouter key): they all draw from the same pool, so the
+  table stays where it is and a green button appears:
 **▶ Continue where you left off · 3 speakers**. Press it once the allowance resets; **only the missing**
 seats run, nothing is regenerated from scratch. Close the site and the state is remembered. With quota
 at 0 the Summarize button sends no request at all and builds a **local summary** from the sentences on
@@ -279,9 +294,9 @@ memory as you continue. Two options:
 | **Pollinations · keyless** | Nothing — no signup, no key | First try, single question, free use |
 | **My own connection** | A provider + key in Settings → Connection | You already have a key, you want no limits |
 
-**The keyless option has one limit:** **1 answer every 45 seconds** per internet connection. Write too
-fast and the app waits and says “1 answer per 45 s · waiting 12 s and retrying…” — you never see an empty
-error screen. The server runs best-effort and may slow down now and then. The model's **inner reasoning**
+**The keyless option has a limit:** Pollinations publishes no quota; under load it throttles requests
+(in my measurement answers arrived in 5–8 seconds). If the server returns a 402 the app says how many
+seconds to wait and retries once by itself — you never see an empty error screen. The server runs best-effort and may slow down now and then. The model's **inner reasoning**
 is not printed, only the answer. The chat is not saved anywhere; since no key is used there is nothing
 to lose.
 
@@ -434,7 +449,7 @@ take a backup from the menu: the backup file lands on your computer and belongs 
 
 | Symptom | What to do |
 |---|---|
-| "Daily free request quota is out" | The table stops, the work is not lost. Press **▶ Continue where you left off** once the allowance resets; or continue with Settings → **Mode: Demo** |
+| "… is done for today (free daily quota is used up)" | **Only that seat** stops; the other seats carry on with their own services. If several seats share one key, the table waits and **▶ Continue where you left off** appears |
 | `401 invalid api key` | Wrong key: paste it again in Settings, **⇅ Test connection** |
 | `404 model not found` | Wrong model id: fix the id on the row (it differs per service) |
 | `403 Key limit exceeded` | The key's **spend limit** is zero: `openrouter.ai/settings/keys` → raise Limit |
@@ -474,9 +489,9 @@ take a backup from the menu: the backup file lands on your computer and belongs 
 |---|---|
 | ![Image box](ekranlar/21-gorsel-kutusu.jpg) | ![Connection](ekranlar/8-baglanti.jpg) |
 
-| 3 steps on the main screen | Per-seat connection |
+| Paid services in their own layer | Per-seat connection |
 |---|---|
-| ![3 steps](ekranlar/25-uc-adim.jpg) | ![Seat connection](ekranlar/9-sandalye-baglanti.jpg) |
+| ![Other services](ekranlar/25-diger-servisler.jpg) | ![Seat connection](ekranlar/9-sandalye-baglanti.jpg) |
 
 *DivanAI · one file · no external dependencies.*
 

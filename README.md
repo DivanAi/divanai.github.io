@@ -11,17 +11,18 @@ Bir konu yazıyorsun; masadaki yapay zekâlar sırayla konuşuyor, birbirine iti
 başkan toparlayıp özetliyor. Sekmeler arasında kopyala-yapıştır yok.
 
 **Tek dosya.** `index.html`'e çift tıkla, açılır. Kurulum, hesap, sunucu gerekmez.
-**Anahtarsız demo.** Hiçbir yere kayıt olmadan bütün akışı deneyebilirsin (demo metinleri canlı cevap
-gibi sunulmaz).
+**Anahtarsız demo · anahtarsız canlı.** Hiçbir yere kayıt olmadan bütün akışı deneyebilirsin (demo metinleri
+canlı cevap gibi sunulmaz). İstersen **Canlı** modda da anahtar girmeden konuşursun: açılışta üç sandalye
+üç ayrı ücretsiz servise bağlı gelir.
 
 | **Konsey** | **Panel** | **Ayna** | **Ajanlar** | **TekeTek** |
 |---|---|---|---|---|
 | ![Konsey](ekranlar/1-konsey.jpg) | ![Panel](ekranlar/27-panel.jpg) | ![Ayna](ekranlar/3-ayna.jpg) | ![Ajanlar](ekranlar/11-ajan-kurulum.jpg) | ![TekeTek](ekranlar/26-teketek.jpg) |
-| 3–5 ayrı şirketin modeli, roller, başkan özeti | Sandalyeler **aynı anda**, birbirini görmeden yazar; **kıyaslama sende** | Aynı model iki sandalyede: savunan + itiraz eden, hakem kararı | Her sandalyeye ayrı görev, zincirleme teslim, tek teslimat | Tek yapay zekâ, doğrudan cevap; anahtarsız seçenek **yavaş** çalışır (45 sn'de 1 istek) |
+| 3–5 ayrı şirketin modeli, roller, başkan özeti | Sandalyeler **aynı anda**, birbirini görmeden yazar; **kıyaslama sende** | Aynı model iki sandalyede: savunan + itiraz eden, hakem kararı | Her sandalyeye ayrı görev, zincirleme teslim, tek teslimat | Tek yapay zekâ, doğrudan cevap; anahtarsız seçenek **yavaş** çalışır |
 
 Tek sohbet istersen **TekeTek**: masada tek yapay zekâ olur, yazdığını doğrudan cevaplar. **Anahtarsız
-seçenek hazır gelir** (gpt-oss 20B, Pollinations) — kayıt olmadan gerçek cevap alırsın, ama
-**IP başına 45 saniyede bir istek** verir; düzgün deneme için ücretsiz anahtar daha iyidir.
+seçenek hazır gelir** (gpt-oss 20B, Pollinations) — kayıt olmadan gerçek cevap alırsın; yavaş çalışır
+(ölçümümde 5–8 saniye), düzgün deneme için ücretsiz anahtar daha iyidir.
 
 ---
 
@@ -30,22 +31,28 @@ seçenek hazır gelir** (gpt-oss 20B, Pollinations) — kayıt olmadan gerçek c
 1. `divanai` klasörünü indir, içindeki **`index.html`**'e çift tıkla. (Python, kurulum, internet gerekmez.)
 2. Ekranın üstünden masa türünü seç: **Konsey · Panel · Ayna · Ajanlar · TekeTek**.
 
-**Hiç anahtar girmek istemiyorsan:** **TekeTek** sekmesini seç. Masa, **Pollinations** üzerinden
-**gpt-oss 20B** modeliyle cevap verir — **kayıt yok, anahtar yok, ücret yok**. Sınırı: aynı internet
-bağlantısından **45 saniyede 1 yanıt**; art arda yazarsan uygulama kaç saniye bekleyeceğini söyleyip
-kendisi tekrar dener. Bu sınır yüzünden anahtarsız seçenek yalnız **TekeTek**'te önerilir; Konsey ve Ayna
-tek turda birden çok istek attığı için orada kendi anahtarın gerekir.
+**Hiçbir şey ayarlamadan başla.** Uygulama **Canlı** modda açılır ve masaya **üç anahtarsız sandalye** kurar:
+**Pollinations** (gpt-oss 20B), **LLM7.io** (Mistral Nemo), **OVH AI Endpoints** (Llama 3.3 70B) — üçü ayrı
+servis, **kayıt yok, anahtar yok, kart yok**. İlk tur yavaştır: ölçtüğümde üç cevap paralel **~21 saniyede**
+geldi (LLM7 aynı anda tek istek alır, OVH dakikada 2 istek).
+**TekeTek** sekmesi de anahtarsız çalışır (Pollinations); orada cevaplar sırayla gelir.
 3. Kutuya konuyu yaz ve `Enter`. *(Örnek: "Bursa'da küçük bir kahve dükkânı açmak mantıklı mı?")*
 4. Demo modunda cevaplar hazır metindir; akışı görürsün, **hiç istek harcanmaz**.
 
-**Gerçek modellerle konuşmak için (3 adım):** ① ücretsiz bir sağlayıcıda hesap aç — en cömert ücretsiz
+**Daha hızlısı isteğe bağlı (3 adım):** ① ücretsiz bir sağlayıcıda hesap aç — en cömert ücretsiz
 katman **Google AI Studio**'da (kart istemez, günlük hak **her model için ayrı**); ② anahtarı kopyala,
-③ Ayarlar → **Mod: Canlı** → **Google AI Studio** → anahtarı yapıştır → **⇅ Bağlantıyı test et** →
-**Kaydet ve uygula**. OpenRouter da olur ama ücretsiz hakkı günde 50 istekle sınırlıdır. Bağlantı ekranındaki her kartın üstünde
-**kart ister / kart istemez** etiketi yazar, seçmeden önce görürsün. Ana ekrandaki **3 adım** kartı
-bu adımları her zaman hatırlatır.
+③ Ayarlar → **Ücretsiz · kendi anahtarın** → **Google AI Studio** → anahtarı yapıştır → **⇅ Bağlantıyı test et**
+→ **Kaydet ve uygula**. Bir bağlantı kartına bastığında o servis **bütün sandalyelere** uygulanır; uygulama
+bunu bir bildirimle söyler. Ücretli servisler (**Vercel, Requesty, NanoGPT, AIMLAPI**…) ana listede değil,
+**Diğer servisler** başlığının altında katlı durur — kullanmayacaksan hiç açma. Her kartın köşesinde
+**kart ister / kart istemez** etiketi yazar.
 Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya, depoya gitmez.
 Ücretsiz denemek için model satırına `google/gemma-4-31b-it:free` gibi `:free` ile biten bir kimlik yaz.
+
+![Ayarlar — üç anahtarsız sandalye](ekranlar/30-ayarlar-sade.jpg)
+
+*Ayarlar böyle açılır: en üstte mod, altında **üç anahtarsız servis** (Pollinations · LLM7.io · OVH),
+sonra ücretsiz anahtarlı servisler; ücretliler **Diğer servisler** başlığının altında kapalı durur.*
 
 **Telefonda:** aynı dosya çalışır; arayüz 360 px'e kadar dikey ekrana uyar.
 
@@ -162,8 +169,15 @@ gibi bir rozet görünür.
 **Günlük istek hakkı.** Alt çubukta `7 / 50` ve `23s 24dk sonra yenilenir` yazar (yeşil: bol, sarı: az,
 kırmızı: bitti). Etikete tıkla → kota kutusu açılır. OpenRouter ücretsiz hak **günde 50**, sıfırlanma
 **03:00**; Groq **1.000/gün**; Gemini modele göre, **10:00**. Sayaç istek harcamaz.
+**Bilinmeyen servislerde saat uydurulmaz:** kota notu "sağlayıcının kendi sıfırlama saatinde" der.
 
-**Kota dolduğunda iş kaybolmaz.** Masa olduğu yerde durur, ekranda yeşil bir düğme belirir:
+**Kota dolduğunda ne olur.** İki durum var:
+
+- **Her sandalye ayrı serviste** (varsayılan kurulum: Pollinations · LLM7 · OVH): yalnız kota dolan
+  sandalye durur, tek satır uyarı yazılır (`Mistral Nemo bugünlük durdu…`). **Masa devam eder** —
+  diğer sandalyeler kendi servislerinde konuşur.
+- **Aynı anahtarı paylaşan sandalyeler** (tek Google/OpenRouter anahtarı gibi): hepsi aynı havuzdan yer,
+  bu yüzden masa olduğu yerde durur ve ekranda yeşil bir düğme belirir:
 **▶ Kaldığı yerden devam · 3 konuşmacı**. Hak yenilenince ona bas; **yalnız kalan** sandalyeler çalışır,
 baştan üretmez. Siteyi kapatsan da durum hatırlanır. Özet düğmesi kota 0 iken hiç istek atmaz, masadaki
 cümlelerden **yerel özet** çıkarır (kartın başlığı: "Yerel özet · model çağrılmadı").
@@ -282,8 +296,9 @@ ettikçe sohbetin hafızası açık kalır. İki seçenek var:
 | **Pollinations · anahtarsız** | Hiçbir şey — kayıt ve anahtar yok | İlk deneme, tek soru-cevap, ücretsiz kullanım |
 | **Kendi bağlantım** | Ayarlar → Bağlantı'da bir sağlayıcı + anahtar | Zaten anahtarın varsa, sınır istemiyorsan |
 
-**Anahtarsız seçeneğin tek sınırı:** aynı internet bağlantısından **45 saniyede 1 yanıt**. Hızlı yazarsan
-uygulama bekler ve “45 saniyede 1 yanıt · 12 sn bekleyip tekrar deniyorum…” der — boş hata ekranı görmezsin.
+**Anahtarsız seçeneğin sınırı:** Pollinations yayınlanmış bir kota vermiyor; yoğunlukta isteği bekletiyor
+(ölçümümde cevap 5–8 saniyede geldi). Sunucu 402 dönerse uygulama kaç saniye bekleneceğini söyleyip bir kez
+kendisi tekrar dener — boş hata ekranı görmezsin.
 Sunucu “en iyi çaba” ile çalışır; ara ara yavaşlayabilir. Modelin **iç konuşması (reasoning)** ekrana basılmaz,
 yalnız cevabı görürsün. Sohbetin bir yere kaydedilmez; anahtar kullanılmadığı için kaybedilecek bir şey de yok.
 
@@ -432,7 +447,7 @@ menüden yedek al: yedek dosyası bilgisayarına iner, oradan da sana ait.
 
 | Belirti | Ne yapmalı |
 |---|---|
-| "Günlük ücretsiz istek hakkı doldu" | Masa durur, iş silinmez. Hak yenilenince **▶ Kaldığı yerden devam**'a bas; ya da Ayarlar → **Mod: Demo** ile devam et |
+| "… bugünlük durdu (günlük kota doldu)" | **Yalnız o sandalye** durur; diğer sandalyeler kendi servislerinde konuşmaya devam eder. Aynı anahtarı paylaşan sandalyeler varsa masa **▶ Kaldığı yerden devam** ile bekler |
 | `401 invalid api key` | Anahtar yanlış: Ayarlar'da yeniden yapıştır, **⇅ Bağlantıyı test et** |
 | `404 model bulunamadı` | Model kimliği yanlış: satırdaki kimliği düzelt (her serviste farklıdır) |
 | `403 Key limit exceeded` | Anahtarın **harcama limiti** sıfır: `openrouter.ai/settings/keys` → Limit'i artır |
@@ -472,9 +487,9 @@ menüden yedek al: yedek dosyası bilgisayarına iner, oradan da sana ait.
 |---|---|
 | ![Görsel kutusu](ekranlar/21-gorsel-kutusu.jpg) | ![Bağlantı](ekranlar/8-baglanti.jpg) |
 
-| Ana ekranda 3 adım | Sandalye başına bağlantı |
+| Ücretli servisler ayrı katmanda | Sandalye başına bağlantı |
 |---|---|
-| ![3 adım](ekranlar/25-uc-adim.jpg) | ![Sandalye bağlantısı](ekranlar/9-sandalye-baglanti.jpg) |
+| ![Diğer servisler](ekranlar/25-diger-servisler.jpg) | ![Sandalye bağlantısı](ekranlar/9-sandalye-baglanti.jpg) |
 
 *DivanAI · tek dosya · dışa bağımlılık yok.*
 
