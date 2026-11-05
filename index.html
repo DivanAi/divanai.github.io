@@ -58,14 +58,15 @@
 <meta property="og:locale" content="tr_TR"/>
 <meta property="og:title" content="DivanAI — yapay zekâlar aynı masada"/>
 <meta property="og:description" content="Bir konu yaz; 3–5 yapay zekâ aynı masada tartışsın, başkan özetlesin. Tek dosya, anahtarsız demo, Apache 2.0. Konuşma bitince özet çıkar; kota dolsa da iş kaybolmaz."/>
-<meta property="og:image" content="https://divanai.github.io/ekranlar/2-konsey-konusma.jpg"/>
-<meta property="og:image:width" content="1600"/>
-<meta property="og:image:height" content="1067"/>
-<meta property="og:image:alt" content="DivanAI ana ekranı: yapay zekâlar aynı masada tartışıyor"/>
+<meta property="og:image" content="https://divanai.github.io/ekranlar/davet-onizleme.jpg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:type" content="image/jpeg"/>
+<meta property="og:image:alt" content="DivanAI — dört yapay zekâ, tek masa: davet afişi"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="DivanAI — yapay zekâlar aynı masada"/>
 <meta name="twitter:description" content="Bir konu yaz; 3–5 yapay zekâ aynı masada tartışsın, başkan özetlesin. Tek dosya, anahtarsız demo, Apache 2.0. Konuşma bitince özet çıkar; kota dolsa da iş kaybolmaz."/>
-<meta name="twitter:image" content="https://divanai.github.io/ekranlar/2-konsey-konusma.jpg"/>
+<meta name="twitter:image" content="https://divanai.github.io/ekranlar/davet-onizleme.jpg"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='12' ry='6' fill='none' stroke='%23333a4a'/%3E%3Ccircle cx='16' cy='8' r='3.4' fill='%2334d399'/%3E%3Ccircle cx='5' cy='19' r='2.4' fill='%235ea8ff'/%3E%3Ccircle cx='27' cy='19' r='2.4' fill='%23f3a944'/%3E%3Ccircle cx='16' cy='26' r='2.4' fill='%23b18cff'/%3E%3C/svg%3E"/>
 <style>/* ============================================================
    DivanAI — yapay zekâlar aynı masada
@@ -637,6 +638,60 @@ input.fieldErr, select.fieldErr{border-color:rgba(255,90,90,.65)!important;box-s
 .hint .keystate b{color:var(--muted);font-weight:600}
 .hint kbd{font-family:inherit;font-size:10px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 5px;color:var(--muted);background:rgba(255,255,255,.04)}
 
+
+/* ---------------- ekli dosyalar (ataç · tepsi · mesaj kartları) ---------------- */
+.attachBtn{
+  flex:0 0 auto;width:34px;height:34px;margin:3px 0 3px -4px;border-radius:11px;
+  border:1px solid transparent;background:transparent;color:var(--dim);cursor:pointer;
+  display:grid;place-items:center;transition:.15s;
+}
+.attachBtn:hover{color:var(--text);background:rgba(255,255,255,.07);border-color:var(--line)}
+.attachBtn:active{transform:translateY(1px)}
+.composer.ekVar{border-color:rgba(245,199,106,.32)}
+.attachTray{display:flex;flex-wrap:wrap;gap:8px;padding:0 2px 8px}
+.ekChip{
+  display:inline-flex;align-items:center;gap:7px;max-width:100%;
+  padding:5px 6px 5px 6px;border-radius:12px;border:1px solid var(--line2);
+  background:rgba(255,255,255,.05);font-size:12px;color:var(--muted);
+}
+.ekChip img{width:26px;height:26px;border-radius:7px;object-fit:cover;display:block}
+.ekChip .ekIco{font-style:normal;font-size:15px;line-height:1;padding:0 2px}
+.ekChip b{font-weight:600;color:var(--text);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ekChip .ekMeta{font-style:normal;color:var(--dim);font-size:11px;white-space:nowrap}
+.ekSil{
+  border:0;background:rgba(255,255,255,.07);color:var(--muted);cursor:pointer;
+  width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:10px;line-height:1;
+}
+.ekSil:hover{background:rgba(255,90,90,.22);color:#ffb4b4}
+
+.mfiles{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 9px}
+.mfiles:last-child{margin-bottom:0}
+.mfile{
+  border:1px solid var(--line2);border-radius:12px;background:rgba(255,255,255,.045);
+  padding:0;overflow:hidden;max-width:100%;
+}
+.mfile>summary{
+  display:flex;align-items:center;gap:9px;padding:7px 10px;cursor:pointer;list-style:none;
+  font-size:12.5px;color:var(--muted);
+}
+.mfile>summary::-webkit-details-marker{display:none}
+.mfile>summary b{display:block;font-weight:600;color:var(--text);font-size:12.5px;
+  max-width:min(46vw,300px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mfile>summary i{font-style:normal;display:block;color:var(--dim);font-size:11px}
+.mfile>summary em{margin-left:auto;font-style:normal;font-size:11px;color:var(--acc);opacity:.85;white-space:nowrap}
+.mfile>summary img{width:34px;height:34px;border-radius:8px;object-fit:cover;display:block}
+.mfile .ftext{
+  margin:0;padding:9px 11px;border-top:1px solid var(--line);max-height:240px;overflow:auto;
+  font-size:11.5px;line-height:1.55;color:var(--muted);white-space:pre-wrap;word-break:break-word;
+  background:rgba(0,0,0,.22);
+}
+.mfile img.buyuk{display:block;max-width:100%;max-height:420px;margin:0;object-fit:contain;background:#000}
+@media (max-width:560px){
+  .mfile>summary b{max-width:56vw}
+  .ekChip b{max-width:150px}
+  .ekChip .ekMeta{display:none}
+}
+
 /* ---------------- Drawer (settings) ---------------- */
 .overlay{position:fixed;inset:0;background:rgba(3,4,7,.6);backdrop-filter:blur(3px);z-index:40;animation:fade .2s both}
 .drawer{
@@ -680,7 +735,7 @@ input.fieldErr, select.fieldErr{border-color:rgba(255,90,90,.65)!important;box-s
 }
 .modeBtn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:14px;
   background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--muted);
-  font:inherit;text-align:left;cursor:pointer;transition:.16s;flex:1 1 210px;min-width:0}
+  font:inherit;text-align:left;cursor:pointer;transition:.16s;flex:1 1 calc(33.333% - 8px);min-width:0}
 .modeBtn:hover{border-color:var(--line2);background:rgba(255,255,255,.055);color:var(--text)}
 .modeBtn .mIco{display:inline-flex;flex:0 0 auto;color:var(--dim);transition:.16s}
 .modeBtn .mTxt{display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -1140,6 +1195,12 @@ select optgroup{background:#151a24;color:#9aa2b5}
           </span>
           <span class="mTxt"><b>Konsey</b><i id="modeKonseySub">4 ayrı model · başkan özetler</i></span>
         </button>
+        <button type="button" class="modeBtn" id="modePanel" data-table="panel" role="tab" aria-selected="false">
+          <span class="mIco" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.4" width="18" height="15.2" rx="2.4"/><path d="M9 4.4v15.2M15 4.4v15.2"/></svg>
+          </span>
+          <span class="mTxt"><b>Panel</b><i>herkes kendi görüşü · kıyaslama sende</i></span>
+        </button>
         <button type="button" class="modeBtn" id="modeAyna" data-table="ayna" role="tab" aria-selected="false">
           <span class="mIco" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.4h11M11.4 4.8 15 8.4l-3.6 3.6"/><path d="M20 15.6H9M12.6 12l-3.6 3.6 3.6 3.6"/></svg>
@@ -1156,7 +1217,7 @@ select optgroup{background:#151a24;color:#9aa2b5}
           <span class="mIco" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-8.5-8.5"/><path d="M12 8.2v7.6M8.6 12h6.8"/></svg>
           </span>
-          <span class="mTxt"><b>TekeTek</b><i>tek yapay zekâ · anahtarsız da çalışır</i></span>
+          <span class="mTxt"><b>TekeTek</b><i>tek yapay zekâ · doğrudan cevap</i></span>
         </button>
         <label class="modeModel" id="modeTekWrap" hidden>
           <span>Konuşacağın yapay zekâ</span>
@@ -1182,7 +1243,7 @@ select optgroup{background:#151a24;color:#9aa2b5}
             <li><b>Buraya yapıştır</b> — Ayarlar → Mod: Canlı → OpenRouter → Anahtar.</li>
           </ol>
           <div class="kcRow">
-            <button type="button" class="btn sm" id="keyCardTek">TekeTek ile başla — anahtar gerekmez</button>
+            <button type="button" class="btn sm" id="keyCardTek">Anahtarsız dene: TekeTek (yavaş)</button>
             <a class="btn sm" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Anahtar sayfasını aç</a>
             <button type="button" class="btn sm" id="keyCardOpen">Ayarları aç</button>
           </div>
@@ -1269,8 +1330,14 @@ select optgroup{background:#151a24;color:#9aa2b5}
         </span>
         <button type="button" class="btn ghost sm" id="copyBtn" hidden>Kopyala</button>
       </div>
-      <div class="composer">
-        <textarea id="input" rows="1" placeholder="Masaya bir konu at… (örn: Bu yazılım fikrimi 3 ayda çıkarabilir miyim?)" aria-label="Konu veya mesaj"></textarea>
+      <div class="attachTray" id="attachTray" hidden></div>
+      <div class="composer" id="composer">
+        <button type="button" class="attachBtn" id="attachBtn" aria-label="Dosya ekle" title="Dosya ekle · görsel, PDF, Word, Excel, metin (Ctrl+V ile de yapıştırabilirsin)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.4 11.1 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.1-9.1a3.7 3.7 0 0 1 5.2 5.2l-9.1 9.1a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>
+        </button>
+        <input type="file" id="attachInput" multiple hidden
+               accept="image/*,.pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.json,.html,.xml,.yml,.yaml,.js,.ts,.py,.java,.c,.h,.cpp,.cs,.go,.rs,.php,.rb,.swift,.kt,.sql,.sh,.css,.scss,.jsx,.tsx,.vue">
+        <textarea id="input" rows="1" placeholder="Masaya bir konu at… (dosya da ekleyebilirsin)" aria-label="Konu veya mesaj"></textarea>
         <button class="send" id="sendBtn" title="Gönder (Enter)" aria-label="Gönder">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
         </button>
@@ -1355,7 +1422,6 @@ select optgroup{background:#151a24;color:#9aa2b5}
     'ile başlayan uzun satır.': 'the long line starting with it.',
     'Buraya yapıştır': 'Paste it here',
     'Ayarlar → Mod: Canlı → OpenRouter → Anahtar.': 'Settings → Mode: Live → OpenRouter → Key.',
-    'TekeTek ile başla — anahtar gerekmez': 'Start with OneOnOne — no key needed',
     'Anahtar sayfasını aç': 'Open the key page',
     'Ayarları aç': 'Open settings',
     'Fikir üret': 'Generate ideas',
@@ -1530,6 +1596,9 @@ select optgroup{background:#151a24;color:#9aa2b5}
     "geniş": "wide",
     "dikey": "vertical",
     "sinema": "cinema",
+    "tek yapay zekâ · doğrudan cevap": "one AI · direct answer",
+    "Anahtarsız dene: TekeTek (yavaş)": "Try it without a key: OneOnOne (slow)",
+    "Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek var: gpt-oss 20B — ama IP başına 45 saniyede bir yanıt verir; düzgün denemek için ücretsiz bir anahtar daha iyi sonuç verir.": "No table, no seats, no debate: a single AI answers what you write. Pick the model from the list above. If you have no key there is a keyless option — gpt-oss 20B — but it allows one answer per 45 seconds per IP; for a proper test a free key works better.",
     "Pollinations · anahtarsız · gpt-oss": "Pollinations · keyless · gpt-oss",
     "Pollinations · anahtarsız": "Pollinations · keyless",
     "Kendi bağlantım (anahtar gerekir) · OpenRouter": "My own connection (key required) · OpenRouter",
@@ -1805,11 +1874,9 @@ select optgroup{background:#151a24;color:#9aa2b5}
     "Model (Ayna seçiliyken geçerli)": "Model (used when Mirror is selected)",
     "API anahtarlarını da dosyaya ekle": "Include the API keys in the file too",
     "aynı model · 2 tur + hakem kararı": "same model · 2 rounds + verdict",
-    "Üç masa türü: Konsey, Ayna, Ajanlar": "Three table types: Council, Mirror, Agents",
     "Sıkıştırmada son kaç mesaj tam kalsın": "How many recent messages stay full when compressing",
     "Herkesin uyacağı görev (serbest metin)": "Task everyone must follow (free text)",
     "Masa hafızası — en az token (önerilen)": "Table memory — fewest tokens (recommended)",
-    "tek yapay zekâ · anahtarsız da çalışır": "one AI · works without a key",
     "Gündem adı (masanın başlığında görünür)": "Agenda name (shown in the table heading)",
     "Sıkıştırılmış — eski mesajlar tek satır": "Compressed — old messages in one line",
     "Doyunca dur ve özeti kendiliğinden çıkar": "Stop when saturated and summarize automatically",
@@ -1878,7 +1945,6 @@ select optgroup{background:#151a24;color:#9aa2b5}
     "Yedeğe girenler: bağlantı türü, model kimlikleri, roller, üslup, gündem, tur tavanı, görsel ayarları. Konuşma geçmişi girmez (onu menüdeki .md ile ayrıca indirirsin). Yüklerken eksik alan varsa varsayılanla tamamlanır — yedek eski sürümden kalsa da çalışır.": "What goes into the backup: connection type, model ids, roles, tone, agenda, round cap, image settings. Conversation history is not included (download it separately as .md from the menu). Missing fields are filled with defaults on load — a backup from an older version still works.",
     "Bir sağlayıcı 429 / kredi bitti hatası verirse bu süre boyunca hiç denenmez — her turda aynı duvara çarpmak yerine bekler. Dinlenen sandalye masada saat rozetiyle (ör. 16:25) görünür — üzerine gelince sebebi yazar; alttaki Dinlenmeyi bitir düğmesi beklemeden açar.": "If a provider returns 429 / out of credits it is not tried at all for this period — instead of hitting the same wall every round, the table waits. The resting seat shows a clock badge (e.g. 16:25); hover to see why, and the End cooldown button below reopens it immediately.",
     "Varsayılan üslup net: her konuşmacı Sonuç / Artı / Eksi / İlk adım iskeletiyle konuşur, dolgu cümle (“bence”, “harika”, “sonuç olarak”) yazmaz. Sayı veriyorsa kaynağını yazar; kaynak yoksa (kaynak yok) der. “Sohbet” üslubuna Ayarlar → Konuşma üslubu’ndan geçebilirsin.": "The default tone is crisp: every speaker uses the Result / Pros / Cons / First step skeleton and writes no filler (“I think”, “great”, “in conclusion”). If they give a number they cite the source; if there is none they say “(no source)”. You can switch to the “Chat” tone in Settings → Conversation tone.",
-    "Masa türünü ana ekrandan seçersin: Konsey (ayrı modeller), Ayna (aynı model iki sandalyede), Ajanlar (her sandalyeye ayrı görev) ya da TekeTek (tek yapay zekâ, anahtarsız da çalışır). Burada yalnız Ayna’nın modelini belirlersin; Ajanlar’ın görevleri ana ekrandaki panelde yazılır.": "You pick the table type on the main screen: Council (separate models), Mirror (same model in two seats), Agents (a task per seat) or OneOnOne (a single AI, works without a key). Here you only choose Mirror’s model; agent tasks are written in the panel on the main screen.",
     "Üç kural: ① Kısa — konuşma başına en fazla ~90 kelime, süsleme ve giriş cümlesi yok. ② Objektif — övgü ve duygusal dil yok, gerekçesiz iddia yok, uydurma veri yok. ③ Tekrar yok — daha önce söylenen bir nokta yeniden yazılmaz; eklenecek yeni bir şey yoksa model bunu açıkça söyler.": "Three rules: ① Short — at most ~90 words per turn, no decoration or intro lines. ② Objective — no praise or emotional language, no unsupported claims, no invented data. ③ No repetition — a point already made is not rewritten; if there is nothing new the model says so plainly.",
     "Uygulama sınırsız ve kilitsiz; sınır yalnızca model tarafında. OpenRouter’da sonu :free ile biten modellerde dakikada 20 / günde 50 istek var — bir tur 4 istek harcadığı için bu günde ~12 tur demek. Hesabına 10 $ kredi yüklersen ücretsiz model sınırı günde 1.000’e çıkar; ucuz ücretli modellerde ise günlük istek sınırı yoktur.": "The app itself is unlimited and unlocked; the limits sit on the model side. On OpenRouter, models ending in :free allow 20 requests per minute / 50 per day — a round costs 4 requests, so that is about 12 rounds a day. Adding $10 of credit raises the free-model limit to 1,000 a day; cheap paid models have no daily request limit.",
     "Ayarlar → İnternetten bilgi açıksa OpenRouter’ın web araması devreye girer ve cevaplar [1] [2] gibi kaynak gösterir. Dikkat: bu özellik kredi harcar — ücretsiz modelde bile istek başına yaklaşık 0,7–1,5 sent. Varsayılan olarak kapalıdır. Yalnızca OpenRouter bağlantısında çalışır; model aramayı desteklemiyorsa masa bunu söyler ve web’siz devam eder.": "With Settings → Web search on, OpenRouter’s web search kicks in and answers cite sources as [1] [2]. Careful: this costs credits — about 0.7–1.5 cents per request even on a free model. It is off by default and works only on an OpenRouter connection; if the model does not support search, the table says so and continues without the web.",
@@ -2041,7 +2107,6 @@ select optgroup{background:#151a24;color:#9aa2b5}
     "alt satır · sohbet hafızası bu sekmede açık kalır": "new line · chat memory stays on in this tab",
     "Ajanlar modu: her sandalyeye görev yaz, projeyi gönder. İstek sayısı üstte görünür.": "Agents mode: give each seat a task and send the project. The request count shows at the top.",
     "Ayna modu: aynı model iki sandalyede (savunan + itiraz eden). Konuyu yaz.": "Mirror mode: the same model in two seats (defender + objector). Write the topic.",
-    "TekeTek: yazdığını gpt-oss 20B cevaplar — anahtar gerekmez. Kurulum yok.": "OneOnOne: gpt-oss 20B answers what you write — no key needed. No setup.",
   });
 
 
@@ -2068,6 +2133,18 @@ select optgroup{background:#151a24;color:#9aa2b5}
   function T2(tr, en) { return isEn() ? en : tr; }
 
   Object.assign(EN, {
+    "herkes kendi görüşü · kıyaslama sende": "each gives their own view · you compare",
+    "Masaya bir konu at… (dosya da ekleyebilirsin)": "Throw a topic on the table… (you can attach a file)",
+    "Dosya ekle": "Attach file",
+    "Dosya ekle · görsel, PDF, Word, Excel, metin (Ctrl+V ile de yapıştırabilirsin)": "Attach a file · image, PDF, Word, Excel, text (or paste with Ctrl+V)",
+    "Konu veya mesaj": "Topic or message",
+    "Kaldır": "Remove",
+    "metni gör": "show text",
+    "Dört masa türü: Konsey, Panel, Ayna, Ajanlar": "Four table types: Council, Panel, Mirror, Agents",
+    "Ana ekranın en üstündeki düğmeler masa türünü seçer (beşincisi TekeTek: tek yapay zekâ). Konuşma sırasında da üstte durur, istediğin an geçebilirsin (konuşma temizlenir, önce sorar).": "The buttons at the very top pick the table type (the fifth is OneOnOne: a single AI). They stay at the top while the conversation runs, so you can switch at any time (the conversation is cleared, after a confirmation).",
+    "Masa türünü üstteki Konsey / Ayna / Ajanlar / TekeTek düğmelerinden seçersin; konuşma sırasında da değiştirebilirsin (masa temizlenir, önce onay ister).": "You choose the table type with the Council / Panel / Mirror / Agents / OneOnOne buttons at the top; you can switch mid-conversation too (the table is cleared, with a confirmation first).",
+    "Dosya ekle: yazı alanının solundaki ataç düğmesiyle görsel, PDF, Word, Excel, PowerPoint ya da metin dosyası ekleyebilirsin (panodan Ctrl+V ile yapıştırmak da olur). Dosya her modda o soruyla birlikte sandalyelere gider; modeller belgeyi okur, görseli görür. Görsel okuyamayan bir bağlantı seçtiysen (anahtarsız seçenek gibi) uygulama bunu söyler ve belgedeki yazıyla devam eder.": "Attach a file: use the paperclip left of the text box to add an image, PDF, Word, Excel, PowerPoint or text file (you can also paste from the clipboard with Ctrl+V). In every mode the file goes to the seats with that question; the models read the document and see the image. If the connection you picked cannot read images (the keyless option, for example) the app says so and continues with the text in the document.",
+    "Panel — sandalyeler aynı anda cevap verir ve birbirini görmez; başkan, özet ve hakem yoktur. Dört görüş alt alta yazılır, kıyaslamayı sen yaparsın. Tarafsız karşılaştırma istediğinde bunu seç.": "Panel — the seats answer at the same time and do not see each other; no chair, no summary, no judge. The four views are written one under the other and the comparison is yours. Pick this when you want a neutral side-by-side.",
     "🖼 Görsel üret": "🖼 Generate image",
     "Bu cevaptan görsel üret": "Generate an image from this answer",
     "Görsel üretilemedi": "Could not generate the image",
@@ -2543,7 +2620,7 @@ function mergeSettings(stored) {
   if (!PROVIDERS[s.duel.pid]) s.duel.pid = 'grok';
   if (typeof s.duel.on !== 'boolean') s.duel.on = false;
   // masa türü: eski kayıtlarda duel.on varsa ondan türet
-  if (!['konsey', 'ayna', 'ajan', 'tek'].includes(s.table)) s.table = s.duel.on ? 'ayna' : 'konsey';
+  if (!['konsey', 'ayna', 'ajan', 'tek', 'panel'].includes(s.table)) s.table = s.duel.on ? 'ayna' : 'konsey';
   s.duel.on = s.table === 'ayna';   // iki alan tek gerçeğe bağlı
   /* v3 · kullanıcı geri bildirimi: "Sonuç / Artı / Eksi / İlk adım" iskeleti robotik
      bulundu; masa artık normal sohbet gibi konuşur. Eski kayıttaki 'net' bir kez
@@ -2625,12 +2702,14 @@ const DUEL_SIDES = {
   }
 };
 const duelOn = () => state.settings.table === 'ayna' || !!(state.settings.duel && state.settings.duel.on);
-const setTable = (t) => { state.settings.table = ['ayna', 'ajan', 'tek'].includes(t) ? t : 'konsey'; state.settings.duel.on = state.settings.table === 'ayna'; return state.settings.table; };
+const setTable = (t) => { state.settings.table = ['ayna', 'ajan', 'tek', 'panel'].includes(t) ? t : 'konsey'; state.settings.duel.on = state.settings.table === 'ayna'; return state.settings.table; };
+/* Panel: her sandalye kendi görüşünü bağımsız yazar, kıyaslamayı kullanıcı yapar */
+const panelOn = () => state.settings.table === 'panel';
 const tekOn = () => state.settings.table === 'tek';
 /* masa türünü tek yerden oku (eski duel.on alanıyla uyumlu) */
 function tableNow() {
   const t = state.settings.table;
-  if (t === 'ajan' || t === 'tek') return t;
+  if (t === 'ajan' || t === 'tek' || t === 'panel') return t;
   return duelOn() ? 'ayna' : 'konsey';
 }
 
@@ -2948,6 +3027,56 @@ function memoryDigest(msgs) {
   return text;
 }
 
+/* ---------------- ekli dosyalar (görsel / belge) ----------------
+   Belgeler metne çevrilip soruyla birlikte gider; görseller yalnız EN SON
+   görselli mesajda modele taşınır (her turda aynı görseli göndermek pahalı). */
+/* Görsel okuyamayan bağlantılar: anahtarsız Pollinations (gpt-oss 20B) görsel
+   girdisinde 400 döndürüyor (ölçüldü). Bilinmeyen bağlantılarda bir kez denenir,
+   "görsel desteklenmiyor" hatası alınırsa o bağlantı için görsel bir daha gönderilmez. */
+const GORSEL_YOK = Object.create(null);   // sağlayıcı/bağlantı anahtarı → true
+function gorselAnahtari(pid) {
+  const kind = seatKindOf(pid);
+  return (state.settings.seatSrc || {})[pid] === 'pollinations' ? 'pollinations' : kind;
+}
+function gorselDesteklenir(pid) {
+  const k = gorselAnahtari(pid);
+  if (k === 'pollinations') return false;       // ölçüldü: görsel girdisi yok
+  return !GORSEL_YOK[k];
+}
+function icerikteGorselVar(messages) {
+  return (messages || []).some(m => Array.isArray(m.content) && m.content.some(x => x && x.type === 'image_url'));
+}
+function gorselleriCikar(messages) {
+  return (messages || []).map(m => {
+    if (!Array.isArray(m.content)) return m;
+    const metin = m.content.filter(x => x && x.type === 'text').map(x => x.text).join('\n');
+    return { ...m, content: metin + '\n\n[Not: kullanıcı görsel ekledi ama bu bağlantı görsel okuyamıyor. Görseli görmediğini kullanıcıya tek cümleyle söyle.]' };
+  });
+}
+
+/* Görseller her turda yeniden gönderilirse token iki katına çıkar. Bu yüzden
+   görsel yalnız geldiği mesajda ve ONDAN SONRAKİ mesajda modele taşınır;
+   daha eskiler metinde "[önceki mesajda görsel vardı]" notuyla anılır. */
+function gorselGonderilsinMi(mesajId) {
+  const kullanicilar = state.transcript.filter(m => m.kind === 'msg' && m.personaId === 'user');
+  for (let i = kullanicilar.length - 1, sayac = 0; i >= 0 && sayac < 2; i--, sayac++) {
+    if (kullanicilar[i].id === mesajId) return true;
+  }
+  return false;
+}
+function kullaniciIcerigi(m, opts = {}) {
+  const dosyalar = m.files || [];
+  let metin = '[Masaya yazıldı — kullanıcı]:\n' + (m.plain || m.text || (dosyalar.length ? 'Ekli dosyayı incele.' : ''));
+  if (dosyalar.length) {
+    const belge = (typeof dosyaMetni === 'function') ? dosyaMetni(dosyalar) : '';
+    if (belge) metin += '\n\n[Ekli belgeler]\n' + belge;
+    metin += '\n\n[Ekler: ' + dosyalar.map(f => f.name + (f.kind === 'image' ? ' · görsel' : '')).join(' · ') + ']';
+  }
+  const gorseller = (opts.gorsel && typeof dosyaGorselleri === 'function') ? dosyaGorselleri(dosyalar) : [];
+  if (!gorseller.length) return metin;
+  return [{ type: 'text', text: metin }, ...gorseller];
+}
+
 function buildHistory(pid, skipId) {
   const out = [];
   const mode = state.settings.context || 'memory';
@@ -2960,7 +3089,15 @@ function buildHistory(pid, skipId) {
   const firstUser = live.find(m => m.personaId === 'user') || null;
   if (mem) {
     /* 1) konu: kullanıcının ilk sorusu her zaman birebir gider */
-    if (firstUser) out.push({ role: 'user', content: '[Kullanıcının masaya yazdığı asıl soru]:\n' + (firstUser.plain || firstUser.text) });
+    if (firstUser) {
+      const ilkEk = (firstUser.files || []).length
+        ? '\n\n[Ekli dosyalar]\n' + ((typeof dosyaMetni === 'function') ? dosyaMetni(firstUser.files) : '')
+        : '';
+      const ilkGorsel = (gorselGonderilsinMi(firstUser.id) && gorselDesteklenir(pid) && typeof dosyaGorselleri === 'function')
+        ? dosyaGorselleri(firstUser.files || []) : [];
+      const ilkMetin = '[Kullanıcının masaya yazdığı asıl soru]:\n' + (firstUser.plain || firstUser.text) + ilkEk;
+      out.push({ role: 'user', content: ilkGorsel.length ? [{ type: 'text', text: ilkMetin }, ...ilkGorsel] : ilkMetin });
+    }
     /* 2) hafıza notu: ilk soru ile son mesajlar arasındaki her şey tek blokta */
     const older = live.filter(m => m !== firstUser).slice(0, Math.max(0, keepFrom - (firstUser ? 1 : 0)));
     const memText = older.length ? memoryDigest(older) : '';
@@ -2977,7 +3114,10 @@ function buildHistory(pid, skipId) {
     const bodyTxt = old ? (digestLine(m.text) || m.plain || '') : m.plain;
     if (m.kind === 'msg') {
       if (!m.text || !String(m.text).trim()) continue;
-      if (m.personaId === 'user') out.push({ role: 'user', content: '[Masaya yazıldı — kullanıcı]:\n' + bodyTxt });
+      if (m.personaId === 'user') {
+        if (m.files && m.files.length) out.push({ role: 'user', content: kullaniciIcerigi(m, { gorsel: gorselGonderilsinMi(m.id) && gorselDesteklenir(pid) }) });
+        else out.push({ role: 'user', content: '[Masaya yazıldı — kullanıcı]:\n' + bodyTxt });
+      }
       else if (m.personaId === 'system') out.push({ role: 'user', content: '[Masa başkanı, önceki oturumu özetledi]:\n' + bodyTxt });
       else if (pid && m.personaId === pid) {
         out.push({ role: 'assistant', content: (old ? '(özet) ' : '') + bodyTxt });
@@ -3562,7 +3702,8 @@ function mergeRoles(messages) {
     const last = out[out.length - 1];
     // sıra talimatı ayrı kalsın: geçmişle birleşirse model "kim konuşuyor" karıştırıyor
     const isDirective = /^(Şimdi sıra sende|Not: son iki cevabın)/.test(String(m.content || ''));
-    if (last && last.role === m.role && !isDirective) last.content += '\n\n' + m.content;
+    const dizi = Array.isArray(m.content) || (last && Array.isArray(last.content));
+    if (last && last.role === m.role && !isDirective && !dizi) last.content += '\n\n' + m.content;
     else out.push({ role: m.role, content: m.content });
   }
   return out;
@@ -3579,7 +3720,7 @@ async function callChat(cfg, model, system, messages, maxTokens, onDelta, signal
     headers['X-Title'] = 'DivanAI';
   }
   const webModelId = withWeb(model);
-  const body = {
+  let body = {
     model: webModelId, stream: true, max_tokens: maxTokens, temperature: 0.4,
     messages: [{ role: 'system', content: system }, ...mergeRoles(messages)]
   };
@@ -3602,6 +3743,18 @@ async function callChat(cfg, model, system, messages, maxTokens, onDelta, signal
           ? 'Yerel sunucuya ulaşılamadı (' + ep.base + '). Sunucu açık mı? DivanAI’yı file:// yerine python3 server.py → http://localhost:8080 üzerinden aç; tarayıcı yerel ağ izni istiyorsa “İzin ver”.'
           : 'Bağlantı kurulamadı. İnternet, adres ve anahtarı kontrol et. Tarayıcı engelliyorsa OpenRouter/Groq gibi bir geçit kullan.');
     } catch (err) {
+      /* Bağlantı görsel girdisini reddettiyse: görselleri çıkarıp BİR KEZ daha dene.
+         Bu bağlantı için not düşülür; sonraki mesajlarda görsel hiç gönderilmez. */
+      if (icerikteGorselVar(b.messages) && /image|vision|multimodal|does not support|unsupported content|invalid content/i.test(String(err && err.message))) {
+        const k = (/pollinations/i.test(ep.base) ? 'pollinations' : 'compat');
+        GORSEL_YOK[k] = true;
+        addMessage({ kind: 'notice', level: 'warn', text: window.T2(
+          'Bu bağlantı görsel okuyamıyor; görsel olmadan devam edildi. Belgedeki yazı yine gönderildi.',
+          'This connection cannot read images; continuing without them. Any text in the document was still sent.') });
+        if (typeof renderTranscript === 'function') renderTranscript();
+        b = { ...b, messages: gorselleriCikar(b.messages) };
+        return await openAICompatStream(ep.url, headers, b, onDelta, signal, model, 'Bağlantı kurulamadı.');
+      }
       // geçit "reasoning" alanını reddettiyse parametresiz tekrar dene
       if ((b.reasoning || b.reasoning_effort) && /reasoning|invalid|unsupported|400/i.test(String(err && err.message))) {
         const b2 = { ...b }; delete b2.reasoning;
@@ -4025,6 +4178,7 @@ function nextSpeakers(round) {
 }
 
 async function runRound(opts = {}) {
+  if (panelOn() && typeof runPanel === 'function') return runPanel(opts);   // Panel: paralel, kör görüş
   if (state.phase === 'running' || !state.transcript.length) return;
   const token = ++state.runToken;
   const round = opts.round || (state.round + 1);
@@ -5056,9 +5210,10 @@ function downloadTranscript() {
 }
 
 /* ---------------- oturum ---------------- */
-function startSession(topic) {
+function startSession(topic, files) {
   topic = String(topic || '').trim();
-  if (!topic) return;
+  const ekler = Array.isArray(files) ? files : [];
+  if (!topic && !ekler.length) return;
   if (!quotaGuard()) return;
   state.runToken++;
   if (state.abort) { try { state.abort.abort(); } catch (e) {} state.abort = null; }
@@ -5086,7 +5241,7 @@ function startSession(topic) {
   if (duelOn()) state.settings.chair = duelPid();
   state.autoStopped = null; state.webFallback = false;
   state.lastManual = false;
-  addMessage({ kind: 'msg', personaId: 'user', name: window.T2('Sen', 'You'), short: window.T2('SEN', 'YOU'), color: '#f5c76a', roleLabel: window.T2('MASANIN SAHİBİ', 'TABLE OWNER'), text: topic, plain: plainOf(topic) });
+  addMessage({ kind: 'msg', personaId: 'user', name: window.T2('Sen', 'You'), short: window.T2('SEN', 'YOU'), color: '#f5c76a', roleLabel: window.T2('MASANIN SAHİBİ', 'TABLE OWNER'), text: topic, plain: plainOf(topic), files: ekler });
   if ((!state.settings.mode || state.settings.mode === 'demo') && !tekKeyless()) {
     addMessage({ kind: 'notice', level: 'info', text: window.T2('Demo modu: aşağıdaki cevaplar hazır örnek metindir, her konuda aynıdır. Gerçek model cevapları için Ayarlar → Mod: Canlı.', 'Demo mode: the answers below are canned sample text, the same for every topic. For real model answers use Settings → Mode: Live.') });
     const dl = langOf(topic);
@@ -5115,6 +5270,720 @@ function resetSession() {
   renderTranscript();
   renderAll();
   const inp = $('#input'); if (inp) { inp.value = ''; autoGrow(inp); inp.focus(); }
+}
+
+
+/* ==========================================================================
+   DOSYA OKUMA — sohbete eklenen belgeler ve görseller
+   Her şey tarayıcıda, tek dosyada, dış kütüphane olmadan çalışır.
+
+     · görseller  → küçültülüp JPEG'e çevrilir (görsel okuyan modellere gider)
+     · PDF        → metin katmanı çıkarılır (Flate + ToUnicode desteğiyle)
+     · .docx      → word/document.xml
+     · .xlsx      → paylaşılan metinler + sayfa hücreleri
+     · .pptx      → slayt metinleri
+     · .txt/.md/.csv/.json/.html/kod → düz metin
+
+   Not: PDF'te seçilebilir yazı yoksa (taranmış belge) metin çıkmaz; kullanıcıya
+   "sayfayı ekran görüntüsü olarak yükle" denir. OCR yok.
+   ========================================================================== */
+
+const DOSYA_LIMIT = {
+  dosyaBayt: 25 * 1024 * 1024,   // tek dosya 25 MB
+  adet: 6,                       // bir mesajda en çok 6 dosya
+  metin: 24000,                  // tek dosyadan alınacak azami karakter
+  toplamMetin: 40000,            // bir istekte tüm belgelerden azami karakter
+  gorselUzun: 896                // görselin uzun kenarı (px)
+};
+
+const DOSYA_EXT = {
+  png: 'image', jpg: 'image', jpeg: 'image', webp: 'image', gif: 'image', bmp: 'image', avif: 'image',
+  pdf: 'pdf',
+  docx: 'docx', xlsx: 'xlsx', pptx: 'pptx',
+  txt: 'text', md: 'text', markdown: 'text', csv: 'text', tsv: 'text', json: 'text',
+  html: 'html', htm: 'html', xml: 'text', yml: 'text', yaml: 'text',
+  js: 'code', ts: 'code', py: 'code', java: 'code', c: 'code', h: 'code', cpp: 'code',
+  cs: 'code', go: 'code', rs: 'code', php: 'code', rb: 'code', swift: 'code', kt: 'code',
+  sql: 'code', sh: 'code', css: 'code', scss: 'code', jsx: 'code', tsx: 'code', vue: 'code'
+};
+
+function dosyaUzanti(ad) {
+  const m = String(ad || '').toLowerCase().match(/\.([a-z0-9]{1,8})$/);
+  return m ? m[1] : '';
+}
+function dosyaBoyut(b) {
+  const n = Number(b) || 0;
+  if (n < 1024) return n + ' B';
+  if (n < 1024 * 1024) return (n / 1024).toFixed(n < 10240 ? 1 : 0) + ' KB';
+  return (n / 1024 / 1024).toFixed(1) + ' MB';
+}
+function dosyaBaytlari(file) {
+  if (file.arrayBuffer) return file.arrayBuffer().then(b => new Uint8Array(b));
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(new Uint8Array(r.result));
+    r.onerror = () => rej(r.error || new Error('dosya okunamadı'));
+    r.readAsArrayBuffer(file);
+  });
+}
+
+/* ---------------- ikili yardımcılar ---------------- */
+function latin1(u8) {
+  let s = '';
+  const CH = 0x8000;
+  for (let i = 0; i < u8.length; i += CH) s += String.fromCharCode.apply(null, u8.subarray(i, i + CH));
+  return s;
+}
+async function sisme(u8) {           // zlib (FlateDecode) ve ham deflate
+  for (const fmt of ['deflate', 'deflate-raw']) {
+    try {
+      const st = new Blob([u8]).stream().pipeThrough(new DecompressionStream(fmt));
+      return new Uint8Array(await new Response(st).arrayBuffer());
+    } catch (e) { /* sıradaki biçimi dene */ }
+  }
+  return null;
+}
+function ascii85(u8) {               // PDF ASCII85Decode
+  let s = latin1(u8).replace(/\s+/g, '');
+  if (s.startsWith('<~')) s = s.slice(2);
+  const son = s.indexOf('~>');
+  if (son >= 0) s = s.slice(0, son);
+  const out = [];
+  let grup = [];
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (ch === 'z' && !grup.length) { out.push(0, 0, 0, 0); continue; }
+    const kod = ch.charCodeAt(0) - 33;
+    if (kod < 0 || kod > 84) continue;
+    grup.push(kod);
+    if (grup.length === 5) {
+      let n = 0;
+      for (const g of grup) n = n * 85 + g;
+      out.push((n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255);
+      grup = [];
+    }
+  }
+  if (grup.length) {
+    const eksik = 5 - grup.length;
+    for (let i = 0; i < eksik; i++) grup.push(84);
+    let n = 0;
+    for (const g of grup) n = n * 85 + g;
+    const b = [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
+    for (let i = 0; i < 4 - eksik; i++) out.push(b[i]);
+  }
+  return new Uint8Array(out);
+}
+function asciiHex(u8) {
+  let s = latin1(u8).replace(/[^0-9a-fA-F>]/g, '');
+  const son = s.indexOf('>');
+  if (son >= 0) s = s.slice(0, son);
+  if (s.length % 2) s += '0';
+  const out = new Uint8Array(s.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(s.substr(i * 2, 2), 16);
+  return out;
+}
+/* PDF süzgeç zinciri: [ /ASCII85Decode /FlateDecode ] gibi */
+async function pdfSuzgec(dict, u8) {
+  const fm = dict.match(/\/Filter\s*(\[[^\]]*\]|\/[A-Za-z0-9]+)/);
+  if (!fm) return u8;
+  const adlar = (fm[1].match(/\/([A-Za-z0-9]+)/g) || []).map(x => x.slice(1));
+  let veri = u8;
+  for (const ad of adlar) {
+    if (ad === 'FlateDecode' || ad === 'Fl') { const a = await sisme(veri); if (!a) return null; veri = a; }
+    else if (ad === 'ASCII85Decode' || ad === 'A85') veri = ascii85(veri);
+    else if (ad === 'ASCIIHexDecode' || ad === 'AHx') veri = asciiHex(veri);
+    else return null;                       // DCT/JBIG2/CCITT: görüntü verisi, metin değil
+  }
+  return veri;
+}
+
+/* ---------------- ZIP (docx / xlsx / pptx) ---------------- */
+async function zipOku(u8) {
+  const s = latin1(u8);
+  const out = {};                                  // ad → Uint8Array
+  let p = s.length - 22;
+  while (p > 0 && s.charCodeAt(p) !== 0x50) p--;   // EOCD imzası PK\x05\x06
+  if (p <= 0) throw new Error('zip bozuk');
+  const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
+  const kayit = dv.getUint16(p + 10, true);
+  const bas = dv.getUint32(p + 16, true);
+  let q = bas;
+  for (let i = 0; i < kayit && q + 46 <= s.length; i++) {
+    if (dv.getUint32(q, true) !== 0x02014b50) break;
+    const yontem = dv.getUint16(q + 10, true);
+    const sikisik = dv.getUint32(q + 20, true);
+    const adLen = dv.getUint16(q + 28, true);
+    const ekLen = dv.getUint16(q + 30, true);
+    const yorumLen = dv.getUint16(q + 32, true);
+    const yerel = dv.getUint32(q + 42, true);
+    const ad = s.substr(q + 46, adLen);
+    q += 46 + adLen + ekLen + yorumLen;
+    if (/\/$/.test(ad)) continue;
+    const lAdLen = dv.getUint16(yerel + 26, true);
+    const lEkLen = dv.getUint16(yerel + 28, true);
+    const veriBas = yerel + 30 + lAdLen + lEkLen;
+    const ham = u8.subarray(veriBas, veriBas + sikisik);
+    let veri;
+    if (yontem === 0) veri = ham;
+    else {
+      veri = await sisme(ham);
+      if (!veri) continue;
+    }
+    out[ad] = veri;
+  }
+  return out;
+}
+async function zipMetin(zip, ad) {
+  const v = zip[ad];
+  return v ? new TextDecoder('utf-8').decode(v) : '';
+}
+
+/* ---------------- XML → düz metin ---------------- */
+function xmlMetin(xml) {
+  return String(xml || '')
+    .replace(/<\/(w:p|a:p|row|si|c)>/g, '\n')
+    .replace(/<w:br\s*\/?>/g, '\n')
+    .replace(/<w:tab\s*\/?>/g, '\t')
+    .replace(/<\/c>/g, '\t')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+    .replace(/&#(\d+);/g, (m, d) => String.fromCharCode(+d))
+    .replace(/&amp;/g, '&')
+    .replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+async function docxMetin(u8) {
+  const zip = await zipOku(u8);
+  const ana = await zipMetin(zip, 'word/document.xml');
+  let t = xmlMetin(ana);
+  // dipnotlar ve üstbilgi/altbilgi kullanıcı için genelde gürültü: yalnız gövde
+  return { text: t, pages: null };
+}
+async function xlsxMetin(u8) {
+  const zip = await zipOku(u8);
+  const paylasilan = [];
+  const ss = await zipMetin(zip, 'xl/sharedStrings.xml');
+  if (ss) {
+    const re = /<si>([\s\S]*?)<\/si>/g; let m;
+    while ((m = re.exec(ss))) paylasilan.push(xmlMetin(m[1]).replace(/\n/g, ' '));
+  }
+  const adlar = Object.keys(zip).filter(a => /^xl\/worksheets\/sheet\d+\.xml$/.test(a))
+    .sort((a, b) => (parseInt(a.match(/(\d+)/)[1], 10) - parseInt(b.match(/(\d+)/)[1], 10)));
+  const parcalar = [];
+  for (let i = 0; i < adlar.length && i < 12; i++) {
+    const xml = await zipMetin(zip, adlar[i]);
+    const satirlar = [];
+    const reSatir = /<row[^>]*>([\s\S]*?)<\/row>/g; let sr;
+    while ((sr = reSatir.exec(xml))) {
+      const hucreler = [];
+      const reHucre = /<c\b([^>]*)(?:\/>|>([\s\S]*?)<\/c>)/g; let hc;
+      while ((hc = reHucre.exec(sr[1]))) {
+        const ozellik = hc[1] || '';
+        const govde = hc[2] || '';
+        let deger = '';
+        const v = govde.match(/<v>([\s\S]*?)<\/v>/);
+        const t = govde.match(/<t[^>]*>([\s\S]*?)<\/t>/);
+        if (/t="s"/.test(ozellik) && v) deger = paylasilan[Number(v[1])] || '';
+        else if (t) deger = xmlMetin(t[1]);
+        else if (v) deger = v[1];
+        hucreler.push(String(deger).replace(/\t/g, ' '));
+      }
+      const satir = hucreler.join('\t').replace(/\t+$/, '');
+      if (satir.trim()) satirlar.push(satir);
+    }
+    if (satirlar.length) parcalar.push('— Sayfa ' + (i + 1) + ' —\n' + satirlar.join('\n'));
+  }
+  return { text: parcalar.join('\n\n'), pages: adlar.length };
+}
+async function pptxMetin(u8) {
+  const zip = await zipOku(u8);
+  const slaytlar = Object.keys(zip).filter(a => /^ppt\/slides\/slide\d+\.xml$/.test(a))
+    .sort((a, b) => (parseInt(a.match(/(\d+)/)[1], 10) - parseInt(b.match(/(\d+)/)[1], 10)));
+  const parcalar = [];
+  for (let i = 0; i < slaytlar.length; i++) {
+    const t = xmlMetin(await zipMetin(zip, slaytlar[i]));
+    if (t) parcalar.push('— Slayt ' + (i + 1) + ' —\n' + t);
+  }
+  return { text: parcalar.join('\n\n'), pages: slaytlar.length };
+}
+
+/* ---------------- PDF ----------------
+   Kendi içinde küçük bir PDF okuyucu: nesneleri toplar, Flate ile açar,
+   sayfa içeriklerini gezer; yazı tipi eşlemelerini ToUnicode tablolarından
+   çözer (Chrome/Word çıktıları böyle çalışır). */
+const WINANSI = (() => {
+  const t = {};
+  const ozel = { 0x80: '€', 0x82: '‚', 0x83: 'ƒ', 0x84: '„', 0x85: '…', 0x86: '†', 0x87: '‡',
+    0x88: 'ˆ', 0x89: '‰', 0x8A: 'Š', 0x8B: '‹', 0x8C: 'Œ', 0x8E: 'Ž', 0x91: '‘', 0x92: '’',
+    0x93: '“', 0x94: '”', 0x95: '•', 0x96: '–', 0x97: '—', 0x98: '˜', 0x99: '™', 0x9A: 'š',
+    0x9B: '›', 0x9C: 'œ', 0x9E: 'ž', 0x9F: 'Ÿ' };
+  for (let i = 32; i < 256; i++) t[i] = ozel[i] || String.fromCharCode(i);
+  t[9] = '\t'; t[10] = '\n'; t[13] = '\n';
+  return t;
+})();
+
+function cmapCoz(txt) {
+  const m = new Map();
+  const hex = s => parseInt(s, 16);
+  const tek = /beginbfchar([\s\S]*?)endbfchar/g; let b;
+  while ((b = tek.exec(txt))) {
+    const re = /<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]*)>/g; let c;
+    while ((c = re.exec(b[1]))) m.set(hex(c[1]), utf16hex(c[2]));
+  }
+  const aralik = /beginbfrange([\s\S]*?)endbfrange/g;
+  while ((b = aralik.exec(txt))) {
+    const re = /<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*(?:<([0-9a-fA-F]+)>|\[([^\]]*)\])/g; let c;
+    while ((c = re.exec(b[1]))) {
+      const lo = hex(c[1]), hi = Math.min(hex(c[2]), lo + 65535);
+      if (c[3] !== undefined) {
+        const temel = hex(c[3]);
+        for (let k = lo; k <= hi; k++) m.set(k, String.fromCodePoint(temel + (k - lo)));
+      } else if (c[4]) {
+        const dizi = c[4].match(/<([0-9a-fA-F]*)>/g) || [];
+        dizi.forEach((h, k) => { if (lo + k <= hi) m.set(lo + k, utf16hex(h.replace(/[<>]/g, ''))); });
+      }
+    }
+  }
+  return m;
+}
+function utf16hex(h) {
+  let s = '';
+  for (let i = 0; i + 4 <= h.length; i += 4) s += String.fromCharCode(parseInt(h.substr(i, 4), 16));
+  if (!s && h.length) s = String.fromCharCode(parseInt(h, 16));
+  return s;
+}
+
+async function pdfOku(u8) {
+  const s = latin1(u8);
+  const nesneler = new Map();      // num → {dict(string), akış(Uint8Array|null)}
+  const re = /(?:^|[\s>\]])(\d+)\s+(\d+)\s+obj\b/g; let m;
+  const yerler = [];
+  while ((m = re.exec(s))) yerler.push({ num: +m[1], bas: m.index + m[0].length });
+  for (const y of yerler) {
+    const son = s.indexOf('endobj', y.bas);
+    const govde = s.slice(y.bas, son < 0 ? Math.min(s.length, y.bas + 2e6) : son);
+    const sIdx = govde.indexOf('stream');
+    let dict = govde, akis = null;
+    if (sIdx >= 0) {
+      dict = govde.slice(0, sIdx);
+      let bas = y.bas + sIdx + 6;
+      if (s[bas] === '\r') bas++;
+      if (s[bas] === '\n') bas++;
+      let uzunluk = null;
+      const lm = dict.match(/\/Length\s+(\d+)(?!\s+\d+\s+R)/);
+      if (lm) uzunluk = +lm[1];
+      let bitis = uzunluk && uzunluk > 0 ? bas + uzunluk : s.indexOf('endstream', bas);
+      if (bitis < 0) bitis = s.indexOf('endstream', bas);
+      if (bitis < 0) bitis = govde.length;
+      akis = await pdfSuzgec(dict, u8.subarray(bas, bitis));
+    }
+    nesneler.set(y.num, { dict, akis });
+  }
+
+  // nesne akışları (PDF 1.5+): içindeki nesneleri ayrıca aç
+  for (const [, n] of [...nesneler]) {
+    if (!/\/Type\s*\/ObjStm/.test(n.dict) || !n.akis) continue;
+    const metin = latin1(n.akis);
+    const ilk = (n.dict.match(/\/First\s+(\d+)/) || [])[1];
+    const adet = (n.dict.match(/\/N\s+(\d+)/) || [])[1];
+    if (!ilk || !adet) continue;
+    const bas = +ilk;
+    const başlık = metin.slice(0, bas).trim().split(/\s+/).map(Number);
+    for (let i = 0; i < +adet; i++) {
+      const num = başlık[i * 2], ofs = başlık[i * 2 + 1];
+      if (!Number.isFinite(num) || !Number.isFinite(ofs)) continue;
+      if (nesneler.has(num)) continue;
+      const son = i + 1 < +adet ? bas + başlık[(i + 1) * 2 + 1] : metin.length;
+      nesneler.set(num, { dict: metin.slice(bas + ofs, son), akis: null });
+    }
+  }
+
+  const ref = t => { const q = String(t || '').match(/(\d+)\s+\d+\s+R/); return q ? nesneler.get(+q[1]) : null; };
+  const dictIci = (d, anahtar) => {
+    // /Anahtar << ... >> veya /Anahtar N 0 R
+    const i = d.indexOf('/' + anahtar);
+    if (i < 0) return '';
+    const kuyruk = d.slice(i + anahtar.length + 1);
+    const r = kuyruk.match(/^\s*(\d+)\s+\d+\s+R/);
+    if (r) { const o = nesneler.get(+r[1]); return o ? o.dict : ''; }
+    if (kuyruk.trim().startsWith('<<')) {
+      let derinlik = 0, j = kuyruk.indexOf('<<');
+      for (; j < kuyruk.length; j++) {
+        if (kuyruk.startsWith('<<', j)) { derinlik++; j++; }
+        else if (kuyruk.startsWith('>>', j)) { derinlik--; j++; if (!derinlik) return kuyruk.slice(0, j); }
+      }
+    }
+    const dizi = kuyruk.match(/^\s*\[[^\]]*\]/);
+    return dizi ? dizi[0] : '';
+  };
+
+  /* /Anahtar 7 0 R  ya da  /Anahtar [7 0 R 8 0 R]  → nesne numaraları */
+  const refListesi = (d, anahtar) => {
+    const i = d.indexOf('/' + anahtar);
+    if (i < 0) return [];
+    const kuyruk = d.slice(i + anahtar.length + 1);
+    const tek = kuyruk.match(/^\s*(\d+)\s+\d+\s+R/);
+    if (tek) return [+tek[1]];
+    const arr = kuyruk.match(/^\s*\[([^\]]*)\]/);
+    if (arr) return (arr[1].match(/(\d+)\s+\d+\s+R/g) || []).map(x => +(x.match(/\d+/) || [0])[0]);
+    return [];
+  };
+
+  /* yazı tipi çözümleyici: kaynak adı (/F1) → { kod→harf tablosu, genişlikler } */
+  async function fontCozucu(resourcesDict) {
+    const fontlar = {};
+    const fd = dictIci(resourcesDict, 'Font');
+    const reF = /\/([^\s\/<>\[\]]+)\s+(\d+)\s+\d+\s+R/g; let f;
+    while ((f = reF.exec(fd))) {
+      const o = nesneler.get(+f[2]);
+      if (!o) continue;
+      const cmRef = o.dict.match(/\/ToUnicode\s+(\d+)\s+\d+\s+R/);
+      let tablo = null;
+      if (cmRef) {
+        const co = nesneler.get(+cmRef[1]);
+        if (co && co.akis) tablo = cmapCoz(latin1(co.akis));
+      }
+      const cift = /\/Subtype\s*\/Type0/.test(o.dict) || /\/Encoding\s*\/Identity-[HV]/.test(o.dict);
+      // genişlikler (em cinsinden)
+      const gen = new Map();
+      let varsayilan = cift ? 1 : 0.5;
+      const wm = o.dict.match(/\/Widths\s*\[([^\]]*)\]/);
+      if (wm) {
+        const fc = +(o.dict.match(/\/FirstChar\s+(\d+)/) || [0, 0])[1];
+        (wm[1].match(/-?\d+(?:\.\d+)?/g) || []).forEach((n, i) => gen.set(fc + i, Math.abs(+n) / 1000));
+      }
+      const dRef = o.dict.match(/\/DescendantFonts\s*\[\s*(\d+)\s+\d+\s+R/);
+      if (dRef) {
+        const dd = (nesneler.get(+dRef[1]) || {}).dict || '';
+        const dw = dd.match(/\/DW\s+(\d+(?:\.\d+)?)/);
+        if (dw) varsayilan = +dw[1] / 1000;
+        const wa = dd.match(/\/W\s*\[([\s\S]*?)\]\s*[\/>]/);
+        if (wa) {
+          const dizi = [];
+          const reD = /\[([^\]]*)\]|-?\d+(?:\.\d+)?/g; let dm;
+          while ((dm = reD.exec(wa[1]))) {
+            if (dm[1] !== undefined) dizi.push({ tur: 'liste', v: (dm[1].match(/-?\d+(?:\.\d+)?/g) || []).map(Number) });
+            else dizi.push({ tur: 'sayi', v: +dm[0] });
+          }
+          for (let i = 0; i < dizi.length;) {
+            const a = dizi[i];
+            if (a.tur !== 'sayi') { i++; continue; }
+            const b = dizi[i + 1];
+            if (b && b.tur === 'liste') {
+              b.v.forEach((w2, k) => gen.set(a.v + k, Math.abs(w2) / 1000));
+              i += 2;
+            } else if (b && b.tur === 'sayi' && dizi[i + 2] && dizi[i + 2].tur === 'sayi') {
+              const w3 = Math.abs(dizi[i + 2].v) / 1000;
+              for (let c = a.v; c <= Math.min(b.v, a.v + 65535); c++) gen.set(c, w3);
+              i += 3;
+            } else i++;
+          }
+        }
+      }
+      fontlar[f[1]] = { tablo, cift, gen, varsayilan };
+    }
+    return fontlar;
+  }
+
+  /* içerik akışını çöz: harfleri yaz, konum sıçramalarından satır/boşluk çıkar */
+  function icerikCoz(metin, fontlar) {
+    let cikti = '';
+    let satir = '';
+    let font = null, boyut = 12;
+    let sonY = null, sonX = 0;
+    let birikim = 0;                       // son konumdan beri yazılan metnin genişliği (text uzayı)
+    let harfSayisi = 0;
+
+    const yeniSatir = () => { cikti += satir.replace(/[ \t]+$/g, '') + '\n'; satir = ''; };
+    const bosluk = () => { if (satir && !/[ \t]$/.test(satir)) satir += ' '; };
+    const fnt = () => fontlar[font] || { tablo: null, cift: false, gen: new Map(), varsayilan: 0.5 };
+    const genislik = (kod) => {
+      const f2 = fnt();
+      const g = f2.gen.get(kod);
+      return (g === undefined ? f2.varsayilan : g) * boyut;
+    };
+
+    /* bir metin parçasını yaz; yazılan genişliği biriktir */
+    const yaz = ham => {
+      if (!ham) return;
+      const f2 = fnt();
+      if (!f2.tablo) {
+        if (f2.cift) return;                        // çözülemeyen CID yazı tipi: harf uydurma
+        for (let i = 0; i < ham.length; i++) {
+          const k = ham.charCodeAt(i);
+          satir += WINANSI[k] || '';
+          birikim += genislik(k);
+          harfSayisi++;
+        }
+        return;
+      }
+      if (f2.cift) {
+        for (let i = 0; i + 1 < ham.length; i += 2) {
+          const kod = (ham.charCodeAt(i) << 8) | ham.charCodeAt(i + 1);
+          satir += f2.tablo.get(kod) || '';
+          birikim += genislik(kod);
+          harfSayisi++;
+        }
+      } else {
+        for (let i = 0; i < ham.length; i++) {
+          const k = ham.charCodeAt(i);
+          satir += f2.tablo.get(k) || '';
+          birikim += genislik(k);
+          harfSayisi++;
+        }
+      }
+    };
+
+    /* konum sıçraması: satır mı, kelime arası mı? */
+    const konumla = (x, y) => {
+      if (y !== null && sonY !== null && Math.abs(y - sonY) > 0.8) {
+        if (satir.trim()) yeniSatir();
+      } else if (harfSayisi) {
+        const beklenen = sonX + birikim;
+        if (x - beklenen > boyut * 0.13) bosluk();
+      }
+      if (x !== null) sonX = x;
+      if (y !== null) sonY = y;
+      birikim = 0; harfSayisi = 0;
+    };
+
+    const yigin = [];
+    const ekle = d => {
+      const son = yigin[yigin.length - 1];
+      if (son && son.tip === 'arr') son.deger.push(d);
+      else yigin.push(d);
+    };
+    let i = 0;
+    const N = metin.length;
+    while (i < N) {
+      const c = metin[i];
+      if (c === '%') { while (i < N && metin[i] !== '\n') i++; continue; }
+      if (c === '(') {
+        let derinlik = 1, j = i + 1, s2 = '';
+        while (j < N && derinlik > 0) {
+          const ch = metin[j];
+          if (ch === '\\') {
+            const nx = metin[j + 1];
+            const esc = { n: '\n', r: '\r', t: '\t', b: '\b', f: '\f', '(': '(', ')': ')', '\\': '\\' }[nx];
+            if (esc !== undefined) { s2 += esc; j += 2; continue; }
+            if (/[0-7]/.test(nx)) {
+              let oct = '';
+              while (oct.length < 3 && /[0-7]/.test(metin[j + 1])) { oct += metin[j + 1]; j++; }
+              s2 += String.fromCharCode(parseInt(oct, 8)); j++; continue;
+            }
+            j += 1; continue;
+          }
+          if (ch === '(') derinlik++;
+          if (ch === ')') { derinlik--; if (!derinlik) { j++; break; } }
+          s2 += ch; j++;
+        }
+        ekle({ tip: 'str', deger: s2 });
+        i = j; continue;
+      }
+      if (c === '<' && metin[i + 1] === '<') { yigin.push({ tip: 'dic' }); i += 2; continue; }
+      if (c === '>' && metin[i + 1] === '>') { i += 2; continue; }
+      if (c === '<') {
+        let j = metin.indexOf('>', i);
+        if (j < 0) j = N;
+        const h = metin.slice(i + 1, j).replace(/\s+/g, '');
+        let s2 = '';
+        for (let k = 0; k + 1 < h.length; k += 2) s2 += String.fromCharCode(parseInt(h.substr(k, 2), 16));
+        yigin.push({ tip: 'str', deger: s2 });
+        i = j + 1; continue;
+      }
+      if (c === '[') { yigin.push({ tip: 'arr', deger: [] }); i++; continue; }
+      if (c === ']') { i++; continue; }
+      if (c === '/') {
+        let j = i + 1;
+        while (j < N && !/[\s\/\[\]<>()]/.test(metin[j])) j++;
+        ekle({ tip: 'name', deger: metin.slice(i + 1, j) });
+        i = j; continue;
+      }
+      if (/\s/.test(c)) { i++; continue; }
+      if (/[0-9+\-.]/.test(c)) {
+        let j = i;
+        while (j < N && /[0-9+\-.eE]/.test(metin[j])) j++;
+        ekle({ tip: 'num', deger: parseFloat(metin.slice(i, j)) });
+        i = j; continue;
+      }
+      // operatör
+      let j = i;
+      while (j < N && !/[\s\/\[\]<>()%]/.test(metin[j])) j++;
+      const op = metin.slice(i, j) || metin[i];
+      i = j || i + 1;
+
+      if (op === 'Tf') {
+        const ad = yigin.filter(x => x.tip === 'name').pop();
+        const by = yigin.filter(x => x.tip === 'num').pop();
+        if (ad) font = ad.deger;
+        if (by) boyut = Math.abs(by.deger) || 12;
+      } else if (op === 'Tj') {
+        const st = yigin.filter(x => x.tip === 'str').pop();
+        if (st) yaz(st.deger);
+      } else if (op === 'TJ') {
+        const arr = yigin.filter(x => x.tip === 'arr').pop();
+        if (arr) for (const e of arr.deger) {
+          if (e.tip === 'str') yaz(e.deger);
+          else if (e.tip === 'num') {
+            const kayma = -e.deger / 1000 * boyut;      // TJ: negatif sayı sağa kaydırır
+            if (kayma > 0) birikim += kayma;
+            if (e.deger <= -180 && harfSayisi) bosluk();
+          }
+        }
+      } else if (op === "'" || op === '"') {
+        if (satir.trim()) yeniSatir();
+        birikim = 0; harfSayisi = 0;
+        const st = yigin.filter(x => x.tip === 'str').pop();
+        if (st) yaz(st.deger);
+      } else if (op === 'Td' || op === 'TD') {
+        const nums = yigin.filter(x => x.tip === 'num').slice(-2);
+        if (nums.length === 2) konumla(sonX + nums[0].deger, (sonY === null ? 0 : sonY) + nums[1].deger);
+      } else if (op === 'Tm') {
+        const nums = yigin.filter(x => x.tip === 'num').slice(-6);
+        if (nums.length === 6) konumla(nums[4].deger, nums[5].deger);
+      } else if (op === 'T*') {
+        if (satir.trim()) yeniSatir();
+        birikim = 0; harfSayisi = 0;
+      } else if (op === 'BT' || op === 'ET') {
+        /* blok sınırı tek başına satır sonu değil */
+        birikim = 0; harfSayisi = 0;
+      }
+      yigin.length = 0;
+    }
+    if (satir.trim()) yeniSatir();
+    return cikti;
+  }
+
+  // sayfalar
+  const sayfalar = [];
+  for (const [num, o] of nesneler) {
+    if (!/\/Type\s*\/Page[^s]/.test(o.dict)) continue;
+    sayfalar.push({ num, dict: o.dict });
+  }
+  sayfalar.sort((a, b) => a.num - b.num);
+  let tum = '';
+  for (const sy of sayfalar.slice(0, 60)) {
+    // kaynaklar üst sayfalardan miras alınabilir
+    let res = dictIci(sy.dict, 'Resources');
+    let d = sy.dict, guvenlik = 0;
+    while (!res && guvenlik++ < 6) {
+      const p = d.match(/\/Parent\s+(\d+)\s+\d+\s+R/);
+      if (!p) break;
+      const po = nesneler.get(+p[1]);
+      if (!po) break;
+      d = po.dict;
+      res = dictIci(d, 'Resources');
+    }
+    const fontlar = await fontCozucu(res);
+    const refler = refListesi(sy.dict, 'Contents');
+    let metin = '';
+    for (const r of refler) {
+      const co = nesneler.get(r);
+      if (co && co.akis) metin += latin1(co.akis) + '\n';
+    }
+    if (!metin) continue;
+    tum += icerikCoz(metin, fontlar) + '\n';
+  }
+  const temiz = tum
+    .replace(/\uFFFD+/g, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/ ?\n ?/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+  return { text: temiz, pages: sayfalar.length, bos: temiz.replace(/\s/g, '').length < 40 };
+}
+
+/* ---------------- görsel ---------------- */
+function gorselKucult(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const uzun = Math.max(img.naturalWidth, img.naturalHeight);
+        const olcek = Math.min(1, DOSYA_LIMIT.gorselUzun / uzun);
+        const w = Math.max(1, Math.round(img.naturalWidth * olcek));
+        const h = Math.max(1, Math.round(img.naturalHeight * olcek));
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#fff';                       // saydam PNG'ler siyah görünmesin
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = c.toDataURL('image/jpeg', 0.82);
+        // küçük önizleme: geçmişte yer kaplamasın
+        const k = Math.min(1, 320 / Math.max(w, h));
+        const c2 = document.createElement('canvas');
+        c2.width = Math.round(w * k); c2.height = Math.round(h * k);
+        const x2 = c2.getContext('2d');
+        x2.fillStyle = '#fff'; x2.fillRect(0, 0, c2.width, c2.height);
+        x2.drawImage(c, 0, 0, c2.width, c2.height);
+        URL.revokeObjectURL(url);
+        res({ dataUrl, thumb: c2.toDataURL('image/jpeg', 0.7), w, h, buyuk: img.naturalWidth !== w });
+      } catch (e) { URL.revokeObjectURL(url); rej(e); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('görsel açılamadı')); };
+    img.src = url;
+  });
+}
+
+/* ---------------- ana giriş ---------------- */
+async function dosyaOku(file) {
+  const ad = file.name || 'dosya';
+  const uzanti = dosyaUzanti(ad);
+  const tur = DOSYA_EXT[uzanti] || (String(file.type || '').startsWith('image/') ? 'image' : 'text');
+  const kayit = { id: 'dosya_' + Math.random().toString(36).slice(2, 9), name: ad, ext: uzanti, size: file.size || 0, kind: tur };
+
+  if ((file.size || 0) > DOSYA_LIMIT.dosyaBayt) {
+    throw new Error(window.T2 ? window.T2('Dosya çok büyük (en çok 25 MB).', 'File too large (25 MB max).') : 'Dosya çok büyük (en çok 25 MB).');
+  }
+  if (tur === 'image') {
+    const g = await gorselKucult(file);
+    return { ...kayit, kind: 'image', dataUrl: g.dataUrl, thumb: g.thumb, w: g.w, h: g.h, buyuk: g.buyuk };
+  }
+  if (tur === 'pdf') {
+    const b = await dosyaBaytlari(file);
+    const r = await pdfOku(b);
+    const kes = r.text.slice(0, DOSYA_LIMIT.metin);
+    return { ...kayit, kind: 'doc', text: kes, pages: r.pages, trimmed: r.text.length > kes.length,
+             warn: r.bos ? 'taranmis-pdf' : '' };
+  }
+  if (tur === 'docx' || tur === 'xlsx' || tur === 'pptx') {
+    const b = await dosyaBaytlari(file);
+    const r = tur === 'docx' ? await docxMetin(b) : tur === 'xlsx' ? await xlsxMetin(b) : await pptxMetin(b);
+    const kes = (r.text || '').slice(0, DOSYA_LIMIT.metin);
+    return { ...kayit, kind: 'doc', text: kes, pages: r.pages, trimmed: (r.text || '').length > kes.length };
+  }
+  // düz metin / kod / html
+  let metin = await file.text();
+  if (tur === 'html') {
+    metin = metin.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s{2,}/g, ' ');
+  }
+  const kes = metin.slice(0, DOSYA_LIMIT.metin);
+  return { ...kayit, kind: 'doc', text: kes, pages: null, trimmed: metin.length > kes.length };
+}
+
+/* dosya listesini istek için metne çevir (belgeler) */
+function dosyaMetni(files, sinir) {
+  const parcalar = [];
+  let toplam = 0;
+  for (const f of files || []) {
+    if (!f || f.kind !== 'doc' || !f.text) continue;
+    const kalan = (sinir || DOSYA_LIMIT.toplamMetin) - toplam;
+    if (kalan < 400) { parcalar.push('[…] diğer belgeler yer sınırı nedeniyle eklenmedi.'); break; }
+    const govde = f.text.slice(0, kalan);
+    toplam += govde.length;
+    parcalar.push('### ' + f.name + (f.pages ? ' (' + f.pages + ' sayfa)' : '') + '\n' + govde +
+      (f.text.length > govde.length ? '\n[… belgenin devamı kesildi]' : ''));
+  }
+  return parcalar.join('\n\n');
+}
+
+/* görselleri istek parçalarına çevir (görsel okuyabilen modeller için) */
+function dosyaGorselleri(files) {
+  return (files || []).filter(f => f && f.kind === 'image' && f.dataUrl).map(f => ({ type: 'image_url', image_url: { url: f.dataUrl } }));
 }
 
 
@@ -5526,9 +6395,34 @@ function summaryText(blocks, tone) {
   return list.join('\n\n');
 }
 
+/* Panel modu: sandalyeler birbirini görmediği için demo metinleri de
+   bağımsız olmalı — kimseye atıf yok, her sandalye kendi çerçevesinden yazar. */
+const DEMO_PANEL_TR = {
+  moderator: '{{t}} sorusunda benim için mesele kapsam: küçük tutarsan iki haftada sonuç görürsün, geniş tutarsan aylarca "hazırlanıyor" dersin. Ben ilk haftanın sonunda elde tek bir somut çıktı olmasından yanayım; gerisi sonra gelir. Benim ölçütüm: ilk hafta sonunda ekranda çalışan bir şey var mı?',
+  analyst: '{{t}} için üç ölçüt yazıp her birinin bugünkü durumunu işaretlerim: kim kullanacak, ne sıklıkta, ne zaman vazgeçer. Elimde doğrulanmış sayı yoksa "(kaynak yok)" diye not düşerim, tahminle süslemem. Benim ölçütüm: ölçütler yazıya döküldü mü?',
+  critic: '{{t}} konusunda en sık yapılan hata, kolay olanı değerli sanmak. Kurmak kolay, sürdürmek zor; ayrıca "isteyen var" ile "bedelini ödeyen var" aynı şey değil. Ben başlamadan önce aylık bakım yükünün yazılmasını isterim. Benim ölçütüm: bakım maliyeti tek satırda yazılı mı?',
+  engineer: '{{t}} için en küçük çalışan sürüm: tek görev, tek çıktı, tek ölçülebilir sonuç. Haftaya bitmezse tarihi kaydırmam, kapsamı kısarım. Kurulumu 30 dakikayı geçen çözümü ben "basit" saymam. Benim ölçütüm: kurulumdan yarım saat sonra ilk sonucu alabiliyor musun?',
+  researcher: '{{t}} hakkında elimde doğrulanmış veri yok; bu yüzden iddia yerine soru listesiyle başlarım: benzer işi yapanlar ne kadar sürede çıkmış, ne kadar ödemiş, neyi bırakmış. Üç gerçek örnek görmeden karar vermem. Benim ölçütüm: en az üç örnek yan yana kondu mu?'
+};
+const DEMO_PANEL_EN = {
+  moderator: 'On "{{t}}" my concern is scope: keep it small and you see a result in two weeks; keep it wide and you will say "in progress" for months. I would want one concrete output by the end of week one; the rest can follow. My criterion: is something running on screen after the first week?',
+  analyst: 'For "{{t}}" I would write three criteria and mark where each stands today: who will use it, how often, and when they would walk away. If I have no verified number I mark it "(no source)" rather than dress up a guess. My criterion: are the criteria written down?',
+  critic: 'The usual mistake with "{{t}}" is mistaking easy for valuable. Building is easy, maintaining is hard, and "people want it" is not the same as "people pay for it". Before anything starts I want the monthly upkeep written down. My criterion: is the upkeep cost on one line?',
+  engineer: 'For "{{t}}" the smallest working version is one job, one output, one measurable result. If it does not fit the week I cut scope, I do not move the date. Anything that takes more than thirty minutes to set up I do not call simple. My criterion: can you get the first result half an hour after setup?',
+  researcher: 'I have no verified data on "{{t}}", so I start with questions rather than claims: how long did similar efforts take, what did they cost, what did they abandon? I would not decide before seeing three real examples side by side. My criterion: are at least three examples on the table?'
+};
+function demoPanelText(p, ctx) {
+  const en = !!(window.I18N && window.I18N.isEn());
+  const kaynak = en ? DEMO_PANEL_EN : DEMO_PANEL_TR;
+  const metin = kaynak[p.role] || kaynak.analyst;
+  const konu = en ? ctx.topicPhrase : ctx.t;
+  return metin.replace(/\{\{t\}\}/g, konu);
+}
+
 function demoText(p, opt = {}) {
   const ctx = demoContext(p);
   const round = opt.round || state.round || 1;
+  if (opt.panel) return demoPanelText(p, ctx);
   /* arayüz İngilizceyken İngilizce örnek konuşma oynar (demoen.js) */
   if (typeof DEMO_EN !== 'undefined' && window.I18N && window.I18N.isEn()) return demoTextEN(p, opt, ctx, round);
   const key = state.sessionGoal || state.settings.goal;
@@ -6915,7 +7809,13 @@ async function runAgents(opts = {}) {
     state.transcript.push(draft); appendMsgDOM(draft); scrollBump(true);
 
     const sys = ajanSystem(p, job, { plan: planText, note: state.ajanNote || '', packets: packets.slice(), first: packets.length === 0, nextHint: cfg.flow === 'devir' ? (PROVIDERS[(seats[(seats.indexOf(p.id) + 1) % seats.length])] || {}).name || 'BİTTİ' : 'BİTTİ' });
-    const hist = [{ role: 'user', content: 'Görevini yap ve sonuna devir paketini ekle.' }];
+    /* dosya ekleri: ajanlar da kullanıcının yüklediği belgeyi/görseli görmeli */
+    const hist = [];
+    const ekliMesaj = [...state.transcript].reverse().find(m => m.kind === 'msg' && m.personaId === 'user' && (m.files || []).length);
+    if (ekliMesaj && typeof kullaniciIcerigi === 'function') {
+      hist.push({ role: 'user', content: kullaniciIcerigi(ekliMesaj, { gorsel: (typeof gorselGonderilsinMi === 'function') && gorselGonderilsinMi(ekliMesaj.id) && (typeof gorselDesteklenir === 'function') && gorselDesteklenir(p.id) }) });
+    }
+    hist.push({ role: 'user', content: 'Görevini yap ve sonuna devir paketini ekle.' });
 
     let res;
     /* sandalye zaman aşımı: tek ajan asılı kalınca zincir süresiz beklemesin */
@@ -7359,6 +8259,200 @@ function ajanApplyTemplate(key) {
   const inp = document.getElementById('input');
   if (inp && !inp.value.trim()) { inp.value = t.topic; autoGrow(inp); }
   toast('Hazır proje yüklendi: ' + t.label + '. Konuyu değiştirip gönder.', 'ok');
+}
+
+
+/* ==========================================================================
+   PANEL — her sandalye kendi görüşünü BAĞIMSIZ yazar
+   Konsey'den farkı:
+     · sandalyeler sırayla değil, AYNI ANDA cevap verir
+     · kimse kimsenin cevabını görmez (kör görüş): başka sandalyeye atıf yok
+     · başkan, özet, hakem yok — kıyaslamayı kullanıcı yapar
+     · geçmiş: kullanıcının mesajları + sandalyenin KENDİ önceki cevapları
+   İstek sayısı: her mesajda sandalye sayısı kadar (4 sandalye = 4 istek).
+   ========================================================================== */
+
+function panelSeats() {
+  return personas().filter(p => !p.single);
+}
+
+/* Panel geçmişi: yalnız kullanıcı + bu sandalyenin kendi cevapları */
+function buildPanelHistory(pid, skipId) {
+  const out = [];
+  const gorselVar = (typeof gorselGonderilsinMi === 'function') ? gorselGonderilsinMi : () => false;
+  for (const m of state.transcript) {
+    if (skipId && m.id === skipId) continue;
+    if (m.kind !== 'msg') continue;
+    if (!m.text && !(m.files && m.files.length)) continue;
+    if (m.personaId === 'user') {
+      out.push({ role: 'user', content: (typeof kullaniciIcerigi === 'function')
+        ? kullaniciIcerigi(m, { gorsel: gorselVar(m.id) && gorselDesteklenir(pid) })
+        : String(m.text || '') });
+    } else if (m.personaId === pid) {
+      out.push({ role: 'assistant', content: String(m.plain || m.text || '') });
+    }
+  }
+  return out;
+}
+
+function panelBrief(p, round) {
+  const n = Math.max(60, Math.min(200, Math.round(words() * 0.9)));
+  return '\n\n## Panel düzeni (önemli)\n' +
+    'Bu masada ' + panelSeats().length + ' yapay zekâ AYNI ANDA, birbirini GÖRMEDEN cevap veriyor. ' +
+    'Kullanıcı cevapları yan yana koyup kendisi karşılaştıracak.\n' +
+    '· Yalnız kendi görüşünü yaz. "Katılıyorum", "X de demiş ki", "diğerleri" gibi ifadeler kullanma.\n' +
+    '· Konuyu baştan kurma: doğrudan kendi cevabına gir. En fazla ' + n + ' kelime.\n' +
+    '· Somut ol: sayı, örnek, adım, ölçüt ver. Kaynağın yoksa "(kaynak yok)" yaz.\n' +
+    '· Sonda tek cümlelik "Benim ölçütüm:" satırı ekle — kullanıcı sandalyeleri bununla ayırt edecek.\n' +
+    (round > 1 ? '· Bu ' + round + '. mesaj; önceki cevabını tekrar etme, yeni bir açı ekle.\n' : '');
+}
+
+/* ---------------- ana akış ----------------
+   Sandalyeler paralel çalışır; hepsi bitince masa beklemeye döner. */
+async function runPanel(opts = {}) {
+  if (state.phase === 'running' || !state.transcript.length) return;
+  const token = ++state.runToken;
+  const round = opts.round || (state.round + 1);
+  const seats = panelSeats();
+  if (!seats.length) return;
+
+  state.round = round;
+  state.phase = 'running';
+  state.abort = new AbortController();
+  state.lastError = '';
+  state.speakingAt = Date.now();
+  state.pending = { round, done: 0, total: seats.length };
+  state.queue = [];
+  state.speaking = null;
+  if (state.tick) clearInterval(state.tick);
+  state.tick = setInterval(() => { if (typeof tickElapsed === 'function') tickElapsed(); }, 1000);
+  renderAll();
+  scrollBump(true);
+
+  /* her sandalye için boş baloncuk: hepsi aynı anda "yazıyor" görünsün */
+  const isler = seats.map(p => {
+    const draft = {
+      id: uid(), ts: nowISO(), kind: 'msg', round, personaId: p.id,
+      name: p.name, short: p.short, color: p.color, roleLabel: p.roleLabel,
+      text: '', streaming: true, panel: true
+    };
+    state.transcript.push(draft);
+    appendMsgDOM(draft);
+    return { p, draft };
+  });
+  scrollBump(true);
+
+  let bitti = 0;
+  let hataVar = false;
+
+  const tekSandalye = async ({ p, draft }) => {
+    const seatCtrl = new AbortController();
+    const userSig = state.abort && state.abort.signal;
+    const onUserAbort = () => { try { seatCtrl.abort(); } catch (e) {} };
+    if (userSig) { try { userSig.addEventListener('abort', onUserAbort); } catch (e) {} }
+
+    /* sağlayıcı dinleniyorsa istek atılmaz */
+    const rKey = restKeyOf(p.provider);
+    if (restOf(rKey)) {
+      state.transcript = state.transcript.filter(m => m.id !== draft.id);
+      removeMsgDOM(draft.id);
+      return;
+    }
+
+    let acc = '';
+    const onDelta = piece => {
+      if (token !== state.runToken) return;
+      acc += piece;
+      draft.text = acc;
+      updateMsgDOM(draft);
+      scrollBump(false);
+    };
+
+    const sys = systemPrompt(p) + panelBrief(p, round);
+    const hist = buildPanelHistory(p.id, draft.id);
+    hist.push({ role: 'user', content: 'Şimdi kendi görüşünü yaz (' + round + '. mesaj). En fazla ' +
+      Math.max(60, Math.min(200, Math.round(words() * 0.9))) + ' kelime. Masadaki diğer sandalyeleri görme, onlara atıf yapma.' });
+
+    const toSec = seatTimeoutSec();
+    let zamanAsimi = 0;
+    const toTimer = toSec ? setTimeout(() => { zamanAsimi = toSec; try { seatCtrl.abort(); } catch (e) {} }, toSec * 1000) : null;
+
+    try {
+      const route = resolveRoute(p.provider);
+      if (route.kind === 'missing') throw new Error(route.why || 'Bağlantı yok');
+      bumpReq();
+      if (route.kind === 'demo') {
+        await demoStream(p, { round, isChair: false, last: false, panel: true, onDelta, signal: seatCtrl.signal });
+      } else {
+        const alt = altOf(p.provider);
+        if (alt) route.model = alt.model;
+        await callChat(route.cfg, route.model, sys, hist, tokenBudget(), onDelta, seatCtrl.signal);
+      }
+      if (token !== state.runToken) return;
+      if (!String(draft.text || '').trim()) {
+        state.transcript = state.transcript.filter(m => m.id !== draft.id);
+        removeMsgDOM(draft.id);
+        addMessage({ kind: 'notice', level: 'warn', text: p.name + window.T2(' boş cevap döndürdü, o baloncuk kaldırıldı.', ' returned an empty answer; that bubble was removed.') });
+        renderTranscript();
+      } else {
+        draft.streaming = false;
+        finalizeMsg(draft);
+        updateMsgDOM(draft);
+      }
+    } catch (e) {
+      if (e && e.name === 'AbortError') {
+        if (zamanAsimi && token === state.runToken) {
+          const kalan = String(draft.text || '').trim();
+          if (visibleLen(kalan) >= 30) {
+            draft.streaming = false;
+            draft.timedOut = zamanAsimi;
+            finalizeMsg(draft);
+            updateMsgDOM(draft);
+          } else {
+            state.transcript = state.transcript.filter(m => m.id !== draft.id);
+            removeMsgDOM(draft.id);
+          }
+          addMessage({ kind: 'notice', level: 'warn', text: p.name + ' ' + zamanAsimi + window.T2(' sn içinde bitirmedi; diğer sandalyeler devam etti.', ' s did not finish in time; the other seats carried on.') });
+          renderTranscript();
+        }
+        return;
+      }
+      hataVar = true;
+      const msg = String(e && e.message || e);
+      state.lastError = msg;
+      state.transcript = state.transcript.filter(m => m.id !== draft.id);
+      removeMsgDOM(draft.id);
+      if (!isDailyQuota(msg) && /429|dakikalık|rate.?limit/i.test(msg)) restSet(restKeyOf(p.provider), 'dakikalık limit');
+      else if (/402|kredi|credit|bakiye/i.test(msg)) restSet(restKeyOf(p.provider), 'kredi bitti');
+      addMessage({ kind: 'notice', level: 'err', text: p.name + window.T2(' cevap veremedi (', ' could not answer (') + whyShort(msg) + '). ' +
+        window.T2('Diğer sandalyeler kendi görüşünü yazdı.', 'The other seats wrote their own view.') });
+      renderTranscript();
+    } finally {
+      if (toTimer) clearTimeout(toTimer);
+      if (userSig) { try { userSig.removeEventListener('abort', onUserAbort); } catch (e) {} }
+      bitti++;
+      state.pending.done = bitti;
+      if (state.lastUsage) {
+        state.usage.in += Number(state.lastUsage.prompt_tokens || state.lastUsage.input_tokens || 0);
+        state.usage.out += Number(state.lastUsage.completion_tokens || state.lastUsage.output_tokens || 0);
+        state.usage.cost += Number(state.lastUsage.cost || state.lastUsage.total_cost || 0);
+        state.lastUsage = null;
+      }
+      if (typeof renderCtrls === 'function') renderCtrls();
+    }
+  };
+
+  await Promise.all(isler.map(tekSandalye));
+  if (token !== state.runToken) return;
+
+  if (state.tick) { clearInterval(state.tick); state.tick = null; }
+  state.phase = 'waiting';
+  state.queue = []; state.speaking = null; state.pending = null;
+  state.abort = null;
+  if (hataVar) state.autoStopped = null;
+  renderAll();
+  if (typeof persistSession === 'function') persistSession();
+  scrollBump(true);
 }
 
 
@@ -7810,7 +8904,8 @@ function renderCtrls() {
                         : !(state.phase === 'waiting' && state.round >= 1 && state.transcript.length > 1));
     more.textContent = ajanM ? '+ Bir geçiş daha' : '+ Bir tur daha';
   }
-  if (sum) sum.hidden = (ajanM || tekM2) ? true : !(state.phase === 'waiting' && has);
+  const panelM = (typeof panelOn === 'function') && panelOn();
+  if (sum) sum.hidden = (ajanM || tekM2 || panelM) ? true : !(state.phase === 'waiting' && has);
   const gate = $('#ajanNextBtn');
   if (gate) gate.hidden = !waitingGate;
   const restB = $('#restBtn');
@@ -7893,11 +8988,15 @@ const TABLE_COPY = {
   },
   tek: {
     title: 'TekeTek: tek yapay zekâ, <em>doğrudan cevap</em>.',
-    sub: 'Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek hazır gelir — kurulum yapmadan konuşmaya başlarsın.'
+    sub: 'Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek var: gpt-oss 20B — ama IP başına 45 saniyede bir yanıt verir; düzgün denemek için ücretsiz bir anahtar daha iyi sonuç verir.'
   },
   ayna: {
     title: 'Aynı model, <em>kendi kendine karşı</em>.',
     sub: 'Tek modeli iki sandalyeye oturt: biri savunur, biri itiraz eder. Her turda açan taraf değişir; sonunda tarafsız hakem kararı çıkar. Tek modelin kör noktasını görmek için.'
+  },
+  panel: {
+    title: 'Herkes kendi görüşünü <em>bağımsız</em> yazar.',
+    sub: 'Sandalyeler aynı anda, birbirini görmeden cevap verir; başkan ya da özet yok. Görüşlerin alt alta yazılır, karşılaştırmayı sen yaparsın.'
   },
   ajan: {
     title: 'Her sandalyeye <em>ayrı görev</em>.',
@@ -7918,7 +9017,8 @@ function renderModes() {
   const bar = $('#modeBar');
   if (!bar) return;
   const t = tableNow();
-  const kb = $('#modeKonsey'), ab = $('#modeAyna'), jb = $('#modeAjan'), tb = $('#modeTek');
+  const kb = $('#modeKonsey'), ab = $('#modeAyna'), jb = $('#modeAjan'), tb = $('#modeTek'), pb = $('#modePanel');
+  if (pb) { pb.classList.toggle('on', t === 'panel'); pb.setAttribute('aria-selected', t === 'panel' ? 'true' : 'false'); }
   if (tb) { tb.classList.toggle('on', t === 'tek'); tb.setAttribute('aria-selected', t === 'tek' ? 'true' : 'false'); }
   if (kb) { kb.classList.toggle('on', t === 'konsey'); kb.setAttribute('aria-selected', t === 'konsey' ? 'true' : 'false'); }
   if (ab) { ab.classList.toggle('on', t === 'ayna'); ab.setAttribute('aria-selected', t === 'ayna' ? 'true' : 'false'); }
@@ -7940,7 +9040,7 @@ function renderModes() {
   }
   // gündem seçenekleri yalnız Konsey'de anlamlı (Ayna'da sabit, Tek'te sohbet)
   const gc = $('#goalChips');
-  if (gc) gc.hidden = (t === 'ayna' || t === 'tek' || t === 'ajan');   // Ajanlar'da gündem çipi yok
+  if (gc) gc.hidden = (t === 'ayna' || t === 'tek' || t === 'ajan' || t === 'panel');   // Ajanlar/Panel'de gündem çipi yok
   const h1 = $('#heroTitle'), sub = $('#heroSub');
   // Konsey başlığı sabit "Dört" demez: kaç sandalye açıksa o yazar
   const nSeat = konseySeats();
@@ -7960,7 +9060,7 @@ function renderModes() {
 
 /* mod değiştir: masa yeni türle baştan kurulur (yarım kalan konuşma karışmasın) */
 function switchTable(t) {
-  t = ['ayna', 'ajan', 'tek'].includes(t) ? t : 'konsey';
+  t = ['ayna', 'ajan', 'tek', 'panel'].includes(t) ? t : 'konsey';
   if (tableNow() === t) return;
   // Konsey'e dönerken Ayna'nın dayattığı başkanı değil, kullanıcının eski başkanını geri koy
   const from = tableNow();
@@ -7978,13 +9078,17 @@ function switchTable(t) {
   if (input) input.focus();
   toast(t === 'tek'
     ? (tekChoice() === 'pollinations'
-        ? 'TekeTek: yazdığını gpt-oss 20B cevaplar — anahtar gerekmez. Kurulum yok.' + (had ? ' Masa temizlendi.' : '')
+        ? window.T2('TekeTek: yazdığını gpt-oss 20B cevaplar. Anahtarsız seçenek yavaştır (IP başına 45 sn’de 1 yanıt); düzgün denemek için Ayarlar → Bağlantı’dan ücretsiz anahtar girebilirsin.',
+                    'OneOnOne: gpt-oss 20B answers what you write. The keyless option is slow (one answer per 45 seconds per IP); for a proper test add a free key in Settings → Connection.') + (had ? window.T2(' Masa temizlendi.', ' Table cleared.') : '')
         : 'TekeTek: yazdığını ' + PROVIDERS[tekSeat()].name + ' cevaplar.' + (had ? ' Masa temizlendi.' : ''))
     : t === 'ayna'
     ? 'Ayna modu: aynı model iki sandalyede (savunan + itiraz eden). Konuyu yaz.' + (had ? ' Masa temizlendi.' : '')
-    : (t === 'ajan'
+    : (t === 'panel'
+      ? window.T2('Panel modu: ' + konseySeats() + ' sandalye aynı anda, birbirini görmeden kendi görüşünü yazar. Kıyaslama sende.',
+                  'Panel mode: ' + konseySeats() + ' seats answer at once, blind to each other. The comparison is yours.') + (had ? window.T2(' Masa temizlendi.', ' Table cleared.') : '')
+      : (t === 'ajan'
       ? 'Ajanlar modu: her sandalyeye görev yaz, projeyi gönder. İstek sayısı üstte görünür.' + (had ? ' Masa temizlendi.' : '')
-      : 'Konsey modu: ' + konseySeats() + ' ayrı model + başkan. Konuyu yaz.' + (had ? ' Masa temizlendi.' : '')), 'ok');
+      : 'Konsey modu: ' + konseySeats() + ' ayrı model + başkan. Konuyu yaz.' + (had ? ' Masa temizlendi.' : ''))), 'ok');
 }
 
 /* Yazı kutusu boş ekranda başlığın hemen altında durur (ortada, davetkâr);
@@ -8341,9 +9445,10 @@ function fillMsg(el, m) {
   const mdEl = el.querySelector('.md');
   if (!mdEl) return;
   if (!m.text) {
-    mdEl.innerHTML = (m.streaming ? '<span class="dots" style="--sp:' + (m.color || '#999') + '"><i></i><i></i><i></i></span>' : '');
+    const kartlar = ekKartlari(m.files);
+    mdEl.innerHTML = kartlar || (m.streaming ? '<span class="dots" style="--sp:' + (m.color || '#999') + '"><i></i><i></i><i></i></span>' : '');
   } else {
-    mdEl.innerHTML = md(m.text) + (m.streaming ? '<span class="caret"></span>' : '') +
+    mdEl.innerHTML = ekKartlari(m.files) + md(m.text) + (m.streaming ? '<span class="caret"></span>' : '') +
       (m.truncated && !m.streaming ? '<span class="trunc">… yanıt token tavanında kesildi</span>' : '') +
       (m.timedOut && !m.streaming ? '<span class="trunc">' + Number(m.timedOut) + ' sn içinde bitmedi · cevap yarıda kesildi</span>' : '');
   }
@@ -8467,9 +9572,28 @@ function histUpsert(rec) {
   return histWrite(list);
 }
 
+/* Depo (localStorage ~5 MB) taşmasın: büyük görseller küçük önizlemeye iner,
+   uzun belge metinleri kısalır. Model için tam hâli bellekte kalır. */
+function sessionHafiflet(rec) {
+  let j = JSON.stringify(rec);
+  if (j.length < 2_200_000) return rec;
+  for (const m of rec.transcript || []) {
+    for (const f of m.files || []) {
+      if (f.kind === 'image' && f.dataUrl && f.thumb && f.dataUrl !== f.thumb) { f.dataUrl = f.thumb; f.kucultuldu = true; }
+      if (f.kind === 'doc' && f.text && f.text.length > 4000) { f.text = f.text.slice(0, 4000); f.kucultuldu = true; }
+    }
+  }
+  j = JSON.stringify(rec);
+  if (j.length >= 2_200_000) {                    // hâlâ büyük: görselleri tamamen düşür
+    for (const m of rec.transcript || []) for (const f of (m.files || [])) {
+      if (f.kind === 'image') { f.dataUrl = ''; f.kucultuldu = true; }
+    }
+  }
+  return rec;
+}
 function persistSession() {
   if (!state.topic || state.transcript.length < 2) return;
-  const rec = sessionRecord();
+  const rec = sessionHafiflet(sessionRecord());
   store.set('divanai_session_v1', rec);
   histUpsert(rec);
 }
@@ -8623,16 +9747,130 @@ async function openSessionFile(file) {
   }
 }
 
+/* ---------------- ekli dosyalar (görsel·PDF·Word·Excel·metin) ----------------
+   Seçilen dosyalar gönderilene kadar "ek tepsisi"nde bekler; gönderilince
+   mesaja yapışır ve her modda (Konsey, Panel, Ayna, Ajanlar, TekeTek) o tur
+   soruyla birlikte sandalyelere gider. Dosyalar hep tarayıcıda okunur. */
+let ekler = [];          // gönderilmeyi bekleyen dosyalar
+let ekSayaci = 0;
+
+function ekBoyut(b) {
+  const n = Number(b) || 0;
+  return n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(0) + ' KB' : (n / 1048576).toFixed(1) + ' MB';
+}
+function ekSimge(f) {
+  if (f.kind === 'image') return '🖼';
+  if (f.ext === 'pdf') return '📄';
+  if (f.ext === 'docx') return '📝';
+  if (f.ext === 'xlsx') return '📊';
+  if (f.ext === 'pptx') return '📽';
+  return '📃';
+}
+function ekEtiket(f) {
+  if (f.kind === 'image') return f.w + '×' + f.h + ' · ' + window.T2('görsel', 'image');
+  let sayfa = '';
+  if (f.pages) {
+    const tek = window.T2(f.ext === 'xlsx' ? ' sayfa' : ' sayfa', f.ext === 'xlsx' ? (f.pages === 1 ? ' sheet' : ' sheets') : (f.pages === 1 ? ' page' : ' pages'));
+    sayfa = ' · ' + f.pages + tek;
+  }
+  const kar = f.text ? f.text.length.toLocaleString(window.T2('tr-TR', 'en-US')) + window.T2(' karakter', ' characters') : '';
+  return [ekBoyut(f.size) + sayfa, kar].filter(Boolean).join(' · ');
+}
+
+function ekTepsiCiz() {
+  const tray = $('#attachTray');
+  if (!tray) return;
+  tray.innerHTML = ekler.map(f =>
+    '<span class="ekChip' + (f.kind === 'image' ? ' gorsel' : '') + '" data-ek="' + esc(f.id) + '">' +
+      (f.kind === 'image' && f.thumb ? '<img src="' + f.thumb + '" alt="">' : '<i class="ekIco">' + ekSimge(f) + '</i>') +
+      '<b>' + esc(f.name) + '</b>' +
+      '<i class="ekMeta">' + esc(ekEtiket(f)) + '</i>' +
+      '<button type="button" class="ekSil" data-eksil="' + esc(f.id) + '" title="' + window.T2('Kaldır', 'Remove') + '" aria-label="' + window.T2('Kaldır', 'Remove') + '">✕</button>' +
+    '</span>').join('');
+  tray.hidden = !ekler.length;
+  const btn = $('#composer');
+  if (btn) btn.classList.toggle('ekVar', ekler.length > 0);
+}
+
+function ekUyari(metin) { if (typeof toast === 'function') toast(metin, 'err'); }
+
+async function ekleDosyalar(list) {
+  const gelen = Array.from(list || []);
+  if (!gelen.length) return;
+  for (const f of gelen) {
+    if (ekler.length >= DOSYA_LIMIT.adet) { ekUyari(window.T2('Bir mesajda en çok ' + DOSYA_LIMIT.adet + ' dosya ekleyebilirsin.', 'You can attach at most ' + DOSYA_LIMIT.adet + ' files per message.')); break; }
+    const gecici = { id: 'ek' + (++ekSayaci), name: f.name || 'dosya', size: f.size || 0, kind: 'doc', okunuyor: true };
+    ekler.push(gecici);
+    ekTepsiCiz();
+    try {
+      const r = await dosyaOku(f);
+      Object.assign(gecici, r, { okunuyor: false });
+      if (r.warn === 'taranmis-pdf') {
+        ekUyari(window.T2('“' + r.name + '” taranmış bir PDF: içinde seçilebilir yazı yok. Sayfanın ekran görüntüsünü yüklersen modeller okuyabilir.',
+                          '“' + r.name + '” looks like a scanned PDF with no selectable text. Upload a screenshot of the page so the models can read it.'));
+      } else if (r.trimmed) {
+        ekUyari(window.T2('“' + r.name + '” uzun; ilk ' + Math.round(DOSYA_LIMIT.metin / 1000) + ' bin karakteri alındı.', '“' + r.name + '” is long; the first ' + Math.round(DOSYA_LIMIT.metin / 1000) + 'k characters were taken.'));
+      }
+    } catch (e) {
+      ekler = ekler.filter(x => x.id !== gecici.id);
+      ekUyari(window.T2('“' + gecici.name + '” okunamadı: ', 'Could not read “' + gecici.name + '”: ') + (e && e.message || e));
+    }
+    ekTepsiCiz();
+    const inp = $('#input'); if (inp) autoGrow(inp);
+  }
+}
+function ekleriTemizle() { ekler = []; ekTepsiCiz(); }
+
+/* gönderime hazır dosyalar (okuması bitmemiş varsa engelle) */
+function ekleriAl() {
+  const hazir = ekler.filter(f => !f.okunuyor);
+  if (hazir.length !== ekler.length) {
+    ekUyari(window.T2('Dosya hâlâ okunuyor; bir saniye sonra gönder.', 'A file is still being read; send in a second.'));
+    return null;
+  }
+  return hazir.map(f => ({ ...f }));
+}
+function ekKonu(dosyalar) {
+  const adlar = dosyalar.map(f => f.name).join(', ');
+  return window.T2('Ekli dosyayı incele: ', 'Look at the attached file: ') + adlar;
+}
+
+/* mesaj balonundaki dosya kartları */
+function ekKartlari(files) {
+  if (!files || !files.length) return '';
+  return '<div class="mfiles">' + files.map(f => {
+    if (f.kind === 'image') {
+      return '<details class="mfile gorsel"><summary>' +
+        '<img src="' + esc(f.thumb || f.dataUrl || '') + '" alt="">' +
+        '<span><b>' + esc(f.name) + '</b><i>' + esc(ekEtiket(f)) + '</i></span></summary>' +
+        '<img class="buyuk" src="' + esc(f.dataUrl || f.thumb || '') + '" alt="' + esc(f.name) + '"></details>';
+    }
+    const onizleme = (f.text || '').slice(0, 1400);
+    return '<details class="mfile"><summary>' +
+      '<i class="ekIco">' + ekSimge(f) + '</i>' +
+      '<span><b>' + esc(f.name) + '</b><i>' + esc(ekEtiket(f)) + '</i></span>' +
+      '<em>' + window.T2('metni gör', 'show text') + '</em></summary>' +
+      '<pre class="ftext">' + esc(onizleme) + ((f.text || '').length > onizleme.length ? '\n…' : '') + '</pre></details>';
+  }).join('') + '</div>';
+}
+
 /* ---------------- gönderme ---------------- */
 function send() {
   const input = $('#input');
   const v = (input && input.value || '').trim();
-  if (!v) return;
+  const dosyalar = ekleriAl();
+  if (dosyalar === null) return;                    // okunmakta olan dosya var
+  if (!v && !dosyalar.length) return;
+  if (panelOn() && state.phase === 'running') {
+    toast(window.T2('Panel hâlâ yazıyor; cevaplar bitince sorunu yaz.', 'The panel is still writing; send after the answers finish.'), 'info');
+    return;
+  }
   input.value = ''; autoGrow(input);
 
-  if (!state.transcript.length) { startSession(v); return; }
+  if (!state.transcript.length) { ekleriTemizle(); startSession(v || ekKonu(dosyalar), dosyalar); return; }
 
-  const m = addMessage({ kind: 'msg', personaId: 'user', name: 'Sen', short: 'SEN', color: '#f5c76a', roleLabel: 'MASANIN SAHİBİ', text: v, plain: plainOf(v) });
+  const m = addMessage({ kind: 'msg', personaId: 'user', name: 'Sen', short: 'SEN', color: '#f5c76a', roleLabel: 'MASANIN SAHİBİ', text: v, plain: plainOf(v), files: dosyalar });
+  ekleriTemizle();
   appendMsgDOM(m);
   scrollBump(true);
   persistSession();
@@ -8972,7 +10210,8 @@ function drawerBodyHTML() {
 
   /* --- kendi kendisiyle kapışma --- */
   h += '<div class="sec"><h3>Ayna’da kapışacak model</h3>' +
-    '<p class="note" style="margin-top:0">Masa türünü <b>ana ekrandan</b> seçersin: <b>Konsey</b> (ayrı modeller), <b>Ayna</b> (aynı model iki sandalyede), <b>Ajanlar</b> (her sandalyeye ayrı görev) ya da <b>TekeTek</b> (tek yapay zekâ, anahtarsız da çalışır). Burada yalnız Ayna’nın modelini belirlersin; Ajanlar’ın görevleri ana ekrandaki panelde yazılır.</p>' +
+    window.T2('<p class="note" style="margin-top:0">Masa türünü <b>ana ekrandan</b> seçersin: <b>Konsey</b> (ayrı modeller), <b>Ayna</b> (aynı model iki sandalyede), <b>Ajanlar</b> (her sandalyeye ayrı görev) ya da <b>TekeTek</b> (tek yapay zekâ; anahtarsız seçenek yavaş çalışır). Burada yalnız Ayna’nın modelini belirlersin; Ajanlar’ın görevleri ana ekrandaki panelde yazılır.</p>',
+                  '<p class="note" style="margin-top:0">You pick the table type <b>on the main screen</b>: <b>Council</b> (separate models), <b>Mirror</b> (the same model in two seats), <b>Agents</b> (a separate task per seat) or <b>OneOnOne</b> (a single AI; the keyless option is slow). Here you set only the Mirror model; Agents tasks are written in the panel on the main screen.</p>') +
     '<label class="field"><span>Model (Ayna seçiliyken geçerli)</span><select id="duelPid">' +
       PROVIDER_ORDER.map(pid => '<option value="' + pid + '" ' + ((d.duel && d.duel.pid) === pid ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + '</option>').join('') +
     '</select></label>' +
@@ -9522,7 +10761,7 @@ function saveDrawer() {
     if (kv) d.api.keys[d.api.kind] = kv; else delete d.api.keys[d.api.kind];
   }
   refreshGateways(d.api.customs || []);
-  d.table = ['ayna', 'ajan', 'tek'].includes(d.table) ? d.table : 'konsey';
+  d.table = ['ayna', 'ajan', 'tek', 'panel'].includes(d.table) ? d.table : 'konsey';
   d.duel = d.duel || { on: false, pid: 'grok' };
   d.duel.on = d.table === 'ayna';
   if (d.table === 'ayna') d.chair = d.duel.pid;
@@ -9727,6 +10966,7 @@ function helpHTML() {
       '<li>Bir model hata verirse masa durmaz; <b>aynı sandalyeye yedek model</b> geçer ve konuşma sürer. Cevabın başlığında <b>↺ model</b> etiketi görünür.</li>',
       '<li>Bir konuşmacı başkasının cevabını <b>kopyalarsa</b> masaya alınmaz; “kopyasıydı” notu düşer, söz sıradakine geçer.</li>',
       '<li><b>Masa türünü</b> üstteki <b>Konsey / Ayna / Ajanlar / TekeTek</b> düğmelerinden seçersin; konuşma sırasında da değiştirebilirsin (masa temizlenir, önce onay ister).</li>',
+      '<li><b>Dosya ekle:</b> yazı alanının solundaki <b>ataç</b> düğmesiyle görsel, PDF, Word, Excel, PowerPoint ya da metin dosyası ekleyebilirsin (panodan <b>Ctrl+V</b> ile yapıştırmak da olur). Dosya her modda o soruyla birlikte sandalyelere gider; modeller belgeyi okur, görseli görür. Görsel okuyamayan bir bağlantı seçtiysen (anahtarsız seçenek gibi) uygulama bunu söyler ve belgedeki yazıyla devam eder.</li>',
       '<li><b>Geçmiş:</b> üst şeritteki <b>saat simgesi</b> bu tarayıcıdaki son 10 konuşmayı gösterir; tıklayıp kaldığın yerden devam edersin. Satırdaki <b>yıldıza</b> basarsan konuşma <b>favori</b> olur: listenin başında kalır ve 10’luk sınıra takılmaz.',
       '<li>Başka cihaza taşımak için aynı paneldeki <b>Oturumu dosyaya kaydet</b> → öbür cihazda <b>Dosyadan aç</b>.</li>',
       '<li><b>TekeTek:</b> anahtarın yoksa <b>TekeTek</b> sekmesini seç — Pollinations üzerinden <b>gpt-oss 20B</b> cevaplar, kayıt ve anahtar istemez. Sınırı: aynı internet bağlantısından <b>45 saniyede 1 yanıt</b>; art arda yazarsan masa birkaç saniye bekleyip kendisi tekrar dener.</li>',
@@ -9737,10 +10977,11 @@ function helpHTML() {
     '<p>Varsayılan üslup <b>net</b>: her konuşmacı <b>Sonuç / Artı / Eksi / İlk adım</b> iskeletiyle konuşur, dolgu cümle (“bence”, “harika”, “sonuç olarak”) yazmaz. Sayı veriyorsa kaynağını yazar; kaynak yoksa <b>(kaynak yok)</b> der. “Sohbet” üslubuna Ayarlar → Konuşma üslubu’ndan geçebilirsin.</p>',
     '<h3>İnternetten bilgi</h3>',
     '<p>Ayarlar → <b>İnternetten bilgi</b> açıksa OpenRouter’ın web araması devreye girer ve cevaplar <b>[1] [2]</b> gibi kaynak gösterir. <b>Dikkat: bu özellik kredi harcar</b> — ücretsiz modelde bile istek başına yaklaşık 0,7–1,5 sent. Varsayılan olarak <b>kapalıdır</b>. Yalnızca OpenRouter bağlantısında çalışır; model aramayı desteklemiyorsa masa bunu söyler ve web’siz devam eder.</p>',
-    '<h3>Üç masa türü: Konsey, Ayna, Ajanlar</h3>',
-    '<p>Ana ekranın en üstündeki üç düğme masa türünü seçer. Konuşma sırasında da üstte durur, istediğin an geçebilirsin (konuşma temizlenir, önce sorar).</p>',
+    '<h3>Dört masa türü: Konsey, Panel, Ayna, Ajanlar</h3>',
+    '<p>Ana ekranın en üstündeki düğmeler masa türünü seçer (beşincisi <b>TekeTek</b>: tek yapay zekâ). Konuşma sırasında da üstte durur, istediğin an geçebilirsin (konuşma temizlenir, önce sorar).</p>',
     '<ul>',
       '<li><b>Konsey</b> — klasik masa: masada <b>4 ayrı şirketin modeli</b> (ChatGPT, Gemini, Claude, Grok) ayrı rollerle konuşur, sonunda <b>başkan</b> özetler. Birbirinden farklı bakış açıları istediğinde bunu seç.</li>',
+      '<li><b>Panel</b> — sandalyeler <b>aynı anda</b> cevap verir ve <b>birbirini görmez</b>; başkan, özet ve hakem yoktur. Dört görüş alt alta yazılır, <b>kıyaslamayı sen yaparsın</b>. Tarafsız karşılaştırma istediğinde bunu seç.</li>',
       '<li><b>Ayna</b> — aynı model <b>iki sandalyede</b>: <b>Model A · savunan</b> ve <b>Model B · itiraz eden</b>. Tek modelin kendi cevabını beğenip geçmesini engeller.</li>',
       '<li><b>Ajanlar</b> — her sandalyeye <b>ayrı görev</b> yazarsın; ajanlar sırayla çalışır ve birbirine <b>devir paketi</b> bırakır, sonunda başkan tek teslimat çıkarır. Proje yapmak için.</li>',
     '</ul>',
@@ -10018,6 +11259,31 @@ function boot() {
 
   $('#sendBtn').addEventListener('click', send);
   const input = $('#input');
+  // dosya ekleme: ataç, panodan yapıştırma, sürükle-bırak
+  const aBtn = $('#attachBtn'), aInput = $('#attachInput');
+  if (aBtn && aInput) {
+    aBtn.addEventListener('click', () => aInput.click());
+    aInput.addEventListener('change', () => { ekleDosyalar(aInput.files); aInput.value = ''; });
+  }
+  const aTray = $('#attachTray');
+  if (aTray) aTray.addEventListener('click', e => {
+    const b = e.target.closest('[data-eksil]');
+    if (!b) return;
+    ekler = ekler.filter(x => x.id !== b.dataset.eksil);
+    ekTepsiCiz();
+  });
+  input.addEventListener('paste', e => {
+    const f = e.clipboardData && e.clipboardData.files;
+    if (f && f.length) { e.preventDefault(); ekleDosyalar(f); }
+  });
+  document.addEventListener('dragover', e => {
+    if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }
+  });
+  document.addEventListener('drop', e => {
+    if (!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
+    e.preventDefault();
+    ekleDosyalar(e.dataTransfer.files);
+  });
   input.addEventListener('input', () => autoGrow(input));
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(); }

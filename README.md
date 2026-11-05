@@ -14,20 +14,21 @@ başkan toparlayıp özetliyor. Sekmeler arasında kopyala-yapıştır yok.
 **Anahtarsız demo.** Hiçbir yere kayıt olmadan bütün akışı deneyebilirsin (demo metinleri canlı cevap
 gibi sunulmaz).
 
-| **Konsey** | **Ayna** | **Ajanlar** | **TekeTek** |
-|---|---|---|---|
-| ![Konsey](ekranlar/1-konsey.jpg) | ![Ayna](ekranlar/3-ayna.jpg) | ![Ajanlar](ekranlar/11-ajan-kurulum.jpg) | ![TekeTek](ekranlar/26-teketek.jpg) |
-| 3–5 ayrı şirketin modeli, roller, başkan özeti | Aynı model iki sandalyede: savunan + itiraz eden, hakem kararı | Her sandalyeye ayrı görev, zincirleme teslim, tek teslimat | Tek yapay zekâ, doğrudan cevap; **anahtarsız** da çalışır |
+| **Konsey** | **Panel** | **Ayna** | **Ajanlar** | **TekeTek** |
+|---|---|---|---|---|
+| ![Konsey](ekranlar/1-konsey.jpg) | ![Panel](ekranlar/27-panel.jpg) | ![Ayna](ekranlar/3-ayna.jpg) | ![Ajanlar](ekranlar/11-ajan-kurulum.jpg) | ![TekeTek](ekranlar/26-teketek.jpg) |
+| 3–5 ayrı şirketin modeli, roller, başkan özeti | Sandalyeler **aynı anda**, birbirini görmeden yazar; **kıyaslama sende** | Aynı model iki sandalyede: savunan + itiraz eden, hakem kararı | Her sandalyeye ayrı görev, zincirleme teslim, tek teslimat | Tek yapay zekâ, doğrudan cevap; anahtarsız seçenek **yavaş** çalışır (45 sn'de 1 istek) |
 
 Tek sohbet istersen **TekeTek**: masada tek yapay zekâ olur, yazdığını doğrudan cevaplar. **Anahtarsız
-seçenek hazır gelir** — kayıt olmadan, anahtar girmeden gerçek cevap alırsın (gpt-oss 20B, Pollinations).
+seçenek hazır gelir** (gpt-oss 20B, Pollinations) — kayıt olmadan gerçek cevap alırsın, ama
+**IP başına 45 saniyede bir istek** verir; düzgün deneme için ücretsiz anahtar daha iyidir.
 
 ---
 
 ## Hemen başla (30 saniye)
 
 1. `divanai` klasörünü indir, içindeki **`index.html`**'e çift tıkla. (Python, kurulum, internet gerekmez.)
-2. Ekranın üstünden masa türünü seç: **Konsey · Ayna · Ajanlar · TekeTek**.
+2. Ekranın üstünden masa türünü seç: **Konsey · Panel · Ayna · Ajanlar · TekeTek**.
 
 **Hiç anahtar girmek istemiyorsan:** **TekeTek** sekmesini seç. Masa, **Pollinations** üzerinden
 **gpt-oss 20B** modeliyle cevap verir — **kayıt yok, anahtar yok, ücret yok**. Sınırı: aynı internet
@@ -55,8 +56,9 @@ Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya,
 
 | Ne | Nerede | Not |
 |---|---|---|
-| **Masa türü** | En üstteki dört düğme | Değiştirirsen mevcut konuşma temizlenir (önce uyarır) |
+| **Masa türü** | En üstteki beş düğme | Değiştirirsen mevcut konuşma temizlenir (önce uyarır) |
 | **Konu** | Alttaki yazı kutusu | `Enter` başlatır, `Shift+Enter` alt satır |
+| **Dosya ekle** | Yazı kutusunun solundaki **ataç** | Görsel · PDF · Word (.docx) · Excel (.xlsx) · PowerPoint (.pptx) · metin/kod. Panodan **Ctrl+V** ile yapıştırmak da olur; sürükle-bırak çalışır. Dosya **her modda** o soruyla birlikte sandalyelere gider |
 | **Gündem** | Konunun altındaki çipler | **Fikir üret · Tartış & eleştir · Karar ver** — yalnız Konsey'de; Ayna'da gündem sabittir |
 | **Dil** | Üst şeritteki iki bayrak (Türk · İngiliz) | Arayüzün tamamını Türkçe ⇄ İngilizce çevirir; seçim kalıcıdır. Cevaplar ve yazdığın konu çevrilmez |
 | **Model** | Ayna ve TekeTek'te listenin yanındaki seçici | TekeTek'te: **Pollinations · anahtarsız** ya da **kendi bağlantın** |
@@ -191,6 +193,43 @@ Devam düğmesi açık bir müdahaledir: dinlenme beklemesi varsa onu da kaldır
 ![Bütün sandalyeler dinleniyor: masa duraklatıldı](ekranlar/24-dinlenme.jpg)
 
 ---
+
+## Dosya ve görsel yükleme
+
+![Dosya ekleme: tepside PDF, görsel ve Excel](ekranlar/28-dosya-ekleme.jpg)
+
+Yazı kutusunun solundaki **ataç** düğmesiyle (ya da **Ctrl+V** / sürükle-bırak) soruya dosya ekleyebilirsin.
+Dosya seçtiğinde kutunun üstünde küçük bir **tepsi** çıkar: adı, boyutu, kaç sayfa olduğu ve ✕ düğmesi
+görünür. `Enter`'a bastığında dosya o soruyla birlikte **masadaki bütün sandalyelere** gider; hepsi aynı
+belgeyi okur.
+
+| Dosya | Ne olur |
+|---|---|
+| **Görsel** (png · jpg · webp · heic dışı tüm yaygın türler) | Uzun kenarı 896 px'e küçültülür, modele **görsel olarak** gider. Yalnız görsel okuyabilen modeller yorumlar (OpenRouter üzerinden GPT, Gemini, Claude, Grok ailesinin çoğu). **Anahtarsız seçenek görsel okuyamaz** (ölçüldü: 400 döndürüyor); uygulama görseli göndermez, tek satır uyarı yazar ve belgedeki yazıyla devam eder. |
+| **PDF** | İçindeki **seçilebilir yazı** çıkarılır (tarayıcıda, eklenti yok). Taranmış PDF'te yazı yoksa uygulama bunu söyler: sayfanın ekran görüntüsünü yükle. |
+| **Word (.docx)** | Paragraflar ve tablolar metne çevrilir. |
+| **Excel (.xlsx)** | Sayfa sayfa, hücreler **sekmeyle ayrılmış** metne çevrilir. |
+| **PowerPoint (.pptx)** | Slayt slayt metin çıkarılır. |
+| **Metin / kod** (.txt · .md · .csv · .json · .html · .js · .py …) | Olduğu gibi eklenir; HTML'in etiketleri temizlenir. |
+
+Görseli olmayan bir bağlantıda (ya da model görsel kabul etmiyorsa) uygulama bunu fark eder: görselleri
+çıkarıp isteği **bir kez** yineler, tek satır uyarı gösterir ve o bağlantıya bir daha görsel göndermez. Belge
+metni her durumda gider.
+
+Sınırlar: tek dosya **25 MB**, bir mesajda **6 dosya**, belge başına **24 bin karakter** (uzunsa başı alınır
+ve uygulama söyler). Dosyalar **senin tarayıcında** okunur; hiçbir yere yüklenmez — yalnız seçtiğin model
+sağlayıcısına, istek gövdesinde gider. Görsel her turda yeniden gönderilmez: geldiği mesajda ve **bir
+sonraki** mesajda modele taşınır, sonra metinde anılır — böylece token iki katına çıkmaz.
+
+## Panel
+
+![Panel: dört sandalye aynı anda, birbirini görmeden](ekranlar/27-panel.jpg)
+
+Sandalyeler **aynı anda** cevap verir ve **birbirini görmez**: her sandalye yalnız senin sorularını ve
+**kendi** önceki cevaplarını görür. Başkan, özet ve hakem yoktur — dört görüş alt alta yazılır,
+**karşılaştırmayı sen yaparsın**. Aynı soruya dört farklı modelin ne dediğini tarafsız görmek istediğinde
+bunu seç. Her mesaj, sandalye sayısı kadar istek harcar (4 sandalye = 4 istek) ve dört cevap **tek seferde**
+gelir; sırayla beklemezsin.
 
 ## Konsey
 

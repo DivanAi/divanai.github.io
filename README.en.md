@@ -14,20 +14,21 @@ chair sums it up. No tab-by-tab copy-paste.
 **Keyless demo.** Try the whole flow without signing up anywhere (demo text is never passed off as a
 live answer).
 
-| **Council** | **Mirror** | **Agents** | **OneOnOne** |
-|---|---|---|---|
-| ![Council](ekranlar/1-konsey.jpg) | ![Mirror](ekranlar/3-ayna.jpg) | ![Agents](ekranlar/11-ajan-kurulum.jpg) | ![OneOnOne](ekranlar/26-teketek.jpg) |
-| Models from 3–5 different companies, roles, a chair summary | One model in two seats: defender + objector, judge verdict | A task per seat, chained hand-off, one delivery | A single AI, direct answers; works **without a key** |
+| **Council** | **Panel** | **Mirror** | **Agents** | **OneOnOne** |
+|---|---|---|---|---|
+| ![Council](ekranlar/1-konsey.jpg) | ![Panel](ekranlar/27-panel.jpg) | ![Mirror](ekranlar/3-ayna.jpg) | ![Agents](ekranlar/11-ajan-kurulum.jpg) | ![OneOnOne](ekranlar/26-teketek.jpg) |
+| Models from 3–5 different companies, roles, a chair summary | Seats answer **at once**, blind to each other; **the comparison is yours** | One model in two seats: defender + objector, judge verdict | A task per seat, chained hand-off, one delivery | A single AI, direct answer; the keyless option is **slow** (1 request per 45 s) |
 
 If you just want a plain chat, pick **OneOnOne**: one AI at the table answers directly. A **keyless
-option ships ready** — a real answer with no signup and no key (gpt-oss 20B, through Pollinations).
+option ships ready** (gpt-oss 20B, through Pollinations) — real answers with no signup, but it allows
+**one request per 45 seconds per IP**, so a proper test is better with a free key.
 
 ---
 
 ## Quick start (30 seconds)
 
 1. Download the `divanai` folder and double-click **`index.html`**. (No Python, no install, no internet needed.)
-2. Pick the table type at the top: **Council · Mirror · Agents · OneOnOne**.
+2. Pick the table type at the top: **Council · Panel · Mirror · Agents · OneOnOne**.
 
 **If you do not want to enter any key:** pick **OneOnOne**. The table answers through **Pollinations**
 with the **gpt-oss 20B** model — **no signup, no key, no charge**. Its limit: **1 answer every 45
@@ -56,6 +57,7 @@ To try something free, put an id ending in `:free` — e.g. `google/gemma-4-31b-
 |---|---|---|
 | **Table type** | The four buttons at the top | Switching clears the current conversation (it warns first) |
 | **Topic** | The input box at the bottom | `Enter` starts, `Shift+Enter` new line |
+| **Attach a file** | The **paperclip** left of the text box | Image · PDF · Word (.docx) · Excel (.xlsx) · PowerPoint (.pptx) · text/code. You can also paste with **Ctrl+V** or drag and drop. In **every mode** the file goes to the seats with that question |
 | **Agenda** | The chips under the topic | **Generate ideas · Debate & critique · Decide** — Council only; Mirror's agenda is fixed |
 | **Language** | The two flags in the top bar (Turkish · English) | Translates the whole interface TR ⇄ EN; the choice is remembered. Answers and your topic are never translated |
 | **Model** | The picker next to the list in Mirror and OneOnOne | In OneOnOne: **Pollinations · keyless** or **your own connection** |
@@ -191,6 +193,42 @@ any cooldown wait.
 ![All seats resting: table paused](ekranlar/24-dinlenme.jpg)
 
 ---
+
+## Attaching files and images
+
+![Attaching files: PDF, image and Excel in the tray](ekranlar/28-dosya-ekleme.jpg)
+
+Use the **paperclip** left of the text box (or **Ctrl+V** / drag and drop) to attach a file to your question.
+A small **tray** appears above the box with the file name, size, page count and a ✕ button. Press `Enter` and
+the file goes to **every seat at the table** with that question; they all read the same document.
+
+| File | What happens |
+|---|---|
+| **Image** (png · jpg · webp …) | Long edge is reduced to 896 px and sent **as an image**. Only vision-capable models can comment on it (most of the GPT, Gemini, Claude and Grok families via OpenRouter). **The keyless option cannot read images** (measured: it returns 400); the app then skips the image, shows a one-line warning and continues with the document text. |
+| **PDF** | The **selectable text** is extracted (in your browser, no add-ons). If a scanned PDF has no text, the app says so: upload a screenshot of the page instead. |
+| **Word (.docx)** | Paragraphs and tables become text. |
+| **Excel (.xlsx)** | Sheet by sheet, cells become **tab-separated** text. |
+| **PowerPoint (.pptx)** | Text is pulled slide by slide. |
+| **Text / code** (.txt · .md · .csv · .json · .html · .js · .py …) | Added as is; HTML tags are stripped. |
+
+If a connection has no vision (or the model rejects images) the app notices: it strips the images, retries
+**once**, shows a one-line warning and never sends images to that connection again. Document text always goes
+through.
+
+Limits: one file **25 MB**, **6 files** per message, **24k characters** per document (the beginning is kept
+and the app tells you). Files are read **in your browser** and never uploaded anywhere — they only travel to
+the model provider you picked, inside the request body. An image is not resent every round: it rides along
+in the message it arrived in and in the **next** one, then it is only referenced as text.
+
+## Panel
+
+![Panel: four seats at once, blind to each other](ekranlar/27-panel.jpg)
+
+Seats answer **at the same time** and **do not see each other**: each seat only sees your questions and
+**its own** earlier answers. No chair, no summary, no judge — the views are written one under the other and
+**the comparison is yours**. Pick this when you want to see what four models say about the same question,
+side by side and without influence. Each message costs one request per seat (4 seats = 4 requests) and the
+four answers arrive together; you do not wait in turn.
 
 ## Council
 
