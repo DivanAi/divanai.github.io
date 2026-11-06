@@ -1,6 +1,6 @@
 # DivanAI — yapay zekâlar aynı masada
 
-**Site:** https://divanai.github.io/  ·  **Kaynak:** https://github.com/divanai/divanai.github.io
+**Site:** https://divanai.github.io/  ·  **Kaynak:** https://github.com/divanai/divanai.github.io  ·  **Hata/öneri:** https://github.com/divanai/divanai.github.io/issues
 
 **Türkçe** · [English](README.en.md) — arayüz iki dilli: üst şeritteki bayraklarla Türkçe ⇄ İngilizce.
 
@@ -22,7 +22,21 @@ canlı cevap gibi sunulmaz). İstersen **Canlı** modda da anahtar girmeden konu
 
 Tek sohbet istersen **TekeTek**: masada tek yapay zekâ olur, yazdığını doğrudan cevaplar. **Anahtarsız
 seçenek hazır gelir** (gpt-oss 20B, Pollinations) — kayıt olmadan gerçek cevap alırsın; yavaş çalışır
-(ölçümümde 5–8 saniye), düzgün deneme için ücretsiz anahtar daha iyidir.
+(7 Kasım 2026 ölçümü: ilk cevap **22 saniye**, aynı sorunun tekrarı önbellekten 1 saniyenin altında), düzgün deneme için ücretsiz anahtar daha iyidir.
+
+---
+
+## Dürüst sınırlar (özet)
+
+Bunlar reklam değil, ölçüm:
+
+| Konu | Gerçek |
+|---|---|
+| **"Ücretsiz"** | Uygulama para almaz, hesap istemez, istek saymaz. **Servisler** sınır koyar: OpenRouter `:free` modellerde günde 50 istek (bir tur 4 istek → ~12 tur), Groq ücretsiz katmanda günde 1.000, Pollinations yayınlanmış kota vermez ama yoğunlukta bekletir. |
+| **Anahtarsız mod** | Demo değil, gerçek servis — ama **görsel okuyamaz** ve yavaştır (ilk cevap ~22 sn, 7 Kas 2026). |
+| **Web araması** | Yalnız OpenRouter'da ve **ücretli**: istek başına ~0,7–1,5 sent. Ücretsiz modelde bile kredi harcar. Varsayılan kapalı. |
+| **Ayna** | Aynı model iki rolde: kendi kendini onaylamayı zorlaştırır. Modelin **her yerde paylaştığı** kör noktayı yakalamaz — modeli değiştirmenin yerini tutmaz. |
+| **Sayı kuralı** | Kaynaksız tutarı `[?]` yapar; cevabı doğru yapmaz. Oranlar da yanlış olabilir, ama tartışılabilir. |
 
 ---
 
@@ -310,7 +324,7 @@ ettikçe sohbetin hafızası açık kalır. İki seçenek var:
 | **Kendi bağlantım** | Ayarlar → Bağlantı'da bir sağlayıcı + anahtar | Zaten anahtarın varsa, sınır istemiyorsan |
 
 **Anahtarsız seçeneğin sınırı:** Pollinations yayınlanmış bir kota vermiyor; yoğunlukta isteği bekletiyor
-(ölçümümde cevap 5–8 saniyede geldi). Sunucu 402 dönerse uygulama kaç saniye bekleneceğini söyleyip bir kez
+(7 Kasım 2026 ölçümü: ilk cevap 22 saniye, önbellekte 1 saniyenin altı; yoğunlukta 60 saniyeyi aşabilir). Sunucu 402 dönerse uygulama kaç saniye bekleneceğini söyleyip bir kez
 kendisi tekrar dener — boş hata ekranı görmezsin.
 Sunucu “en iyi çaba” ile çalışır; ara ara yavaşlayabilir. Modelin **iç konuşması (reasoning)** ekrana basılmaz,
 yalnız cevabı görürsün. Sohbetin bir yere kaydedilmez; anahtar kullanılmadığı için kaybedilecek bir şey de yok.

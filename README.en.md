@@ -1,6 +1,6 @@
 # DivanAI — many AI minds, one table
 
-**Site:** https://divanai.github.io/  ·  **Source:** https://github.com/divanai/divanai.github.io
+**Site:** https://divanai.github.io/  ·  **Source:** https://github.com/divanai/divanai.github.io  ·  **Bugs/suggestions:** https://github.com/divanai/divanai.github.io/issues
 
 **English** · [Türkçe](README.md) — the interface is bilingual: flip it with the two flags in the top bar.
 
@@ -21,7 +21,21 @@ live answer).
 
 If you just want a plain chat, pick **OneOnOne**: one AI at the table answers directly. A **keyless
 option ships ready** (gpt-oss 20B, through Pollinations) — real answers with no signup; it is slow
-(5–8 seconds in my measurement), so a proper test is better with a free key.
+(7 November 2026 measurement: **22 seconds** for the first answer, under a second when cached), so a proper test is better with a free key.
+
+---
+
+## Honest limits (summary)
+
+Not marketing — measurements:
+
+| Topic | Reality |
+|---|---|
+| **"Free"** | The app charges nothing, wants no account, counts no requests. **The services** set limits: OpenRouter `:free` models 50 requests a day (a round costs 4 → ~12 rounds), Groq free tier 1,000 a day, Pollinations publishes no quota but throttles under load. |
+| **Keyless mode** | Not a demo — real services, but it **cannot read images** and it is slow (first answer ~22 s, 7 Nov 2026). |
+| **Web search** | OpenRouter only and **paid**: ~0.7–1.5 cents per request, even on a free model. Off by default. |
+| **Mirror** | Same model in two roles: it makes self-approval harder. It does **not** catch a blind spot the model shares everywhere — no substitute for changing the model. |
+| **Number rule** | Turns unsourced amounts into `[?]`; it does not make the answer correct. Ratios can be wrong too, but they are debatable. |
 
 ---
 
@@ -310,7 +324,7 @@ memory as you continue. Two options:
 | **My own connection** | A provider + key in Settings → Connection | You already have a key, you want no limits |
 
 **The keyless option has a limit:** Pollinations publishes no quota; under load it throttles requests
-(in my measurement answers arrived in 5–8 seconds). If the server returns a 402 the app says how many
+(7 November 2026 measurement: first answer 22 seconds, under a second when cached; under load it may pass 60 seconds). If the server returns a 402 the app says how many
 seconds to wait and retries once by itself — you never see an empty error screen. The server runs best-effort and may slow down now and then. The model's **inner reasoning**
 is not printed, only the answer. The chat is not saved anywhere; since no key is used there is nothing
 to lose.
