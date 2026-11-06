@@ -473,6 +473,61 @@ menüden yedek al: yedek dosyası bilgisayarına iner, oradan da sana ait.
 
 ---
 
+## Ücretsiz servisler · 6 Kasım 2026 ölçümü
+
+Varsayılan kurulum **anahtarsız** üç servisle çalışır. Hangisinin ne yaptığını tahmin etmek
+yerine ölçtüm — sonuçlar aşağıda. Ölçüm: aynı soru, tek istek, akış açık, 6 Kasım 2026.
+
+| Servis | Model | Süre | Sonuç |
+|---|---|---|---|
+| OVH AI Endpoints | Llama 3.3 70B | 0,7 sn | düzgün cevap |
+| OVH AI Endpoints | Mistral Small 3.2 | 2,4 sn | düzgün cevap |
+| LLM7.io | Codestral | 0,8–1,0 sn | düzgün cevap — **günlük kota dolunca 429** (sunucu: "yeniden deneme 24 saat") |
+| Pollinations | gpt-oss 20B | 6 sn – 45 sn | düşünen model; yoğunlukta görünür metin hiç gelmiyor |
+| OVH AI Endpoints | Qwen 3.8 27B | 51 sn | **boş** — yalnız düşünme metni, listeden çıkarıldı |
+| LLM7.io | Mistral Nemo | 5,7 sn | **bozuk Türkçe** (cümle ortasında yabancı kelimeler), çıkarıldı |
+
+Bu yüzden 6 Kasım'da şunlar değişti:
+
+- **Bozuk modeller listeden çıktı.** Mistral Nemo (LLM7) ve Qwen 3.8 (OVH) artık ön ayarlarda
+  yok. Kayıtlı ayarında bu kimlikler varsa açılışta **kendiliğinden** Codestral / Llama 3.3'e
+  çevrilir — elle bir şey yapman gerekmez.
+- **Sıra hıza göre.** İlk sandalye ve başkan artık **OVH Llama 3.3** (0,7 sn); LLM7 ikinci,
+  Pollinations üçüncü (en yavaş, yalnız yedek).
+- **Düşünen model tuzağı kesildi.** Bir model 12 saniye boyunca yalnız "düşünme" metni üretip
+  görünür cevaba geçmezse o deneme kesilir, sıradaki ücretsiz servis devralır. Eskiden 60 saniye
+  boş bekliyordu ("60 sn içinde cevap vermedi" satırı buydu).
+- **Yedek zinciri artık servis değiştiriyor.** Bir servis 400/429/boş yanıt dönerse sandalye
+  önce aynı serviste başka modeli, sonra **anahtarsız diğer servisi** dener (LLM7 → OVH →
+  Pollinations). Önceden aynı servisin içinde kalıp boş dönüyordu.
+- **Not yer değiştirdi.** "Mistral Nemo yanıt veremedi · yerine Codestral geçti" satırı artık
+  cevabın **üstünde** duruyor; eskiden altında kalıp cevabın kendisi sanılıyordu.
+- **Yanlış model adı kendi kendini onarıyor.** Bir sağlayıcı "model bulunamadı" (404) derse
+  uygulama o servisin `/models` listesini sorar, çalışan bir kimlik seçer, kaydeder ve cevabı
+  alır. Ön ayardaki bir isim yarın eskise bile masa kilitlenmez.
+- **Ayarlar dürüst konuşuyor.** Anahtarsız görünümün altında 429/boş yanıt uyarısı ve her
+  anahtarsız servisin **ölçülmüş** notu var (hız, sınır, hangi model çalışıyor).
+
+![Anahtarsız uyarı](ekranlar/38-anahtarsiz-uyari.jpg)
+
+### Daha akıcı olmasını istersen: kartsız ücretsiz anahtar
+
+Anahtarsız servisler "en iyi çaba" ile çalışır: bedava oldukları için yoğunlukta bekletirler.
+Kesintisiz çalışması için **tek bir kartsız anahtar** yeterli. Ölçülen/toplanan seçenekler:
+
+| Servis | Kart | Sınır (kaynak) | Not |
+|---|---|---|---|
+| **Google AI Studio** (Gemini) | istemez | Flash sınıfı ≈ günde 1.500 istek, dakikada 15–30 (topluluk takibi, Ekim 2026) | Türkiye'de ücretsiz katman açık; görsel/PDF okuyor. Türkiye'de en kolay ve en geniş seçenek. |
+| **Groq** | istemez | günde ≈1.000 istek, dakikada ≈30, dakikada 6–8 bin token (topluluk takibi) | Çok hızlı; uzun cevaplarda token sınırına takılır. |
+| **Cloudflare Workers AI** | istemez (hesap) | günde 10.000 neuron (Cloudflare duyurusu) | Küçük modeller; OpenAI uyumlu adres. |
+| **Z.ai (GLM)** | istemez | GLM-4.7-Flash ücretsiz havuz | Kotasız deniyor; doğrulamak için hesap gerekir. |
+| **Mistral** | istemez (telefon doğrulaması) | "Experiment" ücretsiz katman | Sınırlar hesap ekranında. |
+| **Cohere** | istemez | deneme: ayda 1.000 istek | Deneme kotası; uzun vadeli değil. |
+
+**Öneri:** sırayla **Google AI Studio** → **Groq**. İkisi de kart istemez; Ayarlar → Bağlantı
+ekranından anahtarı yapıştırınca bütün sandalyeler o servise geçer. Hiçbiri zorunlu değil:
+anahtarsız kurulum da çalışır, yalnız bazen 20–60 saniye bekletir.
+
 ## Bilinen sınırlar
 
 - **Demo gerçek model değildir.** Örnek metinler sabittir ve "(Demo)" etiketlidir.
@@ -503,6 +558,10 @@ menüden yedek al: yedek dosyası bilgisayarına iner, oradan da sana ait.
 | Ücretli servisler ayrı katmanda | Sandalye başına bağlantı |
 |---|---|
 | ![Diğer servisler](ekranlar/25-diger-servisler.jpg) | ![Sandalye bağlantısı](ekranlar/9-sandalye-baglanti.jpg) |
+
+| Anahtarsız uyarı ve ölçülmüş servis notları (6 Kasım 2026) |
+|---|
+| ![Anahtarsız uyarı](ekranlar/38-anahtarsiz-uyari.jpg) |
 
 *DivanAI · tek dosya · dışa bağımlılık yok.*
 

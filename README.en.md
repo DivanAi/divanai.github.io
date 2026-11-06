@@ -477,6 +477,61 @@ take a backup from the menu: the backup file lands on your computer and belongs 
 
 ---
 
+## Free services · measured 6 November 2026
+
+The default setup runs on **three keyless services**. Instead of guessing which one does what,
+I measured them: same question, single request, streaming on, 6 November 2026.
+
+| Service | Model | Time | Result |
+|---|---|---|---|
+| OVH AI Endpoints | Llama 3.3 70B | 0.7 s | clean answer |
+| OVH AI Endpoints | Mistral Small 3.2 | 2.4 s | clean answer |
+| LLM7.io | Codestral | 0.8–1.0 s | clean answer — **429 once the daily quota is used up** (server: "retry in 24 h") |
+| Pollinations | gpt-oss 20B | 6 s – 45 s | a reasoning model; under load no visible text arrives at all |
+| OVH AI Endpoints | Qwen 3.8 27B | 51 s | **empty** — reasoning text only, removed from the presets |
+| LLM7.io | Mistral Nemo | 5.7 s | **broken Turkish** (foreign words mid-sentence), removed |
+
+What changed on 6 November because of this:
+
+- **Broken models are gone.** Mistral Nemo (LLM7) and Qwen 3.8 (OVH) are no longer in the presets.
+  If your saved settings still point at them, they are switched to Codestral / Llama 3.3
+  **automatically** on open — nothing to do by hand.
+- **Order follows speed.** The first seat and the chair now run on **OVH Llama 3.3** (0.7 s);
+  LLM7 second, Pollinations third (slowest, rescue only).
+- **The reasoning trap is cut.** If a model spends 12 seconds emitting only "thinking" text
+  without visible output, that attempt is abandoned and the next free service takes over.
+  It used to sit idle for 60 seconds (that was the "no answer within 60 s" line).
+- **The fallback chain now changes service.** When a service returns 400/429/an empty answer,
+  the seat tries another model on the same service and then the **next keyless service**
+  (LLM7 → OVH → Pollinations). Before, it stayed inside one service and came back empty.
+- **The note moved.** "Mistral Nemo could not answer · Codestral took over" now sits **above**
+  the answer; it used to sit below and read like part of the answer.
+- **A wrong model id repairs itself.** If a provider says "model not found" (404), the app asks
+  that service's `/models` list, picks a working id, saves it and gets the answer. A preset that
+  goes stale tomorrow will not lock the table.
+- **Settings are honest.** The keyless view carries a 429/empty-answer warning and a
+  **measured** note for each keyless service (speed, limit, which model actually works).
+
+![Keyless warning](ekranlar/38-anahtarsiz-uyari.jpg)
+
+### If you want it smoother: a free key without a card
+
+Keyless services run "best effort": they are free, so under load they make you wait. One
+**card-free key** is enough for uninterrupted use. Options checked:
+
+| Service | Card | Limit (source) | Note |
+|---|---|---|---|
+| **Google AI Studio** (Gemini) | no | Flash class ≈ 1,500 requests a day, 15–30 a minute (community tracking, Oct 2026) | Free tier is open in Türkiye; reads images/PDF. The easiest and widest option here. |
+| **Groq** | no | ≈1,000 requests a day, ≈30 a minute, 6–8k tokens a minute (community tracking) | Very fast; long answers hit the token cap. |
+| **Cloudflare Workers AI** | no (account) | 10,000 neurons a day (Cloudflare announcement) | Smaller models; OpenAI-compatible endpoint. |
+| **Z.ai (GLM)** | no | free GLM-4.7-Flash pool | Reported as quota-free; needs an account to verify. |
+| **Mistral** | no (phone verification) | "Experiment" free tier | Limits are on the account page. |
+| **Cohere** | no | trial: 1,000 requests a month | Trial allowance; not long-term. |
+
+**Recommendation:** **Google AI Studio** first, then **Groq**. Neither needs a card; paste the key
+in Settings → Connection and every seat moves to that service. None of this is required — the
+keyless setup works too, it just makes you wait 20–60 seconds now and then.
+
 ## Known limits
 
 - **Demo is not a real model.** The sample texts are fixed and labelled “(Demo)”.
