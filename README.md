@@ -431,6 +431,26 @@ arayüz dilini seçtiysen örnek konuşma da o dilde oynar.
 
 ---
 
+## Görünüm · gündüz ve gece
+
+İki tema var, düzeni hiç değiştirmez — yalnız renkler ve başlık yazısı değişir.
+
+| | **Gündüz (varsayılan)** | **Gece** |
+|---|---|---|
+| Zemin | kâğıt `#f6f2ea` | gece `#08090d` |
+| Mürekkep | `#1b1a17` | `#eef1f7` |
+| Vurgu | kehribar `#8a5a2b` | sarı `#f5c76a` |
+| Başlıklar | serif (Georgia) | sans-serif |
+
+Üst şeritteki **tek simge** ile geçilir: gündüzde ay, gecede güneş görünür (simge gidilecek
+modu gösterir). Seçim tarayıcıda saklanır; ilk açılış **gündüzdür**. `G` tuşu da değiştirir
+(yazı kutusunda çalışmaz). Ayarlar çekmecesinde de `☀ Gündüz / ☾ Gece` satırı vardır.
+
+Kontrast WCAG AA üstündedir: gövde 15,6 · ikincil 8,4 · soluk 6,0 · buton yazısı 5,8.
+`prefers-reduced-motion` açıksa geçiş animasyonu kapanır.
+
+---
+
 ## Veri nerede?
 
 Kısa cevap: **sende kalır.** DivanAI'nın kendi sunucusu, hesabı, veritabanı yoktur.

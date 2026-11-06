@@ -435,6 +435,26 @@ sample plays in whichever interface language you picked.
 
 ---
 
+## Appearance · day and night
+
+Two themes; layout never changes — only colours and heading typeface.
+
+| | **Day (default)** | **Night** |
+|---|---|---|
+| Background | paper `#f6f2ea` | night `#08090d` |
+| Ink | `#1b1a17` | `#eef1f7` |
+| Accent | amber `#8a5a2b` | gold `#f5c76a` |
+| Headings | serif (Georgia) | sans-serif |
+
+Toggle with the **single icon** in the top bar: a moon in day mode, a sun in night mode (the icon
+shows where you are going). The choice is stored in the browser; the first visit is **day**.
+The `G` key toggles too (not while typing). The settings drawer also has a `☀ Day / ☾ Night` row.
+
+Contrast clears WCAG AA: body 15.6 · secondary 8.4 · dim 6.0 · button label 5.8.
+With `prefers-reduced-motion`, the transition is disabled.
+
+---
+
 ## Where is the data?
 
 Short answer: **with you.** DivanAI has no server, no account, no database of its own.
