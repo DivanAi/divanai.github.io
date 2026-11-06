@@ -431,6 +431,27 @@ arayüz dilini seçtiysen örnek konuşma da o dilde oynar.
 
 ---
 
+## Sayı kuralı — model fiyat uydurmaz
+
+Fiyat, tutar, maliyet, ciro, kira için **mutlak sayı yazılmaz.** Bu bir temenni değil, kodda uygulanır:
+
+| Katman | Ne yapar |
+|---|---|
+| **İstem** | Modele "TL / ₺ / $ tutarı yazma; oran, eşik, formül yaz; girdi gerekiyorsa `[kira]` diye boşluk bırak" talimatı gider |
+| **Denetim** | Her cevapta sayı + birim aranır (`5.000 TL`, `26 fincan`, `45 m²`). Senin yazdığın sayılar ve varsa kaynaklar **muaf** |
+| **Onarım** | Kaynaksız tutar `[?]` yapılır, balonun altına not düşülür: *"2 kaynaksız tutar gizlendi → [?]"*. **İkinci model çağrısı yok** |
+
+**Serbest:** oran (`kira cironun %8–12'si`), formül (`fincan/gün = ciro ÷ sepet ÷ 30`), süre (6 ay), yıl (2026),
+uygulamanın kendi bilgisi (3 model, 2 tur), senin verdiğin sayılar.
+**Yasak:** uydurulmuş tutar ve uydurulmuş oran ("%37 kira/ciro" gibi).
+
+Ayarlar ▸ **Masa düzeni** ▸ *Sayı kuralı* — varsayılan **açık**. Kapatırsan denetim susar.
+
+> Neden: model fiyat **bilmez**, yapı **bilir**. Fiyatı sen getirirsin, hesabı uygulama yapar,
+> oranı model verir — gerekçesiyle ve tartışılabilir olarak.
+
+---
+
 ## Görünüm · gündüz ve gece
 
 İki tema var, düzeni hiç değiştirmez — yalnız renkler ve başlık yazısı değişir.

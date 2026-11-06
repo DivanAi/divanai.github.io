@@ -1277,6 +1277,16 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 :root[data-palette="paper"] .composer{box-shadow:0 10px 26px -22px rgba(60,44,26,.55)}
 :root[data-palette="paper"] .topicCard{box-shadow:0 12px 30px -26px rgba(60,44,26,.5)}
 :root[data-palette="paper"] .drawer{box-shadow:-24px 0 60px -40px rgba(60,44,26,.5)}
+
+/* ---------------- sayı kuralı notu (balon altı) ---------------- */
+.sayiNote{
+  margin-top:9px;padding:7px 10px;border-radius:9px;
+  font-size:11.5px;line-height:1.45;
+  color:var(--warnInk);
+  background:color-mix(in srgb, var(--warnInk) 11%, transparent);
+  border:1px solid color-mix(in srgb, var(--warnInk) 26%, transparent);
+}
+.sayiNote code{font-family:var(--f-mono);font-size:11px;padding:1px 4px;border-radius:4px;background:color-mix(in srgb, var(--warnInk) 14%, transparent)}
 </style>
 </head>
 <body>
@@ -2071,6 +2081,11 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
     "Ücretsiz kullanımın sınırı": "The limit of free usage",
     "4 ayrı model · başkan özetler": "4 separate models · chair summarizes",
     "Güncel kaynakları modele ekle": "Add up-to-date sources to the model",
+    "Sayı kuralı — model fiyat uydurmasın": "Number rule — models don't invent prices",
+    "Açıkken model TL / adet / m² gibi mutlak sayı yazamaz; oran ve formül yazar. Kaynaksız tutar cevapta [?] yapılır ve altına not düşülür. Kullanıcının kendi yazdığı sayılar serbesttir.": "When on, models cannot write absolute amounts (TRY, counts, m²); they write ratios and formulas. Unsourced amounts turn into [?] with a note beneath the bubble. Numbers you typed yourself are always allowed.",
+    "kaynaksız tutar": "unsourced amount",
+    "gizlendi": "hidden",
+    "DivanAI fiyat uydurmaz. Kendi rakamını yazarsan hesabı yapar.": "DivanAI does not invent prices. Give your own figures and it does the maths.",
     "Cevap sınırı (kelime) · 30–500": "Answer limit (words) · 30–500",
     "Model (Ayna seçiliyken geçerli)": "Model (used when Mirror is selected)",
     "API anahtarlarını da dosyaya ekle": "Include the API keys in the file too",
@@ -2369,6 +2384,172 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
   };
   patchConfirm();
 })();
+
+
+/* ---------------- Sayı kuralı (Kol 113a · uygulama katmanı) ----------------
+   Belge: sayi-kurali.md. Üç satır:
+     1. Mutlak sayı yasak  — model TL / adet / m² / ay yazmaz (hafızasından).
+     2. Oran serbest       — oran, eşik, kat yazar; gerekçesini de yazar.
+     3. Sayı iki yoldan girer — E (kaynaklı: kullanıcı/belge/web) ya da C (uygulama hesaplar).
+   Burada iki iş var:
+     · sayiRuleBlock()  → modele giden talimat (isteme yazılır)
+     · sayiClean(text)  → modelin yazdığı metinde kaynaksız tutarı [?] yapar (kod denetimi)
+   İkinci çağrı yok: onarım metin üstünde yapılır (belge §5). */
+
+/* arayüz dili (içerik dili değil): notlar ve istem bloğu buna uyar */
+function sayiEn() {
+  try { if (window.I18N && typeof I18N.isEn === 'function') return !!I18N.isEn(); } catch (e) {}
+  return false;
+}
+
+/* ---------- ayar ---------- */
+function sayiOn() {
+  return !(state && state.settings && state.settings.sayi === false);
+}
+
+/* ---------- istem: modele giden kural ---------- */
+function sayiRuleBlock() {
+  if (!sayiEn()) {
+    return [
+      '',
+      '## Sayı kuralı (kesin · ihlal edilemez)',
+      'Fiyat, tutar, maliyet, ciro, kira, maaş, bütçe için **mutlak sayı yazma**. "5.000 TL", "aylık 12.000 TL", "150 bin lira", "3.000 TL\'lik makine" gibi hiçbir tutar yazma — ne kadar emin olursan ol, hafızandan fiyat söyleme. Kullanıcı senden rakam istese bile yazma.',
+      'Bunun yerine:',
+      '- **Oran / eşik / kat** yaz ve gerekçesini tek cümleyle ver: "kira, cironun %8–12\'sini geçmemeli (sektör pratiği, tartışılabilir)".',
+      '- **Formül** ver, sonucu değil: "gereken fincan/gün = ciro ÷ ortalama sepet ÷ 30".',
+      '- **Girdi iste ve boşluk bırak**: "kirayı [kira], ortalama sepeti [sepet] yaz; hesabı ben yaparım."',
+      '- **Adet/miktar tahmini de yazma** ("günde 26 fincan", "10 dükkân" gibi); onun yerine neyin neye bağlı olduğunu yaz.',
+      '- **Kullanıcının yazdığı sayıyı** aynen kullanabilirsin; ondan türettiğin sonucu "hesap:" diye işaretle.',
+      '- **Uydurma oran da yasak**: oran ya yaygın sektör pratiğidir (yaz ve "tartışılabilir" de), ya kullanıcıya sorulur.',
+      '- Uygulamanın kendi bilgisi (sandalye sayısı, tur sayısı, yıl) serbesttir.',
+      'Soruyu cevaplamak için rakam şartsa, rakamı uydurma: hangi iki-üç sayının gerektiğini tek cümleyle söyle ve yapıyı ver.'
+    ].join('\n');
+  }
+  return [
+    '',
+    '## Number rule (hard · never break)',
+    'Never write absolute amounts for price, cost, revenue, rent, salary or budget. No "5,000 TRY", "$150k", "3,000 for the machine" — even if the user asks for a figure, do not produce one from memory.',
+    'Instead:',
+    '- **Ratios / thresholds / multiples**, each with a one-line reason: "rent should stay under 8–12% of revenue (industry practice, debatable)".',
+    '- **Formulas**, not results: "cups/day = revenue ÷ average ticket ÷ 30".',
+    '- **Ask for inputs and leave slots**: "give me rent [rent] and average ticket [ticket]; I will do the maths."',
+    '- **No quantity guesses either** ("26 cups a day", "10 shops"); describe what depends on what.',
+    '- **The user\'s own numbers** may be reused verbatim; mark anything you derive as "calc:".',
+    '- **Invented ratios are banned too**: a ratio must be common practice (say so, call it debatable) or come from the user.',
+    '- The app\'s own facts (seat count, round count, year) are fine.',
+    'If the question truly needs a number, do not invent it: name the two or three figures you need in one sentence and give the structure.'
+  ].join('\n');
+}
+
+/* kısa sürüm: lite / tek kişi / panel / ajan istemleri için tek satır */
+function sayiRuleLine() {
+  return !sayiEn()
+    ? 'SAYI KURALI: fiyat/tutar/maliyet/ciro/kira için mutlak sayı yazma ("5.000 TL" yasak) — oran, eşik ve formül yaz; girdi gerekiyorsa [kira] gibi boşluk bırakıp kullanıcıdan iste. Kullanıcının verdiği sayı kullanılabilir, türettiğin sonucu "hesap:" diye işaretle. Uydurma oran da yasak.'
+    : 'NUMBER RULE: never write absolute price/cost/revenue/rent figures ("5,000 TRY" is banned) — write ratios, thresholds and formulas; if an input is needed, leave a slot like [rent] and ask. User-supplied numbers are fine; mark derived results as "calc:". Invented ratios are banned too.';
+}
+
+/* ---------- kaynaklı sayılar (E) ----------
+   Kullanıcının yazdığı sayılar ve varsa web kaynakları "kaynaklı" sayılır.
+   Normalize: 5.000 / 5000 / 5 000 → "5000" */
+function sayiNormDigits(s) {
+  return String(s || '').replace(/[\s\u00a0\u202f]/g, '').replace(/[.,]/g, '');
+}
+function sayiSourceDigits() {
+  const out = new Set();
+  const push = t => {
+    const re = /\d+(?:[.,\u00a0\u202f]\d+)*/g;
+    let m;
+    while ((m = re.exec(String(t || ''))) !== null) out.add(sayiNormDigits(m[0]));
+  };
+  push(topicLine ? topicLine() : '');
+  try {
+    for (const m of (state.transcript || [])) {
+      if (m.personaId === 'user' && m.text) push(m.text);
+    }
+  } catch (e) {}
+  try {
+    for (const w of (state.webSources || [])) push(w && (w.title + ' ' + (w.snippet || w.content || '')));
+  } catch (e) {}
+  return out;
+}
+
+/* ---------- denetim ----------
+   Para/miktar birimi sayının HEMEN ardında (ya da önünde sembol) olmalı.
+   Böylece "2026 yılında 5.000 TL" cümlesinde yıl değil, yalnız tutar yakalanır. */
+const SAYI_MONEY_AFTER = /^\s*(?:[–—‑-]\s*\d[\d.,\u00a0\u202f]*\s*)?(?:bin|milyon|milyar)?\s*(?:₺|TL'|TL\b|tl\b|Türk\s+lirası|lira|liraya|liradan|liralık|\$|USD\b|dolar|€|EUR\b|euro|avro)/i;
+const SAYI_QTY_AFTER = /^\s*(?:adet|fincan|bardak|porsiyon|kişi|müşteri|kafe|dükkân|dükkan|mağaza|şube|m²|m2|metrekare|metre\s?kare|kg|kilo|litre|paket|şişe|tabak|çalışan|personel)(?=\s|$|[.,;:!?)])/i;
+const SAYI_TIME = /^\s*(ay|aylık|gün|günlük|hafta|haftalık|yıl|yıllık|saat|dakika)\b/i;
+const SAYI_APP = /^\s*(sandalye|sandalyeli|tur|model|satır|kelime|madde|adım|saniye)\b/i;
+
+/* metindeki sayıları bul: {kind:'para'|'miktar', raw} · oran sayısı ayrı döner */
+function sayiScan(text) {
+  const src = sayiSourceDigits();
+  const s = String(text || '');
+  const hits = [];
+  let oran = 0;
+  const re = /\d+(?:[.,\u00a0\u202f]\d+)*/g;
+  let m;
+  while ((m = re.exec(s)) !== null) {
+    const raw = m[0];
+    const i = m.index;
+    const end = i + raw.length;
+    const after = s.slice(end, end + 22);
+    const before = s.slice(Math.max(0, i - 3), i);
+
+    // oran: %10, %8–12 · serbest
+    if (/%\s*$/.test(before) || /^\s*%/.test(after)) { oran++; continue; }
+
+    const symBefore = /[₺$€]\s*$/.test(before);
+    const para = symBefore || SAYI_MONEY_AFTER.test(after);
+    const miktar = !para && SAYI_QTY_AFTER.test(after);
+    if (!para && !miktar) continue;                      // yıl, süre, sayı olmayan metin
+
+    // kaynaklı mı? (kullanıcı yazdı ya da web kaynağında geçiyor)
+    if (src.has(sayiNormDigits(raw))) continue;
+    // kaynak etiketi varsa dokunma
+    if (/(kaynak\s*:|kaynaklı|\[E\]|https?:\/\/)/i.test(s.slice(Math.max(0, i - 60), end + 40))) continue;
+
+    hits.push({ kind: para ? 'para' : 'miktar', raw: raw, index: i, len: raw.length });
+  }
+  return { hits: hits, oran: oran };
+}
+
+/* ---------- onarım ----------
+   Kaynaksız tutarı [?] yapar. Cümle silmez (belge §5: "sayı silinir, yerine [?] konur"). */
+function sayiClean(text) {
+  const s = String(text || '');
+  if (!s.trim()) return { text: s, gizli: 0, oran: 0 };
+  const r = sayiScan(s);
+  if (!r.hits.length) return { text: s, gizli: 0, oran: r.oran };
+  let out = '', last = 0;
+  for (const h of r.hits) {
+    out += s.slice(last, h.index) + (h.kind === 'para' ? '[?]' : '[?]');
+    last = h.index + h.len;
+  }
+  out += s.slice(last);
+  return { text: out, gizli: r.hits.length, oran: r.oran };
+}
+
+/* ---------- mesaja uygula ---------- */
+function sayiApply(m) {
+  if (!m || !m.text || !sayiOn()) return m;
+  if (m.personaId === 'user' || m.kind === 'notice' || m.kind === 'image') return m;
+  if (m.sayiDone) return m;
+  const r = sayiClean(m.text);
+  m.sayiDone = true;
+  m.sayiGizli = r.gizli;
+  m.sayiOran = r.oran;
+  if (r.gizli) m.text = r.text;
+  return m;
+}
+
+/* notu (balonun altında) */
+function sayiNoteText(n) {
+  if (!n) return '';
+  return !sayiEn()
+    ? '<b>' + n + ' kaynaksız tutar</b> gizlendi → <code>[?]</code> · DivanAI fiyat uydurmaz. Kendi rakamını yazarsan hesabı yapar.'
+    : '<b>' + n + ' unsourced amount' + (n > 1 ? 's' : '') + '</b> hidden → <code>[?]</code> · DivanAI does not invent prices. Give me your own figures and I will do the maths.';
+}
 
 
 /* Copyright 2026 DivanAI — Apache License 2.0 (LICENSE dosyasına bak). */
@@ -3953,7 +4134,7 @@ function liteSystem(p) {
     chat
       ? 'KURALLAR: İlk cümle doğrudan cevabın olsun. En fazla ' + words() + ' kelime, düz paragraf; madde imi, başlık, "Sonuç:/Artı:/Eksi:/İlk adım:" etiketi YASAK. Cümle 20 kelimeyi geçmesin, bir cümlede tek fikir. Kısa kelime seç. "Elbette", "harika soru", "umarım yardımcı olur" gibi açılış yok. Fikrin olsun: "bence", "sanırım" serbest, bir tarafı tut. "X dedi ama", "X’in dediği gibi fakat" gibi alıntı açılışı YASAK; itirazın varsa doğrudan yaz.'
       : 'KURALLAR: En fazla ' + words() + ' kelime. İlk cümle doğrudan bilgi versin, giriş cümlesi ve kapanış özeti olmasın.',
-    'Somut ol: örnek, araç adı, adım ya da sayı ver. Uydurma sayı yasak; emin değilsen "kabaca" de. Aynı noktayı iki kez yazma. Model adı, komut ve hata metni değişmeden yazılır.',
+    'Somut ol: örnek, araç adı, adım ver. ' + (typeof sayiRuleLine === 'function' && sayiOn() ? sayiRuleLine() : 'Uydurma sayı yasak.') + ' Aynı noktayı iki kez yazma. Model adı, komut ve hata metni değişmeden yazılır.',
     'Uydurma alıntı yasak: masada yazılmamış bir cümleyi kimseye mal etme. "Sen şöyle dedin" diyorsan o cümle yukarıdaki konuşmada gerçekten olmalı.',
     sessionLang() === 'tr' ? 'Türkçe yaz; de/da, ki, mi eklerine dikkat.' : 'Yazım kurallarına uy.',
     ...(p.duelSide ? ['Rakibin de aynı model. Rakibin en zayıf halkasını hedefle, kendi iddianın nerede çökebileceğini de yaz.'] : [])
@@ -3972,7 +4153,7 @@ function singleSystem(p) {
       ? 'İlk cümle sorunun cevabı olsun. En fazla ' + words() + ' kelime, düz paragraf; madde imi, numara ve başlık kullanma. Cümle 20 kelimeyi geçmesin.'
       : 'En fazla ' + words() + ' kelime. İlk cümle doğrudan bilgi versin, giriş ve kapanış cümlesi olmasın.',
     'Dolgu yok: “Elbette”, “harika soru”, “umarım yardımcı olur” yazma. Konuyu değiştirme, sorulmayanı anlatma.',
-    'Somut ol: örnek, araç adı ya da adım ver. Uydurma sayı yasak; emin değilsen “kabaca” de.',
+    'Somut ol: örnek, araç adı ya da adım ver. ' + (typeof sayiRuleLine === 'function' && sayiOn() ? sayiRuleLine() : 'Uydurma sayı yasak.'),
     'Teknik terim yerine günlük dil kullan (karşındaki kod bilmiyor).',
     sessionLang() === 'tr' ? 'Türkçe yaz; de/da, ki, mi eklerine dikkat.' : 'Yazım kurallarına uy.'
   ].filter(Boolean).join('\n');
@@ -4088,6 +4269,8 @@ function systemPrompt(p) {
   if (said.length) {
     lines.push('', '## Masada şu ana kadar söylenenler (tekrar etme)', ...said);
   }
+  // sayı kuralı (Kol 113a): mutlak tutar yasak, oran serbest
+  if (typeof sayiOn === 'function' && sayiOn()) lines.push(sayiRuleBlock());
   return lines.filter(l => l != null).join('\n');
 }
 
@@ -4824,6 +5007,7 @@ function noteBlocked(round, name, best, isSelf) {
 
 function addMessage(obj) {
   const m = { id: uid(), ts: nowISO(), ...obj };
+  if (typeof sayiApply === 'function') sayiApply(m);   // özet/defter metinleri de kurala uyar
   state.transcript.push(m);
   return m;
 }
@@ -5612,6 +5796,7 @@ function stripSpeakerTag(text) {
 
 function finalizeMsg(m) {
   m.text = stripSpeakerTag(m.text);
+  if (typeof sayiApply === 'function') sayiApply(m);   // kaynaksız tutar → [?]
   m.streaming = false;
   m.plain = plainOf(m.text) || '';
   updateMsgDOM(m);
@@ -8415,7 +8600,7 @@ function ajanSystem(p, job, ctx) {
     '## Kurallar',
     '1. Yalnız kendi görevini yap. Başka ajanın işini yapma, onun yerine karar verme.',
     '2. En fazla ' + words() + ' kelime. Giriş cümlesi, nezaket, övgü yok; ilk cümle doğrudan işe girsin.',
-    '3. Sayı, fiyat, tarih uydurma. Kaynağın yoksa yanına "(kaynak yok)" yaz.',
+    '3. ' + (typeof sayiRuleLine === 'function' && sayiOn() ? sayiRuleLine() : 'Sayı, fiyat, tarih uydurma.'),
     '4. Görev bitince cevabın en sonuna **devir paketi** ekle. Başka başlık ekleme, sırayı bozma:',
     '',
     'DEVİR PAKETİ',
@@ -8480,7 +8665,7 @@ function ajanMergeSystem(chairP, ctx) {
     '',
     '## Kurallar',
     '1. Paketlerde olmayan bilgi uydurma. Eksik varsa "bu aşamada ele alınmadı" yaz.',
-    '2. Sayı, fiyat, tarih uydurma; kaynak yoksa "(kaynak yok)".',
+    '2. ' + (typeof sayiRuleLine === 'function' && sayiOn() ? sayiRuleLine() : 'Sayı, fiyat, tarih uydurma.'),
     '3. Dolgu cümle, övgü, "harika" yok. En fazla ' + Math.round(words() * 1.6) + ' kelime.',
     '4. Ajanların adını kullan; "bir ajan" diye geçiştirme.'
   ].join('\n');
@@ -9249,7 +9434,7 @@ function panelBrief(p, round) {
     'Kullanıcı cevapları yan yana koyup kendisi karşılaştıracak.\n' +
     '· Yalnız kendi görüşünü yaz. "Katılıyorum", "X de demiş ki", "diğerleri" gibi ifadeler kullanma.\n' +
     '· Konuyu baştan kurma: doğrudan kendi cevabına gir. En fazla ' + n + ' kelime.\n' +
-    '· Somut ol: sayı, örnek, adım, ölçüt ver. Kaynağın yoksa "(kaynak yok)" yaz.\n' +
+    '· Somut ol: örnek, adım, ölçüt ver. ' + (typeof sayiRuleLine === 'function' && sayiOn() ? sayiRuleLine() : 'Kaynağın yoksa "(kaynak yok)" yaz.') + '\n' +
     '· Sonda tek cümlelik "Benim ölçütüm:" satırı ekle — kullanıcı sandalyeleri bununla ayırt edecek.\n' +
     (round > 1 ? '· Bu ' + round + '. mesaj; önceki cevabını tekrar etme, yeni bir açı ekle.\n' : '');
 }
@@ -10459,6 +10644,7 @@ function fillMsg(el, m) {
     mdEl.innerHTML = kartlar || (m.streaming ? '<span class="dots" style="--sp:' + (m.color || '#999') + '"><i></i><i></i><i></i></span>' : '');
   } else {
     mdEl.innerHTML = ekKartlari(m.files) + md(m.text) + (m.streaming ? '<span class="caret"></span>' : '') +
+      (m.sayiGizli && !m.streaming && typeof sayiNoteText === 'function' ? '<div class="sayiNote">' + sayiNoteText(m.sayiGizli) + '</div>' : '') +
       (m.truncated && !m.streaming ? '<span class="trunc">… yanıt token tavanında kesildi</span>' : '') +
       (m.timedOut && !m.streaming ? '<span class="trunc">' + Number(m.timedOut) + ' sn içinde bitmedi · cevap yarıda kesildi</span>' : '');
   }
@@ -10953,6 +11139,7 @@ function syncDraftFromDOM() {
   if (st !== undefined) { const n = Math.round(Number(st)); d.seatTimeout = Math.max(0, Math.min(600, isNaN(n) ? 120 : n)); }
   const mr = val('maxRoundsIn'); if (mr !== undefined) d.maxRounds = Math.max(2, Math.min(20, Math.round(Number(mr) || 6)));
   const wChk = document.getElementById('webChk'); if (wChk) d.web = !!wChk.checked;
+  const sChk = document.getElementById('sayiChk'); if (sChk) d.sayi = !!sChk.checked;
   const dPid = val('duelPid'); if (dPid !== undefined) { d.duel = d.duel || { on: false }; d.duel.pid = dPid; }
   const goal = val('goalSel'); if (goal !== undefined) d.goal = goal;
   const tone = val('toneSel'); if (tone !== undefined) d.tone = tone;
@@ -11362,6 +11549,8 @@ function drawerBodyHTML() {
     '<option value="net" ' + (d.tone === 'net' ? 'selected' : '') + '>Rapor düzeni — Sonuç / Artı / Eksi / İlk adım</option>' +
     '<option value="brief" ' + (d.tone === 'brief' ? 'selected' : '') + '>Kısa — birkaç madde</option>' +
     '</select></label>' +
+    '<label class="swRow"><input type="checkbox" id="sayiChk" ' + ((d.sayi === false) ? '' : 'checked') + '/>' +
+      '<span><b>Sayı kuralı — model fiyat uydurmasın</b><i>Açıkken model TL / adet / m² gibi mutlak sayı yazamaz; oran ve formül yazar. Kaynaksız tutar cevapta <code>[?]</code> yapılır ve altına not düşülür. Kullanıcının kendi yazdığı sayılar serbesttir.</i></span></label>' +
     '<label class="field"><span>Cevap sınırı (kelime) · 30–500</span>' +
     '<input type="number" id="maxWordsIn" min="30" max="500" step="10" value="' + (Number(d.maxWords) || 130) + '"/></label>' +
     '<label class="field"><span>Bağlam (token tasarrufu)</span><select id="contextSel">' +

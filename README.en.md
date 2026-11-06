@@ -435,6 +435,23 @@ sample plays in whichever interface language you picked.
 
 ---
 
+## Number rule — the models do not invent prices
+
+The models never write absolute amounts for price, cost, revenue, rent or salary. This is enforced in code:
+
+| Layer | What happens |
+|---|---|
+| **Prompt** | "Write no TRY / $ / € amounts; write ratios, thresholds and formulas; leave `[rent]` as a slot instead" |
+| **Check** | Every answer is scanned for a number plus a unit (`5,000 TRY`, `26 cups`, `45 m²`). Your own numbers and any sources are **exempt** |
+| **Repair** | Unsourced amounts become `[?]` and a note is added under the bubble: *"2 unsourced amounts hidden → [?]"*. **No second model call** |
+
+**Allowed:** ratios, formulas, durations, years, the app's own facts, numbers you typed.
+**Banned:** invented amounts and invented ratios.
+
+Settings ▸ **Table setup** ▸ *Number rule* — on by default.
+
+---
+
 ## Appearance · day and night
 
 Two themes; layout never changes — only colours and heading typeface.
