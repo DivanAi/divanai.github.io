@@ -521,7 +521,7 @@ Keyless services run "best effort": they are free, so under load they make you w
 
 | Service | Card | Limit (source) | Note |
 |---|---|---|---|
-| **Google AI Studio** (Gemini) | no | Flash class ≈ 1,500 requests a day, 15–30 a minute (community tracking, Oct 2026) | Free tier is open in Türkiye; reads images/PDF. The easiest and widest option here. |
+| **Google AI Studio** (Gemini) | no | The per-model limit is shown in **AI Studio → Rate limits**; community tracking puts the Flash class at ≈500 requests a day, 15–30 a minute (Oct 2026) | Free tier is open in Türkiye; reads images/PDF. The easiest and widest option here. |
 | **Groq** | no | ≈1,000 requests a day, ≈30 a minute, 6–8k tokens a minute (community tracking) | Very fast; long answers hit the token cap. |
 | **Cloudflare Workers AI** | no (account) | 10,000 neurons a day (Cloudflare announcement) | Smaller models; OpenAI-compatible endpoint. |
 | **Z.ai (GLM)** | no | free GLM-4.7-Flash pool | Reported as quota-free; needs an account to verify. |
@@ -607,8 +607,12 @@ patient data, know that.
 
 ### Where does the key live?
 
-In your browser's own vault (localStorage), **on your computer only**. It is never sent anywhere; it only
+In your browser's own local storage (localStorage), **on your computer only**. It is never sent anywhere; it only
 goes to the address of the provider you chose, in the `Authorization` header.
+
+That is not a vault — it is the browser's ordinary storage, kept so the key survives a reload. It is **not**
+written into the exported settings backup and does not appear in a shared link. On a shared computer use
+**Settings → Connection → “Delete from this browser”**, which removes the key from storage and from every seat.
 
 Two situations to watch:
 

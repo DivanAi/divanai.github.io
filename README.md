@@ -517,7 +517,7 @@ Kesintisiz çalışması için **tek bir kartsız anahtar** yeterli. Ölçülen/
 
 | Servis | Kart | Sınır (kaynak) | Not |
 |---|---|---|---|
-| **Google AI Studio** (Gemini) | istemez | Flash sınıfı ≈ günde 1.500 istek, dakikada 15–30 (topluluk takibi, Ekim 2026) | Türkiye'de ücretsiz katman açık; görsel/PDF okuyor. Türkiye'de en kolay ve en geniş seçenek. |
+| **Google AI Studio** (Gemini) | istemez | Model başına sınır **AI Studio → Rate limits** ekranında görünür; topluluk ölçümü Flash sınıfı için ≈ günde 500 istek, dakikada 15–30 (Ekim 2026) | Türkiye'de ücretsiz katman açık; görsel/PDF okuyor. Türkiye'de en kolay ve en geniş seçenek. |
 | **Groq** | istemez | günde ≈1.000 istek, dakikada ≈30, dakikada 6–8 bin token (topluluk takibi) | Çok hızlı; uzun cevaplarda token sınırına takılır. |
 | **Cloudflare Workers AI** | istemez (hesap) | günde 10.000 neuron (Cloudflare duyurusu) | Küçük modeller; OpenAI uyumlu adres. |
 | **Z.ai (GLM)** | istemez | GLM-4.7-Flash ücretsiz havuz | Kotasız deniyor; doğrulamak için hesap gerekir. |
@@ -606,8 +606,13 @@ yazacaksan bunu bilerek yaz.
 
 ### Anahtarın nerede duruyor?
 
-Tarayıcının kendi kasasında (localStorage), **yalnız senin bilgisayarında**. Hiçbir yere
+Tarayıcının kendi yerel deposunda (localStorage), **yalnız senin bilgisayarında**. Hiçbir yere
 gönderilmez; sadece seçtiğin sağlayıcının adresine, `Authorization` başlığında gider.
+
+Bu bir "kasa" değil, tarayıcının normal kayıt alanı: sayfayı yenilediğinde anahtar kaybolmasın diye
+orada durur. Dışa aktarılan ayar yedeğine **yazılmaz**, paylaşılan bağlantıda görünmez. Ortak
+kullanılan bir bilgisayardaysan **Ayarlar → Bağlantı → “Bu tarayıcıdan sil”** düğmesi anahtarı hem
+depodan hem sandalyelerden siler.
 
 Dikkat edilecek iki durum var:
 
