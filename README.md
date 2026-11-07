@@ -516,12 +516,16 @@ Kontrast WCAG AA üstündedir: gövde 15,6 · ikincil 8,4 · soluk 6,0 · buton 
 
 ## Paylaş · bağlantı ve sohbet özeti
 
-Üst şeritteki **paylaş düğmesi** (yan yana üç nokta) iki iş yapar: sayfanın **adresini** paylaşır,
-istersen **sohbetin özetini** de yanına katar.
+Konuşma bittiğinde yazı kutusunun üstünde **Dışa aktar · Paylaş · Kopyala** düğmeleri çıkar.
+**Paylaş** iki iş yapar: sayfanın **adresini** paylaşır, istersen **sohbetin özetini** de yanına katar.
+
+| Nerede | Ne zaman görünür |
+|---|---|
+| Alt çubuk, Dışa aktar ile Kopyala arasında | Masada konuşma olduğunda (Dışa aktar ve Kopyala ile aynı kural) |
 
 | Ne paylaşılır | Nereye | Ne gider |
 |---|---|---|
-| **Bağlantı** | WhatsApp · Telegram · X · Facebook · LinkedIn · E-posta | Yalnız adres. Kartta başlık, açıklama ve önizleme görseli (og etiketleri) çıkar |
+| **Bağlantı** | WhatsApp · Telegram · X · Facebook · LinkedIn · E-posta | Yalnız adres + **tek satır başlık** (“DivanAI — yapay zekâlar aynı masada”). Kartta başlık, açıklama ve önizleme görseli (og etiketleri) çıkar |
 | **Sohbet özeti** | Kopyala · WhatsApp · E-posta · cihazın paylaş menüsü | Konu (ilk 200 karakter), her sandalyenin cevabı (ilk 220 karakter), varsa başkan özeti (ilk 320 karakter) ve adres — **en fazla 1 500 karakter** |
 
 Özet **cihazda** üretilir; hiçbir sunucuya gitmez. Sohbetin tamamı adrese gömülmez: uzun bir
@@ -531,9 +535,13 @@ konuşma on binlerce karakterlik bağlantı olur ve çoğu uygulama onu keser. T
 Yerelde açtığında (`localhost`) paylaş düğmesi kendi bilgisayarının adresini değil, sayfadaki
 `canonical` adresi verir — çünkü `localhost` başkasında açılmaz.
 
-| Paylaş penceresi (Türkçe) | İngilizce | Telefon |
-|---|---|---|
-| ![Paylaş](ekranlar/117-paylas.jpg) | ![Share](ekranlar/117-paylas-en.jpg) | ![Mobil](ekranlar/117-paylas-mobil.jpg) |
+| Paylaş düğmesi: Dışa aktar · Paylaş · Kopyala | Paylaş penceresi (Türkçe) |
+|---|---|
+| ![Düğme](ekranlar/117-paylas-dugme.jpg) | ![Paylaş](ekranlar/117-paylas.jpg) |
+
+| İngilizce | Telefon |
+|---|---|
+| ![Share](ekranlar/117-paylas-en.jpg) | ![Mobil](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 

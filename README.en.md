@@ -517,12 +517,17 @@ With `prefers-reduced-motion`, the transition is disabled.
 
 ## Share · link and conversation summary
 
-The **share button** in the top bar (three connected dots) does two things: it shares the page
-**address**, and if you want it adds a **summary of the conversation**.
+When the conversation ends, **Export · Share · Copy** appear above the text box.
+**Share** does two things: it shares the page **address**, and if you want it adds a
+**summary of the conversation**.
+
+| Where | When it shows |
+|---|---|
+| Bottom bar, between Export and Copy | When the table has a conversation (same rule as Export and Copy) |
 
 | What is shared | Where | What goes along |
 |---|---|---|
-| **Link** | WhatsApp · Telegram · X · Facebook · LinkedIn · E-mail | Only the address. The preview card shows the title, description and image (og tags) |
+| **Link** | WhatsApp · Telegram · X · Facebook · LinkedIn · E-mail | Only the address plus **one line of title** (“DivanAI — AIs at the same table”). The preview card shows the title, description and image (og tags) |
 | **Conversation summary** | Copy · WhatsApp · E-mail · the device share sheet | Topic (first 200 characters), each seat's answer (first 220), the chair summary if any (first 320) and the address — **at most 1,500 characters** |
 
 The summary is built **on your device**; it never goes to a server. The whole conversation is
@@ -532,9 +537,13 @@ and most apps would cut it. For the full text use **Export** (Word · text · Ma
 When you open the page locally (`localhost`) the share button gives the `canonical` address
 instead of your own machine's — `localhost` does not open on anyone else's computer.
 
-| Share panel (Turkish) | English | Phone |
-|---|---|---|
-| ![Share](ekranlar/117-paylas.jpg) | ![Share](ekranlar/117-paylas-en.jpg) | ![Mobile](ekranlar/117-paylas-mobil.jpg) |
+| Share button: Export · Share · Copy | Share panel (Turkish) |
+|---|---|
+| ![Button](ekranlar/117-paylas-dugme.jpg) | ![Share](ekranlar/117-paylas.jpg) |
+
+| English | Phone |
+|---|---|
+| ![Share](ekranlar/117-paylas-en.jpg) | ![Mobile](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 

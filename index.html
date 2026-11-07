@@ -1388,9 +1388,6 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
       <button class="btn ghost icon" id="helpBtn" title="Yardım · nasıl çalışır?" aria-label="Yardım">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.7 2.3c-.8.5-1.3 1-1.3 2"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>
       </button>
-      <button class="btn ghost icon" id="shareBtn" type="button" title="Paylaş · bağlantı ve sohbet özeti" aria-label="Paylaş" aria-expanded="false">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="17.6" cy="5.6" r="2.6"/><circle cx="6.4" cy="12" r="2.6"/><circle cx="17.6" cy="18.4" r="2.6"/><path d="m8.7 10.7 6.6-3.8M8.7 13.3l6.6 3.8"/></svg>
-      </button>
       <button class="btn ghost icon" id="historyBtn" title="Geçmiş konuşmalar · bu tarayıcıda" aria-label="Geçmiş konuşmalar" aria-expanded="false">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12a8.4 8.4 0 1 0 2.5-6"/><path d="M3.2 3.6v4.2h4.2"/><path d="M12 7.8V12l3 1.8"/></svg>
       </button>
@@ -1576,6 +1573,10 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
             <button type="button" role="menuitem" data-exp="md"><b>Markdown (.md)</b><i>not uygulamaları</i></button>
           </span>
         </span>
+        <button type="button" class="btn ghost sm" id="shareBtn" title="Paylaş · bağlantı ve sohbet özeti" aria-label="Paylaş" aria-expanded="false" hidden>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="17.6" cy="5.6" r="2.6"/><circle cx="6.4" cy="12" r="2.6"/><circle cx="17.6" cy="18.4" r="2.6"/><path d="m8.7 10.7 6.6-3.8M8.7 13.3l6.6 3.8"/></svg>
+          Paylaş
+        </button>
         <button type="button" class="btn ghost sm" id="copyBtn" hidden>Kopyala</button>
       </div>
       <div class="attachTray" id="attachTray" hidden></div>
@@ -9604,7 +9605,7 @@ function tickElapsed() {
 function renderCtrls() {
   const running = state.phase === 'running';
   const has = state.transcript.some(m => m.kind === 'msg' && m.personaId !== 'user' && m.personaId !== 'system') || state.transcript.some(m => m.kind === 'summary');
-  const more = $('#moreRoundBtn'), sum = $('#summaryBtn'), stop = $('#stopBtn'), expWrap = $('#expWrap'), mdBtn = $('#mdBtn'), copyB = $('#copyBtn');
+  const more = $('#moreRoundBtn'), sum = $('#summaryBtn'), stop = $('#stopBtn'), expWrap = $('#expWrap'), mdBtn = $('#mdBtn'), copyB = $('#copyBtn'), shareB = $('#shareBtn');
   const ajanM = typeof ajanOn === 'function' && ajanOn();
   const waitingGate = !!state.ajanResume;
   const tekM2 = state.settings.table === 'tek';
@@ -9630,11 +9631,12 @@ function renderCtrls() {
   const hasTalk = state.transcript.length > 1;
   if (expWrap) expWrap.hidden = !hasTalk;
   if (copyB) copyB.hidden = !hasTalk;      // Özet çıkar · Dışa aktar · Kopyala
+  if (shareB) shareB.hidden = !hasTalk;    // Kol 117: paylaş, Dışa aktar ve Kopyala'nın yanında
   if (mdBtn) mdBtn.hidden = true;
   // kapsayıcı: görünür düğme yoksa tamamen gizle (yazı alanının üstünde boşluk kalmasın)
   const bar = $('#ctrls');
   const gate2 = $('#ajanNextBtn');
-  if (bar) bar.hidden = ![more, sum, stop, expWrap, copyB, gate2, resume, restB].some(b => b && !b.hidden);
+  if (bar) bar.hidden = ![more, sum, stop, expWrap, copyB, shareB, gate2, resume, restB].some(b => b && !b.hidden);
 }
 
 /* ---------------- destek paneli ---------------- */
@@ -12871,16 +12873,13 @@ else boot();
   }
 
   /* ---------------- paylaşım adresleri ---------------- */
+  /* Paylaşımda yalnız başlık gider (kullanıcı isteği): uzun tanıtım cümlesi yok.
+     Kart zaten sayfanın og etiketlerinden oluşuyor. */
   var BASLIK = function () { return T2('DivanAI — yapay zekâlar aynı masada', 'DivanAI — AIs at the same table'); };
-  var TANITIM = function () {
-    return T2(
-      'Bir konu yaz; 3–5 yapay zekâ aynı masada tartışsın, başkan özetlesin. Tek dosya, anahtarsız demo, Apache 2.0.',
-      'Type one topic; 3–5 AIs debate at the same table and a chair summarizes. Single file, keyless demo, Apache 2.0.');
-  };
 
   function linkPaylas(app) {
     var u = siteUrl();
-    var b = BASLIK() + ' — ' + TANITIM();
+    var b = BASLIK();
     switch (app) {
       case 'wa':   return 'https://wa.me/?text=' + encodeURIComponent(b + '\n' + u);
       case 'tg':   return 'https://t.me/share/url?url=' + encodeURIComponent(u) + '&text=' + encodeURIComponent(b);
