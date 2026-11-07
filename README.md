@@ -169,9 +169,13 @@ onu **Dışa aktar** ile alırsın.
   çekilir ve beş sandalyeye o servise ait modeller yerleşir. Elle model kimliği yazmak zorunda değilsin.
   Kendi seçtiğin ve o serviste bulunan bir model varsa **korunur**, üzerine yazılmaz.
 - **Başkan**: özeti ve kapanışı yazan sandalye.
-- **Ücretsiz modeller** düğmesi: anahtarın gördüğü `:free` modelleri listeler; önce **hangi sandalyeye**
+- **Ücretsiz modeller** düğmesi: servisin yayınladığı ücretsiz modelleri listeler; önce **hangi sandalyeye**
   atayacağını seç, sonra satırdaki **kullan**'a bas. Seçim yapmadan hiçbir sandalye değişmez.
   **+ Yeni sandalye aç** ile masaya olmayan bir sağlayıcıyı eklersin.
+  Düğme **yalnız listesini tarayıcıya açan dört serviste görünür**: OpenRouter, LLM7, Pollinations, OVH.
+  Diğer servislerde (Groq, Google, DeepSeek, Mistral, Together, Cerebras, Vercel, Requesty, NanoGPT,
+  AI/ML API, xAI, OpenAI) model listesi anahtarsız ya da tarayıcıdan alınamıyor — orada düğme
+  **hiç görünmez**; model kimliğini servisin sitesinden kopyalayıp kutuya yazarsın.
   Listede **yalnız sohbet edebilen modeller** görünür: servisin listesindeki konuşma/model üretmeyen
   satırlar (metni sese çeviren **TTS** modelleri, ses tanıma, görsel üretimi, gömme/sıralama, müzik)
   süzülür — bunlar masada cevap veremez.

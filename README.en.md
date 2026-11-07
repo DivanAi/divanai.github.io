@@ -169,9 +169,12 @@ not part of the settings backup; take it with **Export**.
   models from that service land on the five seats. No need to type model ids by hand. A model you picked
   yourself, if the service has it, is **kept**, not overwritten.
 - **Chair**: the seat that writes the summary and the closing.
-- The **Free models** button lists the `:free` models your key can see; pick **which seat** first, then
+- The **Free models** button lists the free models the provider publishes; pick **which seat** first, then
   press **use** on the row. No seat changes until you choose. **+ New seat** adds a provider that is not
-  at the table yet. The list shows **chat-capable models only**: non-chat rows in the provider's list
+  at the table yet. The button appears **only for the four providers that expose their list to the browser**:
+  OpenRouter, LLM7, Pollinations, OVH. Elsewhere (Groq, Google, DeepSeek, Mistral, Together, Cerebras,
+  Vercel, Requesty, NanoGPT, AI/ML API, xAI, OpenAI) the model list cannot be fetched without a key or
+  from a browser, so the button is **not shown** — copy a model id from the provider's site instead. The list shows **chat-capable models only**: non-chat rows in the provider's list
   (text-to-speech **TTS** models, speech recognition, image generation, embeddings/reranking, music)
   are filtered out — they cannot answer at the table.
 

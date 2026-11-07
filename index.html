@@ -11444,7 +11444,7 @@ function drawerBodyHTML() {
     }
   }
   const freeCount = (state.orFree || []).filter(m => typeof modelIsChat === 'function' ? modelIsChat(m.id) : true).length;
-  const hasFree = d.mode === 'live';
+  const hasFree = d.mode === 'live' && freeListable(d.api.kind);   /* Kol 123: boş düğme yok */
   h += '</div>' + datalist +
     '<button type="button" class="mini" id="spreadModels" style="margin-top:8px">' + (window.T2 ? window.T2('Her sandalyeye ayrı model dağıt', 'Spread a different model per seat') : 'Her sandalyeye ayrı model') + '</button>' +
     '<button type="button" class="mini" id="fillModels" style="margin-top:8px">Bu bağlantı için örnek model kimliklerini doldur</button>' +
@@ -11582,6 +11582,13 @@ function drawerBodyHTML() {
   return h;
 }
 
+/* Kol 123 — ÖLÇÜM (7 Kasım 2026): 18 servisten yalnız dördü model listesini tarayıcıya veriyor.
+   Diğerlerinde uç anahtarsız 401/403 dönüyor ya da fiyat·tür alanı hiç gelmiyor; "ücretsiz
+   modeller" listesi orada hep boş kalıyordu. Boş düğme vaat değil kusurdur: düğme artık yalnız
+   bu dört serviste görünür. */
+const FREE_LIST_KINDS = ['openrouter', 'llm7', 'pollinations', 'ovh'];
+function freeListable(kind) { return FREE_LIST_KINDS.indexOf(String(kind || '')) >= 0; }
+
 let freeOpen = false;          // panel açık mı (oturum içi)
 let gwShowAll = false;         // "Diğer servisler" (ücretli olabilir) açıldı mı
 let backupWithKeys = false;    // yedeğe API anahtarları da girsin mi (varsayılan: hayır)
@@ -11591,7 +11598,10 @@ function freeListHTML(d) {
   const q = (freeQuery || '').toLowerCase().trim();
   const rows = (q ? list.filter(m => m.id.toLowerCase().includes(q) || m.name.toLowerCase().includes(q)) : list).slice(0, 120);
   if (!state.orModels) return '<div class="freeEmpty">“Ücretsiz modelleri getir” düğmesine bas.</div>';
-  if (!list.length) return '<div class="freeEmpty">Bu bağlantıda ücretsiz model listesi döndürülmedi. Kimliği elle yazabilirsin.</div>';
+  if (!list.length) return '<div class="freeEmpty">' + (window.T2
+    ? window.T2('Bu bağlantı ücretsiz model listesi yayınlamıyor. Model kimliğini servisin sitesinden kopyalayıp yukarıdaki kutuya yaz.',
+                'This connection does not publish a free-model list. Copy a model id from the provider’s site into the box above.')
+    : 'Bu bağlantı ücretsiz model listesi yayınlamıyor.') + '</div>';
   if (!rows.length) return '<div class="freeEmpty">“' + esc(freeQuery) + '” ile eşleşen model yok.</div>';
   const draft = d || drawerDraft || { active: [], models: {}, api: {} };
   const owner = {};
@@ -12008,7 +12018,7 @@ function modelIsChat(id) {
   /* Kol 122: ses (TTS/STT), gömme, görsel üretimi, sıralama, güvenlik ve müzik modelleri
      sohbet için kullanılamaz. nvr-tts-*, playai-tts, whisper, gpt-image, gpt-audio…
      hepsi burada elenir; kullanıcı böyle bir kimliği listede görmesin. */
-  return !/(embed|whisper|\btts\b|-tts|tts-|transcri|asr\b|\bstt\b|speech|voice|bark|piper|xtts|playai|nvr-|deepgram|assembly|rerank|moderat|guard|safety|image|dall|flux|stable-|sdxl|ocr|audio|realtime|voxtral|imagine|video|music|lyria|deprecat)/i.test(String(id || ''));
+  return !/(embed|\bbge\b|gte-|nomic-|jina|voyage|sbert|colbert|\bclip\b|chroma|whisper|\btts\b|-tts|tts-|transcri|asr\b|\bstt\b|speech|voice|bark|piper|xtts|playai|nvr-|deepgram|assembly|rerank|moderat|guard|safety|image|dall|flux|stable-|sdxl|ocr|audio|realtime|voxtral|imagine|video|music|lyria|deprecat)/i.test(String(id || ''));
 }
 /* listenin içinden sohbet modellerini, tanıdık olanlar önce olacak şekilde sırala */
 function rankChatModels(ids) {
@@ -12062,7 +12072,8 @@ async function loadModelList(force) {
       if (!cfg.key) return;                       // anahtarsız: liste sorma (404'ün kaynağı buydu)
       url = 'https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(cfg.key);
     } else {
-      if (!cfg.key && grp !== 'keyless') return;  // anahtar gerekli ve yok → boşuna istek atma
+      /* Kol 123: ücretsiz listesi olan servislerde (OpenRouter) liste anahtarsız da çekilebiliyor */
+      if (!cfg.key && grp !== 'keyless' && !freeListable(cfg.kind)) return;  // anahtar gerekli ve yok → boşuna istek atma
       url = GATEWAYS[cfg.kind].baseUrl.replace(/\/+$/, '') + '/models';
     }
     const headers = {};
@@ -12071,10 +12082,23 @@ async function loadModelList(force) {
     if (!r || !r.ok) return;
     const j = await r.json();
     const raw = (j.data || j.models || []);
-    const list = raw.map(m => String(m.id || m.name || m).replace(/^models\//, '')).filter(x => typeof x === 'string' && x).sort();
-    // ücretsizler: ':free' ile biten ya da istem/yanıt fiyatı 0 olan modeller
+    /* Kol 123: servis "tür" alanı veriyorsa ona da bak (LLM7: model_type=chat/audio_to_text/image/video).
+       Adı ne olursa olsun, türü sohbet olmayan model listeye girmez. */
+    const tipOk = m => {
+      const t = String((m && (m.model_type || m.type)) || '').toLowerCase();
+      return !t || t === 'chat' || t === 'text' || t === 'language' || t === 'llm';
+    };
+    const keyless = !!(cfg.keyless || grp === 'keyless');
+    const list = raw.filter(tipOk).map(m => String(m.id || m.name || m).replace(/^models\//, '')).filter(x => typeof x === 'string' && x).sort();
+    /* Ücretsiz sayılanlar:
+       · ':free' ile biten model
+       · istem/yanıt fiyatı 0 olan model
+       · ANAHTARSIZ serviste her şey (LLM7 · Pollinations · OVH): para ödenmiyor, fiyat alanı
+         çoğu zaman hiç gelmiyor. Kol 123 öncesi bu servislerde liste hep boş dönüyordu. */
     const free = raw.filter(m => {
+      if (!tipOk(m)) return false;
       const id = String(m.id || m.name || '');
+      if (keyless) return true;
       if (/:free$/i.test(id)) return true;
       const p = m.pricing || {};
       const zero = v => v === 0 || v === '0' || v === '0.0' || v === '0.00';
