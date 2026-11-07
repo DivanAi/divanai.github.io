@@ -196,6 +196,50 @@ a{color:var(--link)}
 
 #app{position:relative;z-index:1;display:flex;flex-direction:column;height:100dvh;max-height:100dvh}
 
+/* ============================================================
+   KOL 119 · SOL PANEL (masa türleri)
+   Masaüstü: solda dikey panel · Telefon: üstte yatay şerit
+   Panel #scroll'un DIŞINDA: konuşma kayarken modlar yerinde kalır.
+   ============================================================ */
+.rail{flex:0 0 auto}
+@media (min-width:901px){
+  #app{
+    display:grid;
+    grid-template-columns:248px minmax(0,1fr);
+    grid-template-rows:auto minmax(0,1fr) auto;
+    grid-template-areas:"top top" "rail scroll" "rail dock";
+  }
+  .topbar{grid-area:top}
+  #railHome{grid-area:rail;min-height:0;display:flex;flex-direction:column}
+  .rail{min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;
+        padding:16px 12px;border-right:1px solid var(--line);
+        background:linear-gradient(180deg,rgba(var(--bgrgb),.55),rgba(var(--bgrgb),.30))}
+  #scroll{grid-area:scroll}
+  .dock{grid-area:dock}
+  .rail .modes{display:flex;flex-direction:column;flex-wrap:nowrap;gap:7px;
+               padding:0;margin:0;position:static;background:none;backdrop-filter:none;box-shadow:none}
+  .rail .modeBtn{width:100%;flex:0 0 auto;padding:10px 11px;border-radius:12px;gap:9px}
+  .rail .modeBtn .mTxt b{font-size:13px}
+  .rail .modeBtn .mTxt i{font-size:10.5px}
+  .rail .railModels{display:flex;flex-direction:column;gap:8px}
+  .rail .modeModel{margin:0;flex-direction:column;align-items:stretch;gap:5px}
+  .rail .modeModel select{width:100%;min-width:0}
+  .rail .modeCost{margin-top:-2px}
+  .railFoot{margin-top:auto;padding-top:10px;border-top:1px solid var(--line);display:flex}
+  .railFoot .pill{width:100%;justify-content:center}
+}
+/* Telefon: sol panel YOK. Masa türleri .wrap içine taşınır (placeRail) ve
+   eski kart düzeni geri gelir: iki sütun, simge + ad + kısa açıklama. */
+#railHome[hidden]{display:none}
+#railSlot .rail{display:block}
+#railSlot .railModels{margin-top:8px}
+#railSlot .railFoot{margin-top:8px;padding:0;border:0;display:flex;justify-content:center}
+#railSlot .railFoot .pill{font-size:10px;padding:3px 10px;letter-spacing:.05em}
+@media (max-width:900px){
+  #railSlot .modes{position:static;padding:0 0 6px;background:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  #railSlot .modeBtn{flex:1 1 140px}
+}
+
 /* ---------------- Topbar ---------------- */
 .topbar{
   flex:0 0 auto;display:flex;align-items:center;gap:14px;
@@ -231,6 +275,13 @@ a{color:var(--link)}
   max-width:100%;overflow:hidden;
 }
 #modePillText{overflow:hidden;text-overflow:ellipsis}
+/* Kol 119 · üst şeritte rozet YALNIZ simge: nokta + renk. Yazı sol panelin altında. */
+#modePill.pillIcon{width:30px;height:30px;padding:0;justify-content:center;border-radius:10px;cursor:pointer;gap:0}
+#modePill.pillIcon #modePillText{display:none}
+#modePill.pillIcon:focus-visible{outline:2px solid rgba(var(--accrgb),.8);outline-offset:2px}
+/* Ayarlar: yalnız simge */
+#settingsBtn.iconOnly{padding:9px 10px}
+#settingsBtn.iconOnly svg{width:16px;height:16px}
 .pill .led{width:6px;height:6px;border-radius:50%;background:var(--dim)}
 .pill[data-mode="demo"] .led{background:var(--acc);box-shadow:0 0 10px rgba(var(--accrgb),.7)}
 .pill[data-mode="live"]{border-color:rgba(var(--okrgb),.35);color:var(--okInk);background:rgba(var(--okrgb),.08)}
@@ -1418,6 +1469,36 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 .sharePrev:focus{outline:none;border-color:rgba(var(--accrgb),.45);color:var(--text)}
 .sharePrev:focus-visible{outline:2px solid rgba(var(--accrgb),.55);outline-offset:2px}
 @media (max-width:520px){ .shareGrid{grid-template-columns:repeat(2,1fr)} }
+
+/* ============================================================
+   KOL 120 · Ayarlar çekmecesi: kategori başlıkları + katlanır bölümler
+   Amaç: bir bakışta anlaşılsın. Uzun açıklama "Ayrıntı" altında durur.
+   ============================================================ */
+.catBar{
+  display:flex;align-items:center;gap:8px;margin:16px 0 6px;
+  font-size:10.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--dim);font-weight:600;
+}
+.catBar::after{content:"";flex:1 1 auto;height:1px;background:var(--line)}
+.catBar:first-child{margin-top:2px}
+.fold{margin:6px 0 0}
+.fold>summary{
+  cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--dim);padding:2px 0;user-select:none;
+}
+.fold>summary::-webkit-details-marker{display:none}
+.fold>summary::before{content:"▸";font-size:9px;opacity:.8;transition:transform .15s}
+.fold[open]>summary::before{transform:rotate(90deg)}
+.fold>summary:hover{color:var(--muted)}
+.fold>p.note{margin-top:5px}
+/* katlanır bölüm: başlık bir satır, içerik açılınca gelir */
+.secF{border:1px solid var(--line);border-radius:12px;margin:6px 0;padding:0 11px;background:rgba(var(--w),.02)}
+.secF>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:10px 0;user-select:none}
+.secF>summary::-webkit-details-marker{display:none}
+.secF>summary::after{content:"▸";margin-left:auto;font-size:10px;color:var(--dim);transition:transform .15s}
+.secF[open]>summary::after{transform:rotate(90deg)}
+.secF>summary h3{margin:0;font-size:12.5px;font-weight:600;color:var(--text)}
+.secF[open]{padding-bottom:10px}
+.secF .sec,.secF p.note{margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -1434,8 +1515,9 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
       </svg>
       <div class="brandtext"><b>DivanAI</b><span>Yapay Zekâlar Aynı Masada</span></div>
     </button>
-    <div class="topmid"><span class="pill" id="modePill" data-mode="demo"><i class="led"></i><span id="modePillText">Demo</span></span></div>
+    <div class="topmid"></div>
     <div class="topactions">
+      <span class="pill pillIcon" id="modePill" data-mode="demo" data-i18n-self role="button" tabindex="0" title="Demo · modu değiştir" aria-label="Demo"><i class="led"></i><span id="modePillText">Demo</span></span>
       <button class="btn ghost icon" id="themeBtn" type="button" title="Gece moduna geç" aria-label="Gece moduna geç" aria-pressed="false">
         <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.2 14.6A8.4 8.4 0 0 1 9.4 3.8 8.5 8.5 0 1 0 20.2 14.6z"/></svg>
       </button>
@@ -1457,11 +1539,61 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 0 1 6.5 6.5z"/></svg>
       </button>
     </div>
-      <button class="btn primary" id="settingsBtn">
+      <button class="btn primary iconOnly" id="settingsBtn" type="button" title="Ayarlar" aria-label="Ayarlar">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.64 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.05a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
-        <span class="lbl">Ayarlar</span>
       </button>
   </header>
+  <div id="railHome"></div>
+
+  <!-- Sol panel (Kol 119): masa türleri. Masaüstünde solda dikey, telefonda üstte yatay şerit. -->
+  <aside class="rail" id="modeRail" aria-label="Masa türü">
+    <div class="modes" id="modeBar" role="group" aria-label="Masa türü">
+        <button type="button" class="modeBtn" id="modeTek" data-table="tek" role="button" aria-pressed="true">
+          <span class="mIco" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-8.5-8.5"/><path d="M12 8.2v7.6M8.6 12h6.8"/></svg>
+          </span>
+          <span class="mTxt"><b>TekeTek</b><i>tek yapay zekâ · doğrudan cevap</i></span>
+        </button>
+        <button type="button" class="modeBtn" id="modePanel" data-table="panel" role="button" aria-pressed="false">
+          <span class="mIco" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.4" width="18" height="15.2" rx="2.4"/><path d="M9 4.4v15.2M15 4.4v15.2"/></svg>
+          </span>
+          <span class="mTxt"><b>Panel</b><i>herkes kendi görüşü · kıyaslama sende</i></span>
+        </button>
+        <button type="button" class="modeBtn" id="modeKonsey" data-table="konsey" role="button" aria-pressed="false">
+          <span class="mIco" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="4.8" r="2.1" fill="currentColor"/><circle cx="4.9" cy="12.4" r="2.1" fill="currentColor"/><circle cx="19.1" cy="12.4" r="2.1" fill="currentColor"/><circle cx="12" cy="20" r="2.1" fill="currentColor"/><ellipse cx="12" cy="12.4" rx="3.4" ry="1.7" stroke="currentColor" stroke-width="1.3"/></svg>
+          </span>
+          <span class="mTxt"><b>Konsey</b><i id="modeKonseySub">4 ayrı model · başkan özetler</i></span>
+        </button>
+        <button type="button" class="modeBtn" id="modeAjan" data-table="ajan" role="button" aria-pressed="false">
+          <span class="mIco" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.4" cy="6.2" r="2.3"/><circle cx="18.6" cy="6.2" r="2.3"/><circle cx="12" cy="18.2" r="2.3"/><path d="M7.7 6.2h8.6M6.4 8.2l4.2 7.8M17.6 8.2l-4.2 7.8"/></svg>
+          </span>
+          <span class="mTxt"><b>Ajanlar</b><i>her sandalyeye ayrı görev · zincirleme teslim</i></span>
+        </button>
+        <button type="button" class="modeBtn" id="modeAyna" data-table="ayna" role="button" aria-pressed="false">
+          <span class="mIco" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.4h11M11.4 4.8 15 8.4l-3.6 3.6"/><path d="M20 15.6H9M12.6 12l-3.6 3.6 3.6 3.6"/></svg>
+          </span>
+          <span class="mTxt"><b>Ayna</b><i>aynı model · 2 tur + hakem kararı</i></span>
+        </button>
+    </div>
+    <div class="railModels" id="modeModelBox">
+        <label class="modeModel" id="modeTekWrap" hidden>
+          <span>Konuşacağın yapay zekâ</span>
+          <select id="modeTekSel" aria-label="TekeTek modunda kullanılacak yapay zekâ"></select>
+        </label>
+        <label class="modeModel" id="modeModelWrap" hidden>
+          <span>Ayna’da kapışacak model</span>
+          <select id="modeModelSel" aria-label="Ayna modunda kullanılacak model"></select>
+          <i class="modeCost">2 tur + karar = 5 istek</i>
+        </label>
+    </div>
+    <div class="railFoot">
+      <span class="pill" id="railModePill" data-mode="demo"><i class="led"></i><span id="railModeText">Demo</span></span>
+    </div>
+  </aside>
 
   <!-- geçmiş paneli: saat simgesine basınca açılır (liste ui.js doldurur) -->
   <div class="histPop" id="histPop" hidden role="dialog" aria-label="Geçmiş konuşmalar">
@@ -1489,48 +1621,8 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 
   <main id="scroll">
     <div class="wrap">
+      <div id="railSlot"></div>
 
-      <div class="modes" id="modeBar" role="group" aria-label="Masa türü">
-        <button type="button" class="modeBtn" id="modeKonsey" data-table="konsey" role="button" aria-pressed="true">
-          <span class="mIco" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="4.8" r="2.1" fill="currentColor"/><circle cx="4.9" cy="12.4" r="2.1" fill="currentColor"/><circle cx="19.1" cy="12.4" r="2.1" fill="currentColor"/><circle cx="12" cy="20" r="2.1" fill="currentColor"/><ellipse cx="12" cy="12.4" rx="3.4" ry="1.7" stroke="currentColor" stroke-width="1.3"/></svg>
-          </span>
-          <span class="mTxt"><b>Konsey</b><i id="modeKonseySub">4 ayrı model · başkan özetler</i></span>
-        </button>
-        <button type="button" class="modeBtn" id="modePanel" data-table="panel" role="button" aria-pressed="false">
-          <span class="mIco" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.4" width="18" height="15.2" rx="2.4"/><path d="M9 4.4v15.2M15 4.4v15.2"/></svg>
-          </span>
-          <span class="mTxt"><b>Panel</b><i>herkes kendi görüşü · kıyaslama sende</i></span>
-        </button>
-        <button type="button" class="modeBtn" id="modeAyna" data-table="ayna" role="button" aria-pressed="false">
-          <span class="mIco" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.4h11M11.4 4.8 15 8.4l-3.6 3.6"/><path d="M20 15.6H9M12.6 12l-3.6 3.6 3.6 3.6"/></svg>
-          </span>
-          <span class="mTxt"><b>Ayna</b><i>aynı model · 2 tur + hakem kararı</i></span>
-        </button>
-        <button type="button" class="modeBtn" id="modeAjan" data-table="ajan" role="button" aria-pressed="false">
-          <span class="mIco" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.4" cy="6.2" r="2.3"/><circle cx="18.6" cy="6.2" r="2.3"/><circle cx="12" cy="18.2" r="2.3"/><path d="M7.7 6.2h8.6M6.4 8.2l4.2 7.8M17.6 8.2l-4.2 7.8"/></svg>
-          </span>
-          <span class="mTxt"><b>Ajanlar</b><i>her sandalyeye ayrı görev · zincirleme teslim</i></span>
-        </button>
-        <button type="button" class="modeBtn" id="modeTek" data-table="tek" role="button" aria-pressed="false">
-          <span class="mIco" aria-hidden="true">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 12a8.5 8.5 0 1 1-8.5-8.5"/><path d="M12 8.2v7.6M8.6 12h6.8"/></svg>
-          </span>
-          <span class="mTxt"><b>TekeTek</b><i>tek yapay zekâ · doğrudan cevap</i></span>
-        </button>
-        <label class="modeModel" id="modeTekWrap" hidden>
-          <span>Konuşacağın yapay zekâ</span>
-          <select id="modeTekSel" aria-label="TekeTek modunda kullanılacak yapay zekâ"></select>
-        </label>
-        <label class="modeModel" id="modeModelWrap" hidden>
-          <span>Ayna’da kapışacak model</span>
-          <select id="modeModelSel" aria-label="Ayna modunda kullanılacak model"></select>
-          <i class="modeCost">2 tur + karar = 5 istek</i>
-        </label>
-      </div>
 
       <section class="hero" id="hero">
         <h1 id="heroTitle">Dört yapay zekâ, <em>tek masa</em>.</h1>
@@ -2046,7 +2138,7 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 
   /* .md = model/kullanıcı metni (çevrilmez). .bubble'ın kendisi korunmaz:
      içindeki rol rozeti (MODERATÖR vb.) arayüz yazısıdır, çevrilir. */
-  const SKIP = '.md, #input, textarea, .hpTopic, .topicText, script, style, pre, code';
+  const SKIP = '.md, #input, textarea, .hpTopic, .topicText, script, style, pre, code, [data-i18n-self]';
 
   function lang() {
     return (window.DIVANAI && window.DIVANAI.state && window.DIVANAI.state.settings &&
@@ -2142,6 +2234,8 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
       /* 3) öznitelikler: placeholder / title / aria-label */
       const els = r.querySelectorAll ? r.querySelectorAll('[placeholder],[title],[aria-label],[alt]') : [];
       els.forEach(el => {
+        /* Kol 119: metnini JS'in kendisi yazan öğeler (ör. mod rozeti) karışmasın */
+        if (el.closest(SKIP)) return;
         ['placeholder', 'title', 'aria-label', 'alt'].forEach(a => {
           const v = el.getAttribute(a);
           if (!v) return;
@@ -3303,7 +3397,7 @@ const DEFAULT_SETTINGS = {
   seatTimeout: 120,      // saniye: bir sandalye bu sürede bitirmezse sıra atlanır (0 = kapalı)
   restMin: 1,            // dakika: hız/kota hatası alan sağlayıcı bu süre denenmez (0 = kapalı)
   web: false,            // OpenRouter :online — internetten bilgi (kredi harcar)
-  table: 'konsey',       // 'konsey' = 4 ayrı model · 'ayna' = ayna · 'ajan' = ajanlar · 'tek' = tek yapay zekâ
+  table: 'tek',          // Kol 119: varsayılan TekeTek (herkesin bildiği mod) · 'konsey' · 'panel' · 'ayna' · 'ajan'
   duel: { on: false, pid: 'grok' },   // ayna modunun eski alanı (table ile eşitlenir)
   v: 4
 };
@@ -10152,6 +10246,7 @@ function renderKeyState() {
 
 function renderModePill() {
   const pill = $('#modePill'), txt = $('#modePillText');
+  const railPill = $('#railModePill'), railTxt = $('#railModeText');
   if (!pill) return;
   pill.dataset.mode = state.settings.mode;
   const s = state.settings;
@@ -10166,6 +10261,12 @@ function renderModePill() {
       txt.textContent = window.T2('Canlı · ', 'Live · ') + ((GATEWAYS[s.api.kind] || {}).label || s.api.kind || '');
     }
   }
+  /* Kol 119: aynı metin sol panelin altında okunur; üst şeritte yalnız simge kalır. */
+  const metin = txt.textContent;
+  if (railTxt) railTxt.textContent = metin;
+  if (railPill) railPill.dataset.mode = pill.dataset.mode;
+  pill.title = metin + ' · ' + window.T2('modu değiştir', 'change mode');
+  pill.setAttribute('aria-label', metin);
 }
 
 /* arayüz dilini uygula: bayraklar, <html lang>, bütün statik metinler */
@@ -10982,6 +11083,91 @@ function seatSrcHTML(pid, d) {
   return h + '</div>';
 }
 
+/* ============================================================================
+   Kol 120 · Ayarlar çekmecesini sadeleştir
+   · Bölümler kategorilere ayrılır: Bağlantı · Masa · Akış · Gelişmiş
+   · Uzun açıklamalar "Ayrıntı" başlığı altına katlanır (bir bakışta görünmez)
+   · Sık kullanılmayan bölümler kapalı gelir
+   Hiçbir ayar kaybolmaz; yalnız görünür metin azalır.
+   ============================================================================ */
+function sadeCekmece(body) {
+  if (!body) return;
+  const T2 = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
+  const KISA = {
+    'Ayna’da kapışacak model': T2('Ayna modeli', 'Mirror model'),
+    'Roller ve görevler': T2('Roller', 'Roles'),
+    'Durum · günlük istek hakkı': T2('Günlük hak', 'Daily quota'),
+    'İnternetten bilgi': T2('Web araması', 'Web search')
+  };
+  const KAPALI = ['Otomatik durma', 'Token tasarrufu', 'İnternetten bilgi', 'Ayna’da kapışacak model',
+                  'Roller ve görevler', 'Yedekleme', 'Durum · günlük istek hakkı'];
+
+  const secs = [...body.querySelectorAll('.sec')].filter(el => !el.parentElement.closest('.sec'));
+  if (!secs.length) return;
+  const al = t => { const s2 = secs.find(x => ((x.querySelector('h3') || {}).textContent || '').trim() === t); return s2 || null; };
+
+  /* 1) uzun açıklamaları katla */
+  secs.forEach(sec => {
+    sec.querySelectorAll('p.note').forEach(p => {
+      const uzun = (p.textContent || '').trim().length > 150;
+      if (!uzun || p.closest('.fold')) return;
+      const det = document.createElement('details');
+      det.className = 'fold';
+      const sum = document.createElement('summary');
+      sum.textContent = T2('Ayrıntı', 'Details');
+      det.appendChild(sum);
+      p.parentNode.insertBefore(det, p);
+      det.appendChild(p);
+    });
+  });
+
+  /* 2) başlıkları kısalt + istenen bölümleri kapat */
+  secs.forEach(sec => {
+    const h3 = sec.querySelector('h3');
+    if (!h3) return;
+    const t = (h3.textContent || '').trim();
+    if (KISA[t]) h3.textContent = KISA[t];
+    if (KAPALI.includes(t)) {
+      const det = document.createElement('details');
+      det.className = 'secF';
+      const sum = document.createElement('summary');
+      sum.innerHTML = h3.outerHTML;
+      det.appendChild(sum);
+      while (sec.firstChild) det.appendChild(sec.firstChild);
+      sec.replaceWith(det);
+      if (['Otomatik durma', 'Token tasarrufu', 'İnternetten bilgi'].includes(t)) det.open = false;
+    }
+  });
+
+  /* 3) kategorilere ayır ve sıraya koy */
+  const GRUP = [
+    [T2('Bağlantı', 'Connection'), ['Mod', T2('Bağlantı', 'Connection')]],
+    [T2('Masa', 'Table'), [T2('Ayna modeli', 'Mirror model'), 'Masa düzeni', T2('Roller', 'Roles')]],
+    [T2('Akış', 'Flow'), ['Otomatik durma', 'Token tasarrufu', T2('Web araması', 'Web search')]],
+    [T2('Gelişmiş', 'Advanced'), ['Yedekleme', T2('Günlük hak', 'Daily quota')]]
+  ];
+  const hepsi = [...body.children];
+  const yeni = document.createDocumentFragment();
+  const kullanildi = new Set();
+  GRUP.forEach(([ad, basliklar]) => {
+    const parca = [];
+    basliklar.forEach(b => {
+      const el = hepsi.find(x => !kullanildi.has(x) && (x.querySelector ? ((x.querySelector('h3') || {}).textContent || '').trim() === b : false));
+      if (el) { parca.push(el); kullanildi.add(el); }
+    });
+    if (!parca.length) return;
+    const kat = document.createElement('div');
+    kat.className = 'catBar';
+    kat.textContent = ad;
+    yeni.appendChild(kat);
+    parca.forEach(el => yeni.appendChild(el));
+  });
+  /* eşleşmeyen bölüm olursa kaybolmasın */
+  hepsi.forEach(el => { if (!kullanildi.has(el) && el.className !== 'catBar') yeni.appendChild(el); });
+  body.textContent = '';
+  body.appendChild(yeni);
+}
+
 function drawerBodyHTML() {
   const d = drawerDraft;
   const live = d.mode === 'live';
@@ -11303,7 +11489,7 @@ function drawerBodyHTML() {
 
   /* --- masa düzeni --- */
   h += '<div class="sec"><h3>Masa düzeni</h3>' +
-    '<label class="field"><span>Başkan — özeti ve kapanışı o yazar</span><select id="chairSel">' +
+    '<label class="field"><span>Başkan</span><select id="chairSel">' +
     d.active.map(pid => '<option value="' + pid + '" ' + (d.chair === pid ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + ' · ' + esc(PROVIDERS[pid].roleLabel) + '</option>').join('') +
     '</select></label>' +
     '<label class="field" id="goalField"' + ((d.table === 'ayna') ? ' hidden' : '') + '><span>Gündem türü</span><select id="goalSel">' +
@@ -11316,16 +11502,16 @@ function drawerBodyHTML() {
     '<option value="brief" ' + (d.tone === 'brief' ? 'selected' : '') + '>Kısa — birkaç madde</option>' +
     '</select></label>' +
     '<label class="swRow"><input type="checkbox" id="sayiChk" ' + ((d.sayi === false) ? '' : 'checked') + '/>' +
-      '<span><b>Sayı kuralı — model fiyat uydurmasın</b><i>Açıkken model TL / adet / m² gibi mutlak sayı yazamaz; oran ve formül yazar. Kaynaksız tutar cevapta <code>[?]</code> yapılır ve altına not düşülür. Kullanıcının kendi yazdığı sayılar serbesttir.</i></span></label>' +
-    '<label class="field"><span>Cevap sınırı (kelime) · 30–500</span>' +
+      '<span><b>Sayı kuralı — fiyat uydurmasın</b><i>Kaynaksız tutar <code>[?]</code> olur; oran ve formül serbest.</i></span></label>' +
+    '<label class="field"><span>Cevap sınırı · kelime</span>' +
     '<input type="number" id="maxWordsIn" min="30" max="500" step="10" value="' + (Number(d.maxWords) || 130) + '"/></label>' +
-    '<label class="field"><span>Bağlam (token tasarrufu)</span><select id="contextSel">' +
+    '<label class="field"><span>Bağlam</span><select id="contextSel">' +
     '<option value="memory" ' + ((d.context || 'memory') === 'memory' ? 'selected' : '') + '>Masa hafızası — en az token (önerilen)</option>' +
     '<option value="compact" ' + (d.context === 'compact' ? 'selected' : '') + '>Sıkıştırılmış — eski mesajlar tek satır</option>' +
     '<option value="full" ' + (d.context === 'full' ? 'selected' : '') + '>Tam geçmiş — en çok token</option>' +
     '</select></label>' +
-    '<div style="font-size:11.5px;color:var(--muted);margin:-4px 0 10px">Masa hafızası: eski turlar tek satırlık nota iner, modele yalnız o not + son mesajlar gider. Sohbet ekranında görünmez; yalnız token harcamasını düşürür.</div>' +
-    '<label class="field"><span>Sıkıştırmada son kaç mesaj tam kalsın</span>' +
+    '<p class="note">Masa hafızası: eski turlar tek satırlık nota iner, modele yalnız o not + son mesajlar gider. Sohbet ekranında görünmez; yalnız token harcamasını düşürür.</p>' +
+    '<label class="field"><span>Tam kalan mesaj sayısı</span>' +
     '<input type="number" id="contextKeepIn" min="0" max="20" step="1" value="' + (d.contextKeep === 0 ? 0 : (Number(d.contextKeep) || 3)) + '"/></label>' +
     (d.goal === 'custom'
       ? '<label class="field"><span>Gündem adı (masanın başlığında görünür)</span>' +
@@ -11406,6 +11592,7 @@ function renderDrawerBody() {
   const body = $('#drawerBody');
   if (!body || !drawerDraft) return;
   body.innerHTML = drawerBodyHTML();
+  sadeCekmece(body);                 // Kol 120: kategoriler + katlanır bölümler
   if (typeof klWire === 'function') { try { klWire(); } catch (e) {} }
 
   const seg = $('#modeSeg');
@@ -12704,12 +12891,35 @@ function boot() {
       spreadModelsLive().then(r => { if (r && r.changed) { saveSettings(); renderAll(); } }).catch(() => {});
     }
   } catch (e) { /* dağıtım başarısızsa uygulama normal açılır */ }
+  placeRail();
+  /* Kol 119: varsayılan masa TekeTek — anahtarsız seçenek kendiliğinden kurulsun */
+  if (state.settings.table === 'tek' && typeof ensureTek === 'function') ensureTek();
   renderAll();
   if (!restoreSession()) {
     $('#input') && $('#input').focus();
   }
   renderKeyState();
 }
+
+/* ---------------- Kol 120 · sol panel yalnız masaüstünde ----------------
+   Tek DOM: masaüstünde #railHome (sol sütun), telefonda .wrap içindeki #railSlot
+   (eski kart düzeni). Böylece düğmeler iki kez yazılmaz, kimlikler çakışmaz. */
+function placeRail() {
+  const rail = document.getElementById('modeRail');
+  const home = document.getElementById('railHome');
+  const slot = document.getElementById('railSlot');
+  if (!rail || !home || !slot) return;
+  const masaustu = window.matchMedia('(min-width:901px)').matches;
+  const hedef = masaustu ? home : slot;
+  if (rail.parentElement !== hedef) hedef.appendChild(rail);
+  home.hidden = !masaustu;
+}
+try {
+  const mq = window.matchMedia('(min-width:901px)');
+  if (mq.addEventListener) mq.addEventListener('change', placeRail);
+  else if (mq.addListener) mq.addListener(placeRail);
+} catch (e) { /* yoksay */ }
+window.addEventListener('resize', placeRail);
 
 /* konsoldan / testlerden erişim */
 window.DIVANAI = { state, startSession, runRound, summarize, stopRun, renderAll, personas, GOALS, PROVIDERS, altOf, fallbackCandidates, setAlt, clearAlts, whyShort, nextSpeakers, autoStopReason, duelOn, duelPid, webOn, withWeb, kadroSearch, kadroApply, resumePaused, buildLocalSummary, localSummaryText, markPaused, clearPaused, mergeSettings, spreadModelsLive, spreadModelsPreset, spreadFromPool, fetchModelCatalog, sameModelSeats, settingsBackup, settingsWithoutKeys, parseSettingsBackup, applySettingsBackup, downloadSettingsBackup, maxRoundsSetting, systemPrompt: (i) => systemPrompt(personas()[i || 0]), tokenBudget: () => tokenBudget(), langOf, digestLine };

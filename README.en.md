@@ -89,6 +89,31 @@ OVH), then free services that need a key; paid ones stay folded under **Other se
 
 ## Using it
 
+### 0 · Left panel (table types)
+
+The table type now lives in a **vertical list on the left**: **OneOnOne · Panel · Council · Agents · Mirror**
+(the first visit is **OneOnOne** — the familiar single chat). Under the panel sits the **Demo / Live**
+label. On the phone the panel is a **horizontal strip** across the top; the Demo/Live label stays
+right below it.
+
+The top bar now has **no text**: on the right just a **dot** (green = Demo). Tapping it opens Settings.
+The **Settings** button is icon-only (a gear); its accessible name stays for screen readers.
+
+| Desktop · left panel | Phone · cards (the old layout) |
+|---|---|
+| ![Left panel](ekranlar/120-sol-panel.jpg) | ![Mobile](ekranlar/120-mobil-kartlar.jpg) |
+
+**No left panel on the phone:** table types sit on the home screen as **two-column cards**
+(the old layout), with the Demo/Live label right below. The left panel is desktop-only (901 px+).
+
+**Settings got simpler:** four categories — **Connection · Table · Flow · Advanced**. Long
+explanations fold under “Details”; rarely used sections start collapsed. No setting was removed,
+only less text is shown.
+
+| Settings · simplified |
+|---|
+| ![Settings](ekranlar/120-ayarlar-sade.jpg) |
+
 ### 1 · Set the table
 
 | What | Where | Note |

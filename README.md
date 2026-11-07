@@ -89,6 +89,31 @@ sonra ücretsiz anahtarlı servisler; ücretliler **Diğer servisler** başlığ
 
 ## Kullanım
 
+### 0 · Sol panel (masa türleri)
+
+Masa türü seçimi artık **sol panelde** dikey bir liste. Sıra: **TekeTek · Panel · Konsey · Ajanlar · Ayna**
+(ilk açılış **TekeTek** — herkesin tanıdığı tek sohbet). Panelin altında **Demo / Canlı** yazısı durur.
+Telefonda panel üstte **yatay şerit** olur, parmakla yana kayar; Demo/Canlı yazısı hemen altında kalır.
+
+Üst şeritte artık **metin yok**: sağda yalnız bir **nokta** (yeşil = Demo). Noktaya basınca Ayarlar açılır.
+
+| Masaüstü · sol panel | Telefon · kartlar (eski düzen) |
+|---|---|
+| ![Sol panel](ekranlar/120-sol-panel.jpg) | ![Mobil](ekranlar/120-mobil-kartlar.jpg) |
+
+**Telefonda sol panel yok:** masa türleri ana ekranda **iki sütunlu kartlar** hâlinde durur
+(eski düzen), Demo/Canlı yazısı kartların hemen altında. Sol panel yalnız 901 px ve üzerinde.
+
+**Ayarlar sadeleşti:** dört kategori — **Bağlantı · Masa · Akış · Gelişmiş**. Uzun açıklamalar
+“Ayrıntı” başlığı altında katlı durur; sık kullanılmayan bölümler kapalı gelir. Hiçbir ayar
+kaldırılmadı, yalnız görünen metin azaldı.
+
+| Ayarlar · sade düzen |
+|---|
+| ![Ayarlar](ekranlar/120-ayarlar-sade.jpg) |
+
+**Ayarlar** düğmesi de yalnız simge (dişli). Yazısı yok; ekran okuyucu için adı duruyor.
+
 ### 1 · Masayı kur
 
 | Ne | Nerede | Not |
