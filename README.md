@@ -169,6 +169,14 @@ onu **Dışa aktar** ile alırsın.
   çekilir ve beş sandalyeye o servise ait modeller yerleşir. Elle model kimliği yazmak zorunda değilsin.
   Kendi seçtiğin ve o serviste bulunan bir model varsa **korunur**, üzerine yazılmaz.
 - **Başkan**: özeti ve kapanışı yazan sandalye.
+- **Başkan** ve **roller aynı yerde**: Ayarlar → Masa → **Roller**. En üstteki listeden **başkanı** seçersin
+  (özeti ve kapanışı o yazar); başkanın satırında **BAŞKAN** rozeti, TekeTek'te konuşan sandalyede
+  **KONUŞAN** rozeti görünür.
+- **Roller**: her sandalyenin **rol etiketini** ve **tek cümlelik görevini** aynı yerden
+  yazarsın; alanlar beyaz kutudur, tıklayıp yazarsın, yanındaki rozet **yazarken** değişir.
+  Rol **TekeTek dâhil her modda** kullanılır: etiket baloncukta görünür, görev modelin üslubuna girer.
+  TekeTek'te masada tek sandalye konuştuğu için yalnız **onun** rolü işler; çekmecede o sandalye
+  **KONUŞAN** olarak işaretlidir.
 - **Ücretsiz modeller** düğmesi: servisin yayınladığı ücretsiz modelleri listeler; önce **hangi sandalyeye**
   atayacağını seç, sonra satırdaki **kullan**'a bas. Seçim yapmadan hiçbir sandalye değişmez.
   **+ Yeni sandalye aç** ile masaya olmayan bir sağlayıcıyı eklersin.
@@ -257,7 +265,8 @@ turları tek satırlık notlara indirir; modele yalnız **senin ilk sorun + o no
 Not sohbet ekranında **görünmez** — yalnız token harcamasını düşürür. Aynı masada harcama kabaca
 altıda bire iner: günde 2–3 masa yerine 10–15 masa.
 
-**Boşa token harcamamak için üç kural.** Hepsi Ayarlar → *Token tasarrufu* altında; istemezsen kapatabilirsin.
+**Boşa token harcamamak için üç kural.** (Ayarlar'daki *Token tasarrufu* bölümü Kol 127'de kaldırıldı;
+kurallar **her zaman açık** çalışır.)
 
 - **Geçme (açık, Konsey).** 2. turdan sonra söyleyecek yeni bir şeyi olmayan sandalye cevap yazmaz, yalnız `PAS` der.
   1. turda ve turun kapanış konuşmacısında (başkan) geçme yoktur; Ayna ve Ajanlar'da hiç yoktur.
@@ -289,7 +298,6 @@ asılı kalmaz, dinlenen bağlantının adımı atlanır). Geçme yalnız **Kons
 dinlenme yaratmaz — 5 dakika bekleme onu çözmez; onun için duraklatma ve **Kaldığı yerden devam** var.
 Devam düğmesi açık bir müdahaledir: dinlenme beklemesi varsa onu da kaldırır.
 
-![Token tasarrufu ayarları](ekranlar/23-token-tasarrufu.jpg)
 
 ![Bütün sandalyeler dinleniyor: masa duraklatıldı](ekranlar/24-dinlenme.jpg)
 

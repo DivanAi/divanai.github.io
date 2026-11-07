@@ -169,6 +169,14 @@ not part of the settings backup; take it with **Export**.
   models from that service land on the five seats. No need to type model ids by hand. A model you picked
   yourself, if the service has it, is **kept**, not overwritten.
 - **Chair**: the seat that writes the summary and the closing.
+- **Chair and roles live together**: Settings → Table → **Roles**. The list at the top picks the
+  **chair** (it writes the summary and the close); the chair's row carries a **CHAIR** badge and, in
+  Solo mode, the speaking seat carries a **SPEAKING** badge.
+- **Roles**: you set each seat's **role label** and **one-line job** in the same place.
+  The fields are white boxes — click and type; the badge beside them updates **as you type**.
+  The role applies in **every mode, including Solo**: the label shows in the bubble and the job shapes
+  the model's voice. In Solo only one seat speaks, so only **its** role applies; that seat is marked
+  **SPEAKING** in the drawer.
 - The **Free models** button lists the free models the provider publishes; pick **which seat** first, then
   press **use** on the row. No seat changes until you choose. **+ New seat** adds a provider that is not
   at the table yet. The button appears **only for the four providers that expose their list to the browser**:
@@ -254,7 +262,8 @@ shrinks old rounds into one-line notes; the model receives only **your first que
 last two messages**. The note is **invisible** on screen — it only cuts token spending. On the same
 table spending drops roughly six-fold: 10–15 tables a day instead of 2–3.
 
-**Three rules against wasting tokens.** All under Settings → *Token saving*; switch them off if you like.
+**Three rules against wasting tokens.** (The *Token saving* section in Settings was removed in Kol 127;
+the rules always run.)
 
 - **Passing (on, Council).** From round 2 on, a seat with nothing new to say writes no answer and just
   says `PASS`. There is no passing in round 1 or for the closing speaker (the chair); Mirror and Agents
@@ -289,7 +298,6 @@ daily quota does not create a cooldown — waiting 5 minutes does not fix it; th
 **Continue where you left off** are for. The continue button is an explicit intervention: it also lifts
 any cooldown wait.
 
-![Token saving settings](ekranlar/23-token-tasarrufu.jpg)
 
 ![All seats resting: table paused](ekranlar/24-dinlenme.jpg)
 

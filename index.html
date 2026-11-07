@@ -946,7 +946,29 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
 .keyrow{border:1px solid var(--line);border-radius:12px;padding:10px 11px;background:rgba(var(--w),.02)}
 .keyrow .kh{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .keyrow .kh b{font-size:12px;font-weight:600}
-.keyrow .kh .badge{font-size:9.5px;color:var(--dim);border:1px solid var(--line);padding:2px 6px;border-radius:5px;letter-spacing:.05em;text-transform:uppercase;margin-left:auto}
+.keyrow .kh .badge{font-size:9.5px;color:var(--dim);border:1px solid var(--line);padding:2px 6px;border-radius:5px;letter-spacing:.05em;text-transform:uppercase}
+/* Kol 125 · Roller: rozet artık yazdıkça değişiyor + alanların yazılabilir olduğu belli olsun */
+.keyrow .kh .badge.chair{margin-left:auto;color:#8a5a1e;border-color:rgba(200,150,70,.55);background:rgba(240,200,120,.18);font-weight:700}
+:root[data-palette="night"] .keyrow .kh .badge.chair{color:#f0c878}
+.keyrow .kh .badge.speaking{color:var(--acc);border-color:rgba(var(--accrgb),.45);background:rgba(var(--accrgb),.10)}
+.keyrow .kh .badge.speaking + .badge{margin-left:6px}
+.keyrow .kh .badge.degisti{color:var(--acc);border-color:rgba(var(--accrgb),.55);background:rgba(var(--accrgb),.12);font-weight:700}
+.keyrow input.roleIn{
+  width:100%;background:var(--card,#fff);border:1px solid rgba(var(--w),.22);border-radius:9px;
+  padding:9px 11px;font-size:12.5px;color:inherit;font-family:inherit;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.04);
+  transition:border-color .16s,box-shadow .16s,background .16s;
+}
+.keyrow input.roleIn + input.roleIn{margin-top:7px}
+.keyrow input.roleIn::placeholder{color:color-mix(in srgb,var(--dim) 78%,transparent);font-style:italic}
+.keyrow input.roleIn:hover{border-color:rgba(var(--w),.34)}
+.keyrow input.roleIn:focus{
+  outline:none;border-color:rgba(var(--accrgb),.85);background:#fff;
+  box-shadow:0 0 0 3px rgba(var(--accrgb),.16);
+}
+:root[data-palette="night"] .keyrow input.roleIn{background:rgba(var(--w),.06);border-color:rgba(var(--w),.20)}
+:root[data-palette="night"] .keyrow input.roleIn:focus{background:rgba(var(--w),.10)}
+.keyrow.rolPasif{opacity:.62}
 .panelCfg{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .prow{display:grid;grid-template-columns:24px 1fr;gap:9px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(var(--w),.022)}
 .prow .chk{width:17px;height:17px;accent-color:var(--accGradB);margin-top:2px;cursor:pointer}
@@ -3777,7 +3799,12 @@ const personas = () => {
       short: vn ? vn.short : p.short,
       vendor: vn ? vn.vendor : '',
       color: p.color,
-      role: 'moderator', roleLabel: 'DANIŞMAN', roleBrief: 'soruyu doğrudan cevaplar, konuyu dağıtmaz',
+      /* Kol 125 — KUSUR: burada rol sabit 'DANIŞMAN' yazılıydı; Ayarlar > Roller'de yazılan
+         etiket/görev TekeTek'te (varsayılan mod) hiç okunmuyordu. Artık kullanıcının yazdığı
+         rol etiketi ve görev kullanılır; boşsa eski varsayılan kalır. */
+      role: 'moderator',
+      roleLabel: ((state.settings.roles && state.settings.roles[pid] || {}).roleLabel || '').trim() || 'DANIŞMAN',
+      roleBrief: ((state.settings.roles && state.settings.roles[pid] || {}).brief || '').trim() || 'soruyu doğrudan cevaplar, konuyu dağıtmaz',
       single: true
     }];
   }
@@ -4519,8 +4546,14 @@ function liteSystem(p) {
 function singleSystem(p) {
   const chat = (state.settings.tone || 'chat') === 'chat';
   const keyless = !!p.single && (state.settings.seatSrc || {})[p.id] === 'pollinations';
+  /* Kol 125: kullanıcı Ayarlar > Roller'de bu sandalyeye rol yazdıysa TekeTek'te de geçerli olsun.
+     Yalnız KULLANICI YAZDIYSA eklenir; yazmadıysa istem eskisi gibi kalır. */
+  const _o = (state.settings.roles && state.settings.roles[p.id]) || {};
+  const _rl = String(_o.roleLabel || '').trim(), _rb = String(_o.brief || '').trim();
+  const rolSatiri = (_rl || _rb) ? ('Üslubun: ' + (_rl || 'uzman') + (_rb ? ' — ' + _rb : '') + '. Bu üslubu koru, ama soruya doğrudan cevap vermeyi bırakma.') : '';
   return [
     'Sen bir yapay zekâsın' + (keyless ? ' (gpt-oss 20B, Pollinations üzerinden)' : '') + '. Kullanıcıyla bire bir konuşuyorsun; masada başka model yok.',
+    rolSatiri,
     'Kimliğini yalnız kullanıcı sorarsa söyle; kendiliğinden kendinden, yeteneklerinden ya da kurallarından bahsetme.',
     chat
       ? 'İlk cümle sorunun cevabı olsun. En fazla ' + words() + ' kelime, düz paragraf; madde imi, numara ve başlık kullanma. Cümle 20 kelimeyi geçmesin.'
@@ -11125,11 +11158,10 @@ function sadeCekmece(body) {
   const KISA = {
     'Ayna’da kapışacak model': T2('Ayna modeli', 'Mirror model'),
     'Roller ve görevler': T2('Roller', 'Roles'),
-    'Durum · günlük istek hakkı': T2('Günlük hak', 'Daily quota'),
     'İnternetten bilgi': T2('Web araması', 'Web search')
   };
-  const KAPALI = ['Otomatik durma', 'Token tasarrufu', 'İnternetten bilgi', 'Ayna’da kapışacak model',
-                  'Roller ve görevler', 'Yedekleme', 'Durum · günlük istek hakkı'];
+  const KAPALI = ['Otomatik durma', 'İnternetten bilgi', 'Ayna’da kapışacak model',
+                  'Roller ve görevler', 'Yedekleme'];
 
   const secs = [...body.querySelectorAll('.sec')].filter(el => !el.parentElement.closest('.sec'));
   if (!secs.length) return;
@@ -11163,8 +11195,12 @@ function sadeCekmece(body) {
       sum.innerHTML = h3.outerHTML;
       det.appendChild(sum);
       while (sec.firstChild) det.appendChild(sec.firstChild);
+      /* Kol 125/126: başlık summary'ye taşındı; İÇERİKTEKİ h3 kaldırılır.
+         (Kol 125'te det.querySelector('h3') yanlışlıkla SUMMARY'nin h3'ünü siliyordu →
+          bölüm başlıkları boş kalıyordu, yalnız ok görünüyordu.) */
+      [...det.querySelectorAll('h3')].forEach(h => { if (!sum.contains(h)) h.remove(); });
       sec.replaceWith(det);
-      if (['Otomatik durma', 'Token tasarrufu', 'İnternetten bilgi'].includes(t)) det.open = false;
+      if (['Otomatik durma', 'İnternetten bilgi'].includes(t)) det.open = false;
     }
   });
 
@@ -11172,8 +11208,8 @@ function sadeCekmece(body) {
   const GRUP = [
     [T2('Bağlantı', 'Connection'), ['Mod', T2('Bağlantı', 'Connection')]],
     [T2('Masa', 'Table'), [T2('Ayna modeli', 'Mirror model'), 'Masa düzeni', T2('Roller', 'Roles')]],
-    [T2('Akış', 'Flow'), ['Otomatik durma', 'Token tasarrufu', T2('Web araması', 'Web search')]],
-    [T2('Gelişmiş', 'Advanced'), ['Yedekleme', T2('Günlük hak', 'Daily quota')]]
+    [T2('Akış', 'Flow'), ['Otomatik durma', T2('Web araması', 'Web search')]],
+    [T2('Gelişmiş', 'Advanced'), ['Yedekleme']]
   ];
   const hepsi = [...body.children];
   const yeni = document.createDocumentFragment();
@@ -11388,23 +11424,12 @@ function drawerBodyHTML() {
 
   /* --- masadaki modeller (canlı) / demo masası sabit --- */
   if (!live) {
-    const rows = DEMO_SEATS.map(pid => {
-      const g0 = GATEWAYS[DEMO_SRC[pid]] || {};
-      const m0 = (d.models || {})[pid] || '';
-      const pname = (typeof personaById === 'function' && (personaById(pid) || {}).name) || PROVIDERS[pid].name;
-      return '<li><b>' + esc(pname) + '</b> · ' + esc(g0.label || DEMO_SRC[pid]) +
-        (m0 ? ' · <span style="opacity:.7">' + esc(m0) + '</span>' : '') + '</li>';
-    }).join('');
-    h += '<div class="sec"><h3>' + (window.T2 ? window.T2('Demo masası', 'Demo table') : 'Demo masası') +
-      ' <span class="note" style="margin:0;font-weight:400">· ' + (window.T2 ? window.T2('3 sandalye · sabit', '3 seats · fixed') : '3 sandalye') + '</span></h3>' +
-      '<ul class="keylessList">' + rows + '</ul>' +
-      '<p class="note">' + (window.T2
-        ? window.T2('Demo sabittir: her sandalye kendi ücretsiz servisinde, servisin kendi modeliyle konuşur. Model seçmek ve masayı kurmak için yukarıdan <b>Canlı</b> + bir API anahtarı gerekir.',
-                    'Demo is fixed: each seat talks on its own free service with that service’s model. To pick models and build the table, switch to <b>Live</b> above with an API key.')
-        : 'Demo sabittir: her sandalye kendi ücretsiz servisinde konuşur.') + '</p>' +
-      '<p class="note">' + (window.T2
-        ? window.T2('Başkanı (özet yazan sandalyeyi) ve konuşma üslubunu aşağıdan yine de değiştirebilirsin.', 'You can still change the chair (who writes the summary) and the tone below.')
-        : 'Başkanı ve üslubu aşağıdan değiştirebilirsin.') + '</p></div>';
+    /* Kol 127 (kullanıcı: "gereksizse bunu kaldır"): demo masasındaki sandalye rozetleri ve
+       uzun ölçüm notları kaldırıldı. Tek satır kalır; hangi servislerin kullanıldığı README'de. */
+    h += '<div class="sec"><p class="note" style="margin:0">' + (window.T2
+      ? window.T2('Demo sabittir: üç sandalye üç ücretsiz serviste (OVH · LLM7 · Pollinations) çalışır. Model seçmek için yukarıdan <b>Canlı</b> + bir API anahtarı gerekir.',
+                  'Demo is fixed: three seats run on three free services (OVH · LLM7 · Pollinations). To pick models, switch to <b>Live</b> above with an API key.')
+      : 'Demo sabittir: üç sandalye üç ücretsiz serviste çalışır.') + '</p></div>';
   } else {
   /* Kol 122: model kimliği yazarken açılan öneri listesi de yalnız sohbet modelleri */
   const _mdl = (state.orModels || []).filter(id => modelIsChat(id));
@@ -11487,20 +11512,6 @@ function drawerBodyHTML() {
       '<input type="number" id="maxRoundsIn" min="2" max="20" step="1" value="' + (Number(d.maxRounds) || 6) + '"/></label>' +
     '<p class="note">Tur tavanı dolunca masa durur ve özet çıkarır. “Bir tur daha”ya <b>kendin</b> basarsan masa karışmaz (tavanı aşarsan uyarı verir) — her tur token harcar.</p></div>';
 
-  /* --- token tasarrufu --- */
-  h += '<div class="sec"><h3>Token tasarrufu</h3>' +
-    '<label class="swRow"><input type="checkbox" id="passChk" ' + (d.passOn !== false ? 'checked' : '') + '/>' +
-      '<span><b>Yeni noktası olmayan sandalye “geçti” desin</b><i>2. turdan sonra, söyleyecek yeni bir şeyi olmayan sandalye cevap yazmaz; yalnız “PAS” der.</i></span></label>' +
-    '<p class="note">Kopya cevaplar zaten masaya konmuyordu; bu ayar onları <b>hiç yazdırmaz</b>. Turun kapanış konuşmacısı (başkan) her zaman konuşur, 1. turda kimse geçemez.</p>' +
-    '<label class="field"><span>Sandalye zaman aşımı (saniye, 0 = kapalı)</span>' +
-      '<input type="number" id="seatTimeoutIn" min="0" max="600" step="10" value="' + (d.seatTimeout === 0 ? 0 : (Number(d.seatTimeout) || 120)) + '"/></label>' +
-    '<p class="note">Bir sandalye bu süre içinde cevabını bitirmezse <b>yalnız o sandalye</b> kesilir, masa beklemede kalmaz. ' +
-      'Yarıda kalan metin 30 karakterden uzunsa <b>korunur</b> ve “yarıda kesildi” etiketiyle masaya konur. Yavaş modeller için cömert tut.</p>' +
-    '<label class="field"><span>Sağlayıcı dinlenmesi (dakika, 0 = kapalı)</span>' +
-      '<input type="number" id="restMinIn" min="0" max="120" step="1" value="' + (d.restMin === 0 ? 0 : (Number(d.restMin) || 5)) + '"/></label>' +
-    '<p class="note">Bir sağlayıcı <b>429 / kredi bitti</b> hatası verirse bu süre boyunca hiç denenmez — her turda aynı duvara çarpmak yerine bekler. ' +
-      'Dinlenen sandalye masada <b>saat rozetiyle</b> (ör. <b>16:25</b>) görünür — üzerine gelince sebebi yazar; alttaki <b>Dinlenmeyi bitir</b> düğmesi beklemeden açar.</p></div>';
-
   /* --- internet --- */
   h += '<div class="sec"><h3>İnternetten bilgi</h3>' +
     '<label class="swRow"><input type="checkbox" id="webChk" ' + (d.web ? 'checked' : '') + '/>' +
@@ -11520,9 +11531,6 @@ function drawerBodyHTML() {
 
   /* --- masa düzeni --- */
   h += '<div class="sec"><h3>Masa düzeni</h3>' +
-    '<label class="field"><span>Başkan</span><select id="chairSel">' +
-    d.active.map(pid => '<option value="' + pid + '" ' + (d.chair === pid ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + ' · ' + esc(PROVIDERS[pid].roleLabel) + '</option>').join('') +
-    '</select></label>' +
     '<label class="field" id="goalField"' + ((d.table === 'ayna') ? ' hidden' : '') + '><span>Gündem türü</span><select id="goalSel">' +
     Object.entries(GOALS).map(([k, g]) => '<option value="' + k + '" ' + (d.goal === k ? 'selected' : '') + '>' + esc(g.label) + '</option>').join('') +
     '</select></label>' +
@@ -11532,8 +11540,6 @@ function drawerBodyHTML() {
     '<option value="net" ' + (d.tone === 'net' ? 'selected' : '') + '>Rapor düzeni — Sonuç / Artı / Eksi / İlk adım</option>' +
     '<option value="brief" ' + (d.tone === 'brief' ? 'selected' : '') + '>Kısa — birkaç madde</option>' +
     '</select></label>' +
-    '<label class="swRow"><input type="checkbox" id="sayiChk" ' + ((d.sayi === false) ? '' : 'checked') + '/>' +
-      '<span><b>Sayı kuralı — fiyat uydurmasın</b><i>Kaynaksız tutar <code>[?]</code> olur; oran ve formül serbest.</i></span></label>' +
     '<label class="field"><span>Cevap sınırı · kelime</span>' +
     '<input type="number" id="maxWordsIn" min="30" max="500" step="10" value="' + (Number(d.maxWords) || 130) + '"/></label>' +
     '<label class="field"><span>Bağlam</span><select id="contextSel">' +
@@ -11554,13 +11560,34 @@ function drawerBodyHTML() {
 
   /* --- rolleri düzenle --- */
   h += '<div class="sec"><h3>Roller ve görevler</h3>' +
-    '<p class="note" style="margin-top:0">Her sandalyenin rol etiketini ve tek cümlelik görevini değiştirebilirsin. Boş bırakılan alan varsayılana döner.</p>';
+    '<p class="note" style="margin-top:0">' + (window.T2
+      ? window.T2('Aşağıdaki <b>beyaz kutulara</b> tıklayıp yaz: sol kutu <b>rol etiketi</b>, alt kutu <b>tek cümlelik görev</b>. Yazdıkça yanındaki rozet değişir. Boş bırakılan alan varsayılana döner.',
+                  'Click the <b>white boxes</b> below and type: the top one is the <b>role label</b>, the one under it the <b>one-line job</b>. The badge updates as you type. Empty fields fall back to the default.')
+      : 'Beyaz kutulara tıklayıp yaz. Boş bırakılan alan varsayılana döner.') + '</p>' +
+    (tekOn() ? '<p class="note" style="margin-top:0;color:var(--warnInk)">' + (window.T2
+      ? window.T2('<b>TekeTek modundasın:</b> masada yalnız <b>' + esc(PROVIDERS[(d.active.includes(d.chair) ? d.chair : d.active[0]) || 'gpt'].name) + '</b> konuşur, rolü yalnız o kullanır. Diğer sandalyelerin rolü, o moda geçtiğinde işler.',
+                  '<b>You are in Solo mode:</b> only <b>' + esc(PROVIDERS[(d.active.includes(d.chair) ? d.chair : d.active[0]) || 'gpt'].name) + '</b> speaks at the table, so only its role is used. The other seats’ roles apply when you switch to that mode.')
+      : 'TekeTek: masada tek yapay zekâ konuşur.') + '</p>' : '');
+  /* Kol 126 · Başkan seçimi artık ROL bölümünde: başkanlık bir rol sorunudur.
+     Kim başkansa özeti ve kapanışı o yazar; satırında BAŞKAN rozeti görünür. */
+  h += '<label class="field"><span>' + (window.T2 ? window.T2('Başkan — özeti ve kapanışı o yazar', 'Chair — writes the summary and the close') : 'Başkan') + '</span>' +
+    '<select id="chairSel">' +
+    d.active.map(pid => '<option value="' + pid + '" ' + (d.chair === pid ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + ' · ' + esc((((d.roles || {})[pid] || {}).roleLabel || '').trim() || PROVIDERS[pid].roleLabel) + '</option>').join('') +
+    '</select></label>' +
+    '<p class="note" style="margin-top:-2px">' + (window.T2
+      ? window.T2('Başkan masayı yönetir ve son sözü söyler; ama her turun sonunda konuşan odur.', 'The chair runs the table and has the last word; it speaks at the end of every round.')
+      : 'Başkan masayı yönetir, son sözü söyler.') + '</p>';
   for (const pid of (d.active.length ? d.active : ['gpt'])) {
     const P = PROVIDERS[pid];
     const o = (d.roles && d.roles[pid]) || {};
-    h += '<div class="keyrow"><div class="kh"><b>' + esc(P.name) + '</b><span class="badge">' + esc(P.roleLabel) + '</span></div>' +
-      '<input type="text" id="role-' + pid + '" aria-label="' + esc(P.name + ' · ' + (window.T2 ? window.T2('rol etiketi', 'role label') : 'rol')) + '" placeholder="' + esc(P.roleLabel) + '" value="' + esc(o.roleLabel || '') + '" maxlength="24"/>' +
-      '<input type="text" id="brief-' + pid + '" aria-label="' + esc(P.name + ' · ' + (window.T2 ? window.T2('tek cümlelik görev', 'one-line job') : 'görev')) + '" placeholder="' + esc(ROLES[P.role].brief) + '" value="' + esc(o.brief || '') + '" maxlength="160"/></div>';
+    const _konusan = tekOn() && pid === ((d.active.includes(d.chair) ? d.chair : d.active[0]) || 'gpt');
+    const _baskan = (d.chair === pid);
+    h += '<div class="keyrow' + (tekOn() && !_konusan ? ' rolPasif' : '') + '"><div class="kh"><b>' + esc(P.name) + '</b>' +
+      (_baskan ? '<i class="badge chair">' + (window.T2 ? window.T2('BAŞKAN', 'CHAIR') : 'BAŞKAN') + '</i>' : '') +
+      (_konusan ? '<i class="badge speaking">' + (window.T2 ? window.T2('KONUŞAN', 'SPEAKING') : 'KONUŞAN') + '</i>' : '') +
+      '<span class="badge" id="roleBadge-' + pid + '">' + esc((o.roleLabel || '').trim() || P.roleLabel) + '</span></div>' +
+      '<input class="roleIn" type="text" id="role-' + pid + '" aria-label="' + esc(P.name + ' · ' + (window.T2 ? window.T2('rol etiketi', 'role label') : 'rol')) + '" placeholder="' + esc(window.T2 ? window.T2('örn. ', 'e.g. ') + P.roleLabel : P.roleLabel) + '" value="' + esc(o.roleLabel || '') + '" maxlength="24"/>' +
+      '<input class="roleIn" type="text" id="brief-' + pid + '" aria-label="' + esc(P.name + ' · ' + (window.T2 ? window.T2('tek cümlelik görev', 'one-line job') : 'görev')) + '" placeholder="' + esc(ROLES[P.role].brief) + '" value="' + esc(o.brief || '') + '" maxlength="160"/></div>';
   }
   h += '<button type="button" class="mini" id="rolesReset">Rolleri varsayılana döndür</button></div>';
 
@@ -11576,15 +11603,6 @@ function drawerBodyHTML() {
     '</div>' +
     '<input type="file" id="backupFile" accept=".json,application/json" hidden/>' +
     '<p class="note">Yedeğe girenler: bağlantı türü, model kimlikleri, roller, üslup, gündem, tur tavanı, görsel ayarları. <b>Konuşma geçmişi girmez</b> (onu menüdeki <b>.md</b> ile ayrıca indirirsin). Yüklerken eksik alan varsa varsayılanla tamamlanır — yedek eski sürümden kalsa da çalışır.</p></div>';
-
-  /* --- durum + kota --- */
-  h += '<div class="sec"><h3>Durum · günlük istek hakkı</h3>' + quotaBoxHTML() +
-    '<div class="kv"><span>Mod</span><b>' + (live ? 'Canlı' : 'Demo') + '</b></div>' +
-    '<div class="kv"><span>Bağlantı</span><b>' + (live ? esc(gw.label) : '—') + '</b></div>' +
-    '<div class="kv"><span>Adres</span><b style="font-weight:500;font-size:11px">' +
-      (live ? esc(a.kind === 'compat' ? (a.baseUrl || '—') : gw.baseUrl) : '—') + '</b></div>' +
-    '<div class="kv"><span>Masadaki model</span><b>' + d.active.length + '</b></div>' +
-    '</div>';
 
   return h;
 }
@@ -11757,6 +11775,21 @@ function renderDrawerBody() {
     /* kullanıcı model kimliğini elle yazdıysa: açılıştaki otomatik dağıtım bir daha dokunmaz */
     if (e.target && e.target.classList && e.target.classList.contains('modelInput') && drawerDraft) {
       drawerDraft.modelsTouched = true;
+    }
+    /* Kol 125: rol etiketi yazılırken yanındaki rozet ANINDA değişsin (eskiden hiç değişmiyordu) */
+    const tid = e.target && e.target.id || '';
+    if (tid.indexOf('role-') === 0 && drawerDraft) {
+      const pid = tid.slice(5);
+      const badge = document.getElementById('roleBadge-' + pid);
+      const yazilan = String(e.target.value || '').trim();
+      if (badge && PROVIDERS[pid]) {
+        badge.textContent = yazilan || PROVIDERS[pid].roleLabel;
+        badge.classList.toggle('degisti', !!yazilan);
+      }
+      drawerDraft.roles = drawerDraft.roles || {};
+      const cur = { ...(drawerDraft.roles[pid] || {}) };
+      cur.roleLabel = yazilan;
+      if (cur.roleLabel || cur.brief) drawerDraft.roles[pid] = cur; else delete drawerDraft.roles[pid];
     }
   });
   if (bodyEl) bodyEl.addEventListener('change', e => {
