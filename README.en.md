@@ -510,6 +510,15 @@ Toggle with the **single icon** in the top bar: a moon in day mode, a sun in nig
 shows where you are going). The choice is stored in the browser; the first visit is **day**.
 The `G` key toggles too (not while typing). The settings drawer also has a `☀ Day / ☾ Night` row.
 
+The brand is now a **plaque** that stands apart from the page: cream-brass surface, double frame, a
+thin brass rule on top. **Clicking it takes you home**; if the table has a conversation it asks first,
+and while a round is running it does nothing (press “Stop”). It works by keyboard too — the plaque is
+a button: `Tab` to focus, `Enter` to press.
+
+| Plaque · day | Plaque · night |
+|---|---|
+| ![Plaque day](ekranlar/118-logo-gunduz.jpg) | ![Plaque night](ekranlar/118-logo-gece.jpg) |
+
 Contrast clears WCAG AA: body 15.6 · secondary 8.4 · dim 6.0 · button label 5.8.
 With `prefers-reduced-motion`, the transition is disabled.
 

@@ -509,6 +509,14 @@ kurtarılamaz** — başka yerde bir kopyası olsun. Kaldırmak tek düğme.
 modu gösterir). Seçim tarayıcıda saklanır; ilk açılış **gündüzdür**. `G` tuşu da değiştirir
 (yazı kutusunda çalışmaz). Ayarlar çekmecesinde de `☀ Gündüz / ☾ Gece` satırı vardır.
 
+Marka artık sayfadan ayrı duran bir **plaka**: krem-pirinç zemin, çift çerçeve, üstte ince pirinç çizgi.
+Plakaya **tıklayınca ana ekrana dönersin**; masada konuşma varsa önce sorar, konuşma sürerken hiç
+dokunmaz (önce “Durdur”). Klavyeyle de çalışır: plaka bir düğmedir, `Tab` ile odaklanıp `Enter` ile basılır.
+
+| Plaka · gündüz | Plaka · gece |
+|---|---|
+| ![Plaka gündüz](ekranlar/118-logo-gunduz.jpg) | ![Plaka gece](ekranlar/118-logo-gece.jpg) |
+
 Kontrast WCAG AA üstündedir: gövde 15,6 · ikincil 8,4 · soluk 6,0 · buton yazısı 5,8.
 `prefers-reduced-motion` açıksa geçiş animasyonu kapanır.
 
