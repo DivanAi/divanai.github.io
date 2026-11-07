@@ -517,6 +517,15 @@ dokunmaz (önce “Durdur”). Klavyeyle de çalışır: plaka bir düğmedir, `
 |---|---|
 | ![Plaka gündüz](ekranlar/118-logo-gunduz.jpg) | ![Plaka gece](ekranlar/118-logo-gece.jpg) |
 
+**Telefonda üst şerit iki satır:** üstte plaka (ad + slogan) ve Ayarlar; altta tema · dil · yardım ·
+geçmiş · destek. Marka adı hiçbir genişlikte kısaltılmıyor (eskiden “Div…” diye kesiliyordu).
+400 px altında Ayarlar yalnız simge olur (adı çekmecede zaten var); 360 px altında yalnız ortadaki
+Demo/Canlı rozeti gizlenir.
+
+| Telefon · üst şerit | Telefon · ana ekran |
+|---|---|
+| ![Üst şerit](ekranlar/118b-mobil-ustserit.jpg) | ![Mobil](ekranlar/118b-mobil-sayfa.jpg) |
+
 Kontrast WCAG AA üstündedir: gövde 15,6 · ikincil 8,4 · soluk 6,0 · buton yazısı 5,8.
 `prefers-reduced-motion` açıksa geçiş animasyonu kapanır.
 

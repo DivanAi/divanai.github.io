@@ -1006,14 +1006,32 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
   .brand{gap:8px}
   .brandtext b{font-size:18px}
 }
+/* Kol 118b · MOBİL: üst şerit iki satır.
+   Satır 1: logo plakası (tam ad + slogan) + Ayarlar
+   Satır 2: tema · dil · yardım · geçmiş · destek
+   Böylece marka adı hiçbir genişlikte "Div…" diye kesilmiyor. */
+@media (max-width:520px){
+  .topbar{flex-wrap:wrap;row-gap:7px;padding:8px 10px;gap:8px}
+  .brand{order:1;margin-right:auto;flex:0 0 auto;max-width:calc(100% - 48px)}
+  #settingsBtn{order:2;margin-left:0}
+  .topmid{order:3}
+  .topactions{order:4;flex:1 1 100%;justify-content:flex-end;gap:7px}
+  .brandtext span{display:block;font-size:10px;letter-spacing:.01em}
+  .brand{padding:5px 13px 5px 8px;gap:9px}
+  .brand .logo{width:30px;height:30px}
+  .brandtext b{font-size:18px}
+}
 @media (max-width:400px){
+  /* dar telefon: Ayarlar yalnız simge (adı çekmecede zaten var) */
+  #settingsBtn .lbl{display:none}
+  #settingsBtn{padding:8px 10px}
   .topactions{gap:4px}
   .topactions .btn.ghost{padding:7px 6px}
   .brandtext b{font-size:17px}
 }
-/* 360 px altı: marka adını kırpmak yerine yalnız logo bırak */
+/* 360 px altı: ad ve slogan KALIR (Kol 118b — üst şerit iki satır olduğu için sığıyor);
+   yalnız orta rozet gizlenir. Marka metni hiçbir genişlikte gizlenmez. */
 @media (max-width:355px){
-  .brandtext{display:none}
   .topmid{display:none}
 }
 @media (max-width:520px){
@@ -1283,6 +1301,10 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
 :root[data-palette="night"] .brand:hover{border-color:rgba(245,199,106,.62)}
 .brand .logo{margin-left:3px}
 
+/* Ayarlar artık .topactions'tan ayrı bir öğe (mobilde iki satır için):
+   masaüstünde görsel sıra ve boşluk değişmesin */
+#settingsBtn{margin-left:-6px}
+
 /* tema düğmesi: yalnız simge */
 #themeBtn{position:relative;overflow:hidden}
 #themeBtn svg{display:block;transition:transform .3s ease}
@@ -1433,11 +1455,11 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
       <button class="btn ghost icon" id="supportTopBtn" title="Destek" aria-label="Destek">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 0 1 6.5 6.5z"/></svg>
       </button>
+    </div>
       <button class="btn primary" id="settingsBtn">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.64 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9v.05a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg>
         <span class="lbl">Ayarlar</span>
       </button>
-    </div>
   </header>
 
   <!-- geçmiş paneli: saat simgesine basınca açılır (liste ui.js doldurur) -->
