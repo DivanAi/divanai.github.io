@@ -398,22 +398,8 @@ a{color:var(--link)}
   #scroll.idle{padding-bottom:0}
   .dock.inhero{padding-top:6px}
   .dock.inhero .hint{padding-top:4px}
-  .dock.inhero /* Kol 128 · konuşma ekranındaki model çubuğu (TekeTek + Ayna) */
-.modelBar{display:flex;align-items:center;gap:9px;margin:0 0 8px;padding:7px 10px;
-  border:1px solid rgba(var(--w),.14);border-radius:12px;background:rgba(var(--w),.035);
-  max-width:100%;}
-.modelBar[hidden]{display:none}
-.modelBar .mbLbl{font-size:11.5px;color:var(--dim);white-space:nowrap;letter-spacing:.01em}
-.modelBar select{flex:1 1 auto;min-width:0;max-width:420px;font-size:12.5px;padding:6px 9px;
-  border-radius:9px;border:1px solid rgba(var(--w),.20);background:var(--card,#fff);color:inherit;font-family:inherit}
-.modelBar select:focus{outline:none;border-color:rgba(var(--accrgb),.8);box-shadow:0 0 0 3px rgba(var(--accrgb),.16)}
-.modelBar .mbNote{font-size:11px;color:var(--warnInk);white-space:nowrap}
-:root[data-palette="night"] .modelBar select{background:rgba(var(--w),.07)}
-@media (max-width:560px){
-  .modelBar{flex-wrap:wrap;gap:6px;padding:7px 9px}
-  .modelBar .mbLbl{flex:1 1 100%}
-  .modelBar select{max-width:none;flex:1 1 100%}
-}
+  .dock.inhero 
+
 .composer{padding:7px 8px 7px 14px}
   .dock.inhero .composer textarea{padding:7px 0}
 }
@@ -1550,6 +1536,64 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 .secF>summary h3{margin:0;font-size:12.5px;font-weight:600;color:var(--text)}
 .secF[open]{padding-bottom:10px}
 .secF .sec,.secF p.note{margin-bottom:8px}
+
+/* ============================================================
+   Kol 129 · MODEL SEÇİMİ (OpenCode/Cline örneği)
+   · yazı kutusunun içinde kompakt düğme (çip) — üstte uzun liste yok
+   · tıklayınca ortada, aramalı, gruplu bir pencere
+   ============================================================ */
+.modelChip{
+  display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;
+  max-width:150px;padding:6px 9px;border-radius:999px;
+  border:1px solid rgba(var(--w),.16);background:rgba(var(--w),.05);
+  color:var(--dim);font:inherit;font-size:11.5px;line-height:1;cursor:pointer;
+  transition:background .16s,border-color .16s,color .16s;
+}
+.modelChip[hidden]{display:none}
+.modelChip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:92px}
+.modelChip svg{flex:0 0 auto;opacity:.75}
+.modelChip:hover{background:rgba(var(--accrgb),.10);border-color:rgba(var(--accrgb),.45);color:var(--acc)}
+.modelChip:focus-visible{outline:2px solid rgba(var(--accrgb),.8);outline-offset:2px}
+@media (max-width:560px){ .modelChip{max-width:112px;padding:6px 8px} .modelChip span{max-width:62px} }
+
+.pickOv{position:fixed;inset:0;background:rgba(18,14,8,.42);z-index:60;backdrop-filter:blur(2px)}
+.pickOv[hidden]{display:none}
+.pick{
+  position:fixed;z-index:61;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(560px,calc(100vw - 28px));max-height:min(78vh,660px);
+  display:flex;flex-direction:column;
+  background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;
+  box-shadow:0 30px 70px -24px rgba(0,0,0,.55);
+  overflow:hidden;
+}
+.pick[hidden]{display:none}
+.pickHead{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px}
+.pickHead h2{margin:0;font-size:16px;font-weight:700;letter-spacing:-.01em}
+.pickX{appearance:none;border:1px solid transparent;background:transparent;color:var(--dim);
+  font-size:14px;line-height:1;padding:6px 8px;border-radius:8px;cursor:pointer}
+.pickX:hover{background:rgba(var(--w),.07);color:inherit}
+.pickSub{margin:0;padding:0 16px 10px;font-size:12px;color:var(--dim)}
+.pickSearchWrap{display:flex;align-items:center;gap:8px;margin:0 16px 8px;padding:8px 11px;
+  border:1px solid rgba(var(--w),.18);border-radius:10px;background:rgba(var(--w),.03);color:var(--dim)}
+.pickSearchWrap input{flex:1;border:0;background:transparent;font:inherit;font-size:13px;color:inherit;outline:none}
+.pickList{overflow:auto;padding:0 8px 12px;overscroll-behavior:contain}
+.pickGrup{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--dim);padding:12px 10px 6px}
+.pickRow{display:flex;align-items:center;gap:9px;width:100%;text-align:left;
+  padding:10px 11px;border:1px solid transparent;border-radius:10px;background:transparent;
+  color:inherit;font:inherit;cursor:pointer;transition:background .13s,border-color .13s}
+.pickRow:hover{background:rgba(var(--w),.055)}
+.pickRow.on{background:rgba(var(--accrgb),.10);border-color:rgba(var(--accrgb),.38)}
+.prMain{display:flex;flex-direction:column;min-width:0;flex:1}
+.prMain b{font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prMain i{font-size:11px;font-style:normal;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prBadge{flex:0 0 auto;font-size:10px;letter-spacing:.04em;text-transform:uppercase;
+  color:#2f7a52;background:rgba(61,220,151,.16);border:1px solid rgba(61,220,151,.42);
+  padding:2px 7px;border-radius:999px}
+:root[data-palette="night"] .prBadge{color:#7de3b0}
+.prCheck{flex:0 0 auto;color:var(--acc)}
+.pickEmpty{margin:18px 10px;font-size:12.5px;color:var(--dim)}
+body.pickOpen{overflow:hidden}
 </style>
 </head>
 <body>
@@ -1646,17 +1690,6 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
           <span class="mTxt"><b>Ayna</b><i>aynı model · 2 tur + hakem kararı</i></span>
         </button>
     </div>
-    <div class="railModels" id="modeModelBox">
-        <label class="modeModel" id="modeTekWrap" hidden>
-          <span>Konuşacağın yapay zekâ</span>
-          <select id="modeTekSel" aria-label="TekeTek modunda kullanılacak yapay zekâ"></select>
-        </label>
-        <label class="modeModel" id="modeModelWrap" hidden>
-          <span>Ayna’da kapışacak model</span>
-          <select id="modeModelSel" aria-label="Ayna modunda kullanılacak model"></select>
-          <i class="modeCost">2 tur + karar = 5 istek</i>
-        </label>
-    </div>
     <div class="railFoot">
       <span class="pill" id="railModePill" data-mode="demo"><i class="led"></i><span id="railModeText">Demo</span></span>
     </div>
@@ -1689,7 +1722,6 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
   <main id="scroll">
     <div class="wrap">
       <div id="railSlot"></div>
-
 
       <section class="hero" id="hero">
         <h1 id="heroTitle">Dört yapay zekâ, <em>tek masa</em>.</h1>
@@ -1801,16 +1833,16 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
         <button type="button" class="btn ghost sm" id="copyBtn" hidden>Kopyala</button>
       </div>
       <div class="attachTray" id="attachTray" hidden></div>
-      <!-- Kol 128 · konuşma ekranında model seçimi (TekeTek + Ayna).
-           Ayarlar'a girmeden, sohbet sürerken de değiştirilebilir. -->
-      <div class="modelBar" id="modelBar" hidden>
-        <label class="mbLbl" for="mbPick" id="mbLbl">Model</label>
-        <select id="mbPick" aria-labelledby="mbLbl"></select>
-        <span class="mbNote" id="mbNote"></span>
-      </div>
       <div class="composer" id="composer">
         <button type="button" class="attachBtn" id="attachBtn" aria-label="Dosya ekle" title="Dosya ekle · görsel, PDF, Word, Excel, metin (Ctrl+V ile de yapıştırabilirsin)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.4 11.1 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.1-9.1a3.7 3.7 0 0 1 5.2 5.2l-9.1 9.1a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>
+        </button>
+        <!-- Kol 129 · model seçimi: kompakt düğme (ataç yanında), tıklayınca aramalı pencere açılır.
+             Eski uzun <select> yazı kutusunun üstünde duruyordu; kullanıcı "çok kötü görünüyor" dedi. -->
+        <button type="button" class="modelChip" id="modelChip" hidden aria-haspopup="dialog" aria-expanded="false" title="Konuşacağın modeli seç">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4.5 7v10L12 21l7.5-4V7z"/><path d="M12 12v9M4.5 7 12 12l7.5-5"/></svg>
+          <span id="modelChipText">Model</span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
         </button>
         <input type="file" id="attachInput" multiple hidden
                accept="image/*,.pdf,.docx,.xlsx,.pptx,.txt,.md,.csv,.json,.html,.xml,.yml,.yaml,.js,.ts,.py,.java,.c,.h,.cpp,.cs,.go,.rs,.php,.rb,.swift,.kt,.sql,.sh,.css,.scss,.jsx,.tsx,.vue">
@@ -1831,6 +1863,21 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 </div>
 
 <div id="overlay" class="overlay" hidden></div>
+
+<!-- Kol 129 · MODEL SEÇ PENCERESİ (OpenCode/Cline örneği): arama + gruplu liste + seçili işareti -->
+<div class="pickOv" id="pickOv" hidden></div>
+<div class="pick" id="modelPicker" role="dialog" aria-modal="true" aria-labelledby="pickTitle" hidden>
+  <div class="pickHead">
+    <h2 id="pickTitle">Model seç</h2>
+    <button type="button" class="pickX" id="pickClose" aria-label="Kapat">✕</button>
+  </div>
+  <p class="pickSub" id="pickSub">Konuşacağın yapay zekâ</p>
+  <div class="pickSearchWrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+    <input type="search" id="pickSearch" placeholder="Model ara…" autocomplete="off" spellcheck="false" aria-label="Model ara"/>
+  </div>
+  <div class="pickList" id="pickList" role="listbox" aria-label="Modeller"></div>
+</div>
 
 <aside class="drawer" id="drawer" hidden aria-label="Ayarlar">
   <div class="drawerHead">
@@ -2103,7 +2150,7 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
     "sinema": "cinema",
     "tek yapay zekâ · doğrudan cevap": "one AI · direct answer",
     "Anahtarsız dene: TekeTek (yavaş)": "Try it without a key: OneOnOne (slow)",
-    "Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek var: gpt-oss 20B. Yavaş çalışır: 7 Kasım 2026 ölçümünde ilk cevap 22 saniye, aynı sorunun tekrarı 1 saniyenin altında (önbellek); yoğunlukta 60 saniyeyi aşabilir. Düzgün denemek için ücretsiz bir anahtar daha iyi sonuç verir.": "No table, no seats, no debate: a single AI answers what you write. Pick the model from the list above. If you have no key there is a keyless option — gpt-oss 20B. It is slow: in the 7 November 2026 measurement the first answer took 22 seconds and a repeat of the same question under a second (cached); under load it may pass 60 seconds. For a proper test a free key works better.",
+    "Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Yazı kutusundaki model düğmesinden modeli seçersin. Anahtarın yoksa anahtarsız seçenek var: gpt-oss 20B. Yavaş çalışır: 7 Kasım 2026 ölçümünde ilk cevap 22 saniye, aynı sorunun tekrarı 1 saniyenin altında (önbellek); yoğunlukta 60 saniyeyi aşabilir. Düzgün denemek için ücretsiz bir anahtar daha iyi sonuç verir.": "No table, no seats, no debate: a single AI answers what you write. Pick the model with the button inside the text box. If you have no key there is a keyless option — gpt-oss 20B. It is slow: in the 7 November 2026 measurement the first answer took 22 seconds and a repeat of the same question under a second (cached); under load it may pass 60 seconds. For a proper test a free key works better.",
     "Pollinations · anahtarsız · gpt-oss": "Pollinations · keyless · gpt-oss",
     "Pollinations · anahtarsız": "Pollinations · keyless",
     "Kendi bağlantım (anahtar gerekir) · OpenRouter": "My own connection (key required) · OpenRouter",
@@ -2583,7 +2630,7 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 
 
   Object.assign(EN, {
-    "Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek hazır gelir — kurulum yapmadan konuşmaya başlarsın.": "No table, no seats, no debate: a single AI answers what you write. Pick the model from the list above. If you have no key, a keyless option is ready — start talking with no setup.",
+    "Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Yazı kutusundaki model düğmesinden modeli seçersin. Anahtarın yoksa anahtarsız seçenek hazır gelir — kurulum yapmadan konuşmaya başlarsın.": "No table, no seats, no debate: a single AI answers what you write. Pick the model with the button inside the text box. If you have no key, a keyless option is ready — start talking with no setup.",
     "Tek modeli iki sandalyeye oturt: biri savunur, biri itiraz eder. Her turda açan taraf değişir; sonunda tarafsız hakem kararı çıkar. Tek modelin kör noktasını görmek için.": "Put one model in two seats: one defends, one objects. The opening side swaps every round; the round ends with a neutral judge verdict. For seeing a single model’s blind spot.",
     "Sandalyeler aynı anda, birbirini görmeden cevap verir; başkan ya da özet yok. Görüşlerin alt alta yazılır, karşılaştırmayı sen yaparsın.": "Seats answer at the same time without seeing each other; no chair, no summary. Opinions are written one under another — the comparison is yours.",
     "Bir proje yaz, her ajana kendi işini ver. Ajanlar sırayla çalışır ve birbirine teslim paketi bırakır; başkan sonunda tek teslimat çıkarır. Boş konuşma yok, iş çıkar.": "Write a project, give each agent its own job. Agents work in turn and hand a delivery package to each other; at the end the chair produces one delivery. No empty talk — work comes out.",
@@ -9961,7 +10008,7 @@ const TABLE_COPY = {
   tek: {
     title: 'TekeTek: tek yapay zekâ, <em>doğrudan cevap</em>.',
     titleEn: 'OneOnOne: a single AI, <em>a direct answer</em>.',
-    sub: 'Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Üstteki listeden modeli seçersin. Anahtarın yoksa anahtarsız seçenek var: gpt-oss 20B. Yavaş çalışır: 7 Kasım 2026 ölçümünde ilk cevap 22 saniye, aynı sorunun tekrarı 1 saniyenin altında (önbellek); yoğunlukta 60 saniyeyi aşabilir. Düzgün denemek için ücretsiz bir anahtar daha iyi sonuç verir.'
+    sub: 'Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Yazı kutusundaki model düğmesinden modeli seçersin. Anahtarın yoksa anahtarsız seçenek var: gpt-oss 20B. Yavaş çalışır: 7 Kasım 2026 ölçümünde ilk cevap 22 saniye, aynı sorunun tekrarı 1 saniyenin altında (önbellek); yoğunlukta 60 saniyeyi aşabilir. Düzgün denemek için ücretsiz bir anahtar daha iyi sonuç verir.'
   },
   ayna: {
     title: 'Aynı model, <em>kendi kendine karşı</em>.',
@@ -10008,26 +10055,38 @@ function modelBarValue(pid) {
 function modelBarOptions(pid) {
   const L = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
   const out = [];
+  const gorulen = new Set();          /* Kol 129: aynı servis+model iki kez listelenmez */
+  const ekle = (grup, v, t, ek) => {
+    /* Kol 129: anahtar MODEL KİMLİĞİ. Anahtarsız OVH (Llama) ile OVH ön ayarı (aynı Llama)
+       farklı düğme ama aynı model → tek satır kalmalı. Model kimliği yoksa düğme kimliği. */
+    const anahtar = String(ek || '').toLowerCase().trim() || v.replace(/^[kmg]:/, '').toLowerCase();
+    if (gorulen.has(anahtar)) return;
+    gorulen.add(anahtar);
+    grup.items.push({ v, t, ek: ek || '' });
+  };
   /* 1) anahtarsız servisler: demo dahil her zaman çalışır */
-  const keyless = [];
+  const keylessG = { grup: L('Anahtarsız · ücretsiz', 'Keyless · free'), items: [] };
   for (const [id, g] of Object.entries(GATEWAYS)) {
     if (g.group !== 'keyless') continue;
     const m = (g.models || {}).gpt || '';
-    keyless.push({ v: 'k:' + id, t: g.label + (m ? ' · ' + modelAdi(m) : '') });
+    ekle(keylessG, 'k:' + id, g.label + (m ? ' · ' + modelAdi(m) : ''), m);
   }
-  if (keyless.length) out.push({ grup: L('Anahtarsız · ücretsiz', 'Keyless · free'), items: keyless });
+  if (keylessG.items.length) out.push(keylessG);
   /* 2) bağlantının kendi modelleri (canlı mod + liste alındıysa) */
   const lst = (state.orModels || []).filter(id => modelIsChat(id));
   if (lst.length) {
-    out.push({ grup: L('Bağlantının modelleri (' + lst.length + ')', 'Connection models (' + lst.length + ')'),
-               items: lst.slice(0, 200).map(id => ({ v: 'm:' + id, t: id })) });
+    const g2 = { grup: L('Bağlantının modelleri (' + lst.length + ')', 'Connection models (' + lst.length + ')'), items: [] };
+    lst.slice(0, 300).forEach(id => ekle(g2, 'm:' + id, id, id));
+    if (g2.items.length) out.push(g2);
   } else {
-    /* 3) liste yoksa: bağlantının doğrulanmış ön ayarları */
+    /* 3) liste yoksa: bağlantının doğrulanmış ön ayarları — TEKİL model başına bir satır.
+       (Ön ayar tablosunda gpt/grok/deepseek aynı modele bakabildiği için liste tekrar ediyordu.) */
     const kind = (state.settings.api || {}).kind || '';
     const g = GATEWAYS[kind] || {};
     const onay = (g.models || {});
-    const items = Object.keys(onay).map(k => ({ v: 'g:' + kind + ':' + onay[k], t: (g.label || kind) + ' · ' + modelAdi(onay[k]) }));
-    if (items.length) out.push({ grup: L('Bağlantının ön ayarları', 'Connection presets'), items });
+    const g3 = { grup: L('Bağlantının ön ayarları', 'Connection presets'), items: [] };
+    Object.keys(onay).forEach(k => ekle(g3, 'g:' + kind + ':' + onay[k], (g.label || kind) + ' · ' + modelAdi(onay[k]), onay[k]));
+    if (g3.items.length) out.push(g3);
   }
   return out;
 }
@@ -10043,46 +10102,77 @@ function modelAdi(id) {
   return s0;
 }
 function renderModelBar() {
-  const bar = $('#modelBar'), sel = $('#mbPick'), lbl = $('#mbLbl'), note = $('#mbNote');
-  if (!bar || !sel) return;
+  /* Kol 129: uzun <select> gitti. Yerine ataç yanındaki kompakt düğme (çip) geldi. */
+  const chip = $('#modelChip'), txt = $('#modelChipText');
+  if (!chip) return;
   const hedef = modelBarTarget();
-  if (!hedef) { bar.hidden = true; return; }
+  if (!hedef) { chip.hidden = true; return; }
+  chip.hidden = false;
+  const s2 = state.settings;
+  const src = (s2.seatSrc || {})[hedef.pid];
+  const gw = GATEWAYS[src] || {};
+  const mdl = (s2.models || {})[hedef.pid] || '';
+  const ad = gw.group === 'keyless' ? modelAdi(mdl) : (mdl ? modelAdi(mdl) : (PROVIDERS[hedef.pid] || {}).name || 'Model');
+  if (txt) txt.textContent = ad || 'Model';
+  chip.dataset.mode = hedef.mode;
+  chip.title = (hedef.mode === 'tek' ? 'Konuşacağın model' : 'Ayna’nın modeli') + ': ' +
+               (gw.label ? gw.label + ' · ' : '') + (ad || '—');
+}
+
+/* ---------------- Model seç penceresi (OpenCode/Cline düzeni) ---------------- */
+let pickQuery = '';
+function pickerTarget() { return modelBarTarget(); }
+function openModelPicker() {
+  const hedef = pickerTarget();
+  const ov = $('#pickOv'), box = $('#modelPicker');
+  if (!hedef || !ov || !box) return;
   const L = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
-  const gruplar = modelBarOptions(hedef.pid);
-  bar.hidden = false;
-  if (lbl) lbl.textContent = hedef.mode === 'tek' ? L('Konuşacağın yapay zekâ', 'The AI you talk to') : L('Ayna’nın modeli', 'Mirror model');
+  pickQuery = '';
+  const sub = $('#pickSub');
+  if (sub) sub.textContent = hedef.mode === 'tek'
+    ? L('Konuşacağın yapay zekâ — seçtiğin model tüm cevapları verir.', 'The AI you talk to — the chosen model answers everything.')
+    : L('Ayna’da iki sandalye de bu modelle konuşur.', 'In Mirror both seats talk with this model.');
+  ov.hidden = false; box.hidden = false;
+  document.body.classList.add('pickOpen');
+  const chip = $('#modelChip'); if (chip) chip.setAttribute('aria-expanded', 'true');
+  renderPickerList();
+  const q = $('#pickSearch');
+  if (q) { q.value = ''; setTimeout(() => { try { q.focus(); } catch (e) {} }, 30); }
+}
+function closeModelPicker() {
+  const ov = $('#pickOv'), box = $('#modelPicker');
+  if (ov) ov.hidden = true; if (box) box.hidden = true;
+  document.body.classList.remove('pickOpen');
+  const chip = $('#modelChip'); if (chip) chip.setAttribute('aria-expanded', 'false');
+}
+function renderPickerList() {
+  const list = $('#pickList');
+  const hedef = pickerTarget();
+  if (!list || !hedef) return;
+  const L = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
   const cur = modelBarValue(hedef.pid);
-  let html = '';
-  let bulundu = false;
+  const q = String(pickQuery || '').toLowerCase().trim();
+  const gruplar = modelBarOptions(hedef.pid);
+  let html = '', toplam = 0;
   for (const g of gruplar) {
-    html += '<optgroup label="' + esc(g.grup) + '">';
-    for (const it of g.items) {
-      const on = it.v === cur;
-      if (on) bulundu = true;
-      html += '<option value="' + esc(it.v) + '"' + (on ? ' selected' : '') + '>' + esc(it.t) + '</option>';
+    const items = q ? g.items.filter(it => it.t.toLowerCase().includes(q)) : g.items;
+    if (!items.length) continue;
+    html += '<div class="pickGrup">' + esc(g.grup) + '</div>';
+    for (const it of items) {
+      toplam++;
+      const secili = it.v === cur;
+      const ucretsiz = it.v.indexOf('k:') === 0;
+      const ad = it.t.indexOf(' · ') > 0 ? it.t.split(' · ')[0] : '';
+      const model = it.t.indexOf(' · ') > 0 ? it.t.split(' · ').slice(1).join(' · ') : it.t;
+      html += '<button type="button" class="pickRow' + (secili ? ' on' : '') + '" role="option" aria-selected="' + (secili ? 'true' : 'false') + '" data-v="' + esc(it.v) + '">' +
+        '<span class="prMain"><b>' + esc(model) + '</b>' + (ad ? '<i>' + esc(ad) + '</i>' : '') + '</span>' +
+        (ucretsiz ? '<span class="prBadge">' + L('ücretsiz', 'free') + '</span>' : '') +
+        (secili ? '<svg class="prCheck" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg>' : '') +
+        '</button>';
     }
-    html += '</optgroup>';
   }
-  /* kayıtlı seçim listede yoksa (ör. listede olmayan elle yazılmış model) yine görünsün */
-  if (!bulundu && cur) {
-    const s = state.settings;
-    const etiket = cur.indexOf('m:') === 0 ? cur.slice(2) : (cur.indexOf('k:') === 0 ? ((GATEWAYS[cur.slice(2)] || {}).label || cur.slice(2)) : cur);
-    html = '<option value="' + esc(cur) + '" selected>' + esc(etiket) + '</option>' + html;
-  }
-  sel.innerHTML = html;
-  /* Kol 128: uyarı yalnız GERÇEKTEN anahtar gerekiyorsa çıkar.
-     Önce sandalyenin kendi bağlantısına bak (anahtarsız servis → anahtar gerekmez). */
-  const seatKind = (state.settings.seatSrc || {})[hedef.pid] || (state.settings.api || {}).kind || '';
-  const seatGw = GATEWAYS[seatKind] || {};
-  const anahtarsiz = !!(seatGw.keyless || seatGw.optionalKey || seatGw.group === 'keyless');
-  const anahtarVar = anahtarsiz
-    || !!(String((state.settings.seatKey || {})[hedef.pid] || '').trim())
-    || !!(String(keyOfKind((state.settings.api || {}).kind) || '').trim());
-  if (note) {
-    const canli = (state.settings.mode === 'live');
-    note.textContent = (canli && !anahtarVar) ? L('bu seçim için anahtar gerekir', 'this pick needs a key') : '';
-  }
-  bar.dataset.mode = hedef.mode;
+  list.innerHTML = html || '<p class="pickEmpty">' + L('Eşleşen model yok.', 'No matching model.') + '</p>';
+  const sayi = $('#pickCount'); if (sayi) sayi.textContent = toplam;
 }
 function applyModelPick(v) {
   const hedef = modelBarTarget();
@@ -10137,21 +10227,6 @@ function renderModes() {
   if (kb) { kb.classList.toggle('on', t === 'konsey'); kb.setAttribute('aria-pressed', t === 'konsey' ? 'true' : 'false'); }
   if (ab) { ab.classList.toggle('on', t === 'ayna'); ab.setAttribute('aria-pressed', t === 'ayna' ? 'true' : 'false'); }
   if (jb) { jb.classList.toggle('on', t === 'ajan'); jb.setAttribute('aria-pressed', t === 'ajan' ? 'true' : 'false'); }
-  const twrap = $('#modeTekWrap'), tsel2 = $('#modeTekSel');
-  if (twrap) twrap.hidden = t !== 'tek';
-  if (tsel2 && t === 'tek') {
-    const cur = tekChoice();
-    tsel2.innerHTML = tekChoices().map(o =>
-      '<option value="' + esc(o.id) + '" ' + (o.id === cur ? 'selected' : '') + '>' + esc(o.label) + '</option>').join('');
-
-  }
-  const wrap = $('#modeModelWrap'), sel = $('#modeModelSel');
-  if (wrap) wrap.hidden = t !== 'ayna';
-  if (sel && t === 'ayna') {
-    const cur = duelPid();
-    sel.innerHTML = PROVIDER_ORDER.map(pid =>
-      '<option value="' + pid + '" ' + (pid === cur ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + '</option>').join('');
-  }
   // gündem seçenekleri yalnız Konsey'de anlamlı (Ayna'da sabit, Tek'te sohbet)
   const gc = $('#goalChips');
   if (gc) gc.hidden = (t === 'ayna' || t === 'tek' || t === 'ajan' || t === 'panel');   // Ajanlar/Panel'de gündem çipi yok
@@ -12926,39 +13001,6 @@ function boot() {
       const b = e.target.closest('.modeBtn');
       if (b) switchTable(b.dataset.table);
     });
-    const tsel = $('#modeTekSel');
-    if (tsel) tsel.addEventListener('change', () => {
-      const v = tsel.value || 'own';
-      const gSec = GATEWAYS[v];
-      const anahtarsiz = !!(gSec && gSec.group === 'keyless');
-      if (!anahtarsiz && !String(keyOfKind(state.settings.api.kind) || '').trim()) {
-        toast(window.T2
-          ? window.T2('Kendi bağlantın için Ayarlar → Bağlantı’da API anahtarı gerekir. Şimdilik anahtarsız seçenek açık.', 'Your own connection needs an API key in Settings → Connection. The keyless option stays on for now.')
-          : 'Kendi bağlantın için anahtar gerekir.', 'err');
-        renderModes();
-        return;
-      }
-      tekPidNeedsSwitch(v);
-      saveSettings();
-      renderAll();
-      const gSec2 = GATEWAYS[v];
-      toast((gSec2 && gSec2.group === 'keyless')
-        ? window.T2('TekeTek: ' + gSec2.label + ' (' + ((gSec2.models || {}).gpt || '') + ', anahtarsız). Yaz, cevaplasın.',
-                    'OneOnOne: ' + gSec2.label + ' (' + ((gSec2.models || {}).gpt || '') + ', keyless). Type and it answers.')
-        : window.T2('TekeTek: kendi bağlantın (' + (GATEWAYS[state.settings.api.kind].label) + ').',
-                    'OneOnOne: your own connection (' + (GATEWAYS[state.settings.api.kind].label) + ').'), 'ok');
-    });
-    const sel = $('#modeModelSel');
-    if (sel) sel.addEventListener('change', () => {
-      state.settings.duel = state.settings.duel || { on: true, pid: 'grok' };
-      state.settings.duel.pid = sel.value;
-      state.settings.chair = sel.value;   // ayna'da hakem = bu model
-      state.prevChair = state.prevChair || null;
-      clearAlts();
-      saveSettings();
-      renderAll();
-      toast('Ayna modeli: ' + PROVIDERS[sel.value].name + '. Konuyu yaz.', 'ok');
-    });
   }
 
   // gönderme
@@ -13115,9 +13157,26 @@ function boot() {
   $('#metaBadge').addEventListener('click', openDrawer);
   $('#drawerClose').addEventListener('click', closeDrawer);
   $('#drawerSave').addEventListener('click', saveDrawer);
-  /* Kol 128: konuşma ekranındaki model seçimi */
-  const mbSel = $('#mbPick');
-  if (mbSel) mbSel.addEventListener('change', () => { if (mbSel.value) applyModelPick(mbSel.value); });
+  /* Kol 129: model seçimi — çip tıklanınca aramalı pencere açılır */
+  const chipBtn = $('#modelChip');
+  if (chipBtn) chipBtn.addEventListener('click', openModelPicker);
+  const pClose = $('#pickClose'); if (pClose) pClose.addEventListener('click', closeModelPicker);
+  const pOv = $('#pickOv'); if (pOv) pOv.addEventListener('click', closeModelPicker);
+  const pSearch = $('#pickSearch');
+  if (pSearch) pSearch.addEventListener('input', () => { pickQuery = pSearch.value; renderPickerList(); });
+  const pList = $('#pickList');
+  if (pList) {
+    pList.addEventListener('click', e => {
+      const row = e.target.closest('.pickRow');
+      if (!row) return;
+      applyModelPick(row.dataset.v);
+      closeModelPicker();
+    });
+  }
+  if (pSearch) pSearch.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); const ilk = document.querySelector('#pickList .pickRow'); if (ilk) { applyModelPick(ilk.dataset.v); closeModelPicker(); } }
+    if (e.key === 'Escape') { e.preventDefault(); closeModelPicker(); }
+  });
   $('#drawerDemo').addEventListener('click', () => {
     if (drawerDraft) { drawerDraft.mode = 'demo'; syncDraftFromDOM(); }
     state.settings = mergeSettings(settingsSnapshot());

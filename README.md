@@ -78,6 +78,9 @@ Yeniden dağıtmak istersen **Her sandalyeye ayrı model dağıt** düğmesine b
 
 ![Canlı: 4 sandalye, ayrı modeller](ekranlar/116b-model-dagitimi.jpg)
 
+![TekeTek: model düğmesi yazı kutusunun içinde](ekranlar/129-cip.jpg)
+![Model penceresi: aramalı ve gruplu](ekranlar/129-pencere.jpg)
+
 ![Ayarlar — üç anahtarsız sandalye](ekranlar/30-ayarlar-sade.jpg)
 
 *Ayarlar böyle açılır: en üstte mod, altında **üç anahtarsız servis** (Pollinations · LLM7.io · OVH),
@@ -169,11 +172,13 @@ onu **Dışa aktar** ile alırsın.
   çekilir ve beş sandalyeye o servise ait modeller yerleşir. Elle model kimliği yazmak zorunda değilsin.
   Kendi seçtiğin ve o serviste bulunan bir model varsa **korunur**, üzerine yazılmaz.
 - **Başkan**: özeti ve kapanışı yazan sandalye.
-- **Model seçimi konuşma ekranında**: **TekeTek** ve **Ayna** modlarında, yazı kutusunun hemen
-  üstündeki **Model** çubuğundan konuşacağın yapay zekâyı seçersin — Ayarlar'a girmeden, sohbet
-  sürerken de. Seçenekler: anahtarsız ücretsiz servisler (OVH · LLM7 · Pollinations), bağlantının
-  kendi model listesi ya da ön ayarları. Seçim tarayıcıda saklanır, yenileyince korunur.
-  (Ayarlar → Masa'daki eski *Ayna modeli* seçimi kaldırıldı; o iş artık bu çubukta.)
+- **Model seçimi konuşma ekranında**: **TekeTek** ve **Ayna** modlarında model, yazı kutusunun
+  **içindeki küçük düğmede** yazar (ataç ikonunun yanında) — üstte uzun liste yok. Düğmeye basınca
+  **aramalı bir pencere** açılır: model adını yazıp süzersin, gruplar hâlinde görürsün, seçtiğinin
+  yanında ✓ durur. Seçenekler: anahtarsız ücretsiz servisler (OVH · LLM7 · Pollinations), bağlantının
+  kendi model listesi ya da ön ayarları. **Aynı model listede bir kez görünür** — servis ile ön ayar
+  aynı modeli gösterse bile tek satır kalır. Seçim tarayıcıda saklanır, yenileyince korunur.
+  (Ayarlar → Masa'daki eski *Ayna modeli* seçimi ve sol paneldeki ikinci model listesi kaldırıldı.)
 - **Başkan** ve **roller aynı yerde**: Ayarlar → Masa → **Roller**. En üstteki listeden **başkanı** seçersin
   (özeti ve kapanışı o yazar); başkanın satırında **BAŞKAN** rozeti, TekeTek'te konuşan sandalyede
   **KONUŞAN** rozeti görünür.
