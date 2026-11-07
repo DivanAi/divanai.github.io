@@ -72,7 +72,7 @@
 <meta name="twitter:title" content="DivanAI — yapay zekâlar aynı masada"/>
 <meta name="twitter:description" content="Bir konu yaz; 3–5 yapay zekâ aynı masada tartışsın, başkan özetlesin. Tek dosya, anahtarsız demo, Apache 2.0. Konuşma bitince özet çıkar; kota dolsa da iş kaybolmaz."/>
 <meta name="twitter:image" content="https://divanai.github.io/ekranlar/davet-onizleme.jpg"/>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='12' ry='6' fill='none' stroke='%23333a4a'/%3E%3Ccircle cx='16' cy='8' r='3.4' fill='%2334d399'/%3E%3Ccircle cx='5' cy='19' r='2.4' fill='%235ea8ff'/%3E%3Ccircle cx='27' cy='19' r='2.4' fill='%23f3a944'/%3E%3Ccircle cx='16' cy='26' r='2.4' fill='%23b18cff'/%3E%3C/svg%3E"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2044%2044%22%3E%3Cdefs%3E%3ClinearGradient%20id=%22b%22%20x1=%226%22%20y1=%222%22%20x2=%2238%22%20y2=%2244%22%20gradientUnits=%22userSpaceOnUse%22%3E%3Cstop%20stop-color=%22#f8e6bc%22/%3E%3Cstop%20offset=%22.55%22%20stop-color=%22#e9c98c%22/%3E%3Cstop%20offset=%221%22%20stop-color=%22#d8ab63%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx=%2222%22%20cy=%2222%22%20r=%2221%22%20fill=%22url(#b)%22/%3E%3Ccircle%20cx=%2222%22%20cy=%2222%22%20r=%2220.4%22%20fill=%22none%22%20stroke=%22#b8874a%22%20stroke-width=%221.6%22/%3E%3Cellipse%20cx=%2222%22%20cy=%2225.4%22%20rx=%2213.4%22%20ry=%225.6%22%20fill=%22none%22%20stroke=%22#fff%22%20stroke-opacity=%22.55%22%20stroke-width=%221.5%22/%3E%3Cellipse%20cx=%2222%22%20cy=%2225.4%22%20rx=%227.2%22%20ry=%222.9%22%20fill=%22none%22%20stroke=%22#fff%22%20stroke-opacity=%22.26%22/%3E%3Ccircle%20cx=%2222%22%20cy=%2212.6%22%20r=%224.4%22%20fill=%22#3ddc97%22/%3E%3Ccircle%20cx=%228.3%22%20cy=%2225.6%22%20r=%223%22%20fill=%22#5ea8ff%22/%3E%3Ccircle%20cx=%2235.7%22%20cy=%2225.6%22%20r=%223%22%20fill=%22#ffb340%22/%3E%3Ccircle%20cx=%2222%22%20cy=%2235%22%20r=%223%22%20fill=%22#b98cff%22/%3E%3C/svg%3E"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -249,12 +249,20 @@ a{color:var(--link)}
 }
 /* marka küçülebilir ama rozetin altına taşmaz: taşan kısım kırpılır */
 .brand{display:flex;align-items:center;gap:11px;min-width:0;flex:0 1 auto;overflow:hidden}
-.logo{color:var(--logo);flex:0 0 auto;width:34px;height:34px;filter:drop-shadow(0 2px 8px rgba(96,165,250,.28))}
+/* Kol 121 · logo sayfanın ilk dikkat çeken öğesi: 44 px, kendi renkleriyle madalyon.
+   Ölçüldü: masaüstünde ~%75, telefonda ~%60 sayfa 44 px'lik dairede duruyor. */
+.logo{flex:0 0 auto;width:44px;height:44px;border-radius:50%;
+  box-shadow:0 4px 14px -4px rgba(120,80,25,.55), 0 0 0 1px rgba(var(--w),.10),
+             0 0 0 5px rgba(var(--accrgb),.10);
+  transition:box-shadow .25s,transform .25s}
+.brand:hover .logo{transform:rotate(-4deg) scale(1.03);
+  box-shadow:0 7px 20px -5px rgba(120,80,25,.62), 0 0 0 1px rgba(var(--w),.12),
+             0 0 0 7px rgba(var(--accrgb),.14)}
 .brandtext{display:flex;flex-direction:column;line-height:1.05;min-width:0}
 /* marka artık karışık harf (DivanAI): büyük harf için konmuş geniş harf aralığı
    seyrek duruyor, normale yakın tutuldu */
-.brandtext b{font-size:20px;letter-spacing:-.005em;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.brandtext span{font-size:11px;color:var(--dim);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brandtext b{font-size:22px;letter-spacing:-.01em;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.brandtext span{font-size:11.5px;color:var(--dim);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* orta rozet alanı: daralınca kırpılır, markanın üstüne binmez */
 .topmid{flex:1;display:flex;justify-content:center;min-width:0;overflow:hidden}
 .topactions{display:flex;align-items:center;gap:8px}
@@ -1070,8 +1078,8 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
   .topmid{display:none}
   .brandtext span{display:block;font-size:10px;letter-spacing:.01em}
   .brand{padding:5px 13px 5px 8px;gap:9px}
-  .brand .logo{width:30px;height:30px}
-  .brandtext b{font-size:18px}
+  .brand .logo{width:40px;height:40px}
+  .brandtext b{font-size:19px}
 }
 @media (max-width:400px){
   /* dar telefon: Ayarlar yalnız simge (adı çekmecede zaten var) */
@@ -1506,12 +1514,26 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 
   <header class="topbar">
     <button class="brand" id="brandHome" type="button" title="Ana ekran" aria-label="Ana ekran">
-      <svg class="logo" width="28" height="28" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <ellipse cx="16" cy="18" rx="12" ry="6" stroke="currentColor" stroke-opacity=".3"/>
-        <circle cx="16" cy="8" r="3.3" fill="#34d399"/>
-        <circle cx="5" cy="19" r="2.3" fill="#5ea8ff"/>
-        <circle cx="27" cy="19" r="2.3" fill="#f3a944"/>
-        <circle cx="16" cy="26" r="2.3" fill="#b18cff"/>
+      <svg class="logo" width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true">
+        <circle cx="22" cy="22" r="21" fill="url(#logoBg)"/>
+        <circle cx="22" cy="22" r="21" stroke="url(#logoEdge)" stroke-width="1.6"/>
+        <ellipse cx="22" cy="25.4" rx="13.4" ry="5.6" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="1.5"/>
+        <ellipse cx="22" cy="25.4" rx="7.2" ry="2.9" fill="none" stroke="#ffffff" stroke-opacity=".26" stroke-width="1"/>
+        <circle cx="22" cy="12.6" r="4.4" fill="#3ddc97"/>
+        <circle cx="8.3" cy="25.6" r="3" fill="#5ea8ff"/>
+        <circle cx="35.7" cy="25.6" r="3" fill="#ffb340"/>
+        <circle cx="22" cy="35" r="3" fill="#b98cff"/>
+        <defs>
+          <linearGradient id="logoBg" x1="6" y1="2" x2="38" y2="44" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#f8e6bc"/>
+            <stop offset=".55" stop-color="#e9c98c"/>
+            <stop offset="1" stop-color="#d8ab63"/>
+          </linearGradient>
+          <linearGradient id="logoEdge" x1="22" y1="1" x2="22" y2="43" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#fff6e2"/>
+            <stop offset="1" stop-color="#b8874a"/>
+          </linearGradient>
+        </defs>
       </svg>
       <div class="brandtext"><b>DivanAI</b><span>Yapay Zekâlar Aynı Masada</span></div>
     </button>
@@ -5144,7 +5166,7 @@ function isDailyQuota(msg, status) {
 function modelIdCandidates(j) {
   const arr = Array.isArray(j && j.data) ? j.data : (Array.isArray(j) ? j : []);
   return arr.map(x => x && (x.id || x.name || x.model)).filter(Boolean).map(String)
-    .filter(id => !/embed|whisper|tts|moderation|rerank|guard|image|imagen|veo|aqa|ocr|transcribe/i.test(id));
+    .filter(id => !/(embed|whisper|\btts\b|-tts|tts-|speech|voice|playai|nvr-|lyria|music|moderation|rerank|guard|image|imagen|veo|aqa|ocr|transcribe)/i.test(id));
 }
 function pickWorkingModel(ids, eski) {
   if (!ids.length) return '';
@@ -5320,7 +5342,7 @@ function demoKindFor(pid) {
       aynı model görünür ve çekmecedeki not bunu söyler.
    Kullanıcı her sandalyenin modelini elle değiştirebilir; "Dağıt" düğmesi yeniden dağıtır. */
 const MODEL_CAT = {};                 // kind → [model id]  (oturum içi önbellek)
-const MODEL_SKIP = /(embed|chroma|\bbge\b|gte-|nomic|jina|voyage|\bclip\b|sbert|colbert|voxtral|tts|whisper|audio|realtime|moderation|rerank|dall-e|flux|stable-diffusion|sdxl|\bimage\b|ocr|guard|safety|\bveo\b|\bsora\b)/i;
+const MODEL_SKIP = /(embed|chroma|\bbge\b|gte-|nomic|jina|voyage|\bclip\b|sbert|colbert|voxtral|\btts\b|-tts|tts-|whisper|speech|voice|playai|nvr-|lyria|music|audio|realtime|moderation|rerank|dall-e|flux|stable-diffusion|sdxl|\bimage\b|ocr|guard|safety|\bveo\b|\bsora\b)/i;
 /* sohbet edebilen tanıdık aileler: liste çok kalabalıksa önce bunlar seçilir */
 const MODEL_CHAT = /(gpt|gemini|claude|llama|qwen|mistral|codestral|magistral|devstral|deepseek|glm|grok|phi|nemotron|kimi|minimax|command|sonar|olmo|granite|ernie|hunyuan|seed-oss|internlm|\bl3\b|mpt|falcon)/i;
 const MODEL_GOOD = /(flash|mini|nano|haiku|small|lite|instant|turbo|20b|8b|7b|4b)/i;
@@ -11377,8 +11399,10 @@ function drawerBodyHTML() {
         ? window.T2('Başkanı (özet yazan sandalyeyi) ve konuşma üslubunu aşağıdan yine de değiştirebilirsin.', 'You can still change the chair (who writes the summary) and the tone below.')
         : 'Başkanı ve üslubu aşağıdan değiştirebilirsin.') + '</p></div>';
   } else {
-  const datalist = (state.orModels && state.orModels.length)
-    ? '<datalist id="modelList">' + state.orModels.slice(0, 800).map(id => '<option value="' + esc(id) + '"></option>').join('') + '</datalist>'
+  /* Kol 122: model kimliği yazarken açılan öneri listesi de yalnız sohbet modelleri */
+  const _mdl = (state.orModels || []).filter(id => modelIsChat(id));
+  const datalist = _mdl.length
+    ? '<datalist id="modelList">' + _mdl.slice(0, 800).map(id => '<option value="' + esc(id) + '"></option>').join('') + '</datalist>'
     : '';
   h += '<div class="sec"><h3>Masadaki modeller <span class="note" style="margin:0;font-weight:400">· ' +
     d.active.length + ' sandalye</span></h3><div class="panelCfg">';
@@ -11419,7 +11443,7 @@ function drawerBodyHTML() {
         : _uniq + ' model / ' + _seats + ' sandalye') + '</p>';
     }
   }
-  const freeCount = (state.orFree || []).length;
+  const freeCount = (state.orFree || []).filter(m => typeof modelIsChat === 'function' ? modelIsChat(m.id) : true).length;
   const hasFree = d.mode === 'live';
   h += '</div>' + datalist +
     '<button type="button" class="mini" id="spreadModels" style="margin-top:8px">' + (window.T2 ? window.T2('Her sandalyeye ayrı model dağıt', 'Spread a different model per seat') : 'Her sandalyeye ayrı model') + '</button>' +
@@ -11563,7 +11587,7 @@ let gwShowAll = false;         // "Diğer servisler" (ücretli olabilir) açıld
 let backupWithKeys = false;    // yedeğe API anahtarları da girsin mi (varsayılan: hayır)
 
 function freeListHTML(d) {
-  const list = state.orFree || [];
+  const list = (state.orFree || []).filter(m => modelIsChat(m.id));   /* Kol 122: ikinci savunma */
   const q = (freeQuery || '').toLowerCase().trim();
   const rows = (q ? list.filter(m => m.id.toLowerCase().includes(q) || m.name.toLowerCase().includes(q)) : list).slice(0, 120);
   if (!state.orModels) return '<div class="freeEmpty">“Ücretsiz modelleri getir” düğmesine bas.</div>';
@@ -11981,7 +12005,10 @@ function renderTestList(results) {
 
 /* sohbet dışı modelleri ayıkla (gömme, ses, görsel, sıralama, güvenlik…) */
 function modelIsChat(id) {
-  return !/embed|whisper|tts|transcri|rerank|moderat|guard|safety|image|dall|flux|stable-|sdxl|ocr|audio|realtime|voxtral|imagine|video|deprecat/i.test(String(id || ''));
+  /* Kol 122: ses (TTS/STT), gömme, görsel üretimi, sıralama, güvenlik ve müzik modelleri
+     sohbet için kullanılamaz. nvr-tts-*, playai-tts, whisper, gpt-image, gpt-audio…
+     hepsi burada elenir; kullanıcı böyle bir kimliği listede görmesin. */
+  return !/(embed|whisper|\btts\b|-tts|tts-|transcri|asr\b|\bstt\b|speech|voice|bark|piper|xtts|playai|nvr-|deepgram|assembly|rerank|moderat|guard|safety|image|dall|flux|stable-|sdxl|ocr|audio|realtime|voxtral|imagine|video|music|lyria|deprecat)/i.test(String(id || ''));
 }
 /* listenin içinden sohbet modellerini, tanıdık olanlar önce olacak şekilde sırala */
 function rankChatModels(ids) {
@@ -12056,7 +12083,8 @@ async function loadModelList(force) {
       id: String(m.id || m.name || ''),
       ctx: Number(m.context_length || m.top_provider?.context_length || 0),
       name: String(m.name || m.id || '')
-    })).filter(m => m.id).sort((a, b) => a.id.localeCompare(b.id));
+    })).filter(m => m.id && modelIsChat(m.id))     /* Kol 122: ses/görsel/gömme modelleri listeye girmesin */
+       .sort((a, b) => a.id.localeCompare(b.id));
     if (list.length) {
       state.orModels = list;
       state.orFree = free;

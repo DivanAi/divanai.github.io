@@ -171,7 +171,9 @@ not part of the settings backup; take it with **Export**.
 - **Chair**: the seat that writes the summary and the closing.
 - The **Free models** button lists the `:free` models your key can see; pick **which seat** first, then
   press **use** on the row. No seat changes until you choose. **+ New seat** adds a provider that is not
-  at the table yet.
+  at the table yet. The list shows **chat-capable models only**: non-chat rows in the provider's list
+  (text-to-speech **TTS** models, speech recognition, image generation, embeddings/reranking, music)
+  are filtered out — they cannot answer at the table.
 
 **Conversation settings**
 
@@ -540,9 +542,13 @@ thin brass rule on top. **Clicking it takes you home**; if the table has a conve
 and while a round is running it does nothing (press “Stop”). It works by keyboard too — the plaque is
 a button: `Tab` to focus, `Enter` to press.
 
-| Plaque · day | Plaque · night |
-|---|---|
-| ![Plaque day](ekranlar/118-logo-gunduz.jpg) | ![Plaque night](ekranlar/118-logo-gece.jpg) |
+The **logo** is now the **first thing that catches the eye**: a 44 px (40 px on phones) round
+**brass medallion** with four coloured seats (green · blue · orange · purple), an amber ring and a
+soft shadow. The brand name grew to 22 px. The tab icon and the phone icon use the same medallion.
+
+| Plaque · day | Plaque · night | Phone |
+|---|---|---|
+| ![Plaque day](ekranlar/121-logo-gunduz.jpg) | ![Plaque night](ekranlar/121-logo-gece.jpg) | ![Mobile](ekranlar/121-logo-mobil.jpg) |
 
 **On the phone the top bar is two rows, both centred:**
 

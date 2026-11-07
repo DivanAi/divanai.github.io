@@ -172,6 +172,9 @@ onu **Dışa aktar** ile alırsın.
 - **Ücretsiz modeller** düğmesi: anahtarın gördüğü `:free` modelleri listeler; önce **hangi sandalyeye**
   atayacağını seç, sonra satırdaki **kullan**'a bas. Seçim yapmadan hiçbir sandalye değişmez.
   **+ Yeni sandalye aç** ile masaya olmayan bir sağlayıcıyı eklersin.
+  Listede **yalnız sohbet edebilen modeller** görünür: servisin listesindeki konuşma/model üretmeyen
+  satırlar (metni sese çeviren **TTS** modelleri, ses tanıma, görsel üretimi, gömme/sıralama, müzik)
+  süzülür — bunlar masada cevap veremez.
 
 **Konuşma ayarları**
 
@@ -538,9 +541,13 @@ Marka artık sayfadan ayrı duran bir **plaka**: krem-pirinç zemin, çift çer�
 Plakaya **tıklayınca ana ekrana dönersin**; masada konuşma varsa önce sorar, konuşma sürerken hiç
 dokunmaz (önce “Durdur”). Klavyeyle de çalışır: plaka bir düğmedir, `Tab` ile odaklanıp `Enter` ile basılır.
 
-| Plaka · gündüz | Plaka · gece |
-|---|---|
-| ![Plaka gündüz](ekranlar/118-logo-gunduz.jpg) | ![Plaka gece](ekranlar/118-logo-gece.jpg) |
+**Logo** artık sayfanın **ilk dikkat çeken öğesi**: 44 px (telefonda 40 px) yuvarlak **pirinç
+madalyon**, dört renkli sandalye (yeşil · mavi · turuncu · mor), kehribar halka ve yumuşak gölge.
+Marka adı 22 px'e çıktı. Sekme simgesi ve telefon simgesi de aynı madalyon.
+
+| Plaka · gündüz | Plaka · gece | Telefon |
+|---|---|---|
+| ![Plaka gündüz](ekranlar/121-logo-gunduz.jpg) | ![Plaka gece](ekranlar/121-logo-gece.jpg) | ![Mobil](ekranlar/121-logo-mobil.jpg) |
 
 **Telefonda üst şerit iki satır, ikisi de ortalanmış:**
 
