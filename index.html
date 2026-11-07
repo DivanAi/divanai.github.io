@@ -37,17 +37,22 @@
        img-src     data: blob: https: → görsel: gömülü ya da üretim servisi
        connect-src https: http:      → yalnız senin seçtiğin sağlayıcı + yerel sunucu
        object-src / frame-src 'none' → eklenti ve çerçeve yok
+
+     Kol 117 · iki iz daha açıldı, ikisi de yalnız KENDİ sitemiz için ('self'):
+       worker-src   'self'  → sw.js (telefona kurulunca internet yokken açılması)
+       manifest-src 'self'  → manifest.json (uygulama adı, simgesi, açılış biçimi)
+     Dışarıdan (başka bir alan adından) hâlâ ne worker ne manifest yüklenebilir.
      (frame-ancestors meta ile çalışmaz; o yalnız yerel sunucunun başlığında verilir.)
 
      GitHub Pages başlık (header) gönderemediği için politika meta ile veriliyor;
      tarayıcılar meta CSP'yi destekler. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src data:; connect-src https: http:; media-src data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'"/>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src data:; connect-src https: http:; media-src data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'"/>
 <!-- Dış bağlantıya tıklanınca sayfa adresi (ve varsa konu başlığı) sızmaz. -->
 <meta name="referrer" content="no-referrer"/>
 
 <title>DivanAI — yapay zekâlar aynı masada</title>
 <meta name="description" content="Bir konu yaz; 3–5 yapay zekâ aynı masada tartışsın, başkan özetlesin. Tek dosya, anahtarsız demo, Apache 2.0. Konuşma bitince özet çıkar; kota dolsa da iş kaybolmaz."/>
-<meta name="theme-color" content="#08090d"/>
+<meta name="theme-color" content="#f6f2ea"/>
 <!-- paylaşım önizlemesi (sosyal medya / sohbet uygulamaları) -->
 <meta name="author" content="DivanAI"/>
 <meta name="robots" content="index,follow"/>
@@ -68,6 +73,11 @@
 <meta name="twitter:description" content="Bir konu yaz; 3–5 yapay zekâ aynı masada tartışsın, başkan özetlesin. Tek dosya, anahtarsız demo, Apache 2.0. Konuşma bitince özet çıkar; kota dolsa da iş kaybolmaz."/>
 <meta name="twitter:image" content="https://divanai.github.io/ekranlar/davet-onizleme.jpg"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='18' rx='12' ry='6' fill='none' stroke='%23333a4a'/%3E%3Ccircle cx='16' cy='8' r='3.4' fill='%2334d399'/%3E%3Ccircle cx='5' cy='19' r='2.4' fill='%235ea8ff'/%3E%3Ccircle cx='27' cy='19' r='2.4' fill='%23f3a944'/%3E%3Ccircle cx='16' cy='26' r='2.4' fill='%23b18cff'/%3E%3C/svg%3E"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="DivanAI"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <script>/* ilk boyamadan önce görünüm: varsayılan gündüz, kayıt varsa o */
 (function(){try{var p=localStorage.getItem("divanai-gorunum");if(p==="night"||p==="paper")document.documentElement.setAttribute("data-palette",p);}catch(e){}})();
 </script>
@@ -1287,6 +1297,65 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
   border:1px solid color-mix(in srgb, var(--warnInk) 26%, transparent);
 }
 .sayiNote code{font-family:var(--f-mono);font-size:11px;padding:1px 4px;border-radius:4px;background:color-mix(in srgb, var(--warnInk) 14%, transparent)}
+
+/* ---------------- anahtar kilidi (Kol 115) ---------------- */
+.klBox{
+  margin:10px 0 12px;padding:10px 12px;border-radius:11px;
+  border:1px solid color-mix(in srgb, var(--acc) 26%, transparent);
+  background:color-mix(in srgb, var(--acc) 7%, transparent);
+  font-size:12px;color:var(--muted);
+}
+.klBox.locked{border-color:color-mix(in srgb, var(--warnInk) 40%, transparent);background:color-mix(in srgb, var(--warnInk) 9%, transparent)}
+.klHead{font-size:12.5px;font-weight:650;color:var(--text);margin-bottom:4px}
+.klBox p{margin:4px 0}
+.klWarn{color:var(--warnInk)}
+.klRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.klRow input{
+  flex:1 1 140px;min-width:120px;padding:7px 9px;border-radius:9px;
+  border:1px solid var(--line2);background:var(--inputBg,transparent);color:var(--text);font-size:12px;
+}
+.klMsg{margin:6px 0 0;font-size:11.5px}
+.klMsg.ok{color:var(--okInk)}
+.klMsg.err{color:var(--badInk)}
+
+/* geçmiş arama (Kol 115) */
+.hpSearch{display:flex;align-items:center;gap:7px;margin:0 10px 8px;padding:6px 9px;border-radius:9px;
+  border:1px solid var(--line2);color:var(--dim)}
+.hpSearch input{flex:1;min-width:0;border:0;background:transparent;color:var(--text);font-size:12px;outline:none}
+.hpSearch input::placeholder{color:var(--placeholder)}
+
+/* ---------------- Paylaş penceresi (Kol 117) ---------------- */
+.modalShare{width:min(560px,calc(100% - 28px))}
+.shareLink{display:flex;gap:8px;align-items:stretch}
+.shareLink input{
+  flex:1;min-width:0;padding:8px 11px;border-radius:10px;
+  border:1px solid var(--line2);background:rgba(var(--w),.04);color:var(--muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;
+}
+.shareLink input:focus{outline:none;border-color:rgba(var(--accrgb),.45);color:var(--text)}
+.shareGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(126px,1fr));gap:8px;margin-top:10px}
+.shareApp{
+  appearance:none;display:flex;align-items:center;gap:8px;min-width:0;
+  padding:9px 11px;border-radius:11px;cursor:pointer;
+  border:1px solid var(--line2);background:rgba(var(--w),.035);color:var(--text);
+  font-size:12.5px;font-weight:550;transition:background .16s,border-color .16s;
+}
+.shareApp:hover{background:rgba(var(--w),.075);border-color:rgba(var(--w),.26)}
+.shareApp:active{transform:translateY(1px)}
+.shareApp svg{flex:0 0 auto;color:var(--dim)}
+.shareApp span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shareSec{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.shareNote{margin:7px 0 0;font-size:11.5px;line-height:1.55;color:var(--dim)}
+.shareRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sharePrev{
+  margin-top:9px;padding:10px 12px;max-height:min(40dvh,300px);overflow:auto;
+  border:1px solid var(--line2);border-radius:11px;background:rgba(var(--w),.04);color:var(--muted);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.6;
+  white-space:pre-wrap;overflow-wrap:anywhere;user-select:text;
+}
+.sharePrev:focus{outline:none;border-color:rgba(var(--accrgb),.45);color:var(--text)}
+.sharePrev:focus-visible{outline:2px solid rgba(var(--accrgb),.55);outline-offset:2px}
+@media (max-width:520px){ .shareGrid{grid-template-columns:repeat(2,1fr)} }
 </style>
 </head>
 <body>
@@ -1319,6 +1388,9 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
       <button class="btn ghost icon" id="helpBtn" title="Yardım · nasıl çalışır?" aria-label="Yardım">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.2a2.5 2.5 0 1 1 3.7 2.3c-.8.5-1.3 1-1.3 2"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/></svg>
       </button>
+      <button class="btn ghost icon" id="shareBtn" type="button" title="Paylaş · bağlantı ve sohbet özeti" aria-label="Paylaş" aria-expanded="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="17.6" cy="5.6" r="2.6"/><circle cx="6.4" cy="12" r="2.6"/><circle cx="17.6" cy="18.4" r="2.6"/><path d="m8.7 10.7 6.6-3.8M8.7 13.3l6.6 3.8"/></svg>
+      </button>
       <button class="btn ghost icon" id="historyBtn" title="Geçmiş konuşmalar · bu tarayıcıda" aria-label="Geçmiş konuşmalar" aria-expanded="false">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12a8.4 8.4 0 1 0 2.5-6"/><path d="M3.2 3.6v4.2h4.2"/><path d="M12 7.8V12l3 1.8"/></svg>
       </button>
@@ -1335,6 +1407,10 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
   <!-- geçmiş paneli: saat simgesine basınca açılır (liste ui.js doldurur) -->
   <div class="histPop" id="histPop" hidden role="dialog" aria-label="Geçmiş konuşmalar">
     <div class="hpHead">Geçmiş konuşmalar <span class="hpCount" id="histCount"></span></div>
+    <div class="hpSearch">
+      <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.4 10.4 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="search" id="histSearch" autocomplete="off" placeholder="Geçmişte ara…" aria-label="Geçmiş konuşmalarda ara"/>
+    </div>
     <div class="hpList" id="histList"></div>
     <div class="hpFoot">
       <button type="button" class="btn ghost sm" id="histSave">↓ Oturumu dosyaya kaydet</button>
@@ -1404,6 +1480,7 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
           <span id="keylessHintText"></span>
           <button type="button" class="btn sm" id="keylessHintBtn">Ücretsiz anahtar ekle</button>
         </div>
+        <div class="keyCard" id="demoCard" hidden></div>
         <div class="keyCard" id="keyCard" hidden>
           <div class="kcHead">Canlı modeller için <b>3 adım</b> <span class="kcFree">anahtar ücretsiz</span>
             <button type="button" class="mini kcHide" id="keyCardHide" title="Bu kartı gizle">Bir daha gösterme</button>
@@ -1414,7 +1491,7 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
             <li><b>Buraya yapıştır</b> — Ayarlar → Mod: Canlı → Google AI Studio → Anahtar.</li>
           </ol>
           <div class="kcRow">
-            <button type="button" class="btn sm" id="keyCardTek">Anahtarsız canlıya geç</button>
+            <button type="button" class="btn sm" id="keyCardTek">Demo’da dene (ücretsiz, anahtarsız)</button>
             <a class="btn sm" href="https://aistudio.google.com/api-keys" target="_blank" rel="noopener">Anahtar sayfasını aç</a>
             <button type="button" class="btn sm" id="keyCardOpen">Ayarları aç</button>
           </div>
@@ -1728,8 +1805,8 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
     'Masa temizlendi. Yeni konu yazabilirsin.': 'Table cleared. You can write a new topic.',
 
     /* demo uyarıları */
-    'Demo modu: aşağıdaki cevaplar hazır örnek metindir, her konuda aynıdır. Gerçek model cevapları için Ayarlar → Mod: Canlı.':
-      'Demo mode: the answers below are canned sample text, the same for every topic. For real model answers use Settings → Mode: Live.',
+    'Demo modu: üç ücretsiz anahtarsız servis cevap veriyor (OVH · LLM7 · Pollinations). Bunlar gerçek cevaptır, hazır metin değildir — ama yavaş ve günlük kotası sınırlı. Kendi anahtarınla tam hız için Ayarlar → Mod: Canlı.':
+      'Demo mode: three free keyless services answer (OVH · LLM7 · Pollinations). These are real answers, not canned text — but slow, with daily limits. For full speed with your own key use Settings → Mode: Live.',
     'Demo metinleri yalnızca Türkçe hazırlanmıştır; canlı modda cevaplar senin yazdığın dilde gelir.':
       'Demo text is available in Turkish only; in live mode answers come in the language you write.',
 
@@ -1742,9 +1819,8 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
     'Mod': 'Mode',
     'Canlı': 'Live',
     'gerçek modeller': 'real models',
-    'örnek konuşma': 'sample conversation',
-    'Demo modunda hazır örnek konuşmalar oynar — gerçek cevap değildir. Gerçek modeller için Canlı + bir bağlantı seç.':
-      'Demo mode plays canned sample conversations — not real answers. For real models pick Live + a connection.',
+    'anahtarsız · ücretsiz servisler': 'keyless · free services',
+
     'Bağlantı': 'Connection',
     'Kaydet ve uygula': 'Save and apply',
     'Demo modu': 'Demo mode',
@@ -1760,7 +1836,6 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 
   /* Metin düğümleri satır içi etiketlerle (kalın/kod) bölündüğü için parça parça */
   Object.assign(EN, {
-    "Demo metinleri arayüz dilinde gelir. İngilizce örnek konuşma için sağ üstten İngiliz bayrağını seç.": "Demo text comes in the interface language. For an English sample conversation, pick the British flag at the top right.",
     "Masadaki modeller": "Models at the table",
     "Masadaki model": "Model at the table",
     "model kimliği": "model id",
@@ -2129,7 +2204,7 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
     "Başkan — özeti ve kapanışı o yazarChatGPT · MODERATÖRGemini · ANALİSTClaude · ELEŞTİRMENGrok · MÜHENDİS": "Chair — writes the summary and the closing",
     "Bir konuşmacı başkasının cevabını kopyalarsa masaya alınmaz; “kopyasıydı” notu düşer, söz sıradakine geçer.": "If a speaker copies someone else’s answer it is not accepted; a “duplicate” note is dropped and the turn moves on.",
     "Her sandalyenin rol etiketini ve tek cümlelik görevini değiştirebilirsin. Boş bırakılan alan varsayılana döner.": "You can change each seat’s role label and its one-sentence task. Empty fields fall back to the default.",
-    "Demo modunda hazır örnek konuşmalar oynar — gerçek cevap değildir. Gerçek modeller için Canlı + bir bağlantı seç.": "Demo mode plays canned sample conversations — not real answers. For real models pick Live + a connection.",
+
     "Bu liste yalnız bu tarayıcıda durur; hesap ve sunucu yok. Başka cihazda devam etmek için dosyaya kaydet, öbür cihazda dosyadan aç.": "This list lives only in this browser; no account, no server. To continue on another device, save to a file and open it there.",
     "Bir model hata verirse masa durmaz; aynı sandalyeye yedek model geçer ve konuşma sürer. Cevabın başlığında ↺ model etiketi görünür.": "If a model fails the table does not stop; a backup model takes the same seat and the conversation continues. The answer header shows a ↺ model tag.",
     "Ayna — aynı model iki sandalyede: Model A · savunan ve Model B · itiraz eden. Tek modelin kendi cevabını beğenip geçmesini engeller.": "Mirror — the same model in two seats: Model A · defending and Model B · objecting. It stops a single model from approving its own answer.",
@@ -2151,7 +2226,7 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
     "Ayna seçiliyken “Masadaki modeller” listesi yok sayılır: iki sandalye de bu modelle konuşur. Özet yerine tarafsız bir hakem kararı yazılır (en güçlü artı/eksi, karar verilemeyen nokta).": "With Mirror selected the “models at the table” list is ignored: both seats speak with this model. Instead of a summary you get a neutral judge verdict (strongest pro/con, the undecidable point).",
     "Konsey — klasik masa: masada 4 ayrı şirketin modeli (ChatGPT, Gemini, Claude, Grok) ayrı rollerle konuşur, sonunda başkan özetler. Birbirinden farklı bakış açıları istediğinde bunu seç.": "Council — the classic table: models from 4 different companies (ChatGPT, Gemini, Claude, Grok) speak in separate roles, and the chair summarizes at the end. Pick this when you want genuinely different viewpoints.",
     "Anahtar yalnızca bu tarayıcının localStorage’ında saklanır, hiçbir sunucuya gönderilmez. Konuşmalar sadece açık oturumda tutulur; sayfayı yenilersen son masa geri yüklenir, \"Yeni konu\" ile silinir.": "The key is kept only in this browser’s localStorage and is never sent to any server. Conversations live in the open session; reloading restores the last table, and “New topic” clears it.",
-    "Dil: Cevaplar senin yazdığın dilde gelir (Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce). Tartışmanın ortasında dil değiştirirsen modeller yeni dile geçer. Arayüz, dışa aktarma başlıkları ve demo örnek konuşmalar seçtiğin arayüz dilinde gelir.": "Language: answers come in the language you write (Turkish if you write Turkish, English if you write English). If you switch languages mid-debate the models follow. The interface, export headings and demo sample conversations come in the interface language you pick.",
+    "Dil: Cevaplar senin yazdığın dilde gelir (Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce). Tartışmanın ortasında dil değiştirirsen modeller yeni dile geçer. Arayüz ve dışa aktarma başlıkları seçtiğin arayüz dilinde gelir.": "Language: answers come in the language you write (Turkish if you write Turkish, English if you write English). If you switch languages mid-debate the models follow. The interface and export headings come in the interface language you pick.",
     "Ayna’nın amacı: tek modelin kendi cevabını sorgulamadan geçmesini zorlaştırmak. Model savunurken “Eksi” maddesini gerçekten yazmak zorunda kalıyor; itiraz eden taraf ise zayıf varsayımları adıyla söylüyor. Sınırı açık: iki rol de aynı model olduğu için modelin her yerde paylaştığı kör nokta yakalanmaz. Ayna kendi kendini onaylamayı engeller — modeli değiştirmenin yerini tutmaz.": "Mirror’s point: to make it harder for a single model to wave its own answer through. While defending, the model really has to write the “Cons” item; the objecting side names the weak assumptions out loud. The limit is plain: both roles are the same model, so a blind spot the model shares everywhere is not caught. Mirror stops self-approval — it is no substitute for changing the model.",
     "Yalnızca OpenRouter bağlantısında çalışır. Ücretsiz modelde bile kredi harcar: istek başına yaklaşık 0,7–1,5 sent (motor Exa/Parallel). Kredin yoksa istek hata verir. Açıkken cevaplar [1], [2] ile kaynak gösterir.": "Works only on an OpenRouter connection. It spends credits even on a free model: about 0.7–1.5 cents per request (engine Exa/Parallel). Without credit the request fails. While on, answers cite sources as [1], [2].",
     "Geçmiş: üst şeritteki saat simgesi bu tarayıcıdaki son 10 konuşmayı gösterir; tıklayıp kaldığın yerden devam edersin. Satırdaki yıldıza basarsan konuşma favori olur: listenin başında kalır ve 10’luk sınıra takılmaz.": "History: the clock icon in the top bar lists the last 10 conversations in this browser; click one to continue where you stopped. Press the star on a row to make it a favorite: it stays at the top of the list and is not pushed out by the limit of 10.",
@@ -2371,6 +2446,36 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
     "Yeniden üret": "Regenerate",
     "Yeniden dene": "Try again",
     "Görsel çizimi atlandı. Metin kısmı hazır; her cevabın başındaki “🖼 Görsel üret” ile istediğin zaman tek tek çizdirebilirsin.": "Image drawing skipped. The text part is ready; use “🖼 Generate image” at the top of any answer to draw them one by one whenever you want.",
+  });
+
+  /* ---- Kol 117 · Paylaş penceresi + Telefona kur (PWA) ---- */
+  Object.assign(EN, {
+    "Paylaş · bağlantı ve sohbet özeti": "Share · link and conversation summary",
+    "Paylaş": "Share",
+    "Bağlantı": "Link",
+    "Sayfa adresi": "Page address",
+    "Kopyala": "Copy",
+    "Bu adres WhatsApp, Telegram, X gibi yerlerde başlık ve görselle açılır.": "This address opens with a title and an image on WhatsApp, Telegram, X and similar places.",
+    "Sohbetin özeti": "Conversation summary",
+    "Sohbet başlayınca burada özeti çıkar.": "The summary appears here once the conversation starts.",
+    "Sohbet özeti": "Conversation summary",
+    "Özeti kopyala": "Copy summary",
+    "WhatsApp’ta paylaş": "Share on WhatsApp",
+    "E-posta": "E-mail",
+    "E-posta ile gönder": "Send by e-mail",
+    "Cihazda paylaş": "Share on device",
+    "Özet yalnız bu cihazda oluşur; hiçbir sunucuya gitmez.": "The summary is created on this device only; it never goes to a server.",
+    "Telefona kur": "Install on phone",
+    "Bu sayfayı telefonuna uygulama gibi kur. İlk açılıştan sonra internet olmadan da açılır.": "Install this page like an app. After the first visit it opens without internet too.",
+    "Kur": "Install",
+    "Kurulu sürümde çalışıyorsun.": "You are running the installed version.",
+    "iPhone / iPad: Safari’de Paylaş → “Ana Ekrana Ekle”.": "iPhone / iPad: in Safari, Share → “Add to Home Screen”.",
+    "Android / masaüstü: tarayıcı menüsü → “Uygulamayı yükle” (Chrome, Edge).": "Android / desktop: browser menu → “Install app” (Chrome, Edge).",
+    "Bağlantı kopyalandı": "Link copied",
+    "Bağlantı kopyalanamadı — adresi elle seçip kopyala.": "Could not copy the link — select the address and copy it by hand.",
+    "Özet kopyalandı": "Summary copied",
+    "Kopyalanamadı — özeti seçip elle kopyala.": "Could not copy — select the summary and copy it by hand.",
+    "Kuruldu — ana ekranda DivanAI var.": "Installed — DivanAI is on your home screen.",
   });
 
   window.I18N = { EN, translate, translateDom, apply, observe, isEn, lang, dialogEn, patchConfirm, T2 };
@@ -3017,6 +3122,48 @@ const GOALS = {
   }
 };
 
+/* ---------------- mod: demo (anahtarsız) / canlı (anahtar) ----------------
+   Kol 116: eski "demo" (hazır örnek metin) kaldırıldı.
+   · demo = üç ücretsiz anahtarsız servis (OVH · LLM7 · Pollinations) — GERÇEK cevap, anahtar yok
+   · live = yalnız API anahtarıyla; anahtarsız sandalye canlıda çalışmaz, varsayılan masa 4 sandalye */
+const DEMO_SEATS = ['gpt', 'gemini', 'claude'];
+const DEMO_SRC = { gpt: 'ovh', gemini: 'llm7', claude: 'pollinations' };
+const LIVE_SEATS = ['gpt', 'gemini', 'claude', 'grok'];   // canlı varsayılanı: 4 sandalye
+function isDemoMode() { return state.settings.mode !== 'live'; }
+
+/* moda göre masayı düzelt: demo sabit 3 anahtarsız · canlı en az 4 (dokunulmamışsa) */
+function normalizeMode() {
+  const s = state.settings;
+  s.seatSrc = s.seatSrc || {};
+  /* eski sürümden gelen "canlı ama anahtarsız" kurulum: canlı anahtar ister → demo'ya al */
+  if (s.mode === 'live' && !(typeof klLocked === 'function' && klLocked())) {
+    const keyed = String((s.api || {}).key || '').trim()
+      || Object.values((s.api || {}).keys || {}).some(v => String(v || '').trim())
+      || Object.values(s.seatKey || {}).some(v => String(v || '').trim());
+    if (!keyed) s.mode = 'demo';
+  }
+  if (s.mode === 'live') {
+    const untouched = (s.active || []).length === DEMO_SEATS.length
+      && (s.active || []).join() === DEMO_SEATS.join();
+    if (untouched || !(s.active || []).length) s.active = LIVE_SEATS.slice();
+    /* canlıda anahtarsız sandalye olmaz */
+    Object.keys(s.seatSrc).forEach(k => {
+      const g = GATEWAYS[s.seatSrc[k]];
+      if (g && g.group === 'keyless') delete s.seatSrc[k];
+    });
+  } else {
+    /* demo sabittir: 3 sandalye, her biri kendi ücretsiz servisinde, servisin kendi modeli */
+    s.active = DEMO_SEATS.slice();
+    s.seatSrc = { ...DEMO_SRC };
+    s.models = s.models || {};
+    DEMO_SEATS.forEach(pid => {
+      const pre = (GATEWAYS[DEMO_SRC[pid]] || {}).models || {};
+      s.models[pid] = pre[pid] || Object.keys(pre).map(k => pre[k]).find(Boolean) || '';
+    });
+    s.chair = DEMO_SEATS.includes(s.chair) ? s.chair : 'gpt';
+  }
+}
+
 /* ---------------- kalıcı ayarlar ---------------- */
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
@@ -3050,7 +3197,7 @@ function migrateLegacyStore() {
 }
 migrateLegacyStore();
 const DEFAULT_SETTINGS = {
-  mode: 'live',                                    // 'demo' | 'live'   (ilk açılış: anahtarsız 3 sandalye)
+  mode: 'demo',                                    // 'demo' = anahtarsız ücretsiz servisler · 'live' = API anahtarı ister
   uiLang: (typeof navigator !== 'undefined' && navigator.language && !/^tr/i.test(navigator.language)) ? 'en' : 'tr',   // arayüz dili
   img: { engine: 'bedava', model: 'google/gemini-2.5-flash-image', size: 1024 },   // görsel üretimi
   api: {
@@ -3060,7 +3207,7 @@ const DEFAULT_SETTINGS = {
     keys: {},                                        // { kind: anahtar } — bağlantı değişince anahtar korunur
     customs: []                                      // [{ id, name, baseUrl }] kullanıcının eklediği bağlantılar
   },
-  active: ['gpt', 'gemini', 'claude'],             // ilk açılış: üç sandalye
+  active: ['gpt', 'gemini', 'claude'],             // demo varsayılanı: 3 anahtarsız sandalye (canlıda 4'e çıkar)
   /* İlk açılış: üç anahtarsız servis. Sıra ÖLÇÜME göre (6 Kasım 2026):
      OVH Llama 3.3 → 0,7 sn (dakikada 2 istek) · LLM7 Codestral → 0,8 sn (günlük kota)
      · Pollinations gpt-oss → 6–45 sn (en yavaş, tek yedek). En hızlı servis ilk sandalyede
@@ -3256,7 +3403,7 @@ function mergeSettings(stored) {
 
 /* ---------------- durum ---------------- */
 const state = {
-  settings: mergeSettings(store.get('divanai_settings_v1', null)),
+  settings: mergeSettings(store.get('divanai_settings_v1', null)),   // normalizeMode() durum kurulduktan sonra çağrılır
   usage: { in: 0, out: 0, cost: 0 }, lastUsage: null,
   phase: 'idle',            // idle | waiting | running
   paused: null,             // { reason:'kota', table, round|jobs, at } — kaldığı yerden devam için
@@ -3371,6 +3518,7 @@ function keylessSeatCount() {
 }
 /* anahtarsız seçenek fiilen canlı mı? (demo modunda bile gerçek cevap gelsin diye) */
 function tekKeyless() {
+  if (state.settings.mode === 'live') return false;   // Kol 116: canlı yalnız anahtarla
   if (!tekOn()) return false;
   const pid = tekSeat();
   const src = (state.settings.seatSrc || {})[pid];
@@ -3431,14 +3579,15 @@ const personas = () => {
     const pid = state.settings.active.includes(state.settings.chair) ? state.settings.chair : state.settings.active[0];
     const p = PROVIDERS[pid];
     if (!p) return [];
-    /* ekranda görünen ad gerçek sağlayıcıyı söylemeli: anahtarsız seçenekte
-       sandalye ChatGPT değil, Pollinations üzerinden gpt-oss. */
-    const keyless = (state.settings.seatSrc || {})[pid] === 'pollinations';
+    /* ekranda görünen ad gerçek sağlayıcıyı söylemeli: demo/anahtarsız seçenekte
+       sandalye ChatGPT değil, o servisin gerçek modeli yazar (Kol 116). */
+    const _m = state.settings.models[pid] || '';
+    const vn = (typeof seatVendorName === 'function') ? seatVendorName(pid, _m) : null;
     return [{
-      id: pid, provider: pid, model: state.settings.models[pid] || '',
-      name: keyless ? 'gpt-oss 20B' : p.name,
-      short: keyless ? 'GPT-OSS' : p.short,
-      vendor: keyless ? 'Pollinations (anahtarsız)' : '',
+      id: pid, provider: pid, model: _m,
+      name: vn ? vn.name : p.name,
+      short: vn ? vn.short : p.short,
+      vendor: vn ? vn.vendor : '',
       color: p.color,
       role: 'moderator', roleLabel: 'DANIŞMAN', roleBrief: 'soruyu doğrudan cevaplar, konuyu dağıtmaz',
       single: true
@@ -3462,6 +3611,20 @@ const personas = () => {
     };
   });
 };
+/** Model kimliğini okunur ada çevirir: 'anthropic/claude-haiku-5.5' → 'Claude Haiku 5.5' */
+function prettyModel(id) {
+  const raw = String(id || '').replace(/^~/, '').replace(/^[a-z0-9._-]+\//i, '').replace(/:free$/i, '').replace(/:online$/i, '');
+  const BRAND = { deepseek: 'DeepSeek', gpt: 'GPT', glm: 'GLM', oss: 'OSS', llm: 'LLM', api: 'API',
+                  qwen: 'Qwen', llama: 'Llama', mistral: 'Mistral', codestral: 'Codestral', nemotron: 'Nemotron' };
+  const words = raw.split(/[-_\s]+/).filter(Boolean).map(w => {
+    const b = BRAND[w.toLowerCase()];
+    if (b) return b;
+    if (/^[0-9]+(\.[0-9]+)?[a-z]?$/i.test(w)) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  });
+  return words.join(' ').replace(/\s+/g, ' ').trim() || String(id || '');
+}
+
 /** Sandalyenin bağlantısı, adından farklı bir şirketse ekranda gerçek model adı görünür. */
 function seatVendorName(pid, model) {
   const kind = seatKindOf(pid);
@@ -3469,17 +3632,20 @@ function seatVendorName(pid, model) {
     const m = String(model || '').replace(/^google\//, '');
     const sayi = (m.match(/gemini-([0-9.]+)/) || [])[1] || '';
     const lite = /lite/i.test(m);
+    if (!/gemini/i.test(m)) return { name: prettyModel(m) || 'Google modeli', short: 'GGL', vendor: 'Google AI Studio' };
     const ad = 'Gemini' + (sayi ? ' ' + sayi : '') + (lite ? ' Flash-Lite' : /flash/i.test(m) ? ' Flash' : '');
     return { name: ad.trim() || 'Gemini', short: ('G' + sayi).replace(/G$/, 'GEM'), vendor: 'Google AI Studio' };
   }
   /* Anahtarsız sandalyeler: baloncukta "ChatGPT" yazıp altında Llama çalışmasın */
   const m = String(model || '');
   if (kind === 'llm7') {
-    const ad = /codestral/i.test(m) ? 'Codestral' : /nemotron/i.test(m) ? 'Nemotron' : /minimax/i.test(m) ? 'MiniMax' : 'Mistral Nemo';
+    const ad = /codestral/i.test(m) ? 'Codestral' : /nemotron/i.test(m) ? 'Nemotron' : /minimax/i.test(m) ? 'MiniMax'
+      : (/mistral-?nemo/i.test(m) ? 'Mistral Nemo' : (prettyModel(m) || 'LLM7 modeli'));
     return { name: ad, short: ad === 'Codestral' ? 'CDS' : 'MNM', vendor: 'LLM7.io (anahtarsız)' };
   }
   if (kind === 'ovh') {
-    const ad = /llama/i.test(m) ? 'Llama 3.3 70B' : /mistral/i.test(m) ? 'Mistral Small' : /qwen/i.test(m) ? 'Qwen' : 'OVH modeli';
+    const ad = /llama-?3.?3/i.test(m) ? 'Llama 3.3 70B' : /mistral/i.test(m) ? 'Mistral Small'
+      : /qwen/i.test(m) ? 'Qwen' : (prettyModel(m) || 'OVH modeli');
     return { name: ad, short: /llama/i.test(m) ? 'L33' : /qwen/i.test(m) ? 'QWN' : 'MSM', vendor: 'OVH AI Endpoints (anahtarsız)' };
   }
   if (kind === 'pollinations') {
@@ -3490,15 +3656,29 @@ function seatVendorName(pid, model) {
     return { name: ad, short: 'GLM', vendor: 'Z.ai' };
   }
   if (kind === 'groq') {
-    const ad = /120b/i.test(m) ? 'gpt-oss 120B' : /20b/i.test(m) ? 'gpt-oss 20B' : /qwen/i.test(m) ? 'Qwen 3.8' : 'Groq modeli';
+    const ad = /120b/i.test(m) ? 'gpt-oss 120B' : /20b/i.test(m) ? 'gpt-oss 20B' : /qwen/i.test(m) ? 'Qwen 3.8' : (prettyModel(m) || 'Groq modeli');
     return { name: ad, short: 'GRQ', vendor: 'Groq' };
+  }
+  /* tanınmayan bağlantı (OpenRouter, Vercel, kendi adresin …): kimliği okunur yaz */
+  if (String(m || '').trim()) {
+    const ad = prettyModel(m);
+    const bits = ad.split(' ').filter(Boolean);
+    return { name: ad, short: (bits[0] || 'MDL').slice(0, 3).toUpperCase(), vendor: (GATEWAYS[kind] || {}).label || '' };
   }
   return null;
 }
 const personaById = pid => personas().find(p => p.id === pid) || null;
 const chairPersona = () => personaById(state.settings.chair) || personas()[0] || null;
 
-function saveSettings() { store.set('divanai_settings_v1', state.settings); }
+/* açılışta masayı moda göre düzelt (demo: 3 anahtarsız · canlı: en az 4) */
+try { if (typeof normalizeMode === 'function') normalizeMode(); } catch (e) {}
+
+function saveSettings() {
+  /* anahtar kilidi açıksa düz metin anahtar DISKE YAZILMAZ (Kol 115) */
+  const payload = (typeof klPlanSave === 'function') ? klPlanSave(state.settings) : state.settings;
+  store.set('divanai_settings_v1', payload);
+  if (typeof klSyncLock === 'function') klSyncLock();
+}
 
 /* ---------------- markdown ---------------- */
 function md(src) {
@@ -4964,9 +5144,146 @@ function cfgOfKind(kind, key) {
   return connCfg(kind, base, key);
 }
 
+/* demo modunda sandalyenin anahtarsız servisi (sırayla) */
+function demoKindFor(pid) {
+  const cur = (state.settings.seatSrc || {})[pid];
+  if (cur && GATEWAYS[cur] && GATEWAYS[cur].group === 'keyless') return cur;
+  const i = Math.max(0, DEMO_SEATS.indexOf(pid));
+  return DEMO_SRC[DEMO_SEATS[i % DEMO_SEATS.length]];
+}
+
+/* ---------------- sandalye modellerini dağıt (Kol 116b) ----------------
+   Canlı modda varsayılan: her sandalyeye AYRI model.
+   1) Bağlantının kendi model listesi (/models) alınabilirse gerçek kimlikler kullanılır;
+      aile (openai · google · anthropic …) çeşitliliği gözetilerek dağıtılır.
+   2) Liste alınamazsa: bağlantının ön ayar havuzu — kodda doğrulanmış kimlikler — sırayla.
+   3) Havuz sandalyeden küçükse (ör. Google'da 2 model) sırayla tekrarlanır; ekranda iki kez
+      aynı model görünür ve çekmecedeki not bunu söyler.
+   Kullanıcı her sandalyenin modelini elle değiştirebilir; "Dağıt" düğmesi yeniden dağıtır. */
+const MODEL_CAT = {};                 // kind → [model id]  (oturum içi önbellek)
+const MODEL_SKIP = /(embed|chroma|\bbge\b|gte-|nomic|jina|voyage|\bclip\b|sbert|colbert|voxtral|tts|whisper|audio|realtime|moderation|rerank|dall-e|flux|stable-diffusion|sdxl|\bimage\b|ocr|guard|safety|\bveo\b|\bsora\b)/i;
+/* sohbet edebilen tanıdık aileler: liste çok kalabalıksa önce bunlar seçilir */
+const MODEL_CHAT = /(gpt|gemini|claude|llama|qwen|mistral|codestral|magistral|devstral|deepseek|glm|grok|phi|nemotron|kimi|minimax|command|sonar|olmo|granite|ernie|hunyuan|seed-oss|internlm|\bl3\b|mpt|falcon)/i;
+const MODEL_GOOD = /(flash|mini|nano|haiku|small|lite|instant|turbo|20b|8b|7b|4b)/i;
+const MODEL_HEAVY = /(opus|ultra|\bpro\b|405b|235b|reasoning|thinking|o3|o4)/i;
+
+function modelFamily(id) {
+  const s = String(id || '').toLowerCase();
+  const slash = s.indexOf('/');
+  if (slash > 0) return s.slice(0, slash);
+  if (/gemini/.test(s)) return 'google';
+  if (/gpt-oss|gpt|o3|o4/.test(s)) return 'openai';
+  if (/claude/.test(s)) return 'anthropic';
+  if (/llama|meta/.test(s)) return 'meta';
+  if (/qwen/.test(s)) return 'qwen';
+  if (/mistral|codestral|magistral|devstral/.test(s)) return 'mistral';
+  if (/deepseek/.test(s)) return 'deepseek';
+  if (/glm/.test(s)) return 'zhipu';
+  if (/grok/.test(s)) return 'xai';
+  if (/sonar|pplx/.test(s)) return 'perplexity';
+  return s.split(/[-.:]/)[0] || 'other';
+}
+
+/* havuzdan n sandalye için sıralı seçim: önce her aileden bir tane, sonra ikinciler */
+function spreadFromPool(pool, n) {
+  const ids = [...new Set((pool || []).map(x => String(x || '').trim()).filter(Boolean))];
+  if (!ids.length || n <= 0) return [];
+  const clean = ids.filter(id => !MODEL_SKIP.test(id));
+  const chatty = clean.filter(id => MODEL_CHAT.test(id));
+  const usable = chatty.length ? chatty : clean;
+  const ranked = usable
+    .map(id => ({ id, s: (MODEL_GOOD.test(id) ? 2 : 0) - (MODEL_HEAVY.test(id) ? 2 : 0) + (/:free$/i.test(id) ? 1 : 0) }))
+    .sort((a, b) => b.s - a.s || a.id.localeCompare(b.id));
+  if (!ranked.length) return [];
+  const byFam = new Map();
+  ranked.forEach(r => {
+    const f = modelFamily(r.id);
+    if (!byFam.has(f)) byFam.set(f, []);
+    byFam.get(f).push(r.id);
+  });
+  const fams = [...byFam.keys()];
+  const out = [];
+  for (let round = 0; out.length < n && round < 20; round++) {
+    let added = false;
+    for (const f of fams) {
+      const arr = byFam.get(f);
+      if (arr[round]) { out.push(arr[round]); added = true; }
+      if (out.length >= n) break;
+    }
+    if (!added) break;
+  }
+  /* havuz sandalyeden küçük: baştan sırayla tekrarla (uydurma kimlik yazmıyoruz) */
+  for (let i = 0; out.length < n && i < 40; i++) out.push(out[i % out.length] || ranked[0].id);
+  return out.slice(0, n);
+}
+
+/* bağlantının ön ayar havuzu: kodda doğrulanmış model kimlikleri */
+function presetPool(kind) {
+  const g = GATEWAYS[kind] || {};
+  return [...new Set(Object.values(g.models || {}).map(v => String(v || '').trim()).filter(Boolean))];
+}
+
+/* bağlantının kendi model listesi — alınamazsa null (uygulama çalışmaya devam eder) */
+async function fetchModelCatalog(kind, cfg) {
+  if (MODEL_CAT[kind]) return MODEL_CAT[kind];
+  try {
+    const base = ((cfg && cfg.baseUrl) || (GATEWAYS[kind] || {}).baseUrl || '').replace(/\/+$/, '');
+    if (!base) return null;
+    const ctl = new AbortController();
+    const t = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, 8000);
+    const headers = {};
+    const key = String((cfg && cfg.key) || '').trim();
+    if (key) headers['Authorization'] = 'Bearer ' + key;
+    const r = await fetch(base + '/models', { headers, signal: ctl.signal });
+    clearTimeout(t);
+    if (!r.ok) return null;
+    const j = await r.json();
+    const ids = ((j && (j.data || j.models)) || [])
+      .map(m => (typeof m === 'string' ? m : (m && (m.id || m.name)) || ''))
+      .map(x => String(x).replace(/^models\//, '').trim())
+      .filter(Boolean);
+    if (!ids.length) return null;
+    MODEL_CAT[kind] = ids;
+    return ids;
+  } catch (e) { return null; }
+}
+
+/* ayarları dağıt: synchronous kısım ön ayarla, async kısım gerçek listeyle düzeltir */
+function spreadModelsPreset(settings) {
+  const s = settings || state.settings;
+  if (!s || s.mode !== 'live') return [];
+  const seats = (s.active || []).slice();
+  const picks = spreadFromPool(presetPool(s.api.kind), seats.length);
+  seats.forEach((pid, i) => { if (picks[i]) s.models[pid] = picks[i]; });
+  return seats.map((pid, i) => picks[i]).filter(Boolean);
+}
+
+async function spreadModelsLive() {
+  const s = state.settings;
+  if (!s || s.mode !== 'live' || !(s.active || []).length) return null;
+  const kind = s.api.kind;
+  const ids = await fetchModelCatalog(kind, cfgOfKind(kind, keyOfKind(kind)));
+  if (!ids || !ids.length) return null;
+  const seats = s.active.slice();
+  const picks = spreadFromPool(ids, seats.length);
+  const before = seats.map(pid => s.models[pid] || '');
+  const changed = seats.some((pid, i) => picks[i] && picks[i] !== before[i]);
+  seats.forEach((pid, i) => { if (picks[i]) s.models[pid] = picks[i]; });
+  return { changed, picks, seats };
+}
+
+/* aynı model mi oturuyor? (çekmecede not göstermek için) */
+function sameModelSeats(settings) {
+  const s = settings || state.settings;
+  const seats = (s.active || []);
+  if (seats.length < 2) return false;
+  const first = String(s.models[seats[0]] || '').trim();
+  return seats.every(pid => String(s.models[pid] || '').trim() === first);
+}
+
 function resolveRoute(pid) {
-  if (state.settings.mode !== 'live' && !tekKeyless()) return { kind: 'demo' };   // TekeTek + anahtarsız: demo'ya düşmez
-  const kind = seatKindOf(pid);
+  const demo = isDemoMode();
+  const kind = demo ? demoKindFor(pid) : seatKindOf(pid);
   const a = state.settings.api;
   const model = (state.settings.seatSrc || {})[pid]
     ? (state.settings.models[pid] || '')          // sandalye kendi bağlantısında: model kimliği sandalyenin
@@ -4976,7 +5293,13 @@ function resolveRoute(pid) {
      ayarında çalışan bir model varsa onu kullan. Boş kimlik yüzünden turun
      sessizce durmasındansa masa çalışsın. (Özel bağlantıda ön ayar yoktur.) */
   let model2 = model;
-  if (!String(model2).trim()) {
+  if (demo) {
+    /* demo'da model kimliği servisin kendi ön ayarından gelir; canlı model adı buraya sızmasın */
+    const pre = (g.models || {});
+    const key = DEMO_SEATS.includes(pid) ? pid : 'gpt';
+    model2 = String(pre[key] || '').trim() ||
+             Object.keys(pre).map(k => String(pre[k] || '').trim()).find(Boolean) || '';
+  } else if (!String(model2).trim()) {
     const pre = (g.models || {});
     model2 = String(pre[state.settings.chair] || '').trim() ||
              Object.keys(pre).map(k => String(pre[k] || '').trim()).find(Boolean) || '';
@@ -4984,8 +5307,8 @@ function resolveRoute(pid) {
   if (kind === 'compat' && !(a.baseUrl || '').trim()) return { kind: 'missing', why: 'Özel adres boş' };
   if (g.custom && !(g.baseUrl || '').trim()) return { kind: 'missing', why: 'Bağlantı adresi boş' };
   const key = seatKeyOf(pid);
-  if (!key.trim() && !isOptionalKey(kind)) {
-    return { kind: 'missing', why: 'API anahtarı yok (' + (g.label || kind) + ')' };
+  if (!demo && !key.trim() && !isOptionalKey(kind)) {
+    return { kind: 'missing', why: 'Canlı mod API anahtarı ister (' + (g.label || kind) + '). Ayarlar → Bağlantı’dan anahtar gir ya da Demo’ya geç.' };
   }
   return { kind: 'gateway', cfg: cfgOfKind(kind, key), key: key, model: model2, kindOf: kind };
 }
@@ -5266,9 +5589,12 @@ async function runRound(opts = {}) {
     }
 
     let acc = '';
-    let modelUsed = (state.settings.mode === 'live' || tekKeyless())
-      ? (tekKeyless() ? 'gpt-oss 20B' : (effModel(p.provider) || '—'))
-      : 'demo';
+    /* demo modunda model kimliği servisin kendi ön ayarından gelir; canlıda kullanıcının seçimi */
+    let modelUsed = isDemoMode()
+      ? ((GATEWAYS[demoKindFor(p.id)] || {}).models || {})[p.id]
+        || ((GATEWAYS[demoKindFor(p.id)] || {}).models || {})[p.provider]
+        || effModel(p.provider) || '—'
+      : (tekKeyless() ? 'gpt-oss 20B' : (effModel(p.provider) || '—'));
     state.lastUsage = null; state.lastFinish = null;
     const onDelta = piece => {
       if (token !== state.runToken) return;
@@ -5302,9 +5628,7 @@ async function runRound(opts = {}) {
     try {
       route = resolveRoute(p.provider);
       if (route.kind === 'missing') throw new Error(route.why || 'Bağlantı yok');
-      if (route.kind === 'demo') {
-        await demoStream(p, { round, isChair: isLast && isChair, last: isLast, onDelta, signal: seatCtrl.signal });
-      } else {
+      {
         // önceki turda yedek modele geçildiyse onunla devam et (gerekiyorsa başka serviste)
         const alt = altOf(p.provider);
         if (alt) {
@@ -5580,7 +5904,7 @@ async function runRound(opts = {}) {
       renderTranscript();
     } else if (draftMsg.text.trim()) {
       if (state.lastFinish === 'length') draftMsg.truncated = true;   // token tavanına takıldı
-      draftMsg.model = modelUsed;   // demo modunda da 'demo' yazar (canlı gibi sunulmasın)
+      draftMsg.model = modelUsed;   // gerçek servis modeli yazılır
       // tekrar kalkanı: başka konuşmacının cevabının kopyası ya da kendi cevabının
       // neredeyse aynısı ise masaya koyma (geçmişi kirletmesin)
       const prior = state.transcript
@@ -6002,15 +6326,14 @@ async function summarize(opts = {}) {
   try {
     const route = resolveRoute(chair.provider);
     if (route.kind === 'missing') throw new Error((route.why || 'Bağlantı yok') + ' (Ayarlar → Bağlantı).');
-    if (route.kind === 'demo') await demoStream(chair, { summary: true, duel: duelOn(), onDelta, signal: state.abort.signal });
-    else await callChat(route.cfg, route.model, sys, hist, Math.min(2600, tokenBudget()), onDelta, state.abort.signal);
+    await callChat(route.cfg, route.model, sys, hist, Math.min(2600, tokenBudget()), onDelta, state.abort.signal);
     /* boş yanıt: boş bir "özet" kartı bırakma — aşağıdaki yakalama yerel özete düşürsün */
-    if (route.kind !== 'demo' && visibleLen(acc) < 2) {
+    if (visibleLen(acc) < 2) {
       throw new Error(state.reasoningChars
         ? 'boş yanıt (model yalnız düşünme metni üretti)'
         : 'boş yanıt (model metin döndürmedi)');
     }
-    msg.model = state.settings.mode === 'live' ? (route.model || effModel(chair.provider) || '') : 'demo';
+    msg.model = route.model || effModel(chair.provider) || '';
     msg.round = state.round;
     msg.streaming = false; msg.plain = plainOf(msg.text);
     updateMsgDOM(msg);
@@ -6376,13 +6699,10 @@ function startSession(topic, files) {
   state.autoStopped = null; state.webFallback = false;
   state.lastManual = false;
   addMessage({ kind: 'msg', personaId: 'user', name: window.T2('Sen', 'You'), short: window.T2('SEN', 'YOU'), color: 'var(--user)', roleLabel: window.T2('MASANIN SAHİBİ', 'TABLE OWNER'), text: topic, plain: plainOf(topic), files: ekler });
-  if ((!state.settings.mode || state.settings.mode === 'demo') && !tekKeyless()) {
-    addMessage({ kind: 'notice', level: 'info', text: window.T2('Demo modu: aşağıdaki cevaplar hazır örnek metindir, her konuda aynıdır. Gerçek model cevapları için Ayarlar → Mod: Canlı.', 'Demo mode: the answers below are canned sample text, the same for every topic. For real model answers use Settings → Mode: Live.') });
-    const dl = langOf(topic);
-    /* demo metni arayüz dilinde oynar: İngilizce arayüzde uyarı gerekmez */
-    if (dl && dl !== 'tr' && !(window.I18N && window.I18N.isEn())) {
-      addMessage({ kind: 'notice', level: 'info', text: 'Demo metinleri arayüz dilinde gelir. İngilizce örnek konuşma için sağ üstten İngiliz bayrağını seç.' });
-    }
+  if (isDemoMode() && !tekKeyless()) {
+    addMessage({ kind: 'notice', level: 'info', text: window.T2(
+      'Demo modu: üç ücretsiz anahtarsız servis cevap veriyor (OVH · LLM7 · Pollinations). Bunlar gerçek cevaptır, hazır metin değildir — ama yavaş ve günlük kotası sınırlı. Kendi anahtarınla tam hız için Ayarlar → Mod: Canlı.',
+      'Demo mode: three free keyless services answer (OVH · LLM7 · Pollinations). These are real answers, not canned text — but slow, with daily limits. For full speed with your own key use Settings → Mode: Live.') });
   }
   renderTranscript();
   renderAll();
@@ -6404,6 +6724,219 @@ function resetSession() {
   renderTranscript();
   renderAll();
   const inp = $('#input'); if (inp) { inp.value = ''; autoGrow(inp); inp.focus(); }
+}
+
+
+/* ---------------- Anahtar kilidi (AES-GCM + PBKDF2) ----------------
+   Sorun: API anahtarları localStorage'da düz metin duruyordu. Tarayıcıya erişen
+   biri ya da bir XSS açığı anahtarı okuyabilir. (Nemotron/Kol 115)
+   Çözüm: kullanıcı bir parola belirlerse anahtarlar PBKDF2 ile türetilen bir
+   anahtarla AES-GCM şifrelenir; tarayıcıda yalnız ŞİFRELİ kutu kalır.
+   · Parola hiçbir yere yazılmaz; unutulursa anahtarlar kurtarılamaz (uyarıda yazar).
+   · Kilit açıkken anahtar yalnız BELLEKTE durur; kaydetme yolu her zaman düz metni ayıklar.
+   · WebCrypto yoksa (eski tarayıcı) kilit kapalı kalır, uygulama normal çalışır. */
+
+const KL_ITER = 150000;                 // PBKDF2 turu (2026 için makul)
+let klKey = null;                       // bellekteki CryptoKey (yalnız bu oturum)
+let klOpen = false;                     // kilit bu oturumda açıldı mı
+
+/* emoji yerine satır içi SVG — her sistemde aynı görünür (kod tabanı kuralı) */
+const KL_ICO_LOCK = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" style="vertical-align:-2px"><rect x="3.2" y="7" width="9.6" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.8 0V7" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+const KL_ICO_OPEN = '<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" style="vertical-align:-2px"><rect x="3.2" y="7" width="9.6" height="7" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.6 7V5.2a2.4 2.4 0 0 1 4.6-.9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
+
+function klEn() {
+  try { if (window.I18N && typeof I18N.isEn === 'function') return !!I18N.isEn(); } catch (e) {}
+  return false;
+}
+function klT(tr, en) { return klEn() ? en : tr; }
+
+function klSupported() {
+  return !!(typeof crypto !== 'undefined' && crypto.subtle && crypto.getRandomValues);
+}
+function klLock() {
+  const a = (state.settings && state.settings.api) || {};
+  return a.lock && a.lock.v === 1 ? a.lock : null;
+}
+function klLocked() { return !!klLock(); }                 // parola var mı
+function klNeedsPass() { return klLocked() && !klOpen; }    // bu oturumda açılmadı
+function klKeyCount() {
+  const a = (state.settings && state.settings.api) || {};
+  return Object.keys(a.keys || {}).filter(k => String(a.keys[k] || '').trim()).length;
+}
+
+/* ---- yardımcılar ---- */
+function klB64(buf) {
+  let s = '';
+  const b = new Uint8Array(buf);
+  for (let i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+  return btoa(s);
+}
+function klUnB64(str) {
+  const s = atob(str);
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+async function klDerive(pass, salt, iter) {
+  const enc = new TextEncoder();
+  const base = await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt, iterations: iter || KL_ITER, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+function klPlainPayload() {
+  const a = state.settings.api || {};
+  return JSON.stringify({ keys: a.keys || {}, key: a.key || '' });
+}
+async function klEncryptWith(key) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(klPlainPayload()));
+  return { iv: klB64(iv), ct: klB64(ct) };
+}
+/* ---- kullanıcı işlemleri ---- */
+async function klEnable(pass) {
+  if (!klSupported()) return { ok: false, why: klT('Bu tarayıcı şifrelemeyi desteklemiyor.', 'This browser does not support encryption.') };
+  if (String(pass || '').length < 6) return { ok: false, why: klT('Parola en az 6 karakter olmalı.', 'The passphrase must be at least 6 characters.') };
+  if (!klKeyCount()) return { ok: false, why: klT('Kilitlenecek anahtar yok.', 'There is no key to lock.') };
+  try {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await klDerive(pass, salt);
+    const enc = await klEncryptWith(key);
+    const lock = { v: 1, iter: KL_ITER, salt: klB64(salt), iv: enc.iv, ct: enc.ct };
+    state.settings.api.lock = lock;
+    klKey = key; klOpen = true;          // bu oturumda açık
+    saveSettings();                      // düz metin ayıklanır, şifreli kutu yazılır
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, why: String(e && e.message || e) };
+  }
+}
+
+async function klUnlock(pass) {
+  const lock = klLock();
+  if (!lock) return { ok: false, why: klT('Kilit yok.', 'No lock.') };
+  if (!klSupported()) return { ok: false, why: klT('Bu tarayıcı şifrelemeyi desteklemiyor.', 'This browser does not support encryption.') };
+  try {
+    const key = await klDerive(pass, klUnB64(lock.salt), lock.iter);
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: klUnB64(lock.iv) }, key, klUnB64(lock.ct));
+    const obj = JSON.parse(new TextDecoder().decode(plain));
+    state.settings.api.keys = obj.keys || {};
+    state.settings.api.key = obj.key || '';
+    klKey = key; klOpen = true;
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, why: klT('Parola yanlış (ya da kayıt bozuk).', 'Wrong passphrase (or the record is damaged).') };
+  }
+}
+
+async function klDisable() {
+  if (klNeedsPass()) return { ok: false, why: klT('Önce kilidi aç.', 'Unlock first.') };
+  try {
+    delete state.settings.api.lock;
+    klKey = null; klOpen = false;
+    saveSettings();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, why: String(e && e.message || e) };
+  }
+}
+
+/* ---- kaydetme yolu ----
+   Kilit varsa diskete YALNIZ şifreli kutu yazar; düz metin anahtar hiç yazılmaz.
+   Bellekteki anahtar değiştiyse (kullanıcı yeni anahtar girdi) kutuyu tazeler. */
+function klPlanSave(settings) {
+  const copy = JSON.parse(JSON.stringify(settings));
+  if (copy.api && copy.api.lock) {
+    copy.api.keys = {};
+    copy.api.key = '';
+  }
+  return copy;
+}
+let klSyncing = false;                 // yeniden giriş koruması (sonsuz döngü olmasın)
+function klSyncLock() {
+  if (!klLocked() || !klOpen || !klKey || klSyncing) return;
+  klSyncing = true;
+  klEncryptWith(klKey).then(enc => {
+    const cur = klLock() || {};
+    state.settings.api.lock = { v: 1, iter: cur.iter || KL_ITER, salt: cur.salt, iv: enc.iv, ct: enc.ct };
+    /* doğrudan yaz — saveSettings()'i çağırmak klSyncLock'u yeniden tetiklerdi */
+    try { store.set('divanai_settings_v1', klPlanSave(state.settings)); } catch (e) {}
+  }).catch(() => {}).finally(() => { klSyncing = false; });
+}
+
+/* ---- ayar çekmecesi için arayüz ---- */
+function klHTML() {
+  if (!klSupported()) return '';
+  const lock = klLock();
+  const n = klKeyCount();
+  const box = [];
+  if (lock && !klOpen) {
+    box.push('<div class="klBox locked">' +
+      '<div class="klHead">' + KL_ICO_LOCK + ' ' + klT('Anahtarlar kilitli', 'Keys are locked') + '</div>' +
+      '<p class="klNote">' + klT('Anahtarlar parolayla şifreli. Çalışması için bu oturumda kilidi aç.',
+        'The keys are encrypted with a passphrase. Unlock them for this session.') + '</p>' +
+      '<div class="klRow"><input type="password" id="klPass" autocomplete="off" placeholder="' + klT('parola', 'passphrase') + '" aria-label="' + klT('parola', 'passphrase') + '"/>' +
+      '<button type="button" class="btn sm" id="klOpen">' + klT('Kilidi aç', 'Unlock') + '</button></div>' +
+      '<p class="klMsg" id="klMsg"></p></div>');
+  } else if (lock && klOpen) {
+    box.push('<div class="klBox open">' +
+      '<div class="klHead">' + KL_ICO_OPEN + ' ' + klT('Anahtarlar bu oturumda açık', 'Keys unlocked for this session') + '</div>' +
+      '<p class="klNote">' + klT('Tarayıcıda yalnız şifreli kutu duruyor. Sayfayı kapatınca kilit yeniden kapanır.',
+        'Only the encrypted box stays in the browser. Closing the page locks it again.') + '</p>' +
+      '<button type="button" class="mini" id="klOff">' + klT('Kilidi kaldır (anahtarlar düz metin olur)', 'Remove the lock (keys become plain text)') + '</button>' +
+      '<p class="klMsg" id="klMsg"></p></div>');
+  } else if (n > 0) {
+    box.push('<div class="klBox">' +
+      '<div class="klHead">' + klT('Anahtarları parolayla kilitle', 'Lock the keys with a passphrase') + '</div>' +
+      '<p class="klNote">' + klT('Şu an anahtarlar bu tarayıcıda <b>düz metin</b> duruyor. Parola belirlersen AES-GCM ile şifrelenir; tarayıcı verisini okuyan biri anahtarları göremez.',
+        'Right now the keys sit in this browser as <b>plain text</b>. With a passphrase they are encrypted with AES-GCM, so anyone reading the browser data cannot see them.') + '</p>' +
+      '<p class="klWarn">' + klT('Parolayı unutursan anahtarlar kurtarılamaz — başka yerde bir kopyası olsun.',
+        'If you forget the passphrase the keys cannot be recovered — keep a copy elsewhere.') + '</p>' +
+      '<div class="klRow"><input type="password" id="klPass1" autocomplete="new-password" placeholder="' + klT('parola (en az 6 karakter)', 'passphrase (min 6)') + '" aria-label="' + klT('parola', 'passphrase') + '"/>' +
+      '<input type="password" id="klPass2" autocomplete="new-password" placeholder="' + klT('parola (tekrar)', 'passphrase (again)') + '" aria-label="' + klT('parola tekrar', 'passphrase again') + '"/>' +
+      '<button type="button" class="btn sm" id="klOn">' + klT('Kilitle', 'Lock') + '</button></div>' +
+      '<p class="klMsg" id="klMsg"></p></div>');
+  }
+  return box.join('');
+}
+
+function klWire() {
+  const msg = (t, ok) => {
+    const el = document.getElementById('klMsg');
+    if (!el) return;
+    el.textContent = t;
+    el.className = 'klMsg' + (ok ? ' ok' : ' err');
+  };
+  const on = document.getElementById('klOn');
+  if (on) on.addEventListener('click', async () => {
+    const p1 = (document.getElementById('klPass1') || {}).value || '';
+    const p2 = (document.getElementById('klPass2') || {}).value || '';
+    if (p1 !== p2) return msg(klT('Parolalar aynı değil.', 'The passphrases do not match.'), false);
+    on.disabled = true;
+    const r = await klEnable(p1);
+    on.disabled = false;
+    if (!r.ok) return msg(r.why, false);
+    if (typeof toast === 'function') toast(klT('Anahtarlar kilitlendi — tarayıcıda yalnız şifreli kutu var.', 'Keys locked — only the encrypted box remains in the browser.'), 'ok');
+    if (typeof renderDrawerBody === 'function') renderDrawerBody();
+  });
+  const op = document.getElementById('klOpen');
+  if (op) op.addEventListener('click', async () => {
+    const p = (document.getElementById('klPass') || {}).value || '';
+    op.disabled = true;
+    const r = await klUnlock(p);
+    op.disabled = false;
+    if (!r.ok) return msg(r.why, false);
+    if (typeof toast === 'function') toast(klT('Kilit açıldı — anahtarlar bu oturumda kullanılabilir.', 'Unlocked — the keys work for this session.'), 'ok');
+    if (typeof renderKeyState === 'function') renderKeyState();
+    if (typeof renderDrawerBody === 'function') renderDrawerBody();
+  });
+  const off = document.getElementById('klOff');
+  if (off) off.addEventListener('click', async () => {
+    const r = await klDisable();
+    if (!r.ok) return msg(r.why, false);
+    if (typeof toast === 'function') toast(klT('Kilit kaldırıldı — anahtarlar yine düz metin.', 'Lock removed — the keys are plain text again.'), 'ok');
+    if (typeof renderDrawerBody === 'function') renderDrawerBody();
+  });
 }
 
 
@@ -7123,913 +7656,6 @@ function dosyaGorselleri(files) {
 
 /* Copyright 2026 DivanAI — Apache License 2.0 (LICENSE dosyasına bak). */
 /* ============================================================
-   DivanAI — demo motoru
-   Anahtar olmadan masanın nasıl çalıştığını gösterir.
-
-   2026 · kullanıcı geri bildirimi: cevaplar "Sonuç / Artı / Eksi /
-   İlk adım" iskeletiyle robotikti ve konuyla ilgisiz sabit metinler
-   dönüyordu. Artık demo metinleri:
-     · doğal sohbet dilinde (etiket yok, madde yok),
-     · kullanıcının yazdığı konuya bağlı ({{t}} yerine gerçek konu),
-     · birbirine cevap veren cümlelerle yazılı,
-     · "X dedi ama" kalıbıyla başlamıyor.
-   "Rapor düzeni" (net) üslubu seçilirse eski iskelet korunur.
-   ============================================================ */
-'use strict';
-
-function abortErr() {
-  try { return new DOMException('Durduruldu', 'AbortError'); } catch (e) {
-    const err = new Error('Durduruldu'); err.name = 'AbortError'; return err;
-  }
-}
-
-function demoContext(p) {
-  const others = personas().filter(x => x.id !== p.id);
-  const byRole = r => others.find(x => x.role === r) || null;
-  const chair = chairPersona();
-  const nextId = state.queue && state.queue[0];
-  const next = (nextId && nextId !== p.id) ? personaById(nextId) : null;
-  const topicRaw = (state.topic.split(/[.!?\n]/)[0] || 'bu konu').trim();
-  const topicPhrase = topicRaw.length > 96 ? topicRaw.slice(0, 96) + '…' : topicRaw;
-  return {
-    others, chair, next,
-    critic: byRole('critic'), analyst: byRole('analyst'), engineer: byRole('engineer'),
-    moderator: byRole('moderator'), researcher: byRole('researcher'),
-    topicPhrase, t: lowerFirst(topicPhrase),
-    goal: goalOf()
-  };
-}
-
-/* sıradaki konuşmacının adı: "Gemini, " — doğal sohbet devri
-   (eski "@isim," biçimi sohbet üslubunda yasak) */
-function to(ctx, role) {
-  const target = ctx.next || (role && ctx[role]) || ctx.chair;
-  return target ? target.name + ', ' : '';
-}
-
-/* ============================================================
-   Gündem türüne göre içerik setleri — sohbet dili
-   Kural: 3–5 cümle, tek paragraf, etiket yok, konu adı geçer.
-   ============================================================ */
-const KITS = {
-
-  /* ---------------- TARTIŞ & ELEŞTİR ---------------- */
-  debate: {
-    moderator: ctx => [
-      'Konu şu: ' + ctx.topicPhrase + '. Benim aklıma takılan tek şey, bunu bu ay mı yapacağız yoksa konuşmakla mı yetineceğiz. İki turda bir yere varmak istiyorsak herkes tek bir noktayı savunsun, çoğaltmasın. ' +
-      to(ctx, 'analyst') + 'sende somut taraf daha net, sen başla: elimizde ne var, ne yok?'
-    ],
-    analyst: ctx => [
-      'Elimizde doğrulanmış tek bir sayı yok, onu baştan söyleyeyim. Yani ' + ctx.t + ' konusunda bugün söylenecek her rakam tahmin olur. Bence kararı üç şeyle ölçelim: insanlar gerçekten istiyor mu, tekrar kullanıyor mu, parası çıkıyor mu. Bu üçünden biri bile yoksa gerisi hikâye. ' +
-      to(ctx, 'critic') + 'sen neresinin en zayıf olduğunu söyle.'
-    ],
-    critic: ctx => [
-      'En zayıf yer talep. İstemek kolay, ödemek zor, biz ikisini aynı şey sanıyoruz. Bir de kimsenin hesaba katmadığı bakım var: bir kere kurulunca her ay biri onunla ilgilenecek. O yüzden küçük ve geri alınabilir bir denemeden yanayım. ' +
-      to(ctx, 'engineer') + 'en küçük deneme ne kadar sürer sence?'
-    ],
-    engineer: ctx => [
-      'En küçük deneme şöyle olur: tek bir iş, tek bir birim, iki üç hafta. Bir tarih koyarız, o tarihte bakarız. Bütçe ve kapsam o tarihe göre kesilir, sonradan "biraz daha" olmaz. Ölçüt de basit: on denemeden kaçı tekrar ediyor? ' +
-      to(ctx, 'moderator') + 'bence turu kapatabilirsin.'
-    ],
-    researcher: ctx => [
-      'Benzer işlerde gördüğüm şu: risk en çok ilk üç ayda çıkıyor, sonrası alışkanlığa dönüyor. Ama bunu kanıt diye sunmam. Bu konuya ait elimde ölçüm yok, olsa da buraya kopyalanamaz.'
-    ],
-    r2: {
-      moderator: ctx => [
-        'Bakıyorum aynı yere dönüyoruz: sınır ne olacak? Süre mi, bütçe mi, kapsam mı sabitleyeceğiz. Tek tek cevap verin, uzatmayın. ' + to(ctx, 'analyst') + 'sen başla.'
-      ],
-      analyst: ctx => [
-        'Süre sabitlensin, dört hafta. Bütçe ve kapsam süreye göre kesilir, tersi olursa iş uzar, kapsam şişer. Her hafta tek satır yazarız: kaç deneme, kaç tekrar, ne kadar harcadık. ' +
-        to(ctx, 'critic') + 'bu sınır sana yeter mi?'
-      ],
-      critic: ctx => [
-        'Dört hafta bana da uyar ama tek şartla: vazgeçme koşulu kâğıtta duracak. "Tekrar eden kullanıcı sıfırsa deneme uzatılmaz" cümlesi yazılı olsun. Yoksa dördüncü hafta hep birlikte "biraz daha bakalım" deriz, bunu hepimiz biliyoruz. ' +
-        to(ctx, 'engineer') + 'uygulamada sıkıntı çıkar mı?'
-      ],
-      engineer: ctx => [
-        'Çıkmaz. Üç sayı haftalık tabloda durur, dördüncü haftanın sonunda tek karar verilir: devam mı, kapat mı. Ara uzatma yok. ' +
-        to(ctx, 'moderator') + 'masayı kapatabilirsin.'
-      ],
-      researcher: ctx => [
-        'Not düşeyim: dar denemelerde karar genelde dört ile altı hafta arasında netleşiyor, daha uzun süre yeni bir şey öğretmiyor. Bu bir eğilim, kanıt değil.'
-      ]
-    },
-    chair1: ctx => [
-      'İlk tur kapandı. Ölçüt üçe indi: ilgi, tekrar, parasının çıkması. İtiraz iki yerde duruyor: talep kanıtlanmadı, bakım maliyeti hesapta yok. Pratik tarafta herkes dar ve tarihli bir denemeye yakın. Kalan tek soru, sınırı neyle koyacağımız. Devam etmek istersen "Bir tur daha" de.'
-    ],
-    chair2: ctx => [
-      'İkinci turda sınır netleşti: tarih sabit, kapsam tarihe göre kesilir. Dört hafta, ikinci bir iş yok, ekip büyütmek yok. Vazgeçme koşulu da yazıldı: tekrar eden kimse yoksa deneme uzatılmaz. Bu hafta tek iş var, beş görüşme ve tek sayfa.'
-    ],
-    chair3: ctx => [
-      'Yeni bir argüman gelmedi, masayı kapatıyorum. Kalan tek belirsizlik talep; onu dört haftalık ölçüm cevaplar, tartışma cevaplamaz. Karar: dar deneme, vazgeçme koşulu yazılı. İstersen "Özet çıkar" ile tek sayfaya indirebiliriz.'
-    ],
-    summary: ctx => [
-      'Masa uzun tartıştı ama aslında tek bir yerde anlaştı: ' + ctx.t + ' işini büyük başlatmak doğru değil. Herkesin kabul ettiği şey, önce küçük ve tarihli bir deneme yapmak. Talep tarafı hâlâ havada, bunu kimse kanıtlayamadı; dört haftalık ölçüm netleştirir. Benim önerim, bu hafta beş görüşme yapıp tek sayfaya inmek.',
-      '**Sonuç:** Dar ve tarihli deneme; büyük yatırım yok.',
-      '**Uzlaşılan:** Dört hafta sabit tarih · Tek iş, tek birim · Vazgeçme koşulu yazılı',
-      '**Açık itiraz:** Talep kanıtlanmadı; bakım maliyeti hesapta yok',
-      '**İlk adım:** Bu hafta beş görüşme ve tek sayfalık taslak'
-    ],
-    extras: {
-      moderator: ['Ben yeni bir şey eklemiyorum. Tek soru kaldı: talep var mı? Dört haftalık ölçüm bunu cevaplar, tartışma cevaplamaz.'],
-      analyst: ['Yeni nokta yok bende. Eksik tek veri, kaç kişinin bunu gerçekten kullanacağı. Onu görüşme söyler.'],
-      critic: ['Ekleyecek itirazım kalmadı. Kalan risk talep ama deneme küçük olduğu için taşınır.'],
-      engineer: ['Yeni bir şey yok. Plan aynı: bir hafta, beş kişi, tek senaryo.'],
-      researcher: ['Yeni veri gelmedi. Elimdeki tek karşılaştırma dar kapsamın daha uzun yaşadığı, o da kanıt değil.']
-    }
-  },
-
-  /* ---------------- FİKİR ÜRET ---------------- */
-  ideas: {
-    moderator: ctx => [
-      'Burada tek doğru cevap aramıyoruz, ' + ctx.t + ' için birkaç yön çıkaracağız. Kural şu: herkes kime, hangi sorunu, ne kadar sürede çözeceğini söylesin. Havada kalan "iyi olur" cümlesi istemiyorum. ' +
-      to(ctx, 'analyst') + 'ilk yönü sen aç.'
-    ],
-    analyst: ctx => [
-      'Kısıtı bilmiyoruz: bütçe ve zaman yazılı değil, ikisi de yönü değiştirir. Ben şunu öneriyorum, yeni bir şey kurmak yerine mevcut akışa tek adım ekleyelim. En ucuz test edilebilen yön budur. ' +
-      to(ctx, 'critic') + 'sence bu nerede kırılır?'
-    ],
-    critic: ctx => [
-      'Kırıldığı yer şu: insanlar fikri sever ama kullanmaz. İkincisi, üç yönü birden istersek ilk sürüm dağılır. Üçüncüsü, bakım yükü ilk hesapta hiç görünmez. Tek yön seçilirse risk taşınabilir hale gelir. ' +
-      to(ctx, 'engineer') + 'en hızlı test ne olur?'
-    ],
-    engineer: ctx => [
-      'En hızlısı kod bile değil: tek sayfa anlatım, beş görüşme, bir hafta. Ölçüt de net olsun, beş kişiden kaçı kullanmak için tarih veriyor? Söz istemiyorum, tarih istiyorum. ' +
-      to(ctx, 'researcher') + 'benzer işlerde ne olmuş?'
-    ],
-    researcher: ctx => [
-      'Benzer fikirlerde güçlü sinyal tekrar kullanım, zayıf sinyal "çok güzel olmuş" demek. Bu konuya özel ölçüm elimizde yok, rakam verirsem uydurmuş olurum.'
-    ],
-    r2: {
-      moderator: ctx => [
-        'Yön üçten bire indi, güzel. Şimdi tek soru var: bunu bir haftada nasıl test ederiz? Ölçüt sayı olacak, görüş değil. ' + to(ctx, 'analyst') + 'ölçütü sen yaz.'
-      ],
-      analyst: ctx => [
-        'Ölçüt şu: beş görüşmede kaç kişi kullanmak için tarih verdi. İki ve üzeriyse devam, altıysa yön değişir. Yanına bir soru daha koyalım: şu an aynı işi elle mi yapıyor? ' +
-        to(ctx, 'critic') + 'bu ölçüt yanıltır mı?'
-      ],
-      critic: ctx => [
-        'Tek başına yanıltır, insanlar nezaketen tarih verir. Yanına "şu an ne kullanıyorsun" sorusunu koymazsak boş veri toplarız. Bir de şuna dikkat: yönü bize kolay geldiği için seçmiş olabiliriz. ' +
-        to(ctx, 'engineer') + 'bir haftada biter mi?'
-      ],
-      engineer: ctx => [
-        'Biter: beş görüşme, her biri yarım saat, artı tek sayfa özet. Kod, tasarım, sunum yok. Çıktı tek sayfa beş satır olacak, karar onunla verilecek. ' +
-        to(ctx, 'moderator') + 'kapatabilirsin.'
-      ],
-      researcher: ctx => [
-        'Şunu ekleyeyim: tarih verenlerin yaklaşık yarısı ilk hafta vazgeçiyor, ikinci hafta dönen daha güvenilir. Bu oran bu konuya özel değil, genel eğilim.'
-      ]
-    },
-    chair1: ctx => [
-      'İlk tur kapandı. Üç yön vardı, ikisi elendi. Kalan yön, mevcut akışa eklenen tek adımlık çözüm. İtiraz yerinde: ilgi beyanı kanıt sayılmaz, tarih ve tekrar gerekiyor. Test de belli, bir hafta ve beş görüşme, prototip yok. Sıradaki soru hangi tek yön olduğu.'
-    ],
-    chair2: ctx => [
-      'İkinci turda karar çıktı: tek yön, bir haftalık doğrulama. Ölçüt net, beş kişiden ikisi tarih verirse devam. Vermezse yön değişir, ısrar edilmez. Bu haftanın tek işi beş görüşme ve tek sayfa.'
-    ],
-    chair3: ctx => [
-      'Yeni argüman gelmedi, kapatıyorum. Kalan belirsizlik, yönün gerçekten istenip istenmediği. Karar: bir haftalık doğrulama, tek yön. Tek adım beş görüşme.'
-    ],
-    summary: ctx => [
-      'Masa üç yönü konuştu, ikisini kendi eledi. Kalan tek yön, mevcut akışa eklenen küçük bir adım; yeni bir sistem kurmak kimseye mantıklı gelmedi. Herkesin üzerinde durduğu şey kanıt eksikliği: bugüne kadar "isteriz" dediler mi, gerçekten kullanırlar mı, bu bilinmiyor. Çözüm de basit çıktı, bir haftada beş görüşme yeter.',
-      '**Sonuç:** Üç yön yerine tek yön: mevcut akışa eklenen tek adımlık çözüm.',
-      '**Uzlaşılan:** İlk sürüm tek yön · Kanıt beş görüşmeden · Prototip ve kod ilk hafta yok',
-      '**Açık itiraz:** İlgi beyanı ile kullanma niyeti karışabilir',
-      '**İlk adım:** Bu hafta beş görüşme; iki kişi tarih vermezse yön değişir'
-    ],
-    extras: {
-      moderator: ['Yeni yön eklemiyorum. Seçim için tek eksik, hedef kullanıcının kim olduğu. Bu netleşmezse fikirler havada kalır.'],
-      analyst: ['Yeni nokta yok. Kalan tek belirsizlik, kullanıcının bu iş için zaman ayırıp ayırmayacağı. Onu görüşme cevaplar.'],
-      critic: ['Ekleyecek itirazım kalmadı. Kalan risk, tek yönün de bakım yükü. Bakım yazılmadan başlanmasın.'],
-      engineer: ['Yeni bir şey yok. Plan aynı: bir hafta, beş görüşme, tek sayfa. Kod ilk haftada yok.'],
-      researcher: ['Yeni veri gelmedi. Eldeki tek eğilim, dar kapsamın daha uzun yaşadığı. O da ölçümle doğrulanmalı.']
-    }
-  },
-
-  /* ---------------- KARAR VER ---------------- */
-  decide: {
-    moderator: ctx => [
-      'Konu ' + ctx.t + '. İki yol var: mevcut düzen devam etsin ya da değiştirelim. Herkes tek birini seçsin ve gerekçesini söylesin. "Duruma göre" cevabı kabul değil, ikisinden birini savunun. ' +
-      to(ctx, 'analyst') + 'belirleyici ölçütü sen söyle.'
-    ],
-    analyst: ctx => [
-      'Belirleyici şey nakit tamponu ve geri dönüş maliyeti. Değişiklik tarafında tek soru var: gelir ne zaman başlıyor? Tarih yoksa bu karar değil, dilek. Altı ay sonunda hangi sayı "devam" dedirtir, onu şimdi yazalım. ' +
-      to(ctx, 'critic') + 'en kötü senaryo hangisinde daha ağır?'
-    ],
-    critic: ctx => [
-      'İki tarafın da riski var. Mevcut düzenin riski fırsatı kaçırmak, değişikliğin riski gelir kesintisi artı sabit gider. İkincisinin geri dönüşü çok daha zor. Altı aylık gider tamponu yoksa önerim şu: değişiklik beklemede kalsın. ' +
-      to(ctx, 'engineer') + 'köprü planı nasıl kurulur?'
-    ],
-    engineer: ctx => [
-      'Köprü planı üç maddelik: altı aylık gider tamponu, otuz altmış doksan gün hedefleri yazılı, bir de dönüş kapısı tarihi. Üçü yazılmadan değişiklik karar değil kumar olur.'
-    ],
-    researcher: ctx => [
-      'Genel eğilim şu: gelir kesintisi olmadan başlayanlar daha uzun dayanıyor. Ama bu senin durumuna ait veri değil, kişisel tablo belirleyici.'
-    ],
-    r2: {
-      moderator: ctx => [
-        'Ölçüt ikiye indi: tampon ve dönüş tarihi. Son soru şu: eşiği neyle koyacağız, nakitle mi süreyle mi? ' + to(ctx, 'analyst') + 'sen başla.'
-      ],
-      analyst: ctx => [
-        'Nakitle. Altı aylık gider tamponu; süre eşiği, nakit bitmeden bir şey ifade etmiyor. Hesap basit, aylık gider çarpı altı. Bu sayı yazılı değilse karar verilmez. ' +
-        to(ctx, 'critic') + 'eşik üç ay olsa ne değişir?'
-      ],
-      critic: ctx => [
-        'Üç ayda dördüncü ay nakit bitiyor, dönüş kapısı kapanıyor, hasar kalıcı oluyor. Altı ayda en kötü senaryo iki aylık kayıpla sınırlı. O yüzden eşik altı ay. ' +
-        to(ctx, 'engineer') + 'bu eşik uygulanabilir mi?'
-      ],
-      engineer: ctx => [
-        'Uygulanabilir. Aylık gider çarpı altı hesaplanır, tek satır yazılır. Eşiğin altına inilirse değişiklik kendiliğinden durur, istisna yok. Hedefler de aynı sayfada durur. ' +
-        to(ctx, 'moderator') + 'masayı kapatabilirsin.'
-      ],
-      researcher: ctx => [
-        'Benzer kararlarda tamponu önce ayarlayanlar daha az geri adım attı. Bu bir eğilim, senin rakamların değil.'
-      ]
-    },
-    chair1: ctx => [
-      'İlk tur kapandı. Masanın çoğunluğu değişiklikten yana ama şartlı: tampon ve tarih yazılı olacak. İtiraz iki yerde, gelir kesintisi ve sabit gider. Köprü planı üç maddede toplandı. Sıradaki soru eşiğin neye göre konacağı.'
-    ],
-    chair2: ctx => [
-      'İkinci turda eşik netleşti: altı aylık gider tamponu, nakit bazlı. Altına inilirse değişiklik durur, istisna yok. Hedefler ve dönüş kapısı aynı sayfada duracak. Karar: şartlı değişiklik.'
-    ],
-    chair3: ctx => [
-      'Yeni argüman yok, kapatıyorum. Kalan belirsizlik gelirin ne zaman başlayacağı. Karar şartlı değişiklik, tampon ve dönüş tarihi yazılı olacak. İstersen "Özet çıkar" ile tek sayfaya indirelim.'
-    ],
-    summary: ctx => [
-      'Masa "yapalım mı" sorusunu geçti, "hangi şartla yapalım" sorusuna indi. Kimse bugün başlamayı savunmadı, herkes altı aylık gider tamponunu ön koşul saydı. Gelir tarafı hâlâ belirsiz, bunu kimse sayıyla göstermedi. Benim önerim, tamponu bugün hesaplayıp tek satır yazmak, karar ondan sonra.',
-      '**Sonuç:** Şartlı değişiklik; ön koşul altı aylık nakit tamponu.',
-      '**Uzlaşılan:** Tampon nakit bazlı · Altına inilirse durur · Dönüş kapısı tarihi yazılı',
-      '**Açık itiraz:** Gelirin ne zaman başlayacağı bilinmiyor',
-      '**İlk adım:** Aylık gider çarpı altı, bugün tek satır olarak yazılsın'
-    ],
-    extras: {
-      moderator: ['Yeni bir şey eklemiyorum. Tek eksik, gelirin başlayacağı tarih. O yazılmadan bu masa yine aynı yere döner.'],
-      analyst: ['Yeni nokta yok. Eksik tek sayı, aylık sabit gider. O gelmeden tampon hesabı yapılmaz.'],
-      critic: ['Ekleyecek itirazım kalmadı. Kalan risk gelir kesintisi, tampon onu taşıyabilir.'],
-      engineer: ['Yeni bir şey yok. Plan aynı: tampon, hedefler, dönüş tarihi, tek sayfa.'],
-      researcher: ['Yeni veri gelmedi. Eldeki tek eğilim, gelir kesintisi olmadan başlayanların daha uzun dayandığı.']
-    }
-  }
-};
-
-/* ---- "rapor düzeni" (net) üslubu için hazır iskelet metinleri ----
-   Seçenek olarak duruyor; varsayılan üslup artık sohbet. */
-const NET_KIT = {
-  moderator: [
-    ['**Sonuç:** *' + '{{t}}' + '* tek turda kapanmaz; üç eksende ayrılmalı: kanıt, maliyet, ilk adım.',
-     '**Artı:** Gündem net: herkes aynı soruya cevap veriyor, konu dağılmıyor.',
-     '**Eksi:** Masada doğrulanmış veri yok; sayı geçen her cümle varsayım.',
-     '**İlk adım:** Her konuşmacı tek pozisyon + tek gerekçe yazsın.'],
-    ['**Sonuç:** Bu turda ayrışma “ne kadar kanıt var” sorusunda toplandı.',
-     '**Artı:** İki tur sonunda itirazlar somutlaştı, soyut eleştiri kalmadı.',
-     '**Eksi:** Hiçbir taraf ölçüm ölçütü önermedi.',
-     '**İlk adım:** Ölçütü tek cümleyle yaz, sonra tartışmaya devam et.'],
-    ['**Sonuç:** Masa aynı iki noktada dönüyor; yeni bilgi gelmiyor.',
-     '**Artı:** Uzlaşılan kısım yeterince net, karar için yeterli.',
-     '**Eksi:** Ölçümsüz devam etmek sadece token harcar.',
-     '**İlk adım:** Tartışmayı kapat, pilotu kur.']
-  ],
-  analyst: [
-    ['**Sonuç:** *' + '{{t}}' + '* için masadaki sayıların hiçbiri doğrulanmış değil.',
-     '**Artı:** Karar üç ölçütle verilebilir: ilgi, tekrar, maliyetin geri dönüşü.',
-     '**Eksi:** Bu ölçütlerin eşiği konuşulmadı; eşiksiz ölçüm yorumlanamaz.',
-     '**İlk adım:** En ucuz kanıtı topla, yatırımı ondan sonra tartış.'],
-    ['**Sonuç:** Varsayım ile kanıt ayrıldı: elimizde yalnız varsayım var.',
-     '**Artı:** Ölçüt listesi hazır; hangi verinin gerektiği belli.',
-     '**Eksi:** Örneklem büyüklüğü hesaplanmadı, iki haftalık veri gürültülü olabilir.',
-     '**İlk adım:** Kaç gözlem gerektiğini yaz, sonra pilotu başlat.'],
-    ['**Sonuç:** Yeni veri gelmedi; önceki turdaki belirsizlikler aynen duruyor.',
-     '**Artı:** Mevcut ölçütlerle pilot kurulabilir, ek hazırlık gerekmiyor.',
-     '**Eksi:** Ölçüt eşiği hâlâ yok; sonuç her iki tarafa da yorulabilir.',
-     '**İlk adım:** Başarısızlık eşiğini bugün yaz.']
-  ],
-  critic: [
-    ['**Sonuç:** En zayıf varsayım talep: istemek ile ödeme yapmak aynı şey değil.',
-     '**Artı:** Küçük ve geri alınabilir bir deneme riski taşınabilir kılar.',
-     '**Eksi:** Gizli maliyet ilk hesapta yok: bakım, sabit gider, zaman.',
-     '**İlk adım:** Denemeyi geri alınamaz karara dönüştürme; çıkış koşulunu yaz.'],
-    ['**Sonuç:** Ölçüt önerisi iyi, ama “ilgi” tek başına ödeme niyetini göstermez.',
-     '**Artı:** Denemenin geri alınabilir olması en güçlü yanı.',
-     '**Eksi:** Maliyet kalemleri hâlâ eksik; sabit gider hesaba katılmadı.',
-     '**İlk adım:** Ölçüte “ödeyen müşteri sayısı” ekle, ilgiyi tek başına sayma.'],
-    ['**Sonuç:** İtirazım daraldı: asıl risk artık ölçütün yanlış seçilmesi.',
-     '**Artı:** Karşı tarafın çıkış koşulu önerisi riski sınırlıyor.',
-     '**Eksi:** Zaman maliyeti hiç konuşulmadı; iki hafta da maliyettir.',
-     '**İlk adım:** Zaman ve sabit gideri tabloya ekle.']
-  ],
-  engineer: [
-    ['**Sonuç:** *' + '{{t}}' + '* için en küçük uygulanabilir deneme 2–3 hafta hazırlık ister.',
-     '**Artı:** Tek senaryo, tek aşama: kapsam küçük tutulursa çıktı ölçülebilir.',
-     '**Eksi:** Sabit bütçe ve sabit tarih yoksa deneme sürünür.',
-     '**İlk adım:** Bütçeyi ve bitiş tarihini bugün sabitle.'],
-    ['**Sonuç:** Kurulum maliyeti düşük; asıl yük ölçüm ve raporlamada.',
-     '**Artı:** Mevcut araçlarla ek yatırım olmadan başlanabilir.',
-     '**Eksi:** Ölçüm elle yapılırsa iki haftada güvenilir veri çıkmaz.',
-     '**İlk adım:** Ölçümü otomatikleştir, sonra pilotu aç.'],
-    ['**Sonuç:** Teknik tarafta yeni engel yok; karar tarafı bekliyor.',
-     '**Artı:** Pilot kurulumu birkaç günde biter, ekip yükü düşük.',
-     '**Eksi:** Karar verilmezse kurulum maliyeti boşa yazılır.',
-     '**İlk adım:** Onay çıkarsa 3 gün içinde pilot açılır.']
-  ],
-  researcher: [
-    ['**Sonuç:** *' + '{{t}}' + '* için elimde doğrulanmış kaynak yok; benzer örnekler konuya göre değişir.',
-     '**Artı:** Benzer durumlarda ucuz denemenin pahalıya göre daha çok bilgi ürettiği görülüyor.',
-     '**Eksi:** Bu örneklerin hiçbiri aynı koşullarda değil; birebir kopyalanamaz.',
-     '**İlk adım:** Kaynağı olan tek bir karşılaştırma bul, gerisini varsayım say.'],
-    ['**Sonuç:** Karşılaştırılabilir veri eksik; aktarılan her sayı bağlamdan kopuk.',
-     '**Artı:** Yöntem aktarılabilir: küçük pilot, net ölçüt, sabit tarih.',
-     '**Eksi:** Başka pazarın verisi buraya doğrudan taşınamaz.',
-     '**İlk adım:** Kendi verini topla, dışarıdan yalnız yöntem al.'],
-    ['**Sonuç:** Yeni kaynak yok; önceki turdaki belirsizlik sürüyor.',
-     '**Artı:** Uygulanacak yöntem net, ek araştırma gerekmiyor.',
-     '**Eksi:** Kaynaksız sayı konuşmak hatayı büyütür.',
-     '**İlk adım:** Sayı söylenirken kaynak yazılsın, yoksa “(kaynak yok)” densin.']
-  ]
-};
-const NET_CHAIR = [
-  ['**Sonuç:** *' + '{{t}}' + '* için masa ortak zemini buldu: önce ölç, sonra yatırım.',
-   '**Artı:** Ölçüt ve küçük pilot önerisi iki turda netleşti.',
-   '**Eksi:** Açık itiraz: örneklem küçükse sonuç yanıltıcı olur.',
-   '**İlk adım:** Ölçütü ve başarısızlık eşiğini yaz.'],
-  ['**Sonuç:** Tur kapandı; uzlaşı ölçümde, ayrılık ölçüt seçiminde.',
-   '**Artı:** İtirazlar somutlaştı, soyut eleştiri kalmadı.',
-   '**Eksi:** Zaman ve sabit gider hesabı hâlâ eksik.',
-   '**İlk adım:** Sabit gideri tabloya ekle, pilotu ondan sonra onayla.'],
-  ['**Sonuç:** Masa kapandı: yeni bilgi gelmiyor, karar için yeterli zemin var.',
-   '**Artı:** Ölçüt, pilot ve çıkış koşulu tanımlı.',
-   '**Eksi:** Hiçbir sayı doğrulanmadı; hepsi varsayım.',
-   '**İlk adım:** Pilotu başlat, iki hafta sonra veriyle dön.']
-];
-
-/* net üslup: kit satırlarını Sonuç / Artı / Eksi / İlk adım iskeletine oturtur */
-function netify(text) {
-  const lines = String(text).split('\n').map(l => l.trim())
-    .filter(l => l && !/^Kural:/.test(l))
-    .map(l => l.replace(/^\s*[-*•]\s+/, '').replace(/^\s*\d+[.)]\s+/, '').replace(/\*\*/g, ''));
-  const body = lines.filter(l => !/(^|\s)@/.test(l));
-  const pick = i => (body[i] || '').replace(/^[^:]{0,22}:\s*/, '').trim();
-  const son = pick(0) || 'Bu konuda masada doğrulanmış veri yok.';
-  const arti = pick(1) || 'Tartışma tek somut adıma indirilebilir.';
-  const eksi = pick(2) || 'Maliyet ve risk ölçülmedi.';
-  const adim = pick(3) || body[body.length - 1] || 'En ucuz denemeyi bu hafta kur, sonucu ölç.';
-  return ['**Sonuç:** ' + son, '**Artı:** ' + arti, '**Eksi:** ' + eksi, '**İlk adım:** ' + adim].join('\n');
-}
-
-/* "kısa madde" üslubu: düz paragrafı en fazla üç kısa maddeye çevirir */
-function briefify(text) {
-  const sents = String(text).replace(/\s+/g, ' ').split(/(?<=[.!?])\s+/).filter(s => s.trim());
-  if (!sents.length) return String(text).trim();
-  const out = [];
-  let cur = '';
-  for (const s of sents) {
-    if (cur && (cur + ' ' + s).split(/\s+/).length > 22) { out.push(cur); cur = s; }
-    else cur = cur ? cur + ' ' + s : s;
-    if (out.length === 2) break;
-  }
-  if (cur) out.push(cur);
-  return out.slice(0, 3).map(l => '- ' + l).join('\n') || String(text).trim();
-}
-
-/* ---- kapışma (Ayna) demosu: aynı modelin iki rolü, konuya bağlı sohbet ---- */
-function duelDemo(p, ctx, round) {
-  const even = round % 2 === 0;
-  const t = ctx.t;
-  if (p.duelSide === 'a') {
-    return even ? [
-      'Ölçüt itirazını kabul ediyorum, zaten ben de onu istiyorum. Ama beklemenin de bir maliyeti var: bu ay karar çıkmazsa aynı tartışmayı üç ay sonra daha pahalıya yaparız. Ölçütü birlikte yazalım, deneme yine küçük kalsın.'
-    ] : [
-      'Bence ' + t + ' işi yapılmalı, hem de erken. Sebebi şu: bugünkü düzen her ay biraz daha pahalıya geliyor, erteledikçe maliyet birikiyor. Küçük bir denemeyle iki haftada veri çıkar, kararı o veriyle veririz. Zayıf noktamı da söyleyeyim: talebin ne kadar olduğunu bilmiyorum.'
-    ];
-  }
-  return even ? [
-    'Ölçütte anlaşıyoruz, ayrıldığımız yer örneklem. İki haftada on işlem görürsen bu ölçüm değil, izlenim olur. Ya süreyi altı haftaya çıkar ya da sonucu "niteliksel" diye işaretle, sonra karar ver.'
-  ] : [
-    'Ben de isterim ama sıra yanlış. ' + t + ' için ortada tek bir doğrulanmış sayı yok, "maliyet birikiyor" cümlesi de ölçülmüş değil. İki haftalık deneme küçük bir örneklemle yapılırsa sonucu herkes kendi lehine okur. Önce ölçüt ve başarısızlık eşiği yazılsın, deneme ondan sonra başlasın.'
-  ];
-}
-
-/* Ayna özeti: önce hakemin ağzından, altında kısa döküm */
-function duelSummary(ctx) {
-  return [
-    'İki taraf da ölçümde anlaştı, ayrıldıkları yer ölçütün ne olacağı ve örneklemin büyüklüğü. Savunan taraf haklı olduğu yerde şu: beklemek de maliyet. İtiraz eden tarafın haklı olduğu yer ise ölçüt yazılmadan yapılan denemenin sonuç üretmemesi. Benim kararım, ölçüt ve eşik yazıldıktan sonra denemenin başlaması.',
-    '**Sonuç:** Ölçüt yazıldıktan sonra deneme; örneklem büyüklüğü önceden belirlenecek.',
-    '**Savunmanın güçlü yanı:** Dar ve ucuz deneme, iki haftada veri üretir.',
-    '**İtirazın güçlü yanı:** Ölçüt ve örneklem yazılmazsa pilot yanıltıcı olur.',
-    '**Karar verilemeyen:** Denemenin bu konu için yeterli örneklem üretip üretmeyeceği.',
-    '**İlk adım:** Ölçütü ve başarısızlık eşiğini yaz, denemeyi ondan sonra başlat.'
-  ];
-}
-
-/* özeti üsluba göre birleştirir: sohbet → paragraf + kısa döküm,
-   rapor düzeni (net) → yalnız kısa döküm, kısa madde → maddeler */
-function summaryText(blocks, tone) {
-  const list = (blocks || []).slice();
-  if (!list.length) return '';
-  if (tone === 'net') return list.slice(1).join('\n');
-  if (tone === 'brief') return briefify(list[0]) + '\n\n' + list.slice(1).join('\n');
-  return list.join('\n\n');
-}
-
-/* Panel modu: sandalyeler birbirini görmediği için demo metinleri de
-   bağımsız olmalı — kimseye atıf yok, her sandalye kendi çerçevesinden yazar. */
-const DEMO_PANEL_TR = {
-  moderator: '{{t}} sorusunda benim için mesele kapsam: küçük tutarsan iki haftada sonuç görürsün, geniş tutarsan aylarca "hazırlanıyor" dersin. Ben ilk haftanın sonunda elde tek bir somut çıktı olmasından yanayım; gerisi sonra gelir. Benim ölçütüm: ilk hafta sonunda ekranda çalışan bir şey var mı?',
-  analyst: '{{t}} için üç ölçüt yazıp her birinin bugünkü durumunu işaretlerim: kim kullanacak, ne sıklıkta, ne zaman vazgeçer. Elimde doğrulanmış sayı yoksa "(kaynak yok)" diye not düşerim, tahminle süslemem. Benim ölçütüm: ölçütler yazıya döküldü mü?',
-  critic: '{{t}} konusunda en sık yapılan hata, kolay olanı değerli sanmak. Kurmak kolay, sürdürmek zor; ayrıca "isteyen var" ile "bedelini ödeyen var" aynı şey değil. Ben başlamadan önce aylık bakım yükünün yazılmasını isterim. Benim ölçütüm: bakım maliyeti tek satırda yazılı mı?',
-  engineer: '{{t}} için en küçük çalışan sürüm: tek görev, tek çıktı, tek ölçülebilir sonuç. Haftaya bitmezse tarihi kaydırmam, kapsamı kısarım. Kurulumu 30 dakikayı geçen çözümü ben "basit" saymam. Benim ölçütüm: kurulumdan yarım saat sonra ilk sonucu alabiliyor musun?',
-  researcher: '{{t}} hakkında elimde doğrulanmış veri yok; bu yüzden iddia yerine soru listesiyle başlarım: benzer işi yapanlar ne kadar sürede çıkmış, ne kadar ödemiş, neyi bırakmış. Üç gerçek örnek görmeden karar vermem. Benim ölçütüm: en az üç örnek yan yana kondu mu?'
-};
-const DEMO_PANEL_EN = {
-  moderator: 'On "{{t}}" my concern is scope: keep it small and you see a result in two weeks; keep it wide and you will say "in progress" for months. I would want one concrete output by the end of week one; the rest can follow. My criterion: is something running on screen after the first week?',
-  analyst: 'For "{{t}}" I would write three criteria and mark where each stands today: who will use it, how often, and when they would walk away. If I have no verified number I mark it "(no source)" rather than dress up a guess. My criterion: are the criteria written down?',
-  critic: 'The usual mistake with "{{t}}" is mistaking easy for valuable. Building is easy, maintaining is hard, and "people want it" is not the same as "people pay for it". Before anything starts I want the monthly upkeep written down. My criterion: is the upkeep cost on one line?',
-  engineer: 'For "{{t}}" the smallest working version is one job, one output, one measurable result. If it does not fit the week I cut scope, I do not move the date. Anything that takes more than thirty minutes to set up I do not call simple. My criterion: can you get the first result half an hour after setup?',
-  researcher: 'I have no verified data on "{{t}}", so I start with questions rather than claims: how long did similar efforts take, what did they cost, what did they abandon? I would not decide before seeing three real examples side by side. My criterion: are at least three examples on the table?'
-};
-function demoPanelText(p, ctx) {
-  const en = !!(window.I18N && window.I18N.isEn());
-  const kaynak = en ? DEMO_PANEL_EN : DEMO_PANEL_TR;
-  const metin = kaynak[p.role] || kaynak.analyst;
-  const konu = en ? ctx.topicPhrase : ctx.t;
-  return metin.replace(/\{\{t\}\}/g, konu);
-}
-
-function demoText(p, opt = {}) {
-  const ctx = demoContext(p);
-  const round = opt.round || state.round || 1;
-  if (opt.panel) return demoPanelText(p, ctx);
-  /* arayüz İngilizceyken İngilizce örnek konuşma oynar (demoen.js) */
-  if (typeof DEMO_EN !== 'undefined' && window.I18N && window.I18N.isEn()) return demoTextEN(p, opt, ctx, round);
-  const key = state.sessionGoal || state.settings.goal;
-  const kit = KITS[key] || KITS.debate;
-  const tone = state.settings.tone || 'chat';
-
-  if (opt.summary) return summaryText(opt.duel ? duelSummary(ctx) : kit.summary(ctx), tone);
-  if (p.duelSide) return duelDemo(p, ctx, round).join('\n');
-
-  if (tone === 'net') {
-    // rapor düzeni: iskeleti hazır metinlerden kur (etiketler gerçekten uyumlu)
-    const vi = Math.min(2, Math.max(0, (round || 1) - 1));
-    const block = opt.isChair
-      ? NET_CHAIR[vi]
-      : (NET_KIT[p.role] || NET_KIT.analyst)[vi];
-    return block.map(l => l.replace('{{t}}', ctx.topicPhrase)).join('\n');
-  }
-
-  const say = arr => (tone === 'brief' ? briefify(arr[0]) : arr[0]);
-
-  if (opt.isChair) {
-    if (round <= 1) return say(kit.chair1(ctx));
-    if (round === 2) return say(kit.chair2(ctx));
-    return say(kit.chair3(ctx));
-  }
-
-  if (round <= 1) {
-    const fn = kit[p.role];
-    if (fn) return say(fn(ctx));
-    return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
-  }
-  if (round === 2 && kit.r2 && kit.r2[p.role]) {
-    return say(kit.r2[p.role](ctx));
-  }
-
-  // 3. tur ve sonrası: tekrar yok, açıkça söylenir
-  return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
-}
-
-async function demoStream(p, opt = {}) {
-  const signal = opt.signal;
-  const text = demoText(p, opt);
-  const tokens = text.match(/\S+\s*/g) || [text];
-  const base = opt.summary ? 22 : 52;
-  await sleep(Math.max(100, (opt.summary ? 320 : 420) / state.settings.speed));
-  if (signal && signal.aborted) throw abortErr();
-  for (let i = 0; i < tokens.length; i++) {
-    if (signal && signal.aborted) throw abortErr();
-    opt.onDelta(tokens[i]);
-    if (i % 2 === 0) await sleep(Math.max(3, base / state.settings.speed));
-  }
-}
-
-
-/* ==========================================================================
-   DEMO — İNGİLİZCE İÇERİK
-   Arayüz İngilizceyken oynayan örnek konuşmalar. Yapı Türkçe kitlerle (KITS,
-   demo.js) birebir aynı: gündem başına rol fonksiyonları, ikinci tur (r2),
-   3. tur kısa notları (extras), başkan ara sözleri (chair1..3) ve özet.
-   Metinler canlı cevap gibi sunulmaz: mesajın modeli 'demo' olarak işaretlenir.
-   ========================================================================== */
-
-const DEMO_EN = {
-  kits: {
-
-    /* ---------------- DEBATE & CRITIQUE ---------------- */
-    debate: {
-      moderator: ctx => [
-        'The topic on the table: ' + ctx.topicPhrase + '. The one thing I keep coming back to is whether we actually do this in the next few weeks or just keep talking about it. If we want to land somewhere in two rounds, everyone defends one point, not five. ' +
-        to(ctx, 'analyst') + 'you are clearest on the concrete side, start us off: what do we have and what do we not?'
-      ],
-      analyst: ctx => [
-        'We have no verified number, let me say that first. So any figure about this today would be a guess. I would measure the decision on three things: do people actually want it, do they come back, does it pay for itself. If even one of the three is missing, the rest is decoration. ' +
-        to(ctx, 'critic') + 'tell us where it breaks.'
-      ],
-      critic: ctx => [
-        'Demand is the weak spot. Wanting is easy, paying is hard, and we keep treating them as the same thing. There is also maintenance nobody budgets for: once it exists, someone has to look after it every month. That is why I am for a small test I can undo. ' +
-        to(ctx, 'engineer') + 'how long would the smallest test take?'
-      ],
-      engineer: ctx => [
-        'The smallest test looks like this: one job, one unit, two or three weeks. We set a date and look at it on that date. Budget and scope get cut to fit the date, no "just a bit more" afterwards. The measure is simple too: out of ten attempts, how many repeat? ' +
-        to(ctx, 'moderator') + 'I think you can close the round.'
-      ],
-      researcher: ctx => [
-        'What I have seen in similar work: the risk shows up in the first three months, after that it turns into habit. I am not offering that as evidence. I have no measurement for this topic, and even if I did I could not paste it here.'
-      ],
-      r2: {
-        moderator: ctx => [
-          'We keep circling the same spot: what is the limit? Are we fixing time, budget or scope. One answer each, do not expand. ' + to(ctx, 'analyst') + 'you start.'
-        ],
-        analyst: ctx => [
-          'Fix the time: four weeks. Budget and scope are cut to fit the time; the other way round the work stretches and the scope swells. Every week we write one line: how many attempts, how many repeats, how much we spent. ' +
-          to(ctx, 'critic') + 'is that limit enough for you?'
-        ],
-        critic: ctx => [
-          'Four weeks works for me on one condition: the quit rule sits on paper. The sentence "if repeat users are zero, the test is not extended" has to be written. Otherwise in week four we all say "let us look a bit longer", and we all know it. ' +
-          to(ctx, 'engineer') + 'any trouble on your side?'
-        ],
-        engineer: ctx => [
-          'None. Three numbers live on a weekly table, one decision at the end of week four: continue or close. No extension in between. ' +
-          to(ctx, 'moderator') + 'you can close the table.'
-        ],
-        researcher: ctx => [
-          'One note: in narrow tests the answer usually settles between four and six weeks, and a longer run does not teach anything new. That is a tendency, not evidence.'
-        ]
-      },
-      chair1: ctx => [
-        'Round one is closed. The measure came down to three: interest, repeats, does it pay for itself. The objection stands in two places: demand is unproven, maintenance is not in the budget. On the practical side everyone is close to a narrow, dated test. The one open question is what we set the limit by. Say "One more round" if you want to go on.'
-      ],
-      chair2: ctx => [
-        'In round two the limit became clear: the date is fixed, scope is cut to fit the date. Four weeks, no second job, no growing the team. The quit rule is written too: if nobody repeats, the test is not extended. This week there is one job: five conversations and one page.'
-      ],
-      chair3: ctx => [
-        'No new argument came, I am closing the table. The one open uncertainty is demand; a four-week measurement answers it, more debate does not. Decision: a narrow test with a written quit rule. Say "Summarize" if you want it on one page.'
-      ],
-      summary: ctx => [
-        'The table talked for a long time and actually agreed on one thing: starting this big is the wrong move. What everyone accepts is a small, dated test first. Demand is still up in the air and nobody could prove it; four weeks of measurement settles it. My suggestion: five conversations this week, then one page.',
-        '**Result:** A narrow, dated test; no large investment.',
-        '**Agreed:** Four weeks, fixed date · One job, one unit · Quit rule written down',
-        '**Open objection:** Demand unproven; maintenance not in the budget',
-        '**First step:** Five conversations this week and a one-page draft'
-      ],
-      extras: {
-        moderator: ['I am not adding anything new. One question is left: is there demand? A four-week measurement answers it, debate does not.'],
-        analyst: ['No new point from me. The one missing number is how many people would really use it. The conversations answer that.'],
-        critic: ['I have no objection left to add. The remaining risk is demand, but the test is small enough to carry it.'],
-        engineer: ['Nothing new. The plan stands: one week, five people, one scenario.'],
-        researcher: ['No new data. The only comparison I have is that narrow scope survives longer, and that is not evidence either.']
-      }
-    },
-
-    /* ---------------- GENERATE IDEAS ---------------- */
-    ideas: {
-      moderator: ctx => [
-        'We are not hunting one right answer here, we are pulling out a few directions for this one. The rule: everyone says who they solve which problem for, and in how long. No floating "this would be nice" lines. ' +
-        to(ctx, 'analyst') + 'open the first direction.'
-      ],
-      analyst: ctx => [
-        'We do not know the constraint: budget and time are not written down, and either one changes the direction. What I suggest is one extra step inside the current flow instead of a new system. That is the cheapest thing we can test. ' +
-        to(ctx, 'critic') + 'where does that break for you?'
-      ],
-      critic: ctx => [
-        'It breaks here: people like the idea and then do not use it. Second, if we want three directions at once the first version falls apart. Third, maintenance never appears in the first budget. One direction keeps the risk small enough to carry. ' +
-        to(ctx, 'engineer') + 'what is the fastest test?'
-      ],
-      engineer: ctx => [
-        'The fastest one is not even code: one page, five conversations, one week. Let the measure be clear too: of five people, how many give a date to use it? I do not want a yes, I want a date. ' +
-        to(ctx, 'researcher') + 'what happened in similar work?'
-      ],
-      researcher: ctx => [
-        'For ideas like this the strong signal is repeat use, the weak signal is "this is great". I have no measurement specific to this topic; giving you a number would be inventing one.'
-      ],
-      r2: {
-        moderator: ctx => [
-          'We went from three directions to one, good. One question now: how do we test it in a week? The measure is a number, not an opinion. ' + to(ctx, 'analyst') + 'you write the measure.'
-        ],
-        analyst: ctx => [
-          'The measure: in five conversations, how many people gave a date to use it. Two or more and we continue, below that we change direction. Add one more question beside it: are they doing this by hand today? ' +
-          to(ctx, 'critic') + 'would that measure mislead us?'
-        ],
-        critic: ctx => [
-          'On its own it would: people give dates to be polite. Without "what do you use today" next to it we collect empty data. And watch this: we may have picked this direction because it is easy for us. ' +
-          to(ctx, 'engineer') + 'does it fit in one week?'
-        ],
-        engineer: ctx => [
-          'It fits: five conversations of half an hour plus a one-page summary. No code, no design, no deck. The output is one page, five lines, and the decision rides on it. ' +
-          to(ctx, 'moderator') + 'you can close it.'
-        ],
-        researcher: ctx => [
-          'One more: about half of the people who give a date drop out in the first week; the ones who come back in week two are more reliable. That ratio is a general tendency, not specific to this topic.'
-        ]
-      },
-      chair1: ctx => [
-        'Round one is closed. There were three directions and two were dropped. What remains is the one-step addition to the current flow. The objection holds: saying you are interested is not proof, you need a date and a repeat. The test is clear too, one week and five conversations, no prototype. The next question is which single direction.'
-      ],
-      chair2: ctx => [
-        'Round two produced the decision: one direction, one week of validation. The measure is clear: if two of five people give a date we continue. If not, the direction changes and we do not push. This week the only job is five conversations and one page.'
-      ],
-      chair3: ctx => [
-        'No new argument came, I am closing. The remaining uncertainty is whether the direction is actually wanted. Decision: one week of validation, one direction. The single step is five conversations.'
-      ],
-      summary: ctx => [
-        'The table discussed three directions and dropped two itself. What remains is a small step inside the current flow; nobody found building a new system sensible. Everyone kept returning to the same gap: proof. Whether people who say "we would want it" actually use it is unknown. The answer is simple too, five conversations in one week are enough.',
-        '**Result:** One direction instead of three: a single step inside the current flow.',
-        '**Agreed:** First version is one direction · Proof from five conversations · No prototype or code in week one',
-        '**Open objection:** Stated interest can be confused with intention to use',
-        '**First step:** Five conversations this week; if two people give no date, the direction changes'
-      ],
-      extras: {
-        moderator: ['I am not adding a direction. The one thing missing for a choice is who the target user is. Without that the ideas float.'],
-        analyst: ['No new point. The only open question is whether the user will make time for this. The conversations answer it.'],
-        critic: ['I have no objection left. The remaining risk is the maintenance load of even one direction. Do not start before it is written.'],
-        engineer: ['Nothing new. The plan stands: one week, five conversations, one page. No code in week one.'],
-        researcher: ['No new data. The only tendency I have is that narrow scope survives longer. That still needs measuring.']
-      }
-    },
-
-    /* ---------------- DECIDE ---------------- */
-    decide: {
-      moderator: ctx => [
-        'The question: ' + ctx.topicPhrase + '. There are two roads: keep the current arrangement or change it. Everyone picks one and gives the reason. "It depends" is not an answer, defend one of the two. ' +
-        to(ctx, 'analyst') + 'you name the deciding criterion.'
-      ],
-      analyst: ctx => [
-        'The decider is the cash buffer and the cost of coming back. On the change side there is one question: when does income start? Without a date this is not a decision, it is a wish. Let us write down now which number at six months would make us say "continue". ' +
-        to(ctx, 'critic') + 'which side has the worse worst case?'
-      ],
-      critic: ctx => [
-        'Both sides carry risk. The current arrangement risks missing the opportunity; the change risks losing income plus fixed costs. The second one is far harder to undo. Without a six-month buffer my suggestion is: keep the change on hold. ' +
-        to(ctx, 'engineer') + 'how would the bridge plan look?'
-      ],
-      engineer: ctx => [
-        'The bridge plan has three items: a six-month expense buffer, written targets for thirty, sixty and ninety days, and a date for the return door. Without those three a change is not a decision, it is a bet.'
-      ],
-      researcher: ctx => [
-        'The general tendency: people who start without cutting their income last longer. That is not data about your situation, your own numbers decide.'
-      ],
-      r2: {
-        moderator: ctx => [
-          'The criteria came down to two: the buffer and the return date. Last question: what do we set the threshold by, cash or time? ' + to(ctx, 'analyst') + 'you start.'
-        ],
-        analyst: ctx => [
-          'By cash. A six-month expense buffer; a time threshold means nothing before the cash runs out. The sum is simple, monthly expenses times six. If that number is not written down, no decision is made. ' +
-          to(ctx, 'critic') + 'what changes if the threshold is three months?'
-        ],
-        critic: ctx => [
-          'At three months the cash runs out in month four, the return door closes and the damage is permanent. At six months the worst case is a two-month loss. So the threshold is six. ' +
-          to(ctx, 'engineer') + 'is that threshold workable?'
-        ],
-        engineer: ctx => [
-          'It is. Monthly expenses times six, written on one line. If it drops below the threshold the change stops by itself, no exceptions. The targets sit on the same page. ' +
-          to(ctx, 'moderator') + 'you can close the table.'
-        ],
-        researcher: ctx => [
-          'In similar decisions the ones who set the buffer first stepped back less often. That is a tendency, not your numbers.'
-        ]
-      },
-      chair1: ctx => [
-        'Round one is closed. The table leans toward the change but with conditions: buffer and date written down. The objection sits in two places, lost income and fixed costs. The bridge plan came down to three items. The next question is what the threshold is set by.'
-      ],
-      chair2: ctx => [
-        'In round two the threshold became clear: a six-month expense buffer, cash-based. Drop below it and the change stops, no exceptions. Targets and the return door sit on the same page. Decision: a conditional change.'
-      ],
-      chair3: ctx => [
-        'No new argument, I am closing. The remaining uncertainty is when income starts. The decision is a conditional change, with buffer and return date written. Say "Summarize" if you want it on one page.'
-      ],
-      summary: ctx => [
-        'The table moved past "should we" and landed on "under which conditions". Nobody argued for starting today; everyone treated a six-month expense buffer as a precondition. The income side is still unclear and nobody showed it with a number. My suggestion: work out the buffer today, write it on one line, decide after that.',
-        '**Result:** A conditional change; the precondition is a six-month cash buffer.',
-        '**Agreed:** Buffer on a cash basis · Below it the change stops · Return door date written down',
-        '**Open objection:** It is unknown when income starts',
-        '**First step:** Monthly expenses times six, written on one line today'
-      ],
-      extras: {
-        moderator: ['I am not adding anything. The one gap is the date income starts. Without it this table comes back to the same spot.'],
-        analyst: ['No new point. The one missing number is monthly fixed cost. Without it the buffer cannot be computed.'],
-        critic: ['I have no objection left. The remaining risk is lost income, and the buffer can carry it.'],
-        engineer: ['Nothing new. The plan stands: buffer, targets, return date, one page.'],
-        researcher: ['No new data. The only tendency is that people who start without cutting their income last longer.']
-      }
-    }
-  },
-
-  /* ---- report tone ("net") skeleton: Result / Pros / Cons / First step ---- */
-  net: {
-    kit: {
-      moderator: [
-        ['**Result:** *{{t}}* will not close in one round; it has to split on three axes: evidence, cost, first step.',
-         '**Pros:** The agenda is clear: everyone answers the same question, the topic does not scatter.',
-         '**Cons:** There is no verified data on the table; any sentence with a number is an assumption.',
-         '**First step:** Each speaker writes one position and one reason.'],
-        ['**Result:** This round, the split came down to "how much evidence is there".',
-         '**Pros:** After two rounds the objections are concrete, no abstract criticism is left.',
-         '**Cons:** Neither side proposed a measurement criterion.',
-         '**First step:** Write the criterion in one sentence, then keep debating.'],
-        ['**Result:** The table keeps looping on the same two points; no new information is coming.',
-         '**Pros:** The agreed part is clear enough to decide on.',
-         '**Cons:** Continuing without measurement only spends tokens.',
-         '**First step:** Close the debate, start the pilot.']
-      ],
-      analyst: [
-        ['**Result:** None of the numbers on the table for *{{t}}* is verified.',
-         '**Pros:** The decision can be made on three criteria: interest, repeats, return on cost.',
-         '**Cons:** The thresholds for those criteria were not discussed; measurement without a threshold cannot be read.',
-         '**First step:** Collect the cheapest evidence, argue about investment after that.'],
-        ['**Result:** Assumption and evidence are separated: we only have assumptions.',
-         '**Pros:** The criteria list is ready; it is clear which data is needed.',
-         '**Cons:** Sample size was not computed; two weeks of data may be noise.',
-         '**First step:** Write how many observations you need, then start the pilot.'],
-        ['**Result:** No new data arrived; the uncertainties from the previous round stand.',
-         '**Pros:** The pilot can run with the current criteria, no extra prep needed.',
-         '**Cons:** There is still no failure threshold; the result can be read either way.',
-         '**First step:** Write the failure threshold today.']
-      ],
-      critic: [
-        ['**Result:** The weakest assumption is demand: wanting and paying are not the same thing.',
-         '**Pros:** A small, reversible test makes the risk carryable.',
-         '**Cons:** The hidden cost is not in the first budget: maintenance, fixed costs, time.',
-         '**First step:** Do not turn the test into an irreversible decision; write the exit condition.'],
-        ['**Result:** The proposed criterion is good, but "interest" alone does not show intent to pay.',
-         '**Pros:** The test being reversible is its strongest side.',
-         '**Cons:** Cost items are still missing; fixed costs were not counted.',
-         '**First step:** Add "number of paying customers" to the criterion, do not count interest alone.'],
-        ['**Result:** My objection has narrowed: the real risk is now picking the wrong criterion.',
-         '**Pros:** The other side\'s exit condition keeps the risk bounded.',
-         '**Cons:** Time cost was never discussed; two weeks is a cost too.',
-         '**First step:** Add time and fixed cost to the table.']
-      ],
-      engineer: [
-        ['**Result:** The smallest workable test for *{{t}}* needs 2–3 weeks of prep.',
-         '**Pros:** One scenario, one stage: keep the scope small and the output is measurable.',
-         '**Cons:** Without a fixed budget and a fixed date the test drags.',
-         '**First step:** Fix the budget and the end date today.'],
-        ['**Result:** Setup cost is low; the real load is in measurement and reporting.',
-         '**Pros:** It can start with existing tools, no extra investment.',
-         '**Cons:** Done by hand, two weeks will not produce reliable data.',
-         '**First step:** Automate the measurement, then open the pilot.'],
-        ['**Result:** No new obstacle on the technical side; the decision side is waiting.',
-         '**Pros:** The pilot setup takes a few days, the team load is low.',
-         '**Cons:** If no decision comes, the setup cost is wasted.',
-         '**First step:** With approval, the pilot opens within 3 days.']
-      ],
-      researcher: [
-        ['**Result:** I have no verified source for *{{t}}*; similar examples change with the topic.',
-         '**Pros:** In similar cases a cheap test produces more information than an expensive one.',
-         '**Cons:** None of those examples had the same conditions; they cannot be copied.',
-         '**First step:** Find one comparison with a source, treat the rest as assumption.'],
-        ['**Result:** Comparable data is missing; every transferred number is out of context.',
-         '**Pros:** The method transfers: small pilot, clear criterion, fixed date.',
-         '**Cons:** Another market\'s data cannot be moved here directly.',
-         '**First step:** Collect your own data, take only the method from outside.'],
-        ['**Result:** No new source; the uncertainty from the previous round continues.',
-         '**Pros:** The method to apply is clear, no extra research needed.',
-         '**Cons:** Talking about numbers without sources grows the error.',
-         '**First step:** Cite the source when a number is given, otherwise say "(no source)".']
-      ]
-    },
-    chair: [
-      ['**Result:** For *{{t}}* the table found common ground: measure first, invest after.',
-       '**Pros:** The criterion and the small pilot became clear in two rounds.',
-       '**Cons:** Open objection: a small sample makes the result misleading.',
-       '**First step:** Write the criterion and the failure threshold.'],
-      ['**Result:** The round is closed; agreement on measuring, the split is on which criterion.',
-       '**Pros:** The objections became concrete, no abstract criticism is left.',
-       '**Cons:** Time and fixed costs are still missing.',
-       '**First step:** Add fixed costs to the table, approve the pilot after that.'],
-      ['**Result:** The table is closed: no new information, enough ground to decide.',
-       '**Pros:** Criterion, pilot and exit condition are defined.',
-       '**Cons:** Not a single number is verified; all of them are assumptions.',
-       '**First step:** Start the pilot, come back with data in two weeks.']
-    ]
-  },
-
-  /* ---- Mirror (duel): iki taraf ayrı konuşur (A savunan, B itiraz eden) ---- */
-  duel: (ctx, round, side) => {
-    const even = round % 2 === 0;
-    if (side === 'a') {
-      return even ? [
-        'I accept the criterion objection, I want it too. But waiting also has a cost: if no decision comes this month, we will be having the same argument three months from now at a higher price. Let us write the criterion together and keep the test small.'
-      ] : [
-        'I think this should be done, and early. Here is why: the current arrangement gets a little more expensive every month, so the cost piles up the longer we wait. A small test produces data in two weeks and we decide with that data. Let me name my weak point too: I do not know how big demand is.'
-      ];
-    }
-    return even ? [
-      'We agree on the criterion, we split on the sample. Two weeks of ten attempts is not a measurement, it is an impression. Either stretch the time to six weeks or mark the result "qualitative" and decide afterwards.'
-    ] : [
-      'I would like that too, but the order is wrong. For this question there is not a single verified number; "cost is piling up" is not measured either. Run the two-week test on a small sample and everyone reads the result in their own favour. Write the criterion and the failure threshold first; the test starts after that.'
-    ];
-  },
-
-  duelSummary: ctx => [
-    'Both sides agreed on measuring; they split on what the criterion is and how big the sample should be. Where the defending side is right: waiting is a cost too. Where the objecting side is right: a test run without a written criterion produces no result. My verdict: the test starts once the criterion and threshold are written.',
-    '**Result:** Test after the criterion is written; sample size decided upfront.',
-    '**Strongest defence:** A narrow, cheap test produces data in two weeks.',
-    '**Strongest objection:** Without criterion and sample size the pilot misleads.',
-    '**Undecidable:** Whether the test will produce a large enough sample for this topic.',
-    '**First step:** Write the criterion and the failure threshold, start the test after that.'
-  ]
-};
-
-/* İngilizce demo metni — demoText() bunu çağırır (arayüz dili EN iken) */
-function demoTextEN(p, opt, ctx, round) {
-  const key = state.sessionGoal || state.settings.goal;
-  const kit = DEMO_EN.kits[key] || DEMO_EN.kits.debate;
-  const tone = state.settings.tone || 'chat';
-
-  if (opt.summary) return summaryText(opt.duel ? DEMO_EN.duelSummary(ctx) : kit.summary(ctx), tone);
-  if (p.duelSide) return DEMO_EN.duel(ctx, round, p.duelSide).join('\n');
-
-  if (tone === 'net') {
-    const vi = Math.min(2, Math.max(0, (round || 1) - 1));
-    const block = opt.isChair
-      ? DEMO_EN.net.chair[vi]
-      : (DEMO_EN.net.kit[p.role] || DEMO_EN.net.kit.analyst)[vi];
-    return block.map(l => l.replace('{{t}}', ctx.topicPhrase)).join('\n');
-  }
-
-  const say = arr => (tone === 'brief' ? briefify(arr[0]) : arr[0]);
-
-  if (opt.isChair) {
-    if (round <= 1) return say(kit.chair1(ctx));
-    if (round === 2) return say(kit.chair2(ctx));
-    return say(kit.chair3(ctx));
-  }
-  if (round <= 1) {
-    const fn = kit[p.role];
-    if (fn) return say(fn(ctx));
-    return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
-  }
-  if (round === 2 && kit.r2 && kit.r2[p.role]) return say(kit.r2[p.role](ctx));
-  return say([(kit.extras[p.role] || kit.extras.analyst)[0]]);
-}
-
-/* ==========================================================================
-   AJANLAR — demo iskeleti (İngilizce)
-   Türkçe karşılığı ajan.js → ajanDemoBody(). Etiketler İngilizce; ajan.js
-   parsePacket() GOAL/SETTLED/OPEN/EVIDENCE/CONSTRAINT/LIMIT/NEXT'i de okur.
-   ========================================================================== */
-function ajanDemoBodyEN(p, kind) {
-  if (kind === 'merge') {
-    const seats = ajanSeats();
-    return [
-      '**Summary:** (Demo) The hand-off packages of ' + seats.length + ' agents were merged into one delivery. In live mode this is where the project result appears.',
-      '',
-      '**What was done:**',
-      ...seats.map(pid => {
-        const q = personaById(pid) || {};
-        const t2 = ajanTaskOf(pid);
-        return '- ' + (q.name || pid) + ' — ' + (t2.role || 'task') + ': ' + (t2.out || 'output');
-      }),
-      '',
-      '**Delivery:**',
-      '- (Demo) The real output drawn from the agents\' packages appears in this section.',
-      '- SETTLED items move up here, OPEN items drop below.',
-      '',
-      '**Still open:**',
-      '- (Demo) With a live model, questions that could not be closed are listed here.',
-      '',
-      '**First step:** Settings → Mode: Live, then send the same project again.'
-    ].join('\n');
-  }
-  if (kind === 'plan') {
-    return [
-      '**Order:**',
-      ...ajanSeats().map((pid, i) => {
-        const q = personaById(pid) || {};
-        return (i + 1) + '. ' + (q.name || pid) + ' — ' + (ajanTaskOf(pid).role || 'task');
-      }),
-      '**Hand-off points:** each agent\'s delivery package goes to the next one.',
-      '**Risk:** (Demo) if the first agent\'s output is weak, the whole chain stays weak.'
-    ].join('\n');
-  }
-  const t = ajanTaskOf(p.id);
-  return [
-    '**Result:** (Demo) This seat\'s task: ' + (t.task || '—'),
-    '',
-    '- Expected output: ' + (t.out || '—'),
-    '- For a real answer: Settings → Mode: Live.',
-    '',
-    'HAND-OFF PACKAGE',
-    'GOAL: Demo — the task definition was passed to the next agent.',
-    'SETTLED: - (demo) ' + (t.out || 'output definition'),
-    'OPEN: - (demo) fills in once a real model is connected',
-    'EVIDENCE: - no evidence',
-    'CONSTRAINT: - demo text',
-    'LIMIT: no content is produced in demo mode',
-    'NEXT: DONE'
-  ].join('\n');
-}
-
-
-/* Copyright 2026 DivanAI — Apache License 2.0 (LICENSE dosyasına bak). */
-/* ============================================================
    KADRO — hazır görev şablonları (Ajanlar modu için)
 
    TR: DivanAI ekibinin yazdığı Türkçe şablonlar (rol + görev + beklenen çıktı).
@@ -8682,7 +8308,7 @@ function ajanMergeSystem(chairP, ctx) {
 async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) {
   const sig = signal || state.abort.signal;     // sandalye zaman aşımı kendi sinyalini geçer
   let acc = '';
-  let modelUsed = state.settings.mode === 'live' ? (effModel(p.provider) || '—') : 'demo';
+  let modelUsed = effModel(p.provider) || '—';
   const onDelta = piece => {
     if (token !== state.runToken) return;
     acc += piece;
@@ -8692,10 +8318,7 @@ async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) 
   };
   const route = resolveRoute(p.provider);
   if (route.kind === 'missing') throw new Error(route.why || 'Bağlantı yok');
-  if (route.kind === 'demo') {
-    await ajanDemoStream(p, draft, acc0 => { onDelta(acc0); }, token, demoKind);
-    return { ok: true, text: acc, model: 'demo', why: '' };
-  }
+
   const alt = altOf(p.provider);
   if (alt) route.model = alt.model;
   const chain = [route.model].concat(fallbackCandidates(p.provider, 3).filter(m => !triedNow.has(m)));
@@ -8747,70 +8370,6 @@ async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) 
   return { ok: false, text: acc, model: modelUsed, why: whyShort(lastErr && lastErr.message) };
 }
 
-/* demo: ajan akışının iskeletini gösterir, içerik üretmez (0 token) */
-function ajanDemoBody(p, kind) {
-  /* arayüz İngilizceyken İngilizce iskelet (demoen.js) */
-  if (typeof ajanDemoBodyEN === 'function' && window.I18N && window.I18N.isEn()) return ajanDemoBodyEN(p, kind);
-  if (kind === 'merge') {
-    const seats = ajanSeats();
-    return [
-      '**Özet:** (Demo) ' + seats.length + ' ajanın teslim paketi tek teslimata birleştirildi. Gerçek modda burası projenin sonucu olur.',
-      '',
-      '**Yapılanlar:**',
-      ...seats.map(pid => {
-        const q = personaById(pid) || {};
-        const t2 = ajanTaskOf(pid);
-        return '- ' + (q.name || pid) + ' — ' + (t2.role || 'görev') + ': ' + (t2.out || 'çıktı');
-      }),
-      '',
-      '**Teslim:**',
-      '- (Demo) Bu bölümde ajanların paketlerinden çıkan asıl çıktı yer alır.',
-      '- Paketlerdeki YERLEŞEN maddeler buraya taşınır, AÇIK maddeler aşağı düşer.',
-      '',
-      '**Açık kalanlar:**',
-      '- (Demo) Gerçek model bağlanınca kapatılamayan sorular burada listelenir.',
-      '',
-      '**İlk adım:** Ayarlar → Mod: Canlı yapıp aynı projeyi tekrar gönder.'
-    ].join('\n');
-  }
-  if (kind === 'plan') {
-    return [
-      '**Sıra:**',
-      ...ajanSeats().map((pid, i) => {
-        const q = personaById(pid) || {};
-        return (i + 1) + '. ' + (q.name || pid) + ' — ' + (ajanTaskOf(pid).role || 'görev');
-      }),
-      '**Devir noktaları:** her ajanın teslim paketi sıradakine geçer.',
-      '**Risk:** (Demo) ilk ajanın çıktısı zayıfsa zincirin tamamı zayıf kalır.'
-    ].join('\n');
-  }
-  const t = ajanTaskOf(p.id);
-  return [
-    '**Sonuç:** (Demo) Bu sandalyenin görevi: ' + (t.task || '—'),
-    '',
-    '- Beklenen çıktı: ' + (t.out || '—'),
-    '- Gerçek cevap için Ayarlar → Mod: Canlı.',
-    '',
-    'DEVİR PAKETİ',
-    'AMAÇ: Demo — görev tanımı sıradaki ajana aktarıldı.',
-    'YERLEŞEN: - (demo) ' + (t.out || 'çıktı tanımı'),
-    'AÇIK: - (demo) gerçek model bağlanınca burası dolar',
-    'KANIT: - kanıt yok',
-    'KISIT: - demo metni',
-    'SINIR: demo modunda içerik üretilmez',
-    'SONRAKİ: BİTTİ'
-  ].join('\n');
-}
-
-async function ajanDemoStream(p, draft, push, token, kind) {
-  const body = ajanDemoBody(p, kind);
-  const chunks = body.match(/[^\n]{1,26}\n?/g) || [body];
-  for (const c of chunks) {
-    if (token !== state.runToken) return;
-    push(c);
-    await sleep(18);
-  }
-}
 
 /* ---------------- transkript kartları ---------------- */
 function ajanStepMsg(pid, i, n, t) {
@@ -9521,14 +9080,11 @@ async function runPanel(opts = {}) {
       const route = resolveRoute(p.provider);
       if (route.kind === 'missing') throw new Error(route.why || 'Bağlantı yok');
       bumpReq();
-      if (route.kind === 'demo') {
-        await demoStream(p, { round, isChair: false, last: false, panel: true, onDelta, signal: seatCtrl.signal });
-      } else {
-        const alt = altOf(p.provider);
-        if (alt) route.model = alt.model;
-        await callChat(route.cfg, route.model, sys, hist, tokenBudget(), onDelta, seatCtrl.signal);
-      }
+      const alt = altOf(p.provider);
+      if (alt) route.model = alt.model;
+      await callChat(route.cfg, route.model, sys, hist, tokenBudget(), onDelta, seatCtrl.signal);
       if (token !== state.runToken) return;
+      draft.model = route.model || (typeof effModel === 'function' ? effModel(p.provider) : '') || '';   // gerçek model kimliği baloncukta
       if (!String(draft.text || '').trim()) {
         state.transcript = state.transcript.filter(m => m.id !== draft.id);
         removeMsgDOM(draft.id);
@@ -10106,6 +9662,8 @@ function openSupportPop() {
   if (pop.parentElement !== document.body) document.body.appendChild(pop);
   pop.hidden = false;
   if (btn) btn.setAttribute('aria-expanded', 'true');
+  const hs = document.getElementById('histSearch');
+  if (hs) { try { hs.focus({ preventScroll: true }); } catch (e) {} }
   const r = btn ? btn.getBoundingClientRect() : { right: window.innerWidth - 12, bottom: 56 };
   const w = pop.offsetWidth || 280;
   pop.style.top = Math.round(r.bottom + 8) + 'px';
@@ -10377,19 +9935,71 @@ function renderHero() {
 
   const kcard = document.getElementById('keyCard');
   if (kcard) {
-    const liveNow = state.settings.mode === 'live' || tekKeyless();
+    const liveNow = !isDemoMode();
     let saidNo = false;
     /* kartı gizleme tercihi: yeni anahtar yoksa eski (MASA dönemi) anahtara bak */
     try { saidNo = localStorage.getItem('divanai.keyCardHidden') === '1'
       || localStorage.getItem('masa.keyCardHidden') === '1'; } catch (e) { saidNo = false; }
-    kcard.hidden = liveNow || saidNo || state.settings.table === 'tek';   // TekeTek'te anahtar istemeyiz
+    /* anahtar kartı yalnız canlıda ve anahtar yokken (demoda demo kartı var) */
+    const hasAnyKey = !!(state.settings.api && String(state.settings.api.key || '').trim());
+    kcard.hidden = !liveNow || hasAnyKey || saidNo || state.settings.table === 'tek';
+    /* Kol 116: demo modunda anahtar kartı değil, demo kartı görünür */
+    const dcard = document.getElementById('demoCard');
+    if (dcard) {
+      let saidNoDemo = false;
+      try { saidNoDemo = localStorage.getItem('divanai.demoCardHidden') === '1'; } catch (e0) { saidNoDemo = false; }
+      dcard.hidden = liveNow || saidNoDemo;
+      if (!dcard.hidden) fillDemoCard(dcard);
+    }
   }
   const badge = $('#metaBadge');
   if (badge) {
-    const live = state.settings.mode === 'live' || tekKeyless();
-    badge.textContent = tekKeyless() ? window.T2('CANLI · ANAHTARSIZ', 'LIVE · KEYLESS') : (live ? window.T2('CANLI', 'LIVE') : window.T2('DEMO · ÖRNEK KONUŞMA', 'DEMO · SAMPLE CONVERSATION'));
+    const live = !isDemoMode();
+    const hasKey = !!(state.settings.api && String(state.settings.api.key || '').trim());
+    badge.textContent = live
+      ? (hasKey ? window.T2('CANLI', 'LIVE') : window.T2('CANLI · ANAHTAR YOK', 'LIVE · NO KEY'))
+      : window.T2('DEMO · ANAHTARSIZ', 'DEMO · KEYLESS');
     badge.classList.toggle('live', live);
   }
+}
+
+/* demo kartı: iki dilli, JS ile kurulur (statik HTML + sözlük yetmiyordu) */
+function fillDemoCard(el) {
+  const lang = (window.I18N && window.I18N.isEn && window.I18N.isEn()) ? 'en' : 'tr';
+  if (el.dataset.lang === lang) return;
+  el.dataset.lang = lang;
+  const T = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
+  el.innerHTML =
+    '<div class="kcHead"><b>' + T('Demo modundasın', 'You are in Demo mode') + '</b> ' +
+      '<span class="kcFree">' + T('anahtar gerekmez', 'no key needed') + '</span>' +
+      '<button type="button" class="mini kcHide" id="demoCardHide" title="' + T('Bu kartı gizle', 'Hide this card') + '">' +
+        T('Bir daha gösterme', 'Don’t show again') + '</button></div>' +
+    '<ol class="kcSteps">' +
+      '<li>' + T('<b>Üç ücretsiz servis</b> cevap veriyor: OVH (Llama 3.3 70B) · LLM7 (Codestral) · Pollinations (gpt-oss 20B). Hazır metin değil, gerçek cevap.',
+                 '<b>Three free services</b> answer: OVH (Llama 3.3 70B) · LLM7 (Codestral) · Pollinations (gpt-oss 20B). Real answers, not canned text.') + '</li>' +
+      '<li>' + T('<b>Bedeli:</b> yavaş (ilk cevap 20–60 sn olabilir) ve servislerin günlük kotası sınırlı; kota dolunca sandalye sıradaki servise geçer.',
+                 '<b>The cost:</b> slow (first answer can take 20–60 s) and the free services have daily limits; when one runs out the seat moves to the next service.') + '</li>' +
+      '<li>' + T('<b>Canlı mod</b> kendi API anahtarını ister — daha hızlı, daha yüksek kota. Ücretsiz anahtar kart istemez.',
+                 '<b>Live mode</b> requires your own API key — faster, higher limits. A free key needs no card.') + '</li>' +
+    '</ol>' +
+    '<div class="kcRow">' +
+      '<button type="button" class="btn sm" id="demoCardLive">' + T('Canlı’ya geç', 'Switch to Live') + '</button>' +
+      '<button type="button" class="btn sm" id="demoCardOpen">' + T('Ayarları aç', 'Open settings') + '</button>' +
+    '</div>';
+  const bLive = el.querySelector('#demoCardLive');
+  if (bLive) bLive.onclick = () => {
+    openDrawer();
+    if (drawerDraft) { drawerDraft.mode = 'live'; renderDrawerBody(); }
+    toast(T('Canlı mod API anahtarı ister — anahtarı yapıştır ve Kaydet’e bas.', 'Live mode requires an API key — paste it and press Save.'), 'ok');
+  };
+  const bOpen = el.querySelector('#demoCardOpen');
+  if (bOpen) bOpen.onclick = () => openDrawer();
+  const bHide = el.querySelector('#demoCardHide');
+  if (bHide) bHide.onclick = () => {
+    try { localStorage.setItem('divanai.demoCardHidden', '1'); } catch (e) { /* gizli mod */ }
+    el.hidden = true;
+    toast(T('Kart gizlendi. Ayarlar’dan her zaman açabilirsin.', 'Card hidden. You can always reopen it from Settings.'), 'ok');
+  };
 }
 
 function renderComposer() {
@@ -10456,17 +10066,16 @@ function renderKeyState() {
   const a = s.api;
   const en = !!(window.I18N && window.I18N.isEn());
   let txt = '';
-  if (s.mode === 'demo' && tekKeyless()) txt = en ? 'Live · <b>Pollinations · keyless</b>' : 'Canlı · <b>Pollinations · anahtarsız</b>';
-  else if (s.mode === 'demo') txt = en ? 'Demo mode · <b>sample conversation</b>' : 'Demo modu · <b>örnek konuşma</b>';
-  else if ((a.key || '').trim()) txt = (en ? 'Live · <b>' : 'Canlı · <b>') + esc(GATEWAYS[a.kind].label) + '</b>';
-  else {
-    const kl = (typeof keylessSeatCount === 'function') ? keylessSeatCount() : 0;
-    txt = kl > 0
-      ? (en ? 'Live · <b>' + kl + ' keyless seats</b>' : 'Canlı · <b>' + kl + ' anahtarsız sandalye</b>')
-      : (en ? 'Live · <b>no key</b>' : 'Canlı · <b>anahtar yok</b>');
+  if (isDemoMode()) {
+    const n = (typeof keylessSeatCount === 'function') ? keylessSeatCount() : 3;
+    txt = en ? 'Demo · <b>' + n + ' keyless seats</b>' : 'Demo · <b>' + n + ' anahtarsız sandalye</b>';
+  } else if ((a.key || '').trim()) {
+    txt = (en ? 'Live · <b>' : 'Canlı · <b>') + esc(GATEWAYS[a.kind].label) + '</b>';
+  } else {
+    txt = en ? 'Live · <b>key required</b>' : 'Canlı · <b>anahtar gerekir</b>';
   }
-  // günlük istek sayısı: yalnız canlı modda ve en az bir istek yapıldıysa
-  if (s.mode !== 'demo') {
+  // günlük istek sayısı: en az bir istek yapıldıysa
+  {
     const n = (typeof reqToday === 'function') ? reqToday() : 0;
     if (n > 0) txt += en ? ' · <b>' + n + '</b> requests today' : ' · bugün <b>' + n + '</b> istek';
   }
@@ -10480,8 +10089,7 @@ function renderModePill() {
   if (!pill) return;
   pill.dataset.mode = state.settings.mode;
   const s = state.settings;
-  if (s.mode === 'demo' && tekKeyless()) txt.textContent = window.T2('Anahtarsız', 'Keyless');
-  else if (s.mode === 'demo') txt.textContent = 'Demo';
+  if (isDemoMode()) txt.textContent = window.T2('Demo', 'Demo');
   else {
     /* Üstteki şerit gerçekten kullanılan kaynağı yazsın: anahtarsız sandalyeler
        çalışırken "Google AI Studio" yazması yanıltıyordu. */
@@ -10543,7 +10151,12 @@ function renderAll() {
 function usageText() {
   const u = state.usage || {};
   const t = (u.in || 0) + (u.out || 0);
-  if (!t) return '';
+  if (!t) {
+    /* canlıda istek yapıldı ama servis usage döndürmedi → sessiz kalmak yerine söyle */
+    const n = (typeof reqToday === 'function') ? reqToday() : 0;
+    if (n > 0) return klEn() ? ' · usage not reported by the service' : ' · servis token bildirmedi';
+    return '';
+  }
   const k = t >= 1000 ? (t / 1000).toFixed(1) + 'k' : String(t);
   return ' · ' + k + ' token' + (u.cost ? ' · $' + Number(u.cost).toFixed(4) : '');
 }
@@ -10852,11 +10465,29 @@ function renderHistList() {
   const box = document.getElementById('histList');
   const cnt = document.getElementById('histCount');
   if (!box) return;
-  const list = histLoad();
+  const all = histLoad();
+  /* arama: konu, model adı, tarih etiketi ve konuşma metni içinde */
+  const q = String(state.histQuery || '').trim().toLowerCase();
+  const list = q
+    ? all.filter(r => {
+        const hay = [r.topic, tableLabelOf(r.table), histDate(r.ts)]
+          .concat((r.transcript || []).slice(0, 40).map(m => (m.name || '') + ' ' + (m.text || '')))
+          .join(' ').toLowerCase();
+        return hay.includes(q);
+      })
+    : all;
   const nFav = list.filter(r => r.fav).length;
-  if (cnt) cnt.textContent = list.length ? (list.length - nFav) + '/' + HIST_MAX + (nFav ? ' · ' + nFav + ' favori' : '') : '';
+  if (cnt) {
+    cnt.textContent = q
+      ? list.length + (klEn() ? ' found' : ' sonuç')
+      : (list.length ? (list.length - nFav) + '/' + HIST_MAX + (nFav ? ' · ' + nFav + (klEn() ? ' starred' : ' favori') : '') : '');
+  }
   if (!list.length) {
-    box.innerHTML = '<p class="hpEmpty">Henüz kayıtlı konuşma yok.<br> İlk konuşman başladığında burada görünecek.</p>';
+    box.innerHTML = q
+      ? '<p class="hpEmpty">' + (klEn() ? 'Nothing matches “' : 'Aramaya uyan yok: “') + esc(String(state.histQuery).trim()) + '”</p>'
+      : '<p class="hpEmpty">' + (klEn()
+          ? 'No saved conversations yet.<br>Your first conversation will appear here.'
+          : 'Henüz kayıtlı konuşma yok.<br> İlk konuşman başladığında burada görünecek.') + '</p>';
     return;
   }
   /* favoriler başa: sonra tarihe göre yeniden eskiye */
@@ -11178,8 +10809,10 @@ function segBtn(attr, val, on, title, sub) {
 function quotaBoxHTML() {
   const s = state.settings;
   if (s.mode !== 'live') {
-    return '<p class="note" style="margin-top:0"><b>Demo modu: hiç istek harcamaz.</b> ' +
-      'Kota beklemeden masayı denemek için bu modu kullan.</p>';
+    return window.T2
+      ? window.T2('<p class="note" style="margin-top:0"><b>Demo modu: anahtar harcamaz.</b> Üç ücretsiz servisin kendi günlük kotası vardır (OVH · LLM7 · Pollinations); kota dolunca o sandalye yedeğe düşer.</p>',
+                  '<p class="note" style="margin-top:0"><b>Demo mode: spends no key.</b> The three free services have their own daily limits (OVH · LLM7 · Pollinations); when one is exhausted that seat falls back.</p>')
+      : '<p class="note" style="margin-top:0"><b>Demo modu: anahtar harcamaz.</b> Ücretsiz servislerin günlük kotası vardır.</p>';
   }
   if (s.api.kind !== 'openrouter') {
     const _gl = esc(GATEWAYS[s.api.kind] ? GATEWAYS[s.api.kind].label : s.api.kind);
@@ -11293,15 +10926,29 @@ function drawerBodyHTML() {
 
   /* --- mod --- */
   h += '<div class="sec"><h3>Mod</h3><div class="seg" id="modeSeg">' +
-    segBtn('data-mode', 'demo', !live, 'Demo', 'örnek konuşma') +
-    segBtn('data-mode', 'live', live, 'Canlı', 'gerçek modeller') +
+    segBtn('data-mode', 'demo', !live, window.T2 ? window.T2('Demo', 'Demo') : 'Demo', window.T2 ? window.T2('anahtarsız · ücretsiz servisler', 'keyless · free services') : 'anahtarsız') +
+    segBtn('data-mode', 'live', live, window.T2 ? window.T2('Canlı', 'Live') : 'Canlı', window.T2 ? window.T2('API anahtarı gerekir', 'API key required') : 'API anahtarı') +
     '</div>';
-  if (!live) h += '<p class="note">Demo modunda hazır örnek konuşmalar oynar — gerçek cevap değildir. Gerçek modeller için <b>Canlı</b> + bir bağlantı seç.</p>';
+  if (!live) h += '<p class="note">' + (window.T2
+    ? window.T2('Demo: üç ücretsiz servis (OVH · LLM7 · Pollinations) <b>gerçek cevap</b> verir — anahtar istemez, hazır metin yoktur. Yavaş ve günlük kotası sınırlıdır. Hızlı ve sınırsıza yakın kullanım için <b>Canlı</b> + kendi anahtarın.',
+                  'Demo: three free services (OVH · LLM7 · Pollinations) give <b>real answers</b> — no key, no canned text. Slow, with daily limits. For speed and headroom use <b>Live</b> with your own key.')
+    : '') + '</p>';
   h += '</div>';
 
+  if (live && !String(a.key || '').trim()) {
+    h += '<p class="note" style="color:var(--warnInk)">' + (window.T2
+      ? window.T2('Canlı mod <b>API anahtarı ister</b>. Anahtar girmeden masa çalışmaz; anahtarsız denemek için üstten <b>Demo</b>’yu seç.',
+                  'Live mode <b>requires an API key</b>. The table will not run without one; pick <b>Demo</b> above to try it keyless.')
+      : '') + '</p>';
+  }
   if (live) {
+    /* Kol 116: canlı modda anahtarsız sandalye olmaz — taslaktan düşür */
+    Object.keys(d.seatSrc || {}).forEach(pid => {
+      const g0 = GATEWAYS[(d.seatSrc || {})[pid]];
+      if (g0 && g0.group === 'keyless') delete d.seatSrc[pid];
+    });
     /* --- bağlantı türü --- */
-    h += '<div class="sec"><h3>Bağlantı</h3>';
+    h += '<div class="sec"><h3>' + (window.T2 ? window.T2('Bağlantı', 'Connection') : 'Bağlantı') + '</h3>';
     /* Varsayılan kurulum: bütün sandalyeler anahtarsız servislerde ve ortada anahtar yok.
        Bu durumda tek bir servisin anahtar formunu açmak yerine kısa özet gösterilir;
        kullanıcı bir karta dokununca o servisin ayrıntısı açılır. */
@@ -11311,7 +10958,7 @@ function drawerBodyHTML() {
       const g0 = GATEWAYS[k];
       return !!(g0 && g0.keyless);
     });
-    const _sade = _hepsiAnahtarsiz && !(a.key || '').trim();
+    const _sade = _hepsiAnahtarsiz && !(a.key || '').trim() && !(typeof klLocked === 'function' && klLocked());
     if (_sade) {
       const _seats = _akt.map(id => {
         const k = ((d.seatSrc || {})[id]) || a.kind;
@@ -11348,6 +10995,7 @@ function drawerBodyHTML() {
       ['custom', window.T2('Kendi eklediğin bağlantılar', 'Your own connections')]
     ];
     for (const [grp, title] of GW_GROUPS) {
+      if (grp === 'keyless') continue;      // Kol 116: anahtarsız servisler yalnız Demo modunda
       const items = Object.entries(GATEWAYS).filter(([, g]) => (g.group || 'other') === grp);
       if (!items.length) continue;
       if (grp === 'other' && !gwShowAll && a.kind !== 'compat' && !String(a.kind).startsWith('c:') &&
@@ -11425,12 +11073,18 @@ function drawerBodyHTML() {
         '<input type="password" id="connKey" placeholder="' + esc(gw.keyHint ? (window.T2 && gw.keyHint === 'API anahtarı' ? window.T2('API anahtarı', 'API key') : gw.keyHint) : (window.T2 ? window.T2('API anahtarı', 'API key') : 'API anahtarı')) + '" value="' + esc(a.key) + '" autocomplete="off" spellcheck="false"/></label>' +
         /* Denetim raporu 6 Kasım 2026, bulgu 3 — DOĞRULANDI: anahtar localStorage'a yazılıyordu
            ama metin “asla kaydedilmez” diyordu. Yalan söz verilmez: ne yaptığını yazar. */
-        '<p class="note">🔒 ' + (window.T2
-          ? window.T2('<b>Anahtar bu tarayıcının yerel deposunda tutulur</b> — sayfayı yenileyince kaybolmasın diye. Hiçbir sunucuya gönderilmez (yalnız seçtiğin sağlayıcıya gider), dışa aktarılan ayar yedeğine <b>yazılmaz</b>. Ortak kullanılan bilgisayarda işin bitince sil.',
-                      '<b>The key is kept in this browser’s local storage</b> so it survives a reload. It is never sent to our servers (only to the provider you chose) and is <b>not</b> written into the exported settings backup. On a shared computer, delete it when you are done.')
-          : '<b>Anahtar bu tarayıcının yerel deposunda tutulur.</b>') +
+        '<p class="note">' + (typeof klLocked === 'function' && klLocked()
+          ? (window.T2
+            ? window.T2('<b>Anahtar bu tarayıcıda şifreli saklanır</b> (AES-GCM, parolanla). Hiçbir sunucuya gönderilmez; dışa aktarılan yedeğe <b>yazılmaz</b>.',
+                        '<b>The key is stored encrypted in this browser</b> (AES-GCM, with your passphrase). It is never sent to our servers and is <b>not</b> written into the exported backup.')
+            : '<b>Anahtar bu tarayıcıda şifreli saklanır.</b>')
+          : (window.T2
+            ? window.T2('<b>Anahtar bu tarayıcının yerel deposunda tutulur</b> — sayfayı yenileyince kaybolmasın diye. Hiçbir sunucuya gönderilmez (yalnız seçtiğin sağlayıcıya gider), dışa aktarılan ayar yedeğine <b>yazılmaz</b>. Ortak kullanılan bilgisayarda işin bitince sil. İstersen aşağıdan <b>parolayla kilitle</b>.',
+                        '<b>The key is kept in this browser’s local storage</b> so it survives a reload. It is never sent to our servers (only to the provider you chose) and is <b>not</b> written into the exported settings backup. On a shared computer, delete it when you are done. You can <b>lock it with a passphrase</b> below.')
+            : '<b>Anahtar bu tarayıcının yerel deposunda tutulur.</b>')) +
         (Object.keys(d.api.keys || {}).length > 1 ? ' ' + (window.T2 ? window.T2('Bağlantı değiştirince anahtarlar kaybolmaz; her bağlantının kendi anahtarı saklanır.', 'Switching connections does not lose keys; each connection keeps its own.') : '') : '') +
         '</p>' +
+        (typeof klHTML === 'function' ? klHTML() : '') +
         '<div class="keyWipeRow"><button type="button" class="btn sm" id="wipeKeyBtn">' +
           (window.T2 ? window.T2('🗑 Bu tarayıcıdan sil', '🗑 Delete from this browser') : '🗑 Sil') + '</button>' +
           '<span class="note" style="margin:0">' + (window.T2
@@ -11446,10 +11100,31 @@ function drawerBodyHTML() {
       '</div>';
     if (!_sade && res && res.length) h += renderTestList(res);
     if (!_sade) h += '</div>';
+    /* anahtar kilidi: anahtar bölümünden bağımsız, her durumda görünür (Kol 115) */
+    if (typeof klHTML === 'function') h += klHTML();
     h += '</div>';
   }
 
-  /* --- masadaki modeller --- */
+  /* --- masadaki modeller (canlı) / demo masası sabit --- */
+  if (!live) {
+    const rows = DEMO_SEATS.map(pid => {
+      const g0 = GATEWAYS[DEMO_SRC[pid]] || {};
+      const m0 = (d.models || {})[pid] || '';
+      const pname = (typeof personaById === 'function' && (personaById(pid) || {}).name) || PROVIDERS[pid].name;
+      return '<li><b>' + esc(pname) + '</b> · ' + esc(g0.label || DEMO_SRC[pid]) +
+        (m0 ? ' · <span style="opacity:.7">' + esc(m0) + '</span>' : '') + '</li>';
+    }).join('');
+    h += '<div class="sec"><h3>' + (window.T2 ? window.T2('Demo masası', 'Demo table') : 'Demo masası') +
+      ' <span class="note" style="margin:0;font-weight:400">· ' + (window.T2 ? window.T2('3 sandalye · sabit', '3 seats · fixed') : '3 sandalye') + '</span></h3>' +
+      '<ul class="keylessList">' + rows + '</ul>' +
+      '<p class="note">' + (window.T2
+        ? window.T2('Demo sabittir: her sandalye kendi ücretsiz servisinde, servisin kendi modeliyle konuşur. Model seçmek ve masayı kurmak için yukarıdan <b>Canlı</b> + bir API anahtarı gerekir.',
+                    'Demo is fixed: each seat talks on its own free service with that service’s model. To pick models and build the table, switch to <b>Live</b> above with an API key.')
+        : 'Demo sabittir: her sandalye kendi ücretsiz servisinde konuşur.') + '</p>' +
+      '<p class="note">' + (window.T2
+        ? window.T2('Başkanı (özet yazan sandalyeyi) ve konuşma üslubunu aşağıdan yine de değiştirebilirsin.', 'You can still change the chair (who writes the summary) and the tone below.')
+        : 'Başkanı ve üslubu aşağıdan değiştirebilirsin.') + '</p></div>';
+  } else {
   const datalist = (state.orModels && state.orModels.length)
     ? '<datalist id="modelList">' + state.orModels.slice(0, 800).map(id => '<option value="' + esc(id) + '"></option>').join('') + '</datalist>'
     : '';
@@ -11474,9 +11149,28 @@ function drawerBodyHTML() {
       '</div>' +
     '</div>';
   }
+  if (live && (d.active || []).length > 1 && (typeof sameModelSeats === 'function') && sameModelSeats(d)) {
+    const _m0 = esc(String(d.models[d.active[0]] || ''));
+    h += '<p class="note" style="margin-top:6px;color:var(--warnInk)">' + (window.T2
+      ? window.T2('Dikkat: ' + d.active.length + ' sandalye de aynı modelde (<b>' + _m0 + '</b>). Farklı görüş için <b>Her sandalyeye ayrı model dağıt</b>.',
+                  'Heads-up: all ' + d.active.length + ' seats are on the same model (<b>' + _m0 + '</b>). Use <b>Spread a different model per seat</b> for different views.')
+      : 'Aynı model: ' + _m0) + '</p>';
+  }
+  if (live) {
+    const _seats = (d.active || []).length;
+    const _pp = (typeof spreadFromPool === 'function') ? spreadFromPool(presetPool(d.api.kind), _seats) : [];
+    const _uniq = new Set(_pp).size;
+    if (_seats > 1 && _uniq < _seats) {
+      h += '<p class="note">' + (window.T2
+        ? window.T2('Bu bağlantının <b>doğrulanmış ön ayarında ' + _uniq + ' model</b> var; ' + _seats + ' sandalyeye sırayla dağıtılır. Anahtarı kaydettiğinde uygulama servisin <b>kendi model listesini</b> çeker ve her sandalyeye ayrı model koyar; liste alınamazsa bu ön ayarlar kalır.',
+                    'This connection has <b>' + _uniq + ' vetted preset models</b>; they are spread over ' + _seats + ' seats in turn. Once you save the key the app fetches the service’s <b>own model list</b> and gives each seat a different model; if the list cannot be fetched these presets stay.')
+        : _uniq + ' model / ' + _seats + ' sandalye') + '</p>';
+    }
+  }
   const freeCount = (state.orFree || []).length;
   const hasFree = d.mode === 'live';
   h += '</div>' + datalist +
+    '<button type="button" class="mini" id="spreadModels" style="margin-top:8px">' + (window.T2 ? window.T2('Her sandalyeye ayrı model dağıt', 'Spread a different model per seat') : 'Her sandalyeye ayrı model') + '</button>' +
     '<button type="button" class="mini" id="fillModels" style="margin-top:8px">Bu bağlantı için örnek model kimliklerini doldur</button>' +
     (hasFree ? ' <button type="button" class="mini" id="freeToggle" style="margin-top:8px" aria-expanded="' + (freeOpen ? 'true' : 'false') + '">' +
       (freeCount ? 'Ücretsiz modeller (' + freeCount + ')' : 'Ücretsiz modelleri getir') + '</button>' +
@@ -11500,6 +11194,7 @@ function drawerBodyHTML() {
           : '<p class="note">Önce <b>hangi sandalyeye</b> atayacağını seç, sonra satırdaki “kullan”a bas.</p>') +
       '</div>' : '') +
     '<p class="note">En az bir model açık olmalı; beş sandalyenin hepsi birden de açılabilir. Kimlik yanlışsa test düğmesi hangi modelin hata verdiğini yazar.</p></div>';
+  }
 
   /* --- otomatik durma --- */
   h += '<div class="sec"><h3>Otomatik durma</h3>' +
@@ -11645,6 +11340,7 @@ function renderDrawerBody() {
   const body = $('#drawerBody');
   if (!body || !drawerDraft) return;
   body.innerHTML = drawerBodyHTML();
+  if (typeof klWire === 'function') { try { klWire(); } catch (e) {} }
 
   const seg = $('#modeSeg');
   if (seg) seg.addEventListener('click', e => {
@@ -11720,12 +11416,21 @@ function renderDrawerBody() {
       Object.entries(GATEWAYS).forEach(([k, g]) => {
         if (k !== id && g.models) Object.values(g.models).forEach(v => { if (v) otherDefaults.add(v); });
       });
-      for (const pid of PROVIDER_ORDER) {
+      /* Kol 116b: boş/varsayılan modelleri tek tek preset[pid] ile doldurmak yerine
+         HER SANDALYEYE AYRI model dağıt (havuz yetmezse sırayla tekrarlanır). */
+      const _seats2 = (drawerDraft.active || []).slice();
+      const _picks2 = (typeof spreadFromPool === 'function') ? spreadFromPool(presetPool(id), _seats2.length) : [];
+      let _distributed = 0;
+      _seats2.forEach((pid, i) => {
         const own = (drawerDraft.seatSrc || {})[pid];
-        if (own && own !== id) continue;              // kendi bağlantısı olan sandalye korunur
+        if (own && own !== id) return;                // kendi bağlantısı olan sandalye korunur
         const cur = (drawerDraft.models[pid] || '').trim();
-        if (!cur || otherDefaults.has(cur)) drawerDraft.models[pid] = preset[pid] || '';
-      }
+        if (!cur || otherDefaults.has(cur)) { drawerDraft.models[pid] = _picks2[i] || preset[pid] || ''; _distributed++; }
+      });
+      if (_distributed) drawerDraft.modelsTouched = false;
+      if (_distributed > 1) setTimeout(() => toast(window.T2
+        ? window.T2('Her sandalyeye ayrı model dağıtıldı (' + new Set(_picks2).size + ' ayrı model). İstersen alttaki listeden değiştir.', 'A different model was spread to each seat (' + new Set(_picks2).size + ' distinct). You can change them in the list below.')
+        : 'Modeller dağıtıldı.', 'ok'), 120);
       /* Bu bağlantı bir sandalye için model tanımlamıyorsa sandalyeyi BOŞ BIRAKMA:
          boş sandalye turda "Model kimliği boş" hatası verip susuyordu. Onun yerine
          bağlantının kendi çalışan modelini yaz, kaç sandalyenin böyle doldurulduğunu söyle. */
@@ -11754,6 +11459,12 @@ function renderDrawerBody() {
   });
 
   const bodyEl = $('#drawerBody');
+  if (bodyEl) bodyEl.addEventListener('input', e => {
+    /* kullanıcı model kimliğini elle yazdıysa: açılıştaki otomatik dağıtım bir daha dokunmaz */
+    if (e.target && e.target.classList && e.target.classList.contains('modelInput') && drawerDraft) {
+      drawerDraft.modelsTouched = true;
+    }
+  });
   if (bodyEl) bodyEl.addEventListener('change', e => {
     /* anahtar yapıştırılınca/bitirilince o sağlayıcının modellerini getir ve yerleştir */
     if (e.target && e.target.id === 'connKey') {
@@ -11812,6 +11523,28 @@ function renderDrawerBody() {
       if (f) importSettingsBackup(f);
     });
   }
+
+  const spreadBtn = $('#spreadModels');
+  if (spreadBtn) spreadBtn.addEventListener('click', async () => {
+    syncDraftFromDOM();
+    const d = drawerDraft;
+    const kind = d.api.kind;
+    const key = String(d.api.key || keyOfKind(kind) || '').trim();
+    spreadBtn.disabled = true;
+    spreadBtn.textContent = window.T2 ? window.T2('Model listesi alınıyor…', 'Fetching the model list…') : '…';
+    const ids = await fetchModelCatalog(kind, cfgOfKind(kind, key));
+    const pool = (ids && ids.length) ? ids : presetPool(kind);
+    const picks = spreadFromPool(pool, d.active.length);
+    d.active.forEach((pid, i) => { if (picks[i]) d.models[pid] = picks[i]; });
+    d.modelsTouched = false;
+    renderDrawerBody();
+    const uniq = new Set(picks).size;
+    toast(window.T2
+      ? (ids
+          ? window.T2('Modeller bağlantının kendi listesinden dağıtıldı: ' + uniq + ' ayrı model.', 'Models spread from the connection’s own list: ' + uniq + ' distinct.')
+          : window.T2('Liste alınamadı; doğrulanmış ön ayarlar dağıtıldı: ' + uniq + ' ayrı model.', 'Could not fetch the list; vetted presets spread instead: ' + uniq + ' distinct.'))
+      : uniq + ' model', 'ok');
+  });
 
   const fill = $('#fillModels');
   if (fill) fill.addEventListener('click', () => {
@@ -12175,13 +11908,34 @@ function saveDrawer() {
       if (rec && !rec.name) rec.name = 'Kendi bağlantım';
     }
     if (!isOptionalKey(d.api.kind) && !(d.api.key || '').trim()) {
-      toast('Canlı mod için API anahtarı gerekli. Anahtarı yapıştır ya da Mod: Demo seç.', 'err');
+      toast(window.T2 ? window.T2('Canlı mod API anahtarı ister. Anahtarı yapıştır ya da Mod: Demo seç.', 'Live mode requires an API key. Paste a key or pick Mode: Demo.') : 'API anahtarı gerekli.', 'err');
       const el = document.getElementById('connKey');
       if (el) { el.focus(); el.classList.add('fieldErr'); }
       return;                       // eksik anahtarla canlı moda geçilmez
     }
   }
+  const wasDemo = state.settings.mode !== 'live';
+  const _touched = !!d.modelsTouched;
   state.settings = mergeSettings(d);
+  if (_touched) state.settings.modelsTouched = true;
+  /* demo → canlı geçişinde varsayılan masa 4 sandalye (Kol 116) */
+  if (state.settings.mode === 'live' && wasDemo && (state.settings.active || []).length < 4) {
+    state.settings.active = (typeof LIVE_SEATS !== 'undefined') ? LIVE_SEATS.slice() : ['gpt', 'gemini', 'claude', 'grok'];
+    if (!state.settings.active.includes(state.settings.chair)) state.settings.chair = state.settings.active[0];
+  }
+  /* demo → canlı (Kol 116b): her sandalyeye AYRI model — önce ön ayar, sonra gerçek liste */
+  if (state.settings.mode === 'live' && wasDemo) {
+    spreadModelsPreset(state.settings);
+    spreadModelsLive().then(r => {
+      if (!r || !r.changed) return;
+      saveSettings(); renderAll();
+      const uniq = new Set(r.picks).size;
+      toast(window.T2
+        ? window.T2('Sandalye modelleri bağlantının listesinden dağıtıldı: ' + uniq + ' ayrı model.', 'Seat models spread from the connection’s list: ' + uniq + ' distinct.')
+        : uniq + ' model', 'ok');
+    }).catch(() => {});
+  }
+  if (typeof normalizeMode === 'function') normalizeMode();
   refreshGateways(state.settings.api.customs || []);
   saveSettings();
   closeDrawer();
@@ -12299,7 +12053,7 @@ function importSettingsBackup(file) {
     const when = pack.at ? (() => { try { return new Date(pack.at).toLocaleString('tr-TR'); } catch (e) { return pack.at; } })() : 'tarih yok';
     const n = Array.isArray(s.active) ? s.active.length : 0;
     const msg = 'Yedek: ' + when + '\n' +
-      'Dosyada: ' + (s.mode === 'live' ? 'Canlı' : s.mode === 'demo' ? 'Demo' : 'mod belirtilmemiş') +
+      'Dosyada: ' + (s.mode === 'live' ? 'Canlı (anahtarlı)' : 'Demo (anahtarsız)') +
       (n ? ' · ' + n + ' model' : '') + '\n' +
       (pack.withKeys ? 'Anahtarlar: dosyada VAR (dosyadakiler kullanılacak)' : 'Anahtarlar: dosyada yok (bu tarayıcıdaki anahtarların korunur)') +
       '\n\nŞu anki ayarların üzerine yazılsın mı?';
@@ -12323,7 +12077,7 @@ function closeHelp() {
 function helpHTML() {
   return [
     '<h3>Masa nasıl çalışır?</h3>',
-    '<p style="color:#9aa2b5"><b>Dil:</b> Cevaplar senin yazdığın dilde gelir (Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce). Tartışmanın ortasında dil değiştirirsen modeller yeni dile geçer. Arayüz, dışa aktarma başlıkları ve demo örnek konuşmalar seçtiğin arayüz dilinde gelir.</p>',
+    '<p style="color:#9aa2b5"><b>Dil:</b> Cevaplar senin yazdığın dilde gelir (Türkçe yazarsan Türkçe, İngilizce yazarsan İngilizce). Tartışmanın ortasında dil değiştirirsen modeller yeni dile geçer. Arayüz ve dışa aktarma başlıkları seçtiğin arayüz dilinde gelir.</p>',
     '<p style="color:#9aa2b5">Ücretsiz ve kilitsiz: abonelik, reklam, hesap yok; uygulama istek saymaz, kendi kotasını koymaz. Sınır model servisinde: ücretsiz katmanlar günlük istek verir (OpenRouter’da :free modeller için günde 50). Model ücretini kendi anahtarınla sağlayıcıya ödersin; DivanAI aradan para almaz. Lisans: Apache 2.0 (kullan, değiştir, sat — kapalı kutuya çevirmek de serbest).</p>',
     '<p style="color:#9aa2b5">' + (window.T2 ? window.T2(
       '<b>Kaynak kodu açık:</b> <a href="https://github.com/divanai/divanai.github.io" target="_blank" rel="noopener">github.com/divanai/divanai.github.io</a> · <a href="https://github.com/divanai/divanai.github.io/issues" target="_blank" rel="noopener">hata bildir / öneri</a> — iddiaları yalnız burada değil, kodda da doğrulayabilirsin.',
@@ -12577,6 +12331,17 @@ function boot() {
       if (rec && openSessionRecord(rec)) closeHistPop();
     }
   });
+  const hSearch = $('#histSearch');
+  if (hSearch) {
+    hSearch.value = state.histQuery || '';
+    hSearch.addEventListener('input', e => {
+      state.histQuery = e.target.value;
+      renderHistList();
+    });
+    hSearch.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.stopPropagation(); state.histQuery = ''; e.target.value = ''; renderHistList(); }
+    });
+  }
   const hSave = $('#histSave');
   if (hSave) hSave.addEventListener('click', downloadSessionFile);
   const hOpenBtn = $('#histOpenFile');
@@ -12606,11 +12371,12 @@ function boot() {
   if (khb) khb.addEventListener('click', openDrawer);
   const kcTek = $('#keyCardTek');
   if (kcTek) kcTek.addEventListener('click', () => {
-    /* Kol 102: anahtarsız çalışmak artık bütün masada mümkün — TekeTek'e hapsetme */
-    state.settings.mode = 'live';
+    /* Kol 116: anahtarsız çalışma artık Demo; canlı anahtar ister */
+    state.settings.mode = 'demo';
+    if (typeof normalizeMode === 'function') normalizeMode();
     saveSettings();
     renderAll();
-    toast('Canlı mod açıldı · 3 anahtarsız sandalye hazır. Konuyu yaz, masa başlasın.', 'ok');
+    toast(window.T2 ? window.T2('Demo açıldı · üç anahtarsız servis çalışıyor.', 'Demo on · three keyless services are running.') : 'Demo açıldı.', 'ok');
   });
   const kcOpen = $('#keyCardOpen');
   if (kcOpen) kcOpen.addEventListener('click', () => openDrawer());
@@ -12739,9 +12505,8 @@ function boot() {
     if (b) {
       const src = state.transcript.find(m => m.id === b.dataset.imgseed);
       if (!src) return;
-      // demo cevabından anlamlı istem çıkmaz: kullanıcıya sor
-      const isDemo = src.model === 'demo' || /\(Demo\)/i.test(src.text || '');
-      let prompt = isDemo ? (window.prompt('Görsel istemi (ne görünsün?):', '') || '').trim() : imgPromptFrom(src.text);
+      let prompt = imgPromptFrom(src.text);
+      if (!prompt) prompt = (window.prompt('Görsel istemi (ne görünsün?):', '') || '').trim();
       if (!prompt) { toast('Görsel istemi boş — iptal edildi.', 'err'); return; }
       b.disabled = true;
       try {
@@ -12823,8 +12588,9 @@ function boot() {
     if (drawerDraft) { drawerDraft.mode = 'demo'; syncDraftFromDOM(); }
     state.settings = mergeSettings(settingsSnapshot());
     state.settings.mode = 'demo';
+    if (typeof normalizeMode === 'function') normalizeMode();
     saveSettings(); closeDrawer(); renderAll(); persistSession();
-    toast('Demo moduna dönüldü.', 'ok');
+    toast(window.T2 ? window.T2('Demo: üç anahtarsız servis çalışıyor.', 'Demo: three keyless services are running.') : 'Demo', 'ok');
   });
   /* ---- arayüz dili: bayraklar ---- */
   const langPick = $('#langPick');
@@ -12844,6 +12610,15 @@ function boot() {
 
   if (window.I18N) { I18N.apply(); I18N.observe(); }
   markLangPick();
+  /* Kol 116b: canlıda 4 sandalye aynı modelde açılıyorsa (eski ayar) bir kez dağıt */
+  try {
+    if (state.settings.mode === 'live' && !state.settings.modelsTouched && (state.settings.active || []).length > 1
+        && typeof sameModelSeats === 'function' && sameModelSeats(state.settings)) {
+      spreadModelsPreset(state.settings);
+      saveSettings();
+      spreadModelsLive().then(r => { if (r && r.changed) { saveSettings(); renderAll(); } }).catch(() => {});
+    }
+  } catch (e) { /* dağıtım başarısızsa uygulama normal açılır */ }
   renderAll();
   if (!restoreSession()) {
     $('#input') && $('#input').focus();
@@ -12852,7 +12627,7 @@ function boot() {
 }
 
 /* konsoldan / testlerden erişim */
-window.DIVANAI = { state, startSession, runRound, summarize, stopRun, renderAll, demoText, personas, GOALS, PROVIDERS, altOf, fallbackCandidates, setAlt, clearAlts, whyShort, nextSpeakers, autoStopReason, duelOn, duelPid, webOn, withWeb, kadroSearch, kadroApply, resumePaused, buildLocalSummary, localSummaryText, markPaused, clearPaused, mergeSettings, settingsBackup, settingsWithoutKeys, parseSettingsBackup, applySettingsBackup, downloadSettingsBackup, maxRoundsSetting, systemPrompt: (i) => systemPrompt(personas()[i || 0]), tokenBudget: () => tokenBudget(), langOf, digestLine };
+window.DIVANAI = { state, startSession, runRound, summarize, stopRun, renderAll, personas, GOALS, PROVIDERS, altOf, fallbackCandidates, setAlt, clearAlts, whyShort, nextSpeakers, autoStopReason, duelOn, duelPid, webOn, withWeb, kadroSearch, kadroApply, resumePaused, buildLocalSummary, localSummaryText, markPaused, clearPaused, mergeSettings, spreadModelsLive, spreadModelsPreset, spreadFromPool, fetchModelCatalog, sameModelSeats, settingsBackup, settingsWithoutKeys, parseSettingsBackup, applySettingsBackup, downloadSettingsBackup, maxRoundsSetting, systemPrompt: (i) => systemPrompt(personas()[i || 0]), tokenBudget: () => tokenBudget(), langOf, digestLine };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();
@@ -12907,6 +12682,11 @@ else boot();
     // simge GİDİLECEK modu gösterir: gündüzde ay, gecede güneş
     icon.innerHTML = p === "paper" ? MOON : SUN;
     label();
+    /* Kol 117: telefonda adres/başlık çubuğu rengi seçilen görünümle aynı olsun */
+    try {
+      var mc = document.querySelector('meta[name="theme-color"]');
+      if (mc) mc.setAttribute('content', p === 'night' ? '#08090d' : '#f6f2ea');
+    } catch (e) { /* yoksay */ }
     if (remember !== false) {
       try { localStorage.setItem(KEY, p); } catch (e) { /* özel pencere: sessiz geç */ }
     }
@@ -12940,6 +12720,431 @@ else boot();
   var saved = null;
   try { saved = localStorage.getItem(KEY); } catch (e) { saved = null; }
   paint(saved === "night" ? "night" : "paper", false);
+})();
+
+
+/* ============================================================================
+   Kol 117 · Paylaş (bağlantı + sohbet özeti) ve Telefona kur (PWA)
+
+   Neden ayrı dosya: bu iş model çağrılarıyla ilgili değil, arayüzün kendi
+   işi. ui.js zaten çok büyük; paylaşım tek yerde dursun ki test etmesi kolay
+   olsun. Derleme sırasında ui.js'ten SONRA eklenir (boot() çalıştıktan sonra
+   düğmeleri bağlar).
+
+   İlkeler:
+     · Sunucu yok. Paylaşılan şey ya sayfanın adresi ya da cihazda üretilen
+       düz metin özet. Hiçbir içerik hiçbir yere yüklenmez.
+     · Bağlantı, paylaşıldığı yerde kart olarak açılır (og: başlık/açıklama/
+       görsel etiketleri shell.html'de duruyor).
+     · Sohbetin kendisi adrese sığdırılmıyor: uzun konuşma on binlerce
+       karakterlik bağlantı olur, çoğu uygulama keser. Onun yerine özet metni
+       panoya kopyalanır ya da WhatsApp/e-posta penceresine yazılır.
+   ============================================================================ */
+(function paylasModul() {
+  'use strict';
+
+  var SITE_YEDEK = 'https://divanai.github.io/';   /* dosya olarak açıldığında (file://) */
+  var OZET_TAVAN = 1500;                            /* özet metninin üst sınırı */
+
+  function T2(tr, en) { return (typeof window.T2 === 'function') ? window.T2(tr, en) : tr; }
+  function $(s) { return document.querySelector(s); }
+
+  /* ---------------- adres ---------------- */
+  function siteUrl() {
+    try {
+      /* Kendi bilgisayarında açtıysan (server.py ya da dosya) paylaşılacak adres
+         "localhost" olmamalı: o adres başkasında açılmaz. Bu durumda sayfanın
+         <link rel="canonical"> adresi kullanılır. */
+      var yerel = /^(localhost|127\.0\.0\.1|\[::1\]|)$/i.test(location.hostname);
+      var can = document.querySelector('link[rel="canonical"]');
+      if (yerel && can && can.href) return can.href;
+      if (location.protocol === 'http:' || location.protocol === 'https:') {
+        return (location.origin + location.pathname).replace(/index\.html$/i, '');
+      }
+    } catch (e) { /* yoksay */ }
+    return SITE_YEDEK;
+  }
+
+  /* ---------------- metin temizleme ---------------- */
+  /* Model cevabı markdown gelir; özette ham yıldız/köşeli parantez istemiyoruz. */
+  function duz(s) {
+    return String(s == null ? '' : s)
+      .replace(/```[\s\S]*?```/g, ' ')
+      .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/`([^`]*)`/g, '$1')
+      .replace(/^[ \t]{0,3}#{1,6}[ \t]+/gm, '')
+      .replace(/^[ \t]{0,3}>[ \t]?/gm, '')
+      .replace(/[*_~]{1,3}([^*_~]+)[*_~]{1,3}/g, '$1')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\s*\n\s*/g, ' ')
+      .trim();
+  }
+
+  function kisalt(s, n) {
+    s = String(s || '');
+    if (s.length <= n) return s;
+    var kes = s.slice(0, n);
+    var bosluk = kes.lastIndexOf(' ');
+    if (bosluk > n * 0.6) kes = kes.slice(0, bosluk);
+    return kes.replace(/[.,;:—-]+$/, '') + '…';
+  }
+
+  /* ---------------- sohbet özeti ---------------- */
+  function sohbetVar() {
+    try {
+      var st = window.DIVANAI && window.DIVANAI.state;
+      if (!st || !Array.isArray(st.transcript)) return false;
+      return st.transcript.some(function (m) {
+        return m && m.kind === 'msg' && String(m.plain || m.text || '').trim();
+      });
+    } catch (e) { return false; }
+  }
+
+  function ozetMetni() {
+    var st = (window.DIVANAI && window.DIVANAI.state) || {};
+    var tr = Array.isArray(st.transcript) ? st.transcript : [];
+    var msgs = tr.filter(function (m) {
+      return m && m.kind === 'msg' && String(m.plain || m.text || '').trim();
+    });
+    if (!msgs.length) return '';
+
+    var soru = null, i;
+    for (i = 0; i < msgs.length; i++) { if (msgs[i].personaId === 'user') { soru = msgs[i]; break; } }
+    var cevaplar = msgs.filter(function (m) { return m.personaId !== 'user'; });
+
+    var baskan = null;
+    for (i = 0; i < tr.length; i++) {
+      if (tr[i] && tr[i].kind === 'summary' && String(tr[i].plain || tr[i].text || '').trim()) { baskan = tr[i]; }
+    }
+
+    var satir = [];
+    var tarih = '';
+    try {
+      tarih = new Date().toLocaleDateString(T2('tr-TR', 'en-GB'), { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch (e) { tarih = ''; }
+    satir.push('DivanAI' + (tarih ? ' · ' + tarih : ''));
+    if (soru) satir.push(T2('Konu: ', 'Topic: ') + kisalt(duz(soru.plain || soru.text), 200));
+    satir.push('');
+
+    cevaplar.slice(0, 6).forEach(function (m) {
+      var kim = duz(m.name || '') || T2('Sandalye', 'Seat');
+      var rol = duz(m.roleLabel || '');
+      satir.push('▸ ' + kim + (rol ? ' · ' + rol : '') + ': ' + kisalt(duz(m.plain || m.text), 220));
+    });
+
+    if (baskan) {
+      satir.push('');
+      satir.push(T2('Başkan özeti: ', 'Chair summary: ') + kisalt(duz(baskan.plain || baskan.text), 320));
+    }
+
+    satir.push('');
+    satir.push(siteUrl());
+
+    var metin = satir.join('\n');
+    if (metin.length > OZET_TAVAN) metin = metin.slice(0, OZET_TAVAN).replace(/\s+\S*$/, '') + '\n…';
+    return metin;
+  }
+
+  /* ---------------- panoya kopyalama (dosya olarak açıldığında da çalışsın) ---------------- */
+  function kopyala(metin) {
+    return new Promise(function (res, rej) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(metin).then(res, function () { eskiKopyala(metin) ? res() : rej(); });
+      } else {
+        eskiKopyala(metin) ? res() : rej();
+      }
+    });
+  }
+  function eskiKopyala(metin) {
+    try {
+      var t = document.createElement('textarea');
+      t.value = metin;
+      t.setAttribute('readonly', '');
+      t.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+      document.body.appendChild(t);
+      t.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(t);
+      return ok;
+    } catch (e) { return false; }
+  }
+
+  /* ---------------- paylaşım adresleri ---------------- */
+  var BASLIK = function () { return T2('DivanAI — yapay zekâlar aynı masada', 'DivanAI — AIs at the same table'); };
+  var TANITIM = function () {
+    return T2(
+      'Bir konu yaz; 3–5 yapay zekâ aynı masada tartışsın, başkan özetlesin. Tek dosya, anahtarsız demo, Apache 2.0.',
+      'Type one topic; 3–5 AIs debate at the same table and a chair summarizes. Single file, keyless demo, Apache 2.0.');
+  };
+
+  function linkPaylas(app) {
+    var u = siteUrl();
+    var b = BASLIK() + ' — ' + TANITIM();
+    switch (app) {
+      case 'wa':   return 'https://wa.me/?text=' + encodeURIComponent(b + '\n' + u);
+      case 'tg':   return 'https://t.me/share/url?url=' + encodeURIComponent(u) + '&text=' + encodeURIComponent(b);
+      case 'x':    return 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(b) + '&url=' + encodeURIComponent(u);
+      case 'fb':   return 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(u);
+      case 'li':   return 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(u);
+      case 'mail': return 'mailto:?subject=' + encodeURIComponent(BASLIK()) + '&body=' + encodeURIComponent(b + '\n\n' + u);
+    }
+    return u;
+  }
+
+  function ozetPaylas(app) {
+    var u = siteUrl();
+    var m = ozetMetni();
+    if (!m) return u;
+    switch (app) {
+      case 'wa':   return 'https://wa.me/?text=' + encodeURIComponent(m);
+      case 'mail': return 'mailto:?subject=' + encodeURIComponent(BASLIK()) + '&body=' + encodeURIComponent(m);
+    }
+    return u;
+  }
+
+  function ac(href) {
+    try { window.open(href, '_blank', 'noopener,noreferrer'); } catch (e) { location.href = href; }
+  }
+
+  /* ---------------- simgeler (kendi SVG'miz; dışarıdan görsel yok) ---------------- */
+  var IKON = {
+    wa: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.3 7.5L3.6 20.4l1.3-4.5A8.4 8.4 0 1 1 20.5 11.6z"/><path d="M9 8.6c.5-.1.8 0 1 .5l.5 1.2c.1.3 0 .5-.2.7l-.5.5c.5 1.1 1.4 2 2.5 2.4l.5-.5c.2-.2.4-.3.7-.2l1.2.5c.5.2.6.5.5 1-.2.9-1.2 1.4-2 1.2-2.6-.6-4.7-2.7-5.3-5.3-.2-.8.2-1.8 1.1-2z"/></svg>',
+    tg: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 4.4 2.9 11.2c-.8.3-.8 1.3.1 1.5l4.3 1.2 1.6 4.7c.2.7 1.1.8 1.5.2l2.2-2.6 4.2 3c.6.4 1.4.1 1.6-.6l3-14c.2-.9-.6-1.6-1.4-1.2z"/><path d="M7.3 13.9 17.2 7l-6.4 7.7"/></svg>',
+    x: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4l16 16M20 4 4 20"/></svg>',
+    fb: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M14.8 7.5h-1.6c-1.3 0-2.1.8-2.1 2.1V21"/><path d="M9 13.2h5"/></svg>',
+    li: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.6 10.6V17M7.6 7.6v.1"/><path d="M11.6 17v-3.6a2 2 0 0 1 4 0V17"/><path d="M11.6 10.6V17"/></svg>',
+    mail: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.6"/><path d="m4 7 8 6 8-6"/></svg>',
+    copy: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.4"/><path d="M15 5.6A2.6 2.6 0 0 0 12.4 3H6.6A2.6 2.6 0 0 0 4 5.6v5.8A2.6 2.6 0 0 0 6.6 14"/></svg>',
+    share: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="17.6" cy="5.6" r="2.6"/><circle cx="6.4" cy="12" r="2.6"/><circle cx="17.6" cy="18.4" r="2.6"/><path d="m8.7 10.7 6.6-3.8M8.7 13.3l6.6 3.8"/></svg>',
+    down: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5v12"/><path d="m6.6 10.6 5.4 5.4 5.4-5.4"/><path d="M4.5 20.5h15"/></svg>'
+  };
+
+  var UYGULAMALAR = [
+    { id: 'wa', ad: 'WhatsApp' },
+    { id: 'tg', ad: 'Telegram' },
+    { id: 'x', ad: 'X' },
+    { id: 'fb', ad: 'Facebook' },
+    { id: 'li', ad: 'LinkedIn' },
+    { id: 'mail', ad: 'E-posta' }
+  ];
+
+  /* ---------------- pencere ---------------- */
+  var mo = null;
+  var kurulumOlayi = null;     /* beforeinstallprompt */
+  var escDinleyici = false;
+
+  function govdeHTML() {
+    var dugmeler = UYGULAMALAR.map(function (u) {
+      return '<button type="button" class="shareApp" data-app="' + u.id + '">' + IKON[u.id] + '<span>' + u.ad + '</span></button>';
+    }).join('');
+
+    return '' +
+      '<div class="modalHead"><h2>Paylaş</h2>' +
+        '<button class="btn ghost sm x" id="shareClose" type="button">Kapat ✕</button></div>' +
+      '<div class="modalBody">' +
+
+        '<h3>Bağlantı</h3>' +
+        '<div class="shareLink">' +
+          '<input id="shareUrl" type="text" readonly aria-label="Sayfa adresi"/>' +
+          '<button class="btn ghost sm" id="shareCopy" type="button">' + IKON.copy + ' Kopyala</button>' +
+        '</div>' +
+        '<p class="shareNote">Bu adres WhatsApp, Telegram, X gibi yerlerde başlık ve görselle açılır.</p>' +
+        '<div class="shareGrid" id="shareGrid">' + dugmeler + '</div>' +
+
+        '<div class="shareSec">' +
+          '<h3>Sohbetin özeti</h3>' +
+          '<p class="shareNote" id="shareOzetNot">Sohbet başlayınca burada özeti çıkar.</p>' +
+          '<div class="sharePrev" id="sharePrev" role="textbox" aria-readonly="true" aria-label="Sohbet özeti" hidden></div>' +
+          '<div class="shareRow" id="shareOzetRow" hidden>' +
+            '<button class="btn ghost sm" id="shareOzetCopy" type="button">' + IKON.copy + ' Özeti kopyala</button>' +
+            '<button class="btn ghost sm" id="shareOzetWa" type="button">' + IKON.wa + ' WhatsApp’ta paylaş</button>' +
+            '<button class="btn ghost sm" id="shareOzetMail" type="button">' + IKON.mail + ' E-posta ile gönder</button>' +
+            '<button class="btn ghost sm" id="shareOzetSys" type="button" hidden>' + IKON.share + ' Cihazda paylaş</button>' +
+          '</div>' +
+          '<p class="shareNote">Özet yalnız bu cihazda oluşur; hiçbir sunucuya gitmez.</p>' +
+        '</div>' +
+
+        '<div class="shareSec">' +
+          '<h3>Telefona kur</h3>' +
+          '<p class="shareNote" id="shareKurNot">Bu sayfayı telefonuna uygulama gibi kur. İlk açılıştan sonra internet olmadan da açılır.</p>' +
+          '<div class="shareRow">' +
+            '<button class="btn sm" id="shareInstall" type="button" hidden>' + IKON.down + ' Kur</button>' +
+          '</div>' +
+        '</div>' +
+
+      '</div>';
+  }
+
+  function ozetTazele() {
+    if (!mo) return;
+    var var_ = sohbetVar();
+    var not = $('#shareOzetNot'), prev = $('#sharePrev'), row = $('#shareOzetRow');
+    if (!not || !prev || !row) return;
+    var metin = var_ ? ozetMetni() : '';
+    not.hidden = var_ && !!metin;
+    prev.hidden = !(var_ && metin);
+    row.hidden = !(var_ && metin);
+    if (var_ && metin) {
+      prev.textContent = metin;
+      var sys = $('#shareOzetSys');
+      if (sys) sys.hidden = !(navigator.share && navigator.canShare && navigator.canShare({ text: metin }));
+    }
+    var u = $('#shareUrl');
+    if (u) u.value = siteUrl();
+    kurulumTazele();
+  }
+
+  function kurulumTazele() {
+    var btn = $('#shareInstall');
+    var not = $('#shareKurNot');
+    if (!btn || !not) return;
+    var kurulu = false;
+    try { kurulu = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; } catch (e) {}
+    if (kurulu) {
+      btn.hidden = true;
+      not.textContent = 'Kurulu sürümde çalışıyorsun.';
+      return;
+    }
+    if (kurulumOlayi) {
+      btn.hidden = false;
+      not.textContent = 'Bu sayfayı telefonuna uygulama gibi kur. İlk açılıştan sonra internet olmadan da açılır.';
+      return;
+    }
+    btn.hidden = true;
+    var ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    not.textContent = ios
+      ? 'iPhone / iPad: Safari’de Paylaş → “Ana Ekrana Ekle”.'
+      : 'Android / masaüstü: tarayıcı menüsü → “Uygulamayı yükle” (Chrome, Edge).';
+  }
+
+  function acModal() {
+    if (!mo) kur();
+    if (!mo) return;
+    ozetTazele();
+    var ov = $('#overlay'); if (ov) ov.hidden = false;
+    mo.hidden = false;
+    var b = $('#shareBtn'); if (b) b.setAttribute('aria-expanded', 'true');
+    try { if (window.I18N && window.I18N.isEn && window.I18N.isEn()) window.I18N.translateDom(mo); } catch (e) {}
+  }
+
+  function kapat() {
+    if (!mo) return;
+    mo.hidden = true;
+    var b = $('#shareBtn'); if (b) b.setAttribute('aria-expanded', 'false');
+    var ov = $('#overlay');
+    var cekmece = document.getElementById('drawer');
+    var yardim = document.getElementById('helpModal');
+    if (ov && (!cekmece || cekmece.hidden) && (!yardim || yardim.hidden)) ov.hidden = true;
+  }
+
+  function bildir(metin, tur) {
+    if (typeof window.toast === 'function') window.toast(metin, tur);
+  }
+
+  /* ---------------- kurulum ---------------- */
+  function kur() {
+    if (mo) return;
+    mo = document.createElement('div');
+    mo.className = 'modal modalShare';
+    mo.id = 'shareModal';
+    mo.hidden = true;
+    mo.setAttribute('role', 'dialog');
+    mo.setAttribute('aria-label', 'Paylaş');
+    mo.innerHTML = govdeHTML();
+    document.body.appendChild(mo);
+
+    mo.addEventListener('click', function (e) {
+      var uyg = e.target.closest('button[data-app]');
+      if (uyg) { ac(linkPaylas(uyg.dataset.app)); return; }
+
+      var t = e.target.closest('button');
+      if (!t) return;
+      if (t.id === 'shareClose') { kapat(); return; }
+
+      if (t.id === 'shareCopy') {
+        kopyala(siteUrl()).then(function () { bildir(T2('Bağlantı kopyalandı', 'Link copied'), 'ok'); },
+          function () { bildir(T2('Bağlantı kopyalanamadı — adresi elle seçip kopyala.', 'Could not copy the link — select the address and copy it by hand.'), 'err'); });
+        return;
+      }
+      if (t.id === 'shareOzetCopy') {
+        var m = ozetMetni();
+        if (!m) return;
+        kopyala(m).then(function () { bildir(T2('Özet kopyalandı', 'Summary copied'), 'ok'); },
+          function () { bildir(T2('Kopyalanamadı — özeti seçip elle kopyala.', 'Could not copy — select the summary and copy it by hand.'), 'err'); });
+        return;
+      }
+      if (t.id === 'shareOzetWa') { ac(ozetPaylas('wa')); return; }
+      if (t.id === 'shareOzetMail') { ac(ozetPaylas('mail')); return; }
+      if (t.id === 'shareOzetSys') {
+        var m2 = ozetMetni();
+        if (m2 && navigator.share) {
+          navigator.share({ title: BASLIK(), text: m2, url: siteUrl() }).catch(function () {});
+        }
+        return;
+      }
+      if (t.id === 'shareInstall') {
+        if (!kurulumOlayi) { kurulumTazele(); return; }
+        var o = kurulumOlayi;
+        kurulumOlayi = null;
+        o.prompt();
+        o.userChoice.then(function () { kurulumTazele(); }, function () { kurulumTazele(); });
+        return;
+      }
+    });
+
+    var u = $('#shareUrl');
+    if (u) u.addEventListener('focus', function () { u.select(); });
+
+    if (!escDinleyici) {
+      escDinleyici = true;
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && mo && !mo.hidden) { e.stopPropagation(); kapat(); }
+      }, true);
+    }
+  }
+
+  /* ---------------- düğmeyi bağla ---------------- */
+  function dugme() {
+    var btn = document.getElementById('shareBtn');
+    if (!btn || btn.dataset.bagli === '1') return;
+    btn.dataset.bagli = '1';
+    kur();
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (mo && !mo.hidden) kapat(); else acModal();
+    });
+    var ov = $('#overlay');
+    if (ov) ov.addEventListener('click', function () { if (mo && !mo.hidden) kapat(); });
+  }
+
+  /* ---------------- kurulum olayı (Chrome/Edge) ---------------- */
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    kurulumOlayi = e;
+    kurulumTazele();
+  });
+  window.addEventListener('appinstalled', function () {
+    kurulumOlayi = null;
+    if (mo) ozetTazele();
+    bildir(T2('Kuruldu — ana ekranda DivanAI var.', 'Installed — DivanAI is on your home screen.'), 'ok');
+  });
+
+  /* ---------------- service worker: internet yokken de açılsın ---------------- */
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () { /* dosya yoksa sessiz geç */ });
+    });
+  }
+
+  /* ---------------- boot sonrası ---------------- */
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dugme);
+  else dugme();
+
+  window.PAYLAS = {
+    siteUrl: siteUrl, ozetMetni: ozetMetni, sohbetVar: sohbetVar,
+    linkPaylas: linkPaylas, ozetPaylas: ozetPaylas, acModal: acModal, kapat: kapat
+  };
 })();
 </script>
 </body>

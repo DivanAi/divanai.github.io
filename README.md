@@ -11,9 +11,10 @@ Bir konu yazıyorsun; masadaki yapay zekâlar sırayla konuşuyor, birbirine iti
 başkan toparlayıp özetliyor. Sekmeler arasında kopyala-yapıştır yok.
 
 **Tek dosya.** `index.html`'e çift tıkla, açılır. Kurulum, hesap, sunucu gerekmez.
-**Anahtarsız demo · anahtarsız canlı.** Hiçbir yere kayıt olmadan bütün akışı deneyebilirsin (demo metinleri
-canlı cevap gibi sunulmaz). İstersen **Canlı** modda da anahtar girmeden konuşursun: açılışta üç sandalye
-üç ayrı ücretsiz servise bağlı gelir.
+**Anahtarsız açılır (Demo).** Uygulama **Demo** modunda açılır: üç sandalye üç ayrı ücretsiz servise bağlıdır
+(OVH · LLM7 · Pollinations), kayıt yok, anahtar yok. Cevaplar **gerçektir** — hazır/örnek metin değildir;
+bedeli yavaşlık ve servislerin günlük kotasıdır. **Canlı** mod ise **API anahtarı ister**: kendi anahtarınla
+daha hızlı ve daha yüksek kota; varsayılan masa canlıda **4 sandalye**.
 
 | **Konsey** | **Panel** | **Ayna** | **Ajanlar** | **TekeTek** |
 |---|---|---|---|---|
@@ -33,10 +34,13 @@ Bunlar reklam değil, ölçüm:
 | Konu | Gerçek |
 |---|---|
 | **"Ücretsiz"** | Uygulama para almaz, hesap istemez, istek saymaz. **Servisler** sınır koyar: OpenRouter `:free` modellerde günde 50 istek (bir tur 4 istek → ~12 tur), Groq ücretsiz katmanda günde 1.000, Pollinations yayınlanmış kota vermez ama yoğunlukta bekletir. |
-| **Anahtarsız mod** | Demo değil, gerçek servis — ama **görsel okuyamaz** ve yavaştır (ilk cevap ~22 sn, 7 Kas 2026). |
+| **Demo modu (anahtarsız)** | Gerçek cevap, hazır metin değil — ama **görsel okuyamaz** ve yavaştır (ilk cevap 20–60 sn). **Canlı** mod API anahtarı ister. |
+
+![Demo modu: üç anahtarsız servis, gerçek cevaplar](ekranlar/116-demo-gercek-cevap.jpg)
 | **Web araması** | Yalnız OpenRouter'da ve **ücretli**: istek başına ~0,7–1,5 sent. Ücretsiz modelde bile kredi harcar. Varsayılan kapalı. |
 | **Ayna** | Aynı model iki rolde: kendi kendini onaylamayı zorlaştırır. Modelin **her yerde paylaştığı** kör noktayı yakalamaz — modeli değiştirmenin yerini tutmaz. |
 | **Sayı kuralı** | Kaynaksız tutarı `[?]` yapar; cevabı doğru yapmaz. Oranlar da yanlış olabilir, ama tartışılabilir. |
+| **Anahtar kilidi** | Kapalıyken anahtar düz metin. Açmak isteğe bağlı; parola unutulursa kurtarma yok. |
 
 ---
 
@@ -45,13 +49,14 @@ Bunlar reklam değil, ölçüm:
 1. `divanai` klasörünü indir, içindeki **`index.html`**'e çift tıkla. (Python, kurulum, internet gerekmez.)
 2. Ekranın üstünden masa türünü seç: **Konsey · Panel · Ayna · Ajanlar · TekeTek**.
 
-**Hiçbir şey ayarlamadan başla.** Uygulama **Canlı** modda açılır ve masaya **üç anahtarsız sandalye** kurar:
-**Pollinations** (gpt-oss 20B), **LLM7.io** (Mistral Nemo), **OVH AI Endpoints** (Llama 3.3 70B) — üçü ayrı
-servis, **kayıt yok, anahtar yok, kart yok**. İlk tur yavaştır: ölçtüğümde üç cevap paralel **~21 saniyede**
-geldi (LLM7 aynı anda tek istek alır, OVH dakikada 2 istek).
+**Hiçbir şey ayarlamadan başla.** Uygulama **Demo** modunda açılır ve masaya **üç anahtarsız sandalye** kurar:
+**OVH AI Endpoints** (Llama 3.3 70B), **LLM7.io** (Codestral), **Pollinations** (gpt-oss 20B) — üçü ayrı
+servis, **kayıt yok, anahtar yok, kart yok**. Cevaplar gerçektir; ilk tur yavaştır (ölçüm: 7 Kasım 2026'da
+üç sandalyeli bir tur **~65 saniye**; LLM7 aynı anda tek istek alır, OVH dakikada 2 istek).
 **TekeTek** sekmesi de anahtarsız çalışır (Pollinations); orada cevaplar sırayla gelir.
 3. Kutuya konuyu yaz ve `Enter`. *(Örnek: "Bursa'da küçük bir kahve dükkânı açmak mantıklı mı?")*
-4. Demo modunda cevaplar hazır metindir; akışı görürsün, **hiç istek harcanmaz**.
+4. Demo modunda **hiçbir anahtar harcanmaz**; ücretsiz servislerin kendi günlük kotası kullanılır. Kota dolarsa
+   sandalye tek satır uyarı bırakıp sıradaki ücretsiz servise geçer.
 
 **Daha hızlısı isteğe bağlı (3 adım):** ① ücretsiz bir sağlayıcıda hesap aç — en cömert ücretsiz
 katman **Google AI Studio**'da (kart istemez, günlük hak **her model için ayrı**); ② anahtarı kopyala,
@@ -61,7 +66,17 @@ bunu bir bildirimle söyler. Ücretli servisler (**Vercel, Requesty, NanoGPT, AI
 **Diğer servisler** başlığının altında katlı durur — kullanmayacaksan hiç açma. Her kartın köşesinde
 **kart ister / kart istemez** etiketi yazar.
 Anahtar yalnızca **bu tarayıcıda** (`localStorage`) durur; sunucuya, dosyaya, depoya gitmez.
-Ücretsiz denemek için model satırına `google/gemma-4-31b-it:free` gibi `:free` ile biten bir kimlik yaz.
+
+**Canlıda her sandalyeye ayrı model.** Canlıya geçtiğinde masa **4 sandalye** açılır ve sandalyeler
+**farklı modellere** dağıtılır — hepsi aynı modeli konuşmaz. Dağıtım iki kaynaktan gelir:
+① anahtarı kaydettiğinde uygulama servisin **kendi model listesini** çeker (`/models`), aile çeşitliliğine
+bakarak her sandalyeye ayrı kimlik koyar; ② liste alınamazsa bağlantının **doğrulanmış ön ayarları**
+sırayla dağıtılır. Havuz sandalyeden küçükse (Google'ın doğrulanmış ön ayarında 2 model var: 3.5 Flash-Lite
++ 3.1 Flash-Lite) sırayla tekrarlanır ve çekmece bunu **yazar**. Her sandalyenin modelini alttaki listeden
+**elle değiştirebilirsin**; elle yazdığın kimlik açılışta korunur, otomatik dağıtım üzerine yazmaz.
+Yeniden dağıtmak istersen **Her sandalyeye ayrı model dağıt** düğmesine bas.
+
+![Canlı: 4 sandalye, ayrı modeller](ekranlar/116b-model-dagitimi.jpg)
 
 ![Ayarlar — üç anahtarsız sandalye](ekranlar/30-ayarlar-sade.jpg)
 
@@ -384,8 +399,8 @@ zincir boyunca maliyet karesel büyümez, kısıtlar kaybolmaz.
 
 **Sıfırlama.** Kurulumdaki **✦ Temizle** görevleri, proje cümlesini ve konuşmayı temizler.
 
-**Demo modunda** akan şey ajan akışının **iskeletidir**: görevler paketlere dönüşür, birleştirme çalışır,
-0 istek harcanır. Metinler "(Demo)" etiketlidir, canlı cevap gibi sunulmaz.
+**Demo modunda** da cevaplar gerçektir (üç ücretsiz servis); yalnız anahtar harcanmaz, hız ve kota servislerin
+kendi sınırına bağlıdır.
 
 ---
 
@@ -418,8 +433,8 @@ geçen parçayı ikinci kez yazmaz.
 - Görsel **ayrı bir istek**tir; ajan sohbeti sayılmaz. "≈ 5 istek · 1 görsel (ücretsiz)" gibi yazar.
 - Canlı modda, başlamadan önce kaç görsel çizileceği ve hangi motorun kullanılacağı **sorulur**;
   reddedersen metin kısmı yine tamamlanır.
-- **Demo modunda görsel üretilmez** (ağa çıkılmaz). Tek tek denemek için cevabın başındaki
-  **🖼 Görsel üret** düğmesini kullan.
+- **Demo modunda hazır görsel üretimi çalışmaz** (anahtar yok). Tek tek denemek için cevabın başındaki
+  **Görsel üret** düğmesini kullan; istem yazılırken görsel motoru için anahtar gerekir.
 - Hız sınırında kart **"Görsel sırada · N sn"** diye geri sayar. Sunucu dolu dönerse (503) DivanAI 6 saniye
   sonra **bir kez** yeniden dener.
 - **Görseller saklanmaz** (tarayıcı kotasını doldurmasın diye). Sayfayı yenilersen resim kaybolur,
@@ -440,8 +455,8 @@ Cevaplar **senin yazdığın dilde** gelir: Türkçe yazarsan Türkçe, İngiliz
 Uygulama konunun dilini algılar ve her modelin talimatına ekler.
 
 **Çevrilmeyenler:** yazdığın konu, sohbet balonları ve model cevapları. Bunlar sana aittir,
-arayüz dili ne olursa olsun olduğu gibi kalır. **Demo (örnek) konuşmalar iki dillidir:** hangi
-arayüz dilini seçtiysen örnek konuşma da o dilde oynar.
+arayüz dili ne olursa olsun olduğu gibi kalır. Demo da Canlı da aynı kurala uyar: model cevabı, konuyu
+hangi dilde yazdıysan o dilde gelir.
 
 ---
 
@@ -466,6 +481,19 @@ Ayarlar ▸ **Masa düzeni** ▸ *Sayı kuralı* — varsayılan **açık**. Kap
 
 ---
 
+## Geçmişte arama · anahtar kilidi
+
+**Geçmişte arama.** Üst şeritteki saat simgesi geçmiş listesini açar; üstündeki kutuya yazdığın anda
+liste süzülür. Konu başlığı, masa türü, tarih ve konuşma metni içinde arar. `Esc` aramayı temizler.
+
+**Anahtar kilidi (isteğe bağlı).** Anahtarlar normalde bu tarayıcının yerel deposunda **düz metin**
+durur — tarayıcı verisini okuyan biri görebilir. Ayarlar → Bağlantı bölümündeki kutudan bir **parola**
+belirlersen anahtarlar **PBKDF2 (150.000 tur) + AES-GCM-256** ile şifrelenir ve depoda yalnız şifreli
+kutu kalır. Kilit her açılışta kapanır; parolayı sen girersin. **Parolayı unutursan anahtarlar
+kurtarılamaz** — başka yerde bir kopyası olsun. Kaldırmak tek düğme.
+
+---
+
 ## Görünüm · gündüz ve gece
 
 İki tema var, düzeni hiç değiştirmez — yalnız renkler ve başlık yazısı değişir.
@@ -486,6 +514,45 @@ Kontrast WCAG AA üstündedir: gövde 15,6 · ikincil 8,4 · soluk 6,0 · buton 
 
 ---
 
+## Paylaş · bağlantı ve sohbet özeti
+
+Üst şeritteki **paylaş düğmesi** (yan yana üç nokta) iki iş yapar: sayfanın **adresini** paylaşır,
+istersen **sohbetin özetini** de yanına katar.
+
+| Ne paylaşılır | Nereye | Ne gider |
+|---|---|---|
+| **Bağlantı** | WhatsApp · Telegram · X · Facebook · LinkedIn · E-posta | Yalnız adres. Kartta başlık, açıklama ve önizleme görseli (og etiketleri) çıkar |
+| **Sohbet özeti** | Kopyala · WhatsApp · E-posta · cihazın paylaş menüsü | Konu (ilk 200 karakter), her sandalyenin cevabı (ilk 220 karakter), varsa başkan özeti (ilk 320 karakter) ve adres — **en fazla 1 500 karakter** |
+
+Özet **cihazda** üretilir; hiçbir sunucuya gitmez. Sohbetin tamamı adrese gömülmez: uzun bir
+konuşma on binlerce karakterlik bağlantı olur ve çoğu uygulama onu keser. Tam metin için
+**Dışa aktar** (Word · Metin · Markdown) var.
+
+Yerelde açtığında (`localhost`) paylaş düğmesi kendi bilgisayarının adresini değil, sayfadaki
+`canonical` adresi verir — çünkü `localhost` başkasında açılmaz.
+
+| Paylaş penceresi (Türkçe) | İngilizce | Telefon |
+|---|---|---|
+| ![Paylaş](ekranlar/117-paylas.jpg) | ![Share](ekranlar/117-paylas-en.jpg) | ![Mobil](ekranlar/117-paylas-mobil.jpg) |
+
+---
+
+## Telefona kur (uygulama gibi)
+
+Site bir **PWA**'dır. Chrome/Edge'de adres çubuğundaki **Kur** düğmesiyle, iPhone/iPad'de
+**Paylaş → Ana Ekrana Ekle** ile kurulur. Kurulunca tam ekran açılır ve ilk açılıştan sonra
+**internet olmadan da** açılır: service worker son sürümü önbelleğe alır, internet varken her
+zaman taze sürümü çeker (eski sürüm takılı kalmaz).
+
+- Kurulum düğmesi **yalnız site adresinden** (https) çalışır. `index.html` dosyasını çift
+  tıklayıp açtığında tarayıcı kurulum sunmaz; uygulama yine normal çalışır.
+- Paketin yanında **4 küçük dosya** durur: `manifest.json`, `sw.js`, `icon-192.png`, `icon-512.png`.
+  Uygulamanın kendisi yine tek dosyadır (`index.html`); bu dört dosya olmadan da açılır,
+  yalnız kurulum ve çevrimdışı açılış çalışmaz.
+- “Cihazda paylaş” düğmesi yalnız bu özelliği destekleyen tarayıcılarda görünür.
+
+---
+
 ## Veri nerede?
 
 Kısa cevap: **sende kalır.** DivanAI'nın kendi sunucusu, hesabı, veritabanı yoktur.
@@ -499,7 +566,7 @@ Kısa cevap: **sende kalır.** DivanAI'nın kendi sunucusu, hesabı, veritabanı
 | Dosyaya kaydettiğin `.md` çıktısı | Kendi bilgisayarında, indirdiğin yerde | Sen |
 | Çerez, izleme, reklam | **Yok** | — |
 
-> Anahtar tarayıcında durur: ortak kullanılan bir bilgisayarda DivanAI'yı açarken **Demo** modunu kullan.
+> Anahtar tarayıcında durur: ortak kullanılan bir bilgisayarda DivanAI'yı açarken **Demo** modunu kullan (anahtar hiç devreye girmez) ya da anahtarları parolayla kilitle.
 > Anahtarı verdiysen Ayarlar → anahtar alanını boşalt → **Kaydet**; anahtar tarayıcıdan silinir.
 
 **Silmek istersen:** Ayarlar'da anahtar alanını boşalt ve Kaydet (anahtar gider), ya da tarayıcıdan
@@ -585,14 +652,17 @@ anahtarsız kurulum da çalışır, yalnız bazen 20–60 saniye bekletir.
 
 ## Bilinen sınırlar
 
-- **Demo gerçek model değildir.** Örnek metinler sabittir ve "(Demo)" etiketlidir.
-- **Canlı mod internet ister.** Anahtarsız demo internet olmadan da çalışır.
+- **Demo da gerçek modeldir; bedeli yavaşlık ve kotadır.** Üç ücretsiz servis (OVH · LLM7 · Pollinations)
+  anahtarsız cevap verir; hazır metin yoktur. Günlük kota dolunca o sandalye yedeğe düşer.
+- **Canlı mod API anahtarı ister ve internet ister.** Anahtar yoksa canlı masa çalışmaz; denemek için Demo var.
 - **Kısalık bir üst sınırdır.** Model sınırı aşmaz ama bazen gereğinden kısa yazabilir; uzun analiz için
   tek konuya odaklanmış yeni bir masa aç.
 - **En fazla 5 sandalye** — DivanAI beş sağlayıcı tanır. Aynı sağlayıcıyı ikinci sandalyede kullanmak
   (ör. iki farklı GPT modeli) bugün mümkün değil.
 - **Görseller sayfa yenilenince kaybolur**; konuşma metni ve istemleri kalır.
 - **Yedek cihazlar arası otomatik eşitlenmez** (hesap/sunucu yok, bilerek).
+- **Telefona kurulum yalnız site adresinden** (https) çalışır; `index.html` dosyasını çift tıklayıp
+  açtığında kurulum düğmesi çıkmaz, uygulama yine normal açılır.
 
 ---
 
@@ -644,6 +714,10 @@ Sayfayı bir kez açman yeterli: taşıma tek seferlik çalışır, ardından es
 **Hiçbir şeyi elle yapman gerekmez**; anahtarın ve ayarların yerinde kalır.
 Daha önce indirdiğin `.json` ayar yedeği de açılmaya devam eder (dosya içindeki uygulama adı
 `MASA` yazsa bile kabul edilir).
+
+| Paylaş: bağlantı ve sohbet özeti | Telefonda paylaş penceresi |
+|---|---|
+| ![Paylaş](ekranlar/117-paylas.jpg) | ![Mobil](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 
@@ -702,6 +776,10 @@ Sayfaya bir **CSP** konuldu. Tek dosya olduğu için satır içi kod zorunlu; am
 **kod yüklenemez**: uzak script, iframe, eklenti (object), form gönderimi ve `<base>`
 kaçırma kapalı. Yani yarın bir kaçış hatası bulunsa bile sayfaya dışarıdan kod çekilemez.
 Politika sayfanın içinde `<meta>` ile veriliyor, çünkü GitHub Pages özel başlık göndermiyor.
+
+Kol 117'de iki iz daha açıldı, ikisi de **yalnız kendi sitemize** (`'self'`): `worker-src`
+(service worker dosyası) ve `manifest-src` (uygulama manifesti). Başka alan adından ne worker
+ne manifest yüklenebilir; geri kalan her şey `'none'` olarak duruyor.
 
 Ayrıca `Referrer-Policy: no-referrer` var: dış bir bağlantıya tıkladığında sayfa adresin
 karşı tarafa sızmaz.

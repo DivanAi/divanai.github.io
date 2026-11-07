@@ -11,8 +11,10 @@ You write a topic; the AI minds at the table speak in turn, challenge each other
 chair sums it up. No tab-by-tab copy-paste.
 
 **One file.** Double-click `index.html` and it opens. No install, no account, no server.
-**Keyless demo.** Try the whole flow without signing up anywhere (demo text is never passed off as a
-live answer).
+**Opens keyless (Demo).** The app starts in **Demo** mode: three seats on three separate free services
+(OVH · LLM7 · Pollinations), no signup, no key. The answers are **real** — not canned text; the price is
+slowness and the services' daily limits. **Live** mode **requires an API key**: your own key buys speed and
+a higher limit; the live default table has **4 seats**.
 
 | **Council** | **Panel** | **Mirror** | **Agents** | **OneOnOne** |
 |---|---|---|---|---|
@@ -32,10 +34,13 @@ Not marketing — measurements:
 | Topic | Reality |
 |---|---|
 | **"Free"** | The app charges nothing, wants no account, counts no requests. **The services** set limits: OpenRouter `:free` models 50 requests a day (a round costs 4 → ~12 rounds), Groq free tier 1,000 a day, Pollinations publishes no quota but throttles under load. |
-| **Keyless mode** | Not a demo — real services, but it **cannot read images** and it is slow (first answer ~22 s, 7 Nov 2026). |
+| **Demo mode (keyless)** | Real answers, not canned text — but it **cannot read images** and it is slow (first answer 20–60 s). **Live** mode requires an API key. |
+
+![Demo mode: three keyless services, real answers](ekranlar/116-demo-gercek-cevap.jpg)
 | **Web search** | OpenRouter only and **paid**: ~0.7–1.5 cents per request, even on a free model. Off by default. |
 | **Mirror** | Same model in two roles: it makes self-approval harder. It does **not** catch a blind spot the model shares everywhere — no substitute for changing the model. |
 | **Number rule** | Turns unsourced amounts into `[?]`; it does not make the answer correct. Ratios can be wrong too, but they are debatable. |
+| **Key lock** | Off by default, keys are plain text. Enabling it is optional; a forgotten passphrase cannot be recovered. |
 
 ---
 
@@ -44,13 +49,13 @@ Not marketing — measurements:
 1. Download the `divanai` folder and double-click **`index.html`**. (No Python, no install, no internet needed.)
 2. Pick the table type at the top: **Council · Panel · Mirror · Agents · OneOnOne**.
 
-**Start with no setup at all.** The app opens in **Live** mode and sets up **three keyless seats**:
-**Pollinations** (gpt-oss 20B), **LLM7.io** (Mistral Nemo), **OVH AI Endpoints** (Llama 3.3 70B) — three
-separate services, **no signup, no key, no card**. The first round is slow: when I measured it, the three
-answers arrived in **~21 seconds** in parallel (LLM7 takes one request at a time, OVH two a minute).
-**OneOnOne** also works keyless (Pollinations); there the answers arrive one after another.
+**Start with no setup at all.** The app opens in **Demo** mode and sets up **three keyless seats**:
+**OVH AI Endpoints** (Llama 3.3 70B), **LLM7.io** (Codestral), **Pollinations** (gpt-oss 20B) — three
+separate services, **no signup, no key, no card**. The answers are real; the first round is slow (measured
+7 Nov 2026: a three-seat round took **~65 seconds**; LLM7 takes one request at a time, OVH two a minute).
 3. Type the topic into the box and press `Enter`. *(Example: "Is opening a small coffee shop in Bursa sensible?")
-4. In demo mode the answers are canned text; you see the flow and **no requests are spent**.
+4. In Demo mode **no key is spent**; the free services use their own daily quota. When one runs out the
+   seat leaves a one-line note and moves to the next free service.
 
 **Faster is optional (3 steps):** ① create an account with a free provider — the most generous free tier
 is **Google AI Studio** (no credit card, and the daily allowance is counted **per model**); ② copy the
@@ -61,6 +66,17 @@ folded under **Other services**, so leave them closed unless you need them. Ever
 **no card / card required** tag.
 The key is kept **in this browser only** (`localStorage`); it never goes to a server, a file or a store.
 To try something free, put an id ending in `:free` — e.g. `google/gemma-4-31b-it:free`.
+
+**A different model on every seat in Live.** Switching to Live opens **4 seats** and spreads them over
+**different models** — they do not all speak with the same one. The spread comes from two sources:
+① when you save the key the app fetches the service's **own model list** (`/models`) and gives each seat a
+separate id, favouring a mix of vendors; ② if the list cannot be fetched, the connection's **vetted presets**
+are spread in turn. When the pool is smaller than the table (Google's vetted presets hold 2 models:
+3.5 Flash-Lite + 3.1 Flash-Lite) they repeat in turn and the drawer **says so**. You can **change any seat's
+model by hand** in the list below; an id you type is kept at startup and never overwritten by the automatic
+spread. To re-spread, press **Spread a different model per seat**.
+
+![Live: 4 seats, separate models](ekranlar/116b-model-dagitimi.jpg)
 
 ![Settings — three keyless seats](ekranlar/30-ayarlar-sade.jpg)
 
@@ -387,8 +403,8 @@ conversation: cost does not grow quadratically along the chain and constraints d
 
 **Reset.** **✦ Clear** in the setup clears tasks, the project sentence and the conversation.
 
-**In demo mode** what runs is the **skeleton** of the agent flow: tasks turn into packages, the merge
-works, 0 requests spent. Text is labelled “(Demo)” and never passed off as a live answer.
+**In Demo mode** the answers are real too (three free services); only no key is spent, and speed and quota
+depend on each service's own limit.
 
 ---
 
@@ -422,8 +438,8 @@ already present in the prompt is not repeated.
 - An image is a **separate request**; it does not count as agent chat. It reads “≈ 5 requests · 1 image (free)”.
 - In live mode, before starting you are **asked** how many images will be drawn and which engine is used;
   decline and the text part still completes.
-- **No images in demo mode** (no network). To try one by one, use the **🖼 Generate image** button at the
-  top of an answer.
+- **No ready-made images in Demo mode** (no key). To try one by one, use the **Generate image** button at
+  the top of an answer; the image engine needs a key.
 - At the rate limit the card counts down “Image queued · N s”. If the server answers busy (503), DivanAI
   retries **once** after 6 seconds.
 - **Images are not stored** (so they do not fill browser quota). Reload the page and the picture is gone;
@@ -444,8 +460,8 @@ Answers come **in the language you write**: Turkish if you write Turkish, Englis
 The app detects the topic's language and adds it to every model's instruction.
 
 **What is not translated:** your topic, the chat bubbles and the model answers. They belong to you and
-stay exactly as written whatever the interface language. **Demo sample conversations are bilingual:** the
-sample plays in whichever interface language you picked.
+stay exactly as written whatever the interface language. Demo and Live follow the same rule: a model answer
+comes in the language you wrote the topic in.
 
 ---
 
@@ -463,6 +479,19 @@ The models never write absolute amounts for price, cost, revenue, rent or salary
 **Banned:** invented amounts and invented ratios.
 
 Settings ▸ **Table setup** ▸ *Number rule* — on by default.
+
+---
+
+## Search in history · key lock
+
+**Search.** The clock icon in the top bar opens the history list; typing in the box filters it live —
+it searches the topic, table type, date and the conversation text. `Esc` clears the query.
+
+**Key lock (optional).** Keys normally sit in this browser's local storage as **plain text** — anyone
+reading the browser data can see them. Set a **passphrase** in Settings → Connection and the keys are
+encrypted with **PBKDF2 (150,000 rounds) + AES-GCM-256**; only the encrypted box stays in storage.
+The lock closes on every reload; you open it with your passphrase. **If you forget it the keys cannot
+be recovered** — keep a copy elsewhere. Removing the lock is one button.
 
 ---
 
@@ -486,6 +515,45 @@ With `prefers-reduced-motion`, the transition is disabled.
 
 ---
 
+## Share · link and conversation summary
+
+The **share button** in the top bar (three connected dots) does two things: it shares the page
+**address**, and if you want it adds a **summary of the conversation**.
+
+| What is shared | Where | What goes along |
+|---|---|---|
+| **Link** | WhatsApp · Telegram · X · Facebook · LinkedIn · E-mail | Only the address. The preview card shows the title, description and image (og tags) |
+| **Conversation summary** | Copy · WhatsApp · E-mail · the device share sheet | Topic (first 200 characters), each seat's answer (first 220), the chair summary if any (first 320) and the address — **at most 1,500 characters** |
+
+The summary is built **on your device**; it never goes to a server. The whole conversation is
+not packed into the URL: a long chat would become a link tens of thousands of characters long
+and most apps would cut it. For the full text use **Export** (Word · text · Markdown).
+
+When you open the page locally (`localhost`) the share button gives the `canonical` address
+instead of your own machine's — `localhost` does not open on anyone else's computer.
+
+| Share panel (Turkish) | English | Phone |
+|---|---|---|
+| ![Share](ekranlar/117-paylas.jpg) | ![Share](ekranlar/117-paylas-en.jpg) | ![Mobile](ekranlar/117-paylas-mobil.jpg) |
+
+---
+
+## Install on your phone (like an app)
+
+The site is a **PWA**. On Chrome/Edge use the **Install** button in the address bar; on
+iPhone/iPad use **Share → Add to Home Screen**. Once installed it opens full screen and, after
+the first visit, **opens without internet too**: the service worker caches the latest version
+and always fetches a fresh one when you are online (no stale version stuck).
+
+- Installation works **only from the site address** (https). If you double-click `index.html`
+  the browser offers no install; the app still works normally.
+- The package carries **4 small companion files**: `manifest.json`, `sw.js`, `icon-192.png`,
+  `icon-512.png`. The app itself is still a single file (`index.html`); without those four it
+  opens fine, only installation and offline start do not work.
+- The “Share on device” button appears only in browsers that support it.
+
+---
+
 ## Where is the data?
 
 Short answer: **with you.** DivanAI has no server, no account, no database of its own.
@@ -499,7 +567,8 @@ Short answer: **with you.** DivanAI has no server, no account, no database of it
 | The `.md` file you save | On your own computer, wherever you downloaded it | You |
 | Cookies, tracking, ads | **None** | — |
 
-> The key lives in your browser: on a shared computer use **Demo** mode when opening DivanAI. If you did
+> The key lives in your browser: on a shared computer use **Demo** mode when opening DivanAI (the key is never
+> used there), or lock the keys with a passphrase. If you did
 > enter a key, Settings → empty the key field → **Save**; the key is removed from the browser.
 
 **If you want to delete it:** empty the key field in Settings and save (the key is gone), or clear the
@@ -585,14 +654,18 @@ keyless setup works too, it just makes you wait 20–60 seconds now and then.
 
 ## Known limits
 
-- **Demo is not a real model.** The sample texts are fixed and labelled “(Demo)”.
-- **Live mode needs the internet.** The keyless demo works without it.
+- **Demo is a real model too; the price is speed and quota.** Three free services (OVH · LLM7 · Pollinations)
+  answer keyless; there is no canned text. When a daily limit runs out that seat falls back.
+- **Live mode requires an API key and the internet.** Without a key the live table will not run; Demo is there
+  to try it.
 - **Brevity is an upper bound.** A model will not exceed the limit but may write less than you need; for
   a long analysis open a new table focused on one topic.
 - **At most 5 seats** — DivanAI knows five providers. Using the same provider in a second seat (e.g. two
   different GPT models) is not possible today.
 - **Images vanish on reload**; the conversation text and prompts stay.
 - **Backups do not sync between devices automatically** (no account/server, deliberately).
+- **Installing to the phone works only from the site address** (https); if you double-click
+  `index.html` no install button appears, but the app still opens normally.
 
 ---
 
@@ -641,6 +714,10 @@ Opening the page once is enough: migration runs a single time and the old record
 **You do not have to do anything by hand**; your key and settings stay where they are. A `.json`
 settings backup you downloaded earlier keeps working too (it is accepted even if the app name inside
 says `MASA`).
+
+| Share: link and conversation summary | Share panel on the phone |
+|---|---|
+| ![Share](ekranlar/117-paylas.jpg) | ![Mobile](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 
@@ -696,6 +773,10 @@ A **CSP** is set on the page. Because it is a single file, inline code is requir
 loaded from outside**: remote scripts, iframes, objects, form submissions and `<base>` hijacking are
 closed. So even if an escape hatch were found tomorrow, no outside code could be pulled in. The policy is
 delivered with a `<meta>` tag inside the page, since GitHub Pages sends no custom headers.
+
+In Kol 117 two more sources were opened, both **for our own site only** (`'self'`): `worker-src`
+(the service worker file) and `manifest-src` (the app manifest). No worker or manifest can be
+loaded from another domain; everything else stays `'none'`.
 
 `Referrer-Policy: no-referrer` is set too: when you click an external link, your page address does not
 leak to the other side.

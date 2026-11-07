@@ -26,7 +26,7 @@ PORT = int(os.environ.get("PORT", "8080"))
 CSP = ("default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline'; "
        "img-src 'self' data: blob: https:; font-src data:; connect-src https: http:; "
        "media-src data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'; "
-       "frame-src 'none'; frame-ancestors 'none'; worker-src 'none'; manifest-src 'none'")
+       "frame-src 'none'; frame-ancestors 'none'; worker-src 'self'; manifest-src 'self'")   # Kol 117: yalnız kendi dosyalarımız
 
 
 class Handler(SimpleHTTPRequestHandler):
