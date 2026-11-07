@@ -540,18 +540,20 @@ Toggle with the **single icon** in the top bar: a moon in day mode, a sun in nig
 shows where you are going). The choice is stored in the browser; the first visit is **day**.
 The `G` key toggles too (not while typing). The settings drawer also has a `☀ Day / ☾ Night` row.
 
-The brand is now a **plaque** that stands apart from the page: cream-brass surface, double frame, a
-thin brass rule on top. **Clicking it takes you home**; if the table has a conversation it asks first,
+The brand is now a **plaque** that stands apart from the page: a **dark navy-black surface** (with a
+soft amber glow at the top), brass frame and an inner hairline. On a paper-coloured page the brand is
+the only dark object, so the eye lands on it first. **Clicking it takes you home**; if the table has a conversation it asks first,
 and while a round is running it does nothing (press “Stop”). It works by keyboard too — the plaque is
 a button: `Tab` to focus, `Enter` to press.
 
-The **logo** is now the **first thing that catches the eye**: a 44 px (40 px on phones) round
-**brass medallion** with four coloured seats (green · blue · orange · purple), an amber ring and a
-soft shadow. The brand name grew to 22 px. The tab icon and the phone icon use the same medallion.
+The **logo** is the **first thing that catches the eye**: a **60 px** (52 px on phones) round
+**brass medallion** with four coloured seats (green · blue · orange · purple), a brass ring and a soft
+shadow. The table line is white and thick, so the medallion stays legible at 60 px. The brand name is
+**30 px** (25 px on phones). The tab icon and the phone icon use the same medallion and proportions.
 
 | Plaque · day | Plaque · night | Phone |
 |---|---|---|
-| ![Plaque day](ekranlar/121-logo-gunduz.jpg) | ![Plaque night](ekranlar/121-logo-gece.jpg) | ![Mobile](ekranlar/121-logo-mobil.jpg) |
+| ![Plaque day](ekranlar/124-marka-gunduz.jpg) | ![Plaque night](ekranlar/124-marka-gece.jpg) | ![Mobile](ekranlar/124-marka-mobil.jpg) |
 
 **On the phone the top bar is two rows, both centred:**
 

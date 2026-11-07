@@ -541,17 +541,19 @@ kurtarılamaz** — başka yerde bir kopyası olsun. Kaldırmak tek düğme.
 modu gösterir). Seçim tarayıcıda saklanır; ilk açılış **gündüzdür**. `G` tuşu da değiştirir
 (yazı kutusunda çalışmaz). Ayarlar çekmecesinde de `☀ Gündüz / ☾ Gece` satırı vardır.
 
-Marka artık sayfadan ayrı duran bir **plaka**: krem-pirinç zemin, çift çerçeve, üstte ince pirinç çizgi.
+Marka artık sayfadan ayrı duran bir **plaka**: **koyu lacivert-siyah zemin** (üstte hafif kehribar ışık),
+pirinç çerçeve, içte ince çizgi. Kâğıt sayfada tek koyu öğe marka olduğu için göz ilk ona gidiyor.
 Plakaya **tıklayınca ana ekrana dönersin**; masada konuşma varsa önce sorar, konuşma sürerken hiç
 dokunmaz (önce “Durdur”). Klavyeyle de çalışır: plaka bir düğmedir, `Tab` ile odaklanıp `Enter` ile basılır.
 
-**Logo** artık sayfanın **ilk dikkat çeken öğesi**: 44 px (telefonda 40 px) yuvarlak **pirinç
-madalyon**, dört renkli sandalye (yeşil · mavi · turuncu · mor), kehribar halka ve yumuşak gölge.
-Marka adı 22 px'e çıktı. Sekme simgesi ve telefon simgesi de aynı madalyon.
+**Logo** sayfanın **ilk dikkat çeken öğesi**: **60 px** (telefonda 52 px) yuvarlak **pirinç
+madalyon**, dört renkli sandalye (yeşil · mavi · turuncu · mor), pirinç halka ve yumuşak gölge.
+Masa çizgisi beyaz ve kalın: madalyon 60 px'de de seçiliyor. Marka adı **30 px** (telefonda 25 px).
+Sekme simgesi ve telefon simgesi de aynı madalyon, aynı oranlarla.
 
 | Plaka · gündüz | Plaka · gece | Telefon |
 |---|---|---|
-| ![Plaka gündüz](ekranlar/121-logo-gunduz.jpg) | ![Plaka gece](ekranlar/121-logo-gece.jpg) | ![Mobil](ekranlar/121-logo-mobil.jpg) |
+| ![Plaka gündüz](ekranlar/124-marka-gunduz.jpg) | ![Plaka gece](ekranlar/124-marka-gece.jpg) | ![Mobil](ekranlar/124-marka-mobil.jpg) |
 
 **Telefonda üst şerit iki satır, ikisi de ortalanmış:**
 
