@@ -519,10 +519,15 @@ a button: `Tab` to focus, `Enter` to press.
 |---|---|
 | ![Plaque day](ekranlar/118-logo-gunduz.jpg) | ![Plaque night](ekranlar/118-logo-gece.jpg) |
 
-**On the phone the top bar is two rows:** the plaque (name + slogan) and Settings on top; theme ·
-language · help · history · support below. The brand name is never truncated at any width (it used
-to shrink to “Div…”). Under 400 px Settings becomes icon-only (its label is in the drawer); under
-360 px only the centred Demo/Live badge is hidden.
+**On the phone the top bar is two rows, both centred:**
+
+| Row | Content |
+|---|---|
+| 1 | Logo plaque (name + slogan) — **exactly centred** |
+| 2 | theme · language · help · history · **support** · **Settings** — group centred |
+
+The brand name is never truncated at any width (it used to shrink to “Div…”); under 360 px only the
+centred Demo/Live badge is hidden.
 
 | Phone · top bar | Phone · home |
 |---|---|

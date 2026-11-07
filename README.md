@@ -517,10 +517,15 @@ dokunmaz (önce “Durdur”). Klavyeyle de çalışır: plaka bir düğmedir, `
 |---|---|
 | ![Plaka gündüz](ekranlar/118-logo-gunduz.jpg) | ![Plaka gece](ekranlar/118-logo-gece.jpg) |
 
-**Telefonda üst şerit iki satır:** üstte plaka (ad + slogan) ve Ayarlar; altta tema · dil · yardım ·
-geçmiş · destek. Marka adı hiçbir genişlikte kısaltılmıyor (eskiden “Div…” diye kesiliyordu).
-400 px altında Ayarlar yalnız simge olur (adı çekmecede zaten var); 360 px altında yalnız ortadaki
-Demo/Canlı rozeti gizlenir.
+**Telefonda üst şerit iki satır, ikisi de ortalanmış:**
+
+| Satır | İçerik |
+|---|---|
+| 1 | Logo plakası (ad + slogan) — **tam ortada** |
+| 2 | tema · dil · yardım · geçmiş · **destek** · **Ayarlar** — grup ortada |
+
+Marka adı hiçbir genişlikte kısaltılmıyor (eskiden “Div…” diye kesiliyordu); 360 px altında yalnız
+ortadaki Demo/Canlı rozeti gizlenir.
 
 | Telefon · üst şerit | Telefon · ana ekran |
 |---|---|

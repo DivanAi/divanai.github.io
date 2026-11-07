@@ -1006,16 +1006,17 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
   .brand{gap:8px}
   .brandtext b{font-size:18px}
 }
-/* Kol 118b · MOBİL: üst şerit iki satır.
-   Satır 1: logo plakası (tam ad + slogan) + Ayarlar
-   Satır 2: tema · dil · yardım · geçmiş · destek
-   Böylece marka adı hiçbir genişlikte "Div…" diye kesilmiyor. */
+/* Kol 118b/c · MOBİL: üst şerit iki satır, İKİSİ DE ORTALI.
+   Satır 1: logo plakası (ad + slogan) — tam ortada
+   Satır 2: tema · dil · yardım · geçmiş · destek · Ayarlar — grup ortada
+   Satırı bölen görünmez öğe: .topbar::after (yüksekliği 0, yer kaplamaz). */
 @media (max-width:520px){
-  .topbar{flex-wrap:wrap;row-gap:7px;padding:8px 10px;gap:8px}
-  .brand{order:1;margin-right:auto;flex:0 0 auto;max-width:calc(100% - 48px)}
-  #settingsBtn{order:2;margin-left:0}
-  .topmid{order:3}
-  .topactions{order:4;flex:1 1 100%;justify-content:flex-end;gap:7px}
+  .topbar{flex-wrap:wrap;row-gap:8px;padding:8px 10px;gap:8px;justify-content:center}
+  .topbar::after{content:"";order:2;flex-basis:100%;height:0}   /* satır sonu */
+  .brand{order:1;flex:0 0 auto;margin:0;max-width:100%}
+  .topactions{order:3;flex:0 1 auto;justify-content:center;gap:7px}
+  #settingsBtn{order:4;margin-left:0}
+  .topmid{display:none}
   .brandtext span{display:block;font-size:10px;letter-spacing:.01em}
   .brand{padding:5px 13px 5px 8px;gap:9px}
   .brand .logo{width:30px;height:30px}
