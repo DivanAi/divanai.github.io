@@ -169,6 +169,11 @@ onu **Dışa aktar** ile alırsın.
   çekilir ve beş sandalyeye o servise ait modeller yerleşir. Elle model kimliği yazmak zorunda değilsin.
   Kendi seçtiğin ve o serviste bulunan bir model varsa **korunur**, üzerine yazılmaz.
 - **Başkan**: özeti ve kapanışı yazan sandalye.
+- **Model seçimi konuşma ekranında**: **TekeTek** ve **Ayna** modlarında, yazı kutusunun hemen
+  üstündeki **Model** çubuğundan konuşacağın yapay zekâyı seçersin — Ayarlar'a girmeden, sohbet
+  sürerken de. Seçenekler: anahtarsız ücretsiz servisler (OVH · LLM7 · Pollinations), bağlantının
+  kendi model listesi ya da ön ayarları. Seçim tarayıcıda saklanır, yenileyince korunur.
+  (Ayarlar → Masa'daki eski *Ayna modeli* seçimi kaldırıldı; o iş artık bu çubukta.)
 - **Başkan** ve **roller aynı yerde**: Ayarlar → Masa → **Roller**. En üstteki listeden **başkanı** seçersin
   (özeti ve kapanışı o yazar); başkanın satırında **BAŞKAN** rozeti, TekeTek'te konuşan sandalyede
   **KONUŞAN** rozeti görünür.

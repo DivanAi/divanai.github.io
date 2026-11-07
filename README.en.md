@@ -169,6 +169,11 @@ not part of the settings backup; take it with **Export**.
   models from that service land on the five seats. No need to type model ids by hand. A model you picked
   yourself, if the service has it, is **kept**, not overwritten.
 - **Chair**: the seat that writes the summary and the closing.
+- **Model picking lives on the chat screen**: in **Solo** and **Mirror** modes the **Model** bar just
+  above the input box picks the AI you talk to — without opening Settings, even mid-conversation.
+  Options: the keyless free services (OVH · LLM7 · Pollinations), the connection's own model list,
+  or its presets. The choice is stored in the browser and survives a reload.
+  (The old *Mirror model* picker under Settings → Table was removed; this bar replaces it.)
 - **Chair and roles live together**: Settings → Table → **Roles**. The list at the top picks the
   **chair** (it writes the summary and the close); the chair's row carries a **CHAIR** badge and, in
   Solo mode, the speaking seat carries a **SPEAKING** badge.

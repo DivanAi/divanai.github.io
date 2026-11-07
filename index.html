@@ -398,7 +398,23 @@ a{color:var(--link)}
   #scroll.idle{padding-bottom:0}
   .dock.inhero{padding-top:6px}
   .dock.inhero .hint{padding-top:4px}
-  .dock.inhero .composer{padding:7px 8px 7px 14px}
+  .dock.inhero /* Kol 128 · konuşma ekranındaki model çubuğu (TekeTek + Ayna) */
+.modelBar{display:flex;align-items:center;gap:9px;margin:0 0 8px;padding:7px 10px;
+  border:1px solid rgba(var(--w),.14);border-radius:12px;background:rgba(var(--w),.035);
+  max-width:100%;}
+.modelBar[hidden]{display:none}
+.modelBar .mbLbl{font-size:11.5px;color:var(--dim);white-space:nowrap;letter-spacing:.01em}
+.modelBar select{flex:1 1 auto;min-width:0;max-width:420px;font-size:12.5px;padding:6px 9px;
+  border-radius:9px;border:1px solid rgba(var(--w),.20);background:var(--card,#fff);color:inherit;font-family:inherit}
+.modelBar select:focus{outline:none;border-color:rgba(var(--accrgb),.8);box-shadow:0 0 0 3px rgba(var(--accrgb),.16)}
+.modelBar .mbNote{font-size:11px;color:var(--warnInk);white-space:nowrap}
+:root[data-palette="night"] .modelBar select{background:rgba(var(--w),.07)}
+@media (max-width:560px){
+  .modelBar{flex-wrap:wrap;gap:6px;padding:7px 9px}
+  .modelBar .mbLbl{flex:1 1 100%}
+  .modelBar select{max-width:none;flex:1 1 100%}
+}
+.composer{padding:7px 8px 7px 14px}
   .dock.inhero .composer textarea{padding:7px 0}
 }
 
@@ -1785,6 +1801,13 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
         <button type="button" class="btn ghost sm" id="copyBtn" hidden>Kopyala</button>
       </div>
       <div class="attachTray" id="attachTray" hidden></div>
+      <!-- Kol 128 · konuşma ekranında model seçimi (TekeTek + Ayna).
+           Ayarlar'a girmeden, sohbet sürerken de değiştirilebilir. -->
+      <div class="modelBar" id="modelBar" hidden>
+        <label class="mbLbl" for="mbPick" id="mbLbl">Model</label>
+        <select id="mbPick" aria-labelledby="mbLbl"></select>
+        <span class="mbNote" id="mbNote"></span>
+      </div>
       <div class="composer" id="composer">
         <button type="button" class="attachBtn" id="attachBtn" aria-label="Dosya ekle" title="Dosya ekle · görsel, PDF, Word, Excel, metin (Ctrl+V ile de yapıştırabilirsin)">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.4 11.1 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.1-9.1a3.7 3.7 0 0 1 5.2 5.2l-9.1 9.1a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/></svg>
@@ -3362,14 +3385,28 @@ function normalizeMode() {
       if (g && g.group === 'keyless') delete s.seatSrc[k];
     });
   } else {
-    /* demo sabittir: 3 sandalye, her biri kendi ücretsiz servisinde, servisin kendi modeli */
+    /* demo sabittir: 3 sandalye, her biri kendi ücretsiz servisinde, servisin kendi modeli.
+       Kol 128: kullanıcı konuşma ekranından bir servis SEÇTİYSE (s.picks) o korunur;
+       seçmediği sandalyeler varsayılan ücretsiz servisinde kalır. */
     s.active = DEMO_SEATS.slice();
-    s.seatSrc = { ...DEMO_SRC };
     s.models = s.models || {};
+    const picks = (s.picks && typeof s.picks === 'object') ? s.picks : {};
+    const nextSrc = {};
     DEMO_SEATS.forEach(pid => {
-      const pre = (GATEWAYS[DEMO_SRC[pid]] || {}).models || {};
+      const pk = picks[pid];
+      const g = GATEWAYS[pk];
+      const kind = (g && g.group === 'keyless') ? pk : DEMO_SRC[pid];
+      nextSrc[pid] = kind;
+      const pre = (GATEWAYS[kind] || {}).models || {};
       s.models[pid] = pre[pid] || Object.keys(pre).map(k => pre[k]).find(Boolean) || '';
     });
+    /* demo sandalyesi olmayan (ör. Ayna'nın modeli) anahtarsız seçimler korunur */
+    Object.keys(s.seatSrc || {}).forEach(k => {
+      if (nextSrc[k]) return;
+      const g = GATEWAYS[s.seatSrc[k]];
+      if (g && g.group === 'keyless') nextSrc[k] = s.seatSrc[k];
+    });
+    s.seatSrc = nextSrc;
     s.chair = DEMO_SEATS.includes(s.chair) ? s.chair : 'gpt';
   }
 }
@@ -3441,6 +3478,7 @@ const DEFAULT_SETTINGS = {
   contextKeep: 2,        // hafıza modunda son kaç mesaj tam tutulur
   customGoal: { label: '', line: '' },   // 'Özel gündem' seçilince kullanılır
   roles: {},             // pid → { roleLabel, brief }  (varsayılanı ezer)
+  picks: {},             // pid → anahtarsız servis (konuşma ekranından yapılan model seçimi, Kol 128)
   speed: 1,
   autoStop: true,        // doyunca kendiliğinden dur + özet çıkar
   maxRounds: 6,          // güvenlik tavanı: bu turdan sonra devam etmez
@@ -9942,6 +9980,144 @@ const TABLE_COPY = {
   }
 };
 
+/* ============================================================================
+   Kol 128 · KONUŞMA EKRANINDA MODEL SEÇİMİ (TekeTek + Ayna)
+   Kullanıcı: "konuşma ekranında model seçimi eklesek yeterli; aynı şeyi TekeTek'te de
+   yapalım, hangi modelle konuşacağımızı seçebilelim."
+   Seçenek üç türlü:
+     k:<servis>          → anahtarsız ücretsiz servis (OVH · LLM7 · Pollinations)
+     m:<model kimliği>   → bağlantının kendi model listesinden (canlı + liste alındıysa)
+     g:<servis>:<model>  → bağlantının doğrulanmış ön ayar modeli
+   Seçim sandalyenin kendi alanına yazılır (seatSrc / models); Konsey ayarlarına dokunmaz.
+   ============================================================================ */
+function modelBarTarget() {
+  const t = tableNow();
+  if (t === 'tek') return { mode: 'tek', pid: tekSeat() };
+  if (t === 'ayna') return { mode: 'ayna', pid: duelPid() };
+  return null;
+}
+function modelBarValue(pid) {
+  const s = state.settings;
+  const src = (s.seatSrc || {})[pid];
+  const mdl = (s.models || {})[pid] || '';
+  if (src && GATEWAYS[src] && GATEWAYS[src].group === 'keyless') return 'k:' + src;
+  if (mdl) return 'm:' + mdl;
+  const kind = (s.api || {}).kind || '';
+  return kind ? 'g:' + kind + ':' + mdl : '';
+}
+function modelBarOptions(pid) {
+  const L = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
+  const out = [];
+  /* 1) anahtarsız servisler: demo dahil her zaman çalışır */
+  const keyless = [];
+  for (const [id, g] of Object.entries(GATEWAYS)) {
+    if (g.group !== 'keyless') continue;
+    const m = (g.models || {}).gpt || '';
+    keyless.push({ v: 'k:' + id, t: g.label + (m ? ' · ' + modelAdi(m) : '') });
+  }
+  if (keyless.length) out.push({ grup: L('Anahtarsız · ücretsiz', 'Keyless · free'), items: keyless });
+  /* 2) bağlantının kendi modelleri (canlı mod + liste alındıysa) */
+  const lst = (state.orModels || []).filter(id => modelIsChat(id));
+  if (lst.length) {
+    out.push({ grup: L('Bağlantının modelleri (' + lst.length + ')', 'Connection models (' + lst.length + ')'),
+               items: lst.slice(0, 200).map(id => ({ v: 'm:' + id, t: id })) });
+  } else {
+    /* 3) liste yoksa: bağlantının doğrulanmış ön ayarları */
+    const kind = (state.settings.api || {}).kind || '';
+    const g = GATEWAYS[kind] || {};
+    const onay = (g.models || {});
+    const items = Object.keys(onay).map(k => ({ v: 'g:' + kind + ':' + onay[k], t: (g.label || kind) + ' · ' + modelAdi(onay[k]) }));
+    if (items.length) out.push({ grup: L('Bağlantının ön ayarları', 'Connection presets'), items });
+  }
+  return out;
+}
+function modelAdi(id) {
+  /* Kol 128: uzun model kimliklerini kısa, okunur ada çevirir (seçim listesi için) */
+  const s0 = String(id || '');
+  const low = s0.toLowerCase();
+  if (/^Meta-Llama-3_3-70B-Instruct$/i.test(s0)) return 'Llama 3.3 70B';
+  if (low.indexOf('mistral-small-3') === 0) return 'Mistral Small 3.2';
+  if (low === 'codestral-latest') return 'Codestral';
+  if (/^openai(-fast)?$/i.test(s0)) return 'gpt-oss 20B';
+  if (low.indexOf('openai/') === 0) return s0.slice(7);
+  return s0;
+}
+function renderModelBar() {
+  const bar = $('#modelBar'), sel = $('#mbPick'), lbl = $('#mbLbl'), note = $('#mbNote');
+  if (!bar || !sel) return;
+  const hedef = modelBarTarget();
+  if (!hedef) { bar.hidden = true; return; }
+  const L = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
+  const gruplar = modelBarOptions(hedef.pid);
+  bar.hidden = false;
+  if (lbl) lbl.textContent = hedef.mode === 'tek' ? L('Konuşacağın yapay zekâ', 'The AI you talk to') : L('Ayna’nın modeli', 'Mirror model');
+  const cur = modelBarValue(hedef.pid);
+  let html = '';
+  let bulundu = false;
+  for (const g of gruplar) {
+    html += '<optgroup label="' + esc(g.grup) + '">';
+    for (const it of g.items) {
+      const on = it.v === cur;
+      if (on) bulundu = true;
+      html += '<option value="' + esc(it.v) + '"' + (on ? ' selected' : '') + '>' + esc(it.t) + '</option>';
+    }
+    html += '</optgroup>';
+  }
+  /* kayıtlı seçim listede yoksa (ör. listede olmayan elle yazılmış model) yine görünsün */
+  if (!bulundu && cur) {
+    const s = state.settings;
+    const etiket = cur.indexOf('m:') === 0 ? cur.slice(2) : (cur.indexOf('k:') === 0 ? ((GATEWAYS[cur.slice(2)] || {}).label || cur.slice(2)) : cur);
+    html = '<option value="' + esc(cur) + '" selected>' + esc(etiket) + '</option>' + html;
+  }
+  sel.innerHTML = html;
+  /* Kol 128: uyarı yalnız GERÇEKTEN anahtar gerekiyorsa çıkar.
+     Önce sandalyenin kendi bağlantısına bak (anahtarsız servis → anahtar gerekmez). */
+  const seatKind = (state.settings.seatSrc || {})[hedef.pid] || (state.settings.api || {}).kind || '';
+  const seatGw = GATEWAYS[seatKind] || {};
+  const anahtarsiz = !!(seatGw.keyless || seatGw.optionalKey || seatGw.group === 'keyless');
+  const anahtarVar = anahtarsiz
+    || !!(String((state.settings.seatKey || {})[hedef.pid] || '').trim())
+    || !!(String(keyOfKind((state.settings.api || {}).kind) || '').trim());
+  if (note) {
+    const canli = (state.settings.mode === 'live');
+    note.textContent = (canli && !anahtarVar) ? L('bu seçim için anahtar gerekir', 'this pick needs a key') : '';
+  }
+  bar.dataset.mode = hedef.mode;
+}
+function applyModelPick(v) {
+  const hedef = modelBarTarget();
+  if (!hedef || !v) return;
+  const s = state.settings;
+  s.seatSrc = s.seatSrc || {}; s.seatKey = s.seatKey || {}; s.models = s.models || {};
+  const pid = hedef.pid;
+  s.picks = s.picks || {};
+  if (v.indexOf('k:') === 0) {
+    const kind = v.slice(2);
+    const g = GATEWAYS[kind] || {};
+    s.seatSrc[pid] = kind;
+    s.models[pid] = ((g.models || {}).gpt || '');
+    s.picks[pid] = kind;                    /* Kol 128: açılışta seçim sıfırlanmasın */
+    delete s.seatKey[pid];
+    /* demo modunda anahtarsız servis serbest; canlıda bu servisler de anahtarsız çalışır */
+  } else if (v.indexOf('m:') === 0) {
+    delete s.seatSrc[pid];
+    delete s.picks[pid];
+    s.models[pid] = v.slice(2);
+  } else if (v.indexOf('g:') === 0) {
+    const rest = v.slice(2);
+    const i2 = rest.indexOf(':');
+    delete s.seatSrc[pid];
+    delete s.picks[pid];
+    s.models[pid] = i2 >= 0 ? rest.slice(i2 + 1) : rest;
+  }
+  if (hedef.mode === 'ayna') { s.duel = s.duel || { on: true, pid }; s.duel.pid = pid; }
+  saveSettings();
+  renderAll();
+  const g3 = GATEWAYS[s.seatSrc[pid]];
+  toast((hedef.mode === 'tek' ? 'Konuşacağın model: ' : 'Ayna’nın modeli: ') +
+        (g3 ? g3.label + ' · ' : '') + modelAdi(s.models[pid] || '—'), 'ok');
+}
+
 function renderModes() {
   const qc = $('#quotaChip');
   if (qc) qc.addEventListener('click', async () => {
@@ -10364,6 +10540,7 @@ function translateSoon() {
 function renderAll() {
   renderHero();
   renderModes();
+  if (typeof renderModelBar === 'function') renderModelBar();
   renderQuota();
   renderSeats();
   updateStatus();
@@ -11101,7 +11278,7 @@ function tekServisAdi() {
     .replace(/^Meta-Llama-3_3-70B-Instruct$/i, 'Llama 3.3 70B')
     .replace(/^Mistral-Small-3\.2.*$/i, 'Mistral Small 3.2')
     .replace(/^codestral-latest$/i, 'Codestral')
-    .replace(/^openai$/i, 'gpt-oss 20B');
+    .replace(/^openai\//i, '')
   return g.label + (kisa ? ' · ' + kisa : '');
 }
 
@@ -11156,12 +11333,10 @@ function sadeCekmece(body) {
   if (!body) return;
   const T2 = (tr, en) => (window.T2 ? window.T2(tr, en) : tr);
   const KISA = {
-    'Ayna’da kapışacak model': T2('Ayna modeli', 'Mirror model'),
     'Roller ve görevler': T2('Roller', 'Roles'),
     'İnternetten bilgi': T2('Web araması', 'Web search')
   };
-  const KAPALI = ['Otomatik durma', 'İnternetten bilgi', 'Ayna’da kapışacak model',
-                  'Roller ve görevler', 'Yedekleme'];
+  const KAPALI = ['Otomatik durma', 'İnternetten bilgi', 'Roller ve görevler', 'Yedekleme'];
 
   const secs = [...body.querySelectorAll('.sec')].filter(el => !el.parentElement.closest('.sec'));
   if (!secs.length) return;
@@ -11207,7 +11382,7 @@ function sadeCekmece(body) {
   /* 3) kategorilere ayır ve sıraya koy */
   const GRUP = [
     [T2('Bağlantı', 'Connection'), ['Mod', T2('Bağlantı', 'Connection')]],
-    [T2('Masa', 'Table'), [T2('Ayna modeli', 'Mirror model'), 'Masa düzeni', T2('Roller', 'Roles')]],
+    [T2('Masa', 'Table'), ['Masa düzeni', T2('Roller', 'Roles')]],
     [T2('Akış', 'Flow'), ['Otomatik durma', T2('Web araması', 'Web search')]],
     [T2('Gelişmiş', 'Advanced'), ['Yedekleme']]
   ];
@@ -11519,16 +11694,6 @@ function drawerBodyHTML() {
     '<p class="note">Yalnızca <b>OpenRouter</b> bağlantısında çalışır. <b>Ücretsiz modelde bile kredi harcar</b>: istek başına yaklaşık 0,7–1,5 sent (motor Exa/Parallel). ' +
       'Kredin yoksa istek hata verir. Açıkken cevaplar [1], [2] ile kaynak gösterir.</p></div>';
 
-  /* --- kendi kendisiyle kapışma --- */
-  h += '<div class="sec"><h3>Ayna’da kapışacak model</h3>' +
-    window.T2('<p class="note" style="margin-top:0">Masa türünü <b>ana ekrandan</b> seçersin: <b>Konsey</b> (ayrı modeller), <b>Ayna</b> (aynı model iki sandalyede), <b>Ajanlar</b> (her sandalyeye ayrı görev) ya da <b>TekeTek</b> (tek yapay zekâ; anahtarsız seçenek yavaş çalışır). Burada yalnız Ayna’nın modelini belirlersin; Ajanlar’ın görevleri ana ekrandaki panelde yazılır.</p>',
-                  '<p class="note" style="margin-top:0">You pick the table type <b>on the main screen</b>: <b>Council</b> (separate models), <b>Mirror</b> (the same model in two seats), <b>Agents</b> (a separate task per seat) or <b>OneOnOne</b> (a single AI; the keyless option is slow). Here you set only the Mirror model; Agents tasks are written in the panel on the main screen.</p>') +
-    '<label class="field"><span>Model (Ayna seçiliyken geçerli)</span><select id="duelPid">' +
-      PROVIDER_ORDER.map(pid => '<option value="' + pid + '" ' + ((d.duel && d.duel.pid) === pid ? 'selected' : '') + '>' + esc(PROVIDERS[pid].name) + '</option>').join('') +
-    '</select></label>' +
-    '<p class="note">Ayna seçiliyken <b>“Masadaki modeller” listesi yok sayılır</b>: iki sandalye de bu modelle konuşur. ' +
-      'Özet yerine tarafsız bir <b>hakem kararı</b> yazılır (en güçlü artı/eksi, karar verilemeyen nokta).</p></div>';
-
   /* --- masa düzeni --- */
   h += '<div class="sec"><h3>Masa düzeni</h3>' +
     '<label class="field" id="goalField"' + ((d.table === 'ayna') ? ' hidden' : '') + '><span>Gündem türü</span><select id="goalSel">' +
@@ -11548,8 +11713,10 @@ function drawerBodyHTML() {
     '<option value="full" ' + (d.context === 'full' ? 'selected' : '') + '>Tam geçmiş — en çok token</option>' +
     '</select></label>' +
     '<p class="note">Masa hafızası: eski turlar tek satırlık nota iner, modele yalnız o not + son mesajlar gider. Sohbet ekranında görünmez; yalnız token harcamasını düşürür.</p>' +
-    '<label class="field"><span>Tam kalan mesaj sayısı</span>' +
+    '<label class="field"><span>Son kaç mesaj ezberlensin (tam metin)</span>' +
     '<input type="number" id="contextKeepIn" min="0" max="20" step="1" value="' + (d.contextKeep === 0 ? 0 : (Number(d.contextKeep) || 3)) + '"/></label>' +
+    '<p class="note">Son kaç mesaj <b>kelimesi kelimesine</b> hatırlansın. Daha eskiler tek satırlık özete iner. ' +
+      'Küçük sayı = daha az token, daha az hafıza. Örnek: 3 → son 3 mesaj tam, öncesi özet.</p>' +
     (d.goal === 'custom'
       ? '<label class="field"><span>Gündem adı (masanın başlığında görünür)</span>' +
         '<input type="text" id="customGoalLabel" placeholder="Örn: Ürün fiyatlandırma kararı" value="' + esc((d.customGoal && d.customGoal.label) || '') + '"/></label>' +
@@ -12948,6 +13115,9 @@ function boot() {
   $('#metaBadge').addEventListener('click', openDrawer);
   $('#drawerClose').addEventListener('click', closeDrawer);
   $('#drawerSave').addEventListener('click', saveDrawer);
+  /* Kol 128: konuşma ekranındaki model seçimi */
+  const mbSel = $('#mbPick');
+  if (mbSel) mbSel.addEventListener('change', () => { if (mbSel.value) applyModelPick(mbSel.value); });
   $('#drawerDemo').addEventListener('click', () => {
     if (drawerDraft) { drawerDraft.mode = 'demo'; syncDraftFromDOM(); }
     state.settings = mergeSettings(settingsSnapshot());
