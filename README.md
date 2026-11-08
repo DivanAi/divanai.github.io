@@ -18,12 +18,28 @@ daha hızlı ve daha yüksek kota; varsayılan masa canlıda **4 sandalye**.
 
 | **Konsey** | **Panel** | **Ayna** | **Ajanlar** | **TekeTek** |
 |---|---|---|---|---|
-| ![Konsey](ekranlar/1-konsey.jpg) | ![Panel](ekranlar/27-panel.jpg) | ![Ayna](ekranlar/3-ayna.jpg) | ![Ajanlar](ekranlar/11-ajan-kurulum.jpg) | ![TekeTek](ekranlar/26-teketek.jpg) |
 | 3–5 ayrı şirketin modeli, roller, başkan özeti | Sandalyeler **aynı anda**, birbirini görmeden yazar; **kıyaslama sende** | Aynı model iki sandalyede: savunan + itiraz eden, hakem kararı | Her sandalyeye ayrı görev, zincirleme teslim, tek teslimat | Tek yapay zekâ, doğrudan cevap; anahtarsız seçenek **yavaş** çalışır |
 
 Tek sohbet istersen **TekeTek**: masada tek yapay zekâ olur, yazdığını doğrudan cevaplar. **Anahtarsız
 seçenek hazır gelir** (gpt-oss 20B, Pollinations) — kayıt olmadan gerçek cevap alırsın; yavaş çalışır
 (7 Kasım 2026 ölçümü: ilk cevap **22 saniye**, aynı sorunun tekrarı önbellekten 1 saniyenin altında), düzgün deneme için ücretsiz anahtar daha iyidir.
+
+---
+
+## Ekranlar (güncel)
+
+Hepsi bu sürümden çekildi: 24.10.2026 · gündüz "defter" teması (gece ve mobil ayrıca).
+
+| | | |
+|---|---|---|
+| ![Ana sayfa · gündüz](ekranlar/01-ana-sayfa-gunduz.jpg) | ![Ana sayfa · gece](ekranlar/02-ana-sayfa-gece.jpg) | ![Panel](ekranlar/03-panel.jpg) |
+| **Ana sayfa · gündüz** | **Ana sayfa · gece** | **Panel — aynı anda, birbirini görmeden** |
+| ![Ajanlar](ekranlar/04-ajanlar.jpg) | ![Ayna](ekranlar/05-ayna.jpg) | ![TekeTek](ekranlar/06-teketek.jpg) |
+| **Ajanlar — sandalye başına görev** | **Ayna — aynı model iki tarafta** | **TekeTek — tek yapay zekâ** |
+| ![Mobil](ekranlar/07-mobil.jpg) | ![Model penceresi](ekranlar/08-model-penceresi.jpg) | ![Ayarlar](ekranlar/09-ayarlar.jpg) |
+| **Telefon** | **Model penceresi** | **Ayarlar — kategorili** |
+| ![Geçmiş](ekranlar/10-gecmis.jpg) | ![Marka](ekranlar/11-marka.jpg) | ![Konsey turu](ekranlar/12-konsey-tur.jpg) |
+| **Geçmiş arama** | **Marka — üzerine gelince altın çizgi** | **Gerçek Konsey turu: üç ayrı model** |
 
 ---
 
@@ -36,7 +52,6 @@ Bunlar reklam değil, ölçüm:
 | **"Ücretsiz"** | Uygulama para almaz, hesap istemez, istek saymaz. **Servisler** sınır koyar: OpenRouter `:free` modellerde günde 50 istek (bir tur 4 istek → ~12 tur), Groq ücretsiz katmanda günde 1.000, Pollinations yayınlanmış kota vermez ama yoğunlukta bekletir. |
 | **Demo modu (anahtarsız)** | Gerçek cevap, hazır metin değil — ama **görsel okuyamaz** ve yavaştır (ilk cevap 20–60 sn). **Canlı** mod API anahtarı ister. |
 
-![Demo modu: üç anahtarsız servis, gerçek cevaplar](ekranlar/116-demo-gercek-cevap.jpg)
 | **Web araması** | Yalnız OpenRouter'da ve **ücretli**: istek başına ~0,7–1,5 sent. Ücretsiz modelde bile kredi harcar. Varsayılan kapalı. |
 | **Ayna** | Aynı model iki rolde: kendi kendini onaylamayı zorlaştırır. Modelin **her yerde paylaştığı** kör noktayı yakalamaz — modeli değiştirmenin yerini tutmaz. |
 | **Sayı kuralı** | Kaynaksız tutarı `[?]` yapar; cevabı doğru yapmaz. Oranlar da yanlış olabilir, ama tartışılabilir. |
@@ -76,18 +91,6 @@ sırayla dağıtılır. Havuz sandalyeden küçükse (Google'ın doğrulanmış 
 **elle değiştirebilirsin**; elle yazdığın kimlik açılışta korunur, otomatik dağıtım üzerine yazmaz.
 Yeniden dağıtmak istersen **Her sandalyeye ayrı model dağıt** düğmesine bas.
 
-![Canlı: 4 sandalye, ayrı modeller](ekranlar/116b-model-dagitimi.jpg)
-
-![TekeTek: model düğmesi yazı kutusunun içinde](ekranlar/129-cip.jpg)
-![Model penceresi: aramalı ve gruplu](ekranlar/129-pencere.jpg)
-![Model penceresinde arama](ekranlar/129-arama.jpg)
-
-| Ayna · model penceresi | Telefon · model penceresi | Gece · model düğmesi |
-|---|---|---|
-| ![Ayna](ekranlar/129-ayna.jpg) | ![Mobil](ekranlar/129-mobil.jpg) | ![Gece](ekranlar/129-gece.jpg) |
-
-![Ayarlar — üç anahtarsız sandalye](ekranlar/30-ayarlar-sade.jpg)
-
 *Ayarlar böyle açılır: en üstte mod, altında **üç anahtarsız servis** (Pollinations · LLM7.io · OVH),
 sonra ücretsiz anahtarlı servisler; ücretliler **Diğer servisler** başlığının altında kapalı durur.*
 
@@ -110,20 +113,12 @@ Telefonda panel üstte **yatay şerit** olur, parmakla yana kayar; Demo/Canlı y
 
 Üst şeritte artık **metin yok**: sağda yalnız bir **nokta** (yeşil = Demo). Noktaya basınca Ayarlar açılır.
 
-| Masaüstü · sol panel | Telefon · kartlar (eski düzen) |
-|---|---|
-| ![Sol panel](ekranlar/120-sol-panel.jpg) | ![Mobil](ekranlar/120-mobil-kartlar.jpg) |
-
 **Telefonda sol panel yok:** masa türleri ana ekranda **iki sütunlu kartlar** hâlinde durur
 (eski düzen), Demo/Canlı yazısı kartların hemen altında. Sol panel yalnız 901 px ve üzerinde.
 
 **Ayarlar sadeleşti:** dört kategori — **Bağlantı · Masa · Akış · Gelişmiş**. Uzun açıklamalar
 “Ayrıntı” başlığı altında katlı durur; sık kullanılmayan bölümler kapalı gelir. Hiçbir ayar
 kaldırılmadı, yalnız görünen metin azaldı.
-
-| Ayarlar · sade düzen |
-|---|
-| ![Ayarlar](ekranlar/120-ayarlar-sade.jpg) |
 
 **Ayarlar** düğmesi de yalnız simge (dişli). Yazısı yok; ekran okuyucu için adı duruyor.
 
@@ -236,8 +231,6 @@ doğrulanmış ödeme yöntemi ister). Groq'un ücretsiz modelleri de değişti:
 `qwen/qwen3.8-27b` kullanıyor. Kendi OpenAI uyumlu adresini (LiteLLM, Cloudflare AI Gateway)
 **Özel adres** kartına yazabilirsin. Anahtar hiçbir sunucuya gitmez: yalnızca kendi tarayıcında durur.
 
-![Bağlantı testi ve teşhis](ekranlar/10-teshis.jpg)
-
 **⇅ Bağlantıyı test et** her açık sandalyeye tek kelimelik bir istek atar ve sonucu satır satır yazar:
 `✕ Claude · 401 invalid api key` (yanlış anahtar), `✕ Grok · 404 model bulunamadı` (yanlış model kimliği),
 `429` (kota), CORS (tarayıcı engeli). Bağlantı hatasında **önce bunu çalıştır.**
@@ -252,8 +245,6 @@ kartsız; üçü Gemini olduğu için üç ayrı model kotası harcar. Kendi ba�
 bütün sandalyeler birlikte bekler (aşağıya bak: *Boşa token harcamamak için*).
 Ayarlar → *Masadaki modeller* → satırın altındaki liste. Seçtiğin sandalyede masa ekranında `⛁ Groq`
 gibi bir rozet görünür.
-
-![Sandalye başına bağlantı](ekranlar/9-sandalye-baglanti.jpg)
 
 **Günlük istek hakkı.** Alt çubukta `7 / 50` ve `23s 24dk sonra yenilenir` yazar (yeşil: bol, sarı: az,
 kırmızı: bitti). Etikete tıkla → kota kutusu açılır. OpenRouter ücretsiz hak **günde 50**, sıfırlanma
@@ -271,14 +262,10 @@ kırmızı: bitti). Etikete tıkla → kota kutusu açılır. OpenRouter ücrets
 baştan üretmez. Siteyi kapatsan da durum hatırlanır. Özet düğmesi kota 0 iken hiç istek atmaz, masadaki
 cümlelerden **yerel özet** çıkarır (kartın başlığı: "Yerel özet · model çağrılmadı").
 
-![Kota doldu: yerel özet + devam](ekranlar/18-kota-devam.jpg)
-
 **Yedekleme.** Ayarlar **bu tarayıcıda** durur. *Yedeği indir (.json)* / *Yedekten yükle* ile taşırsın.
 Anahtarlar varsayılan olarak dosyaya **yazılmaz**; kutuyu işaretlersen açık metin taşır (ekranda kırmızı
 uyarı çıkar). Yedekte anahtar yoksa bu tarayıcıdaki anahtarlar korunur; bozuk dosya seçersen hiçbir şey
 değişmez.
-
-![Yedekleme](ekranlar/15-yedekleme.jpg)
 
 **Masa hafızası (varsayılan).** Her sandalye konuşmadan önce bütün geçmişi baştan okumaz. Program eski
 turları tek satırlık notlara indirir; modele yalnız **senin ilk sorun + o not + son iki mesaj** gider.
@@ -305,7 +292,6 @@ kurallar **her zaman açık** çalışır.)
   ("Özet modelle yazılamadı: başkan sandalyesi yanıt vermedi") ve ne olduğu tek satırda yazar.
   Kartın künyesinde başkanın adı değil **"Yerel özet · yalnız yerel"** yazar — yazmadığı metne imza atılmaz.
 
-![Bir sandalye boş yanıt verdi, biri yalnız düşünme metni üretti: her durum tek satırda, masa durmadı](ekranlar/37-sandalye-durumlari.jpg)
 - **Sağlayıcı dinlenmesi (1 dk).** 429 ya da "kredi bitti" hatası alan **bağlantı** bu süre boyunca hiç
   denenmez; sandalyede `dinleniyor · 16:19` rozeti çıkar. Hepsi dinleniyorsa masa duraklatılır, süre dolunca
   **▶ Kaldığı yerden devam** ile sürer. **Dinlenmeyi bitir** düğmesi beklemeden açar.
@@ -318,14 +304,9 @@ asılı kalmaz, dinlenen bağlantının adımı atlanır). Geçme yalnız **Kons
 dinlenme yaratmaz — 5 dakika bekleme onu çözmez; onun için duraklatma ve **Kaldığı yerden devam** var.
 Devam düğmesi açık bir müdahaledir: dinlenme beklemesi varsa onu da kaldırır.
 
-
-![Bütün sandalyeler dinleniyor: masa duraklatıldı](ekranlar/24-dinlenme.jpg)
-
 ---
 
 ## Dosya ve görsel yükleme
-
-![Dosya ekleme: tepside PDF, görsel ve Excel](ekranlar/28-dosya-ekleme.jpg)
 
 Yazı kutusunun solundaki **ataç** düğmesiyle (ya da **Ctrl+V** / sürükle-bırak) soruya dosya ekleyebilirsin.
 Dosya seçtiğinde kutunun üstünde küçük bir **tepsi** çıkar: adı, boyutu, kaç sayfa olduğu ve ✕ düğmesi
@@ -352,8 +333,6 @@ sonraki** mesajda modele taşınır, sonra metinde anılır — böylece token i
 
 ## Panel
 
-![Panel: dört sandalye aynı anda, birbirini görmeden](ekranlar/27-panel.jpg)
-
 Sandalyeler **aynı anda** cevap verir ve **birbirini görmez**: her sandalye yalnız senin sorularını ve
 **kendi** önceki cevaplarını görür. Başkan, özet ve hakem yoktur — dört görüş alt alta yazılır,
 **karşılaştırmayı sen yaparsın**. Aynı soruya dört farklı modelin ne dediğini tarafsız görmek istediğinde
@@ -361,8 +340,6 @@ bunu seç. Her mesaj, sandalye sayısı kadar istek harcar (4 sandalye = 4 istek
 gelir; sırayla beklemezsin.
 
 ## Konsey
-
-![Konsey konuşması](ekranlar/2-konsey-konusma.jpg)
 
 3–5 ayrı model aynı masada; her birinin bir rolü var, son sözü başkan söyler.
 
@@ -378,8 +355,6 @@ gelir; sırayla beklemezsin.
 Roller yapışkan değil: modelleri açıp kapatabilir, başkanı değiştirebilir, rolleri yazabilirsin.
 Başlık da ayara uyar — 5 sandalye açtığında "Beş yapay zekâ, tek masa" yazar.
 
-![Beş sandalye](ekranlar/19-bes-sandalye.jpg)
-
 **Her konuşmacı için üç kural** (sistem talimatına gömülü): **kısa** (süsleme, giriş cümlesi yok),
 **objektif** (uydurma sayı/fiyat yasak, veri yoksa "kanıt yok"), **tekrar yok** (masada söylenenin
 tekrarı ve "X şunu dedi" kalıbı yasak). Yeni bir şey yoksa açıkça söyler.
@@ -387,8 +362,6 @@ tekrarı ve "X şunu dedi" kalıbı yasak). Yeni bir şey yoksa açıkça söyle
 ---
 
 ## TekeTek
-
-![TekeTek · anahtarsız](ekranlar/26-teketek.jpg)
 
 Masada tek yapay zekâ var; tartışma, sıra, başkan yok. Yazdığını doğrudan cevaplar, yazmaya devam
 ettikçe sohbetin hafızası açık kalır. İki seçenek var:
@@ -417,8 +390,6 @@ ve onu çözecek veri, ilk adım.
 - Ayna'da **gündem seçilmez** — her zaman *tartış & eleştir*.
 - Maliyet: **2 tur + karar = 5 istek** (tek model).
 
-![Ayna · hakem kararı](ekranlar/4-ayna-hakem.jpg)
-
 ---
 
 ## Ajanlar
@@ -442,16 +413,12 @@ Konsey ve Ayna bir soruyu **tartışır**; Ajanlar bir projeyi **yapar**.
 Yalnız **daraltır** — ilk N açık sandalye çalışır, kadro silinmez; üstteki **≈ N istek** tahmini düşer.
 **＋ DeepSeek'i ekle** düğmesi tek tıkla beşinci sandalyeyi açar.
 
-![Ajan sayısı](ekranlar/17-ajan-sayi.jpg)
-
 **Her adımda dur.** İşaretlersen her ajandan sonra **Devam**'a basman gerekir; yanlış giden zinciri
 yarıda kesebilirsin. **Geçiş: 1 / 2 / 3** ile aynı kadroyu birkaç kez koşturabilirsin.
 
 **Hazır kadro.** Her sandalye kartının sağ üstünde **Kadro** düğmesi: **12 Türkçe şablon** +
 **268 İngilizce uzman kaydı**. Arama iki dilde çalışır (`finans` → hem *Finansal analist* hem *finance*).
 Seçim **yalnız o sandalyeye** yazılır: rol + görev + beklenen çıktı. Dolu sandalyede onay ister.
-
-![Hazır kadro](ekranlar/16-kadro.jpg)
 
 **Teslim paketi.** Her ajan cevabının sonuna yapılandırılmış bir paket ekler (AMAÇ · YERLEŞEN · AÇIK ·
 KANIT · KISIT · SINIR · SONRAKİ). Sıradaki ajan bütün konuşmayı değil **yalnız bu paketi** görür:
@@ -487,8 +454,6 @@ istenen boyuttur (ücretsiz motor uzun kenarı 1024'te tutar, DivanAI buna göre
 isteminin **sonuna metin ekler**; kredi harcamaz, model değiştirmez. Tekrar basınca kapanır, istemde zaten
 geçen parçayı ikinci kez yazmaz.
 
-![Görsel oranı ve kamera etiketi](ekranlar/22-gorsel-oran.jpg)
-
 **Davranışlar**
 - Görsel **ayrı bir istek**tir; ajan sohbeti sayılmaz. "≈ 5 istek · 1 görsel (ücretsiz)" gibi yazar.
 - Canlı modda, başlamadan önce kaç görsel çizileceği ve hangi motorun kullanılacağı **sorulur**;
@@ -499,8 +464,6 @@ geçen parçayı ikinci kez yazmaz.
   sonra **bir kez** yeniden dener.
 - **Görseller saklanmaz** (tarayıcı kotasını doldurmasın diye). Sayfayı yenilersen resim kaybolur,
   "Yeniden üret" ile geri gelir. Dışa aktarımda resim değil, **istemi** yazılır.
-
-![Görsel üretimi](ekranlar/14-gorsel-uretim.jpg)
 
 ---
 
@@ -588,27 +551,17 @@ simgesi de aynı baklava, aynı renklerle.
 | 2 | LLM7.io | Codestral | Analist |
 | 3 | OVH AI Endpoints | Llama 3.3 70B | Eleştirmen |
 
-![Konsey · üç ayrı model](ekranlar/133-konsey-siralar.jpg)
-
-![Ajan kartları · gerçek model ve servis](ekranlar/133-ajan.jpg)
-
-![Ayna · gerçek model adı](ekranlar/133-ayna-siralar.jpg)
+**Görev kartları ve görsel ayarları (Kol 134).** Ajanlar ekranındaki görev kartları, görsel/kamera
+şeridi ve akış çubuğu gece teması için siyah boyanmıştı; gündüz "defter" temasında üstüne gelince
+kirli gri görünüyor, *kapalı* izlenimi veriyordu. Bu yüzeyler artık temaya bağlı:
+gündüz kâğıt beyazı, gece eskisi gibi koyu. Yazı girilebildiği ve düğmelerin tıklanabildiği
+tarayıcı testiyle doğrulanıyor.
 
 **Hareket:** markanın üzerine gelince sloganın altından **pirinç bir çizgi soldan sağa süpürülür**,
 logo bir tık yukarı kalkar; fare çekilince çizgi geri kapanır. Hareket azaltma tercihi açıksa
 (`prefers-reduced-motion`) sadece renk değişir, kayma olmaz.
 
-![Marka sayfada](ekranlar/130-marka-sayfa.jpg)
-
-| Marka · gündüz | Marka · gece | Telefon |
-|---|---|---|
-| ![Marka gündüz](ekranlar/132-marka-normal.jpg) | ![Marka gece](ekranlar/132-ray-gece.jpg) | ![Mobil](ekranlar/132-ray-mobil.jpg) |
-
 **Sol panel:** gündüz nasıl durduğu, üzerine gelince satırın kayması ve gece hâli.
-
-| Panel · gündüz | Panel · gece | Marka · üzerine gelince |
-|---|---|---|
-| ![Panel gündüz](ekranlar/132-ray-gunduz.jpg) | ![Panel gece](ekranlar/132-ray-gece.jpg) | ![Altın çizgi](ekranlar/132-marka-hover.jpg) |
 
 **Telefonda üst şerit iki satır, ikisi de ortalanmış:**
 
@@ -619,10 +572,6 @@ logo bir tık yukarı kalkar; fare çekilince çizgi geri kapanır. Hareket azal
 
 Marka adı hiçbir genişlikte kısaltılmıyor (eskiden “Div…” diye kesiliyordu); 360 px altında yalnız
 ortadaki Demo/Canlı rozeti gizlenir.
-
-| Telefon · üst şerit | Telefon · ana ekran |
-|---|---|
-| ![Üst şerit](ekranlar/118b-mobil-ustserit.jpg) | ![Mobil](ekranlar/118b-mobil-sayfa.jpg) |
 
 Kontrast WCAG AA üstündedir: gövde 15,6 · ikincil 8,4 · soluk 6,0 · buton yazısı 5,8.
 `prefers-reduced-motion` açıksa geçiş animasyonu kapanır.
@@ -649,14 +598,6 @@ konuşma on binlerce karakterlik bağlantı olur ve çoğu uygulama onu keser. T
 
 Yerelde açtığında (`localhost`) paylaş düğmesi kendi bilgisayarının adresini değil, sayfadaki
 `canonical` adresi verir — çünkü `localhost` başkasında açılmaz.
-
-| Paylaş düğmesi: Dışa aktar · Paylaş · Kopyala | Paylaş penceresi (Türkçe) |
-|---|---|
-| ![Düğme](ekranlar/117-paylas-dugme.jpg) | ![Paylaş](ekranlar/117-paylas.jpg) |
-
-| İngilizce | Telefon |
-|---|---|
-| ![Share](ekranlar/117-paylas-en.jpg) | ![Mobil](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 
@@ -753,8 +694,6 @@ Bu yüzden 6 Kasım'da şunlar değişti:
 - **Ayarlar dürüst konuşuyor.** Anahtarsız görünümün altında 429/boş yanıt uyarısı ve her
   anahtarsız servisin **ölçülmüş** notu var (hız, sınır, hangi model çalışıyor).
 
-![Anahtarsız uyarı](ekranlar/38-anahtarsiz-uyari.jpg)
-
 ### Daha akıcı olmasını istersen: kartsız ücretsiz anahtar
 
 Anahtarsız servisler "en iyi çaba" ile çalışır: bedava oldukları için yoğunlukta bekletirler.
@@ -796,26 +735,6 @@ anahtarsız kurulum da çalışır, yalnız bazen 20–60 saniye bekletir.
 
 ## Ekranlar
 
-| Mobil · Ayna | Günlük istek hakkı |
-|---|---|
-| ![Mobil](ekranlar/5-mobil.jpg) | ![Kota](ekranlar/7-kota.jpg) |
-
-| Ajanlar · akış ve teslimat | Ayna: gündem seçeneği yok |
-|---|---|
-| ![Akış](ekranlar/12-ajan-akis.jpg) | ![Ayna](ekranlar/20-ayna-gundem.jpg) |
-
-| Görsel kutusu: ajanın metninden çizilir | Bağlantı ayarları: kart istemez / kart ister |
-|---|---|
-| ![Görsel kutusu](ekranlar/21-gorsel-kutusu.jpg) | ![Bağlantı](ekranlar/8-baglanti.jpg) |
-
-| Ücretli servisler ayrı katmanda | Sandalye başına bağlantı |
-|---|---|
-| ![Diğer servisler](ekranlar/25-diger-servisler.jpg) | ![Sandalye bağlantısı](ekranlar/9-sandalye-baglanti.jpg) |
-
-| Anahtarsız uyarı ve ölçülmüş servis notları (6 Kasım 2026) |
-|---|
-| ![Anahtarsız uyarı](ekranlar/38-anahtarsiz-uyari.jpg) |
-
 *DivanAI · tek dosya · dışa bağımlılık yok.*
 
 ---
@@ -842,10 +761,6 @@ Sayfayı bir kez açman yeterli: taşıma tek seferlik çalışır, ardından es
 **Hiçbir şeyi elle yapman gerekmez**; anahtarın ve ayarların yerinde kalır.
 Daha önce indirdiğin `.json` ayar yedeği de açılmaya devam eder (dosya içindeki uygulama adı
 `MASA` yazsa bile kabul edilir).
-
-| Paylaş: bağlantı ve sohbet özeti | Telefonda paylaş penceresi |
-|---|---|
-| ![Paylaş](ekranlar/117-paylas.jpg) | ![Mobil](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 

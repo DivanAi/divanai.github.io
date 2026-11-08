@@ -18,12 +18,28 @@ a higher limit; the live default table has **4 seats**.
 
 | **Council** | **Panel** | **Mirror** | **Agents** | **OneOnOne** |
 |---|---|---|---|---|
-| ![Council](ekranlar/1-konsey.jpg) | ![Panel](ekranlar/27-panel.jpg) | ![Mirror](ekranlar/3-ayna.jpg) | ![Agents](ekranlar/11-ajan-kurulum.jpg) | ![OneOnOne](ekranlar/26-teketek.jpg) |
 | Models from 3–5 different companies, roles, a chair summary | Seats answer **at once**, blind to each other; **the comparison is yours** | One model in two seats: defender + objector, judge verdict | A task per seat, chained hand-off, one delivery | A single AI, direct answer; the keyless option is **slow** |
 
 If you just want a plain chat, pick **OneOnOne**: one AI at the table answers directly. A **keyless
 option ships ready** (gpt-oss 20B, through Pollinations) — real answers with no signup; it is slow
 (7 November 2026 measurement: **22 seconds** for the first answer, under a second when cached), so a proper test is better with a free key.
+
+---
+
+## Screenshots (current)
+
+All shot from this build: 24 Oct 2026 · daytime "notebook" theme (night and mobile included).
+
+| | | |
+|---|---|---|
+| ![Home · daytime](ekranlar/01-ana-sayfa-gunduz.jpg) | ![Home · night](ekranlar/02-ana-sayfa-gece.jpg) | ![Panel](ekranlar/03-panel.jpg) |
+| **Home · daytime** | **Home · night** | **Panel — all at once, blind to each other** |
+| ![Agents](ekranlar/04-ajanlar.jpg) | ![Mirror](ekranlar/05-ayna.jpg) | ![Single](ekranlar/06-teketek.jpg) |
+| **Agents — a task per seat** | **Mirror — same model, two sides** | **Single — one model, direct answer** |
+| ![Mobile](ekranlar/07-mobil.jpg) | ![Model picker](ekranlar/08-model-penceresi.jpg) | ![Settings](ekranlar/09-ayarlar.jpg) |
+| **Phone** | **Model picker** | **Settings — grouped** |
+| ![History](ekranlar/10-gecmis.jpg) | ![Brand](ekranlar/11-marka.jpg) | ![Council round](ekranlar/12-konsey-tur.jpg) |
+| **History search** | **Brand — brass line on hover** | **A real Council round: three models** |
 
 ---
 
@@ -36,7 +52,6 @@ Not marketing — measurements:
 | **"Free"** | The app charges nothing, wants no account, counts no requests. **The services** set limits: OpenRouter `:free` models 50 requests a day (a round costs 4 → ~12 rounds), Groq free tier 1,000 a day, Pollinations publishes no quota but throttles under load. |
 | **Demo mode (keyless)** | Real answers, not canned text — but it **cannot read images** and it is slow (first answer 20–60 s). **Live** mode requires an API key. |
 
-![Demo mode: three keyless services, real answers](ekranlar/116-demo-gercek-cevap.jpg)
 | **Web search** | OpenRouter only and **paid**: ~0.7–1.5 cents per request, even on a free model. Off by default. |
 | **Mirror** | Same model in two roles: it makes self-approval harder. It does **not** catch a blind spot the model shares everywhere — no substitute for changing the model. |
 | **Number rule** | Turns unsourced amounts into `[?]`; it does not make the answer correct. Ratios can be wrong too, but they are debatable. |
@@ -76,18 +91,6 @@ are spread in turn. When the pool is smaller than the table (Google's vetted pre
 model by hand** in the list below; an id you type is kept at startup and never overwritten by the automatic
 spread. To re-spread, press **Spread a different model per seat**.
 
-![Live: 4 seats, separate models](ekranlar/116b-model-dagitimi.jpg)
-
-![Solo: the model button inside the text box](ekranlar/129-cip.jpg)
-![Model window: searchable and grouped](ekranlar/129-pencere.jpg)
-![Search inside the model window](ekranlar/129-arama.jpg)
-
-| Mirror · model window | Phone · model window | Night · model button |
-|---|---|---|
-| ![Mirror](ekranlar/129-ayna.jpg) | ![Phone](ekranlar/129-mobil.jpg) | ![Night](ekranlar/129-gece.jpg) |
-
-![Settings — three keyless seats](ekranlar/30-ayarlar-sade.jpg)
-
 *Settings opens like this: mode at the top, then the **three keyless services** (Pollinations · LLM7.io ·
 OVH), then free services that need a key; paid ones stay folded under **Other services**.*
 
@@ -112,20 +115,12 @@ right below it.
 The top bar now has **no text**: on the right just a **dot** (green = Demo). Tapping it opens Settings.
 The **Settings** button is icon-only (a gear); its accessible name stays for screen readers.
 
-| Desktop · left panel | Phone · cards (the old layout) |
-|---|---|
-| ![Left panel](ekranlar/120-sol-panel.jpg) | ![Mobile](ekranlar/120-mobil-kartlar.jpg) |
-
 **No left panel on the phone:** table types sit on the home screen as **two-column cards**
 (the old layout), with the Demo/Live label right below. The left panel is desktop-only (901 px+).
 
 **Settings got simpler:** four categories — **Connection · Table · Flow · Advanced**. Long
 explanations fold under “Details”; rarely used sections start collapsed. No setting was removed,
 only less text is shown.
-
-| Settings · simplified |
-|---|
-| ![Settings](ekranlar/120-ayarlar-sade.jpg) |
 
 ### 1 · Set the table
 
@@ -233,8 +228,6 @@ with a verified payment method). Groq's free models changed as well: **llama-3.1
 16 August 2026**, so the preset now uses `openai/gpt-oss-120b`, `openai/gpt-oss-20b` and `qwen/qwen3.8-27b`. Your own OpenAI-compatible address (LiteLLM, Cloudflare AI Gateway) goes on the **Custom
 address** card. The key never reaches any server: it stays in your browser.
 
-![Connection test and diagnostics](ekranlar/10-teshis.jpg)
-
 **⇅ Test connection** sends a one-word request to every open seat and reports line by line:
 `✕ Claude · 401 invalid api key` (wrong key), `✕ Grok · 404 model not found` (wrong model id),
 `429` (quota), CORS (browser blocked). On a connection problem, **run this first.**
@@ -248,8 +241,6 @@ Claude → **Google AI Studio** (Gemini 3.6 Flash), Grok → **Groq** (1,000/day
 three of them are Gemini models, so they draw on three separate model allowances. A seat with its own connection that hits 429 rests **alone**; on a shared connection
 all seats rest together (see *Not wasting tokens* below). Settings → *Models at the table* → the list
 under the row. A seat with its own connection shows a badge such as `⛁ Groq` on the table screen.
-
-![Per-seat connection](ekranlar/9-sandalye-baglanti.jpg)
 
 **Daily quota.** The bottom bar shows `7 / 50` and `resets in 23h 24m` (green: plenty, yellow: low,
 red: out). Click the label → the quota box opens. OpenRouter free allowance is **50 a day**, reset at
@@ -269,14 +260,10 @@ seats run, nothing is regenerated from scratch. Close the site and the state is 
 at 0 the Summarize button sends no request at all and builds a **local summary** from the sentences on
 the table (card title: “Local summary · no model called”).
 
-![Quota out: local summary + continue](ekranlar/18-kota-devam.jpg)
-
 **Backup.** Settings live **in this browser**. Move them with *Download backup (.json)* / *Load from
 backup*. Keys are **not written** to the file by default; tick the box and it carries them as plain
 text (a red warning appears). If the backup has no keys, the keys in this browser are kept; a broken
 file changes nothing.
-
-![Backup](ekranlar/15-yedekleme.jpg)
 
 **Table memory (default).** Every seat does not re-read the whole history before speaking. The app
 shrinks old rounds into one-line notes; the model receives only **your first question + that note + the
@@ -305,7 +292,6 @@ the rules always run.)
   did not answer”) and one line explains what happened. The card is credited to **“Local summary · local
   only”**, not to the chair — no one signs text they did not write.
 
-![One seat gave an empty answer, another produced only reasoning text: every case on one line, the table never stopped](ekranlar/37-sandalye-durumlari.jpg)
 - **Provider cooldown (1 min).** A **connection** that returns 429 or “out of credits” is not tried at
   all for this period; the seat shows `resting · 16:19`. If all are resting the table pauses and resumes
   with **▶ Continue where you left off** when the time is up. **End cooldown** reopens without waiting.
@@ -319,14 +305,9 @@ daily quota does not create a cooldown — waiting 5 minutes does not fix it; th
 **Continue where you left off** are for. The continue button is an explicit intervention: it also lifts
 any cooldown wait.
 
-
-![All seats resting: table paused](ekranlar/24-dinlenme.jpg)
-
 ---
 
 ## Attaching files and images
-
-![Attaching files: PDF, image and Excel in the tray](ekranlar/28-dosya-ekleme.jpg)
 
 Use the **paperclip** left of the text box (or **Ctrl+V** / drag and drop) to attach a file to your question.
 A small **tray** appears above the box with the file name, size, page count and a ✕ button. Press `Enter` and
@@ -352,8 +333,6 @@ in the message it arrived in and in the **next** one, then it is only referenced
 
 ## Panel
 
-![Panel: four seats at once, blind to each other](ekranlar/27-panel.jpg)
-
 Seats answer **at the same time** and **do not see each other**: each seat only sees your questions and
 **its own** earlier answers. No chair, no summary, no judge — the views are written one under the other and
 **the comparison is yours**. Pick this when you want to see what four models say about the same question,
@@ -361,8 +340,6 @@ side by side and without influence. Each message costs one request per seat (4 s
 four answers arrive together; you do not wait in turn.
 
 ## Council
-
-![Council conversation](ekranlar/2-konsey-konusma.jpg)
 
 3–5 separate models at one table; each has a role and the chair has the last word.
 
@@ -378,8 +355,6 @@ four answers arrive together; you do not wait in turn.
 Roles are not sticky: turn models on and off, change the chair, rewrite the roles. The heading follows
 the setting too — with 5 seats open it reads “Five AI minds, one table”.
 
-![Five seats](ekranlar/19-bes-sandalye.jpg)
-
 **Three rules for every speaker** (baked into the system prompt): **short** (no decoration, no intro
 lines), **objective** (no invented numbers or prices; with no data it says “no evidence”), **no
 repetition** (no restating what was already said, no “X said that”). With nothing new it says so plainly.
@@ -387,8 +362,6 @@ repetition** (no restating what was already said, no “X said that”). With no
 ---
 
 ## OneOnOne
-
-![OneOnOne · keyless](ekranlar/26-teketek.jpg)
 
 A single AI at the table; no debate, no turns, no chair. It answers what you write and keeps the chat's
 memory as you continue. Two options:
@@ -417,8 +390,6 @@ objection, the point that cannot be decided and the data that would settle it, a
 - Mirror has **no agenda picker** — it is always *debate & critique*.
 - Cost: **2 rounds + verdict = 5 requests** (single model).
 
-![Mirror · judge verdict](ekranlar/4-ayna-hakem.jpg)
-
 ---
 
 ## Agents
@@ -444,8 +415,6 @@ Council and Mirror **debate** a question; Agents **do** a project.
 `4 (all)`. It only **narrows** — the first N open seats run, the roster is not deleted; the **≈ N
 requests** estimate above drops. The **＋ Add DeepSeek** button opens the fifth seat in one click.
 
-![Agent count](ekranlar/17-ajan-sayi.jpg)
-
 **Pause at every step.** Ticked, you press **Continue** after each agent, so you can cut a chain that is
 going wrong. **Passes: 1 / 2 / 3** runs the same roster several times.
 
@@ -453,8 +422,6 @@ going wrong. **Passes: 1 / 2 / 3** runs the same roster several times.
 **268 English expert entries**. Search works in both languages (`finans` finds *Financial analyst* and
 *finance*). A pick is written **only to that seat**: role + task + expected output. On a filled seat it
 asks first.
-
-![Ready roster](ekranlar/16-kadro.jpg)
 
 **Hand-off package.** Each agent appends a structured package to its answer (GOAL · SETTLED · OPEN ·
 EVIDENCE · CONSTRAINT · LIMIT · NEXT). The next agent sees **only this package**, not the whole
@@ -497,8 +464,6 @@ downloads accordingly).
 they **append text to the image prompt**; no credits, no model change. Press again to turn off; a part
 already present in the prompt is not repeated.
 
-![Image ratio and camera tag](ekranlar/22-gorsel-oran.jpg)
-
 **Behaviour**
 - An image is a **separate request**; it does not count as agent chat. It reads “≈ 5 requests · 1 image (free)”.
 - In live mode, before starting you are **asked** how many images will be drawn and which engine is used;
@@ -509,8 +474,6 @@ already present in the prompt is not repeated.
   retries **once** after 6 seconds.
 - **Images are not stored** (so they do not fill browser quota). Reload the page and the picture is gone;
   **Regenerate** brings it back. Export writes the **prompt**, not the image.
-
-![Image generation](ekranlar/14-gorsel-uretim.jpg)
 
 ---
 
@@ -598,23 +561,13 @@ changes — nothing slides.
 | 2 | LLM7.io | Codestral | Analyst |
 | 3 | OVH AI Endpoints | Llama 3.3 70B | Critic |
 
-![Council · three separate models](ekranlar/133-konsey-siralar.jpg)
-
-![Agent cards · real model and service](ekranlar/133-ajan.jpg)
-
-![Mirror · real model name](ekranlar/133-ayna-siralar.jpg)
-
-![The brand on the page](ekranlar/130-marka-sayfa.jpg)
-
-| Brand · day | Brand · night | Phone |
-|---|---|---|
-| ![Brand day](ekranlar/132-marka-normal.jpg) | ![Brand night](ekranlar/132-ray-gece.jpg) | ![Mobile](ekranlar/132-ray-mobil.jpg) |
+**Task cards and image settings (Kol 134).** The task cards, the image/camera strip and the flow bar
+on the Agents screen were painted black for the night theme; in the daytime "notebook" theme they
+looked muddy grey on hover and read as *disabled*. These surfaces now follow the theme: paper white
+by day, dark as before at night. A browser test checks that text can be typed and the buttons are
+really clickable.
 
 **Left panel:** how it sits in day mode, the hover slide, and the night look.
-
-| Panel · day | Panel · night | Brand · on hover |
-|---|---|---|
-| ![Panel day](ekranlar/132-ray-gunduz.jpg) | ![Panel night](ekranlar/132-ray-gece.jpg) | ![Brass line](ekranlar/132-marka-hover.jpg) |
 
 **On the phone the top bar is two rows, both centred:**
 
@@ -625,10 +578,6 @@ changes — nothing slides.
 
 The brand name is never truncated at any width (it used to shrink to “Div…”); under 360 px only the
 centred Demo/Live badge is hidden.
-
-| Phone · top bar | Phone · home |
-|---|---|
-| ![Top bar](ekranlar/118b-mobil-ustserit.jpg) | ![Mobile](ekranlar/118b-mobil-sayfa.jpg) |
 
 Contrast clears WCAG AA: body 15.6 · secondary 8.4 · dim 6.0 · button label 5.8.
 With `prefers-reduced-motion`, the transition is disabled.
@@ -656,14 +605,6 @@ and most apps would cut it. For the full text use **Export** (Word · text · Ma
 
 When you open the page locally (`localhost`) the share button gives the `canonical` address
 instead of your own machine's — `localhost` does not open on anyone else's computer.
-
-| Share button: Export · Share · Copy | Share panel (Turkish) |
-|---|---|
-| ![Button](ekranlar/117-paylas-dugme.jpg) | ![Share](ekranlar/117-paylas.jpg) |
-
-| English | Phone |
-|---|---|
-| ![Share](ekranlar/117-paylas-en.jpg) | ![Mobile](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 
@@ -761,8 +702,6 @@ What changed on 6 November because of this:
 - **Settings are honest.** The keyless view carries a 429/empty-answer warning and a
   **measured** note for each keyless service (speed, limit, which model actually works).
 
-![Keyless warning](ekranlar/38-anahtarsiz-uyari.jpg)
-
 ### If you want it smoother: a free key without a card
 
 Keyless services run "best effort": they are free, so under load they make you wait. One
@@ -800,22 +739,6 @@ keyless setup works too, it just makes you wait 20–60 seconds now and then.
 
 ## Screens
 
-| Mobile · Mirror | Daily quota |
-|---|---|
-| ![Mobile](ekranlar/5-mobil.jpg) | ![Quota](ekranlar/7-kota.jpg) |
-
-| Agents · flow and delivery | Mirror: no agenda picker |
-|---|---|
-| ![Flow](ekranlar/12-ajan-akis.jpg) | ![Mirror](ekranlar/20-ayna-gundem.jpg) |
-
-| Image box: drawn from the agent's text | Connection settings: no card / card required |
-|---|---|
-| ![Image box](ekranlar/21-gorsel-kutusu.jpg) | ![Connection](ekranlar/8-baglanti.jpg) |
-
-| Paid services in their own layer | Per-seat connection |
-|---|---|
-| ![Other services](ekranlar/25-diger-servisler.jpg) | ![Seat connection](ekranlar/9-sandalye-baglanti.jpg) |
-
 *DivanAI · one file · no external dependencies.*
 
 ---
@@ -843,10 +766,6 @@ Opening the page once is enough: migration runs a single time and the old record
 **You do not have to do anything by hand**; your key and settings stay where they are. A `.json`
 settings backup you downloaded earlier keeps working too (it is accepted even if the app name inside
 says `MASA`).
-
-| Share: link and conversation summary | Share panel on the phone |
-|---|---|
-| ![Share](ekranlar/117-paylas.jpg) | ![Mobile](ekranlar/117-paylas-mobil.jpg) |
 
 ---
 

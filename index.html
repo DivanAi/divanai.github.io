@@ -91,6 +91,9 @@ html,body{height:100%}
 /* ============ GECE (varsayılan değil · gündüz paleti aşağıda) ============ */
 :root{
   --bg:#08090d; --bgrgb:8,9,13;
+  /* KOL 134: çukur yüzeyler (görev kartı, görsel şeridi, teslim paketi) — gece: siyah */
+  --sunken:rgba(0,0,0,.22); --sunken2:rgba(0,0,0,.18);
+  --field:rgba(var(--w),.045); --fieldFocus:rgba(var(--w),.07);
   --w:255,255,255;
   --panel:rgba(var(--w),.038);
   --panel2:rgba(var(--w),.06);
@@ -151,6 +154,9 @@ html,body{height:100%}
   --link:#7a4b2a; --linkrgb:122,75,42;
   --danger:#a3342f;
   --drawer:#fffdf8; --drawerFoot:#f8f4ec; --panelSolid:#fdfaf3; --logo:#5a5348;
+  /* KOL 134: gecede siyah olan yüzeyler gündüz kâğıt olur — "kapalı" hissi vermesin */
+  --sunken:rgba(255,255,255,.72); --sunken2:rgba(255,255,255,.5);
+  --field:rgba(122,75,42,.05); --fieldFocus:rgba(122,75,42,.08);
   --placeholder:#6b6355; --optionSel:#efe6d5;
   --toastBg:#fffdf8; --toastOkBg:#f1faf5; --toastErrBg:#fdf1f1;
   --stripBg:linear-gradient(180deg,rgba(255,254,250,.96),rgba(244,238,226,.97));
@@ -849,7 +855,7 @@ input.fieldErr, select.fieldErr{border-color:rgba(var(--badrgb),.65)!important;b
 .mfile .ftext{
   margin:0;padding:9px 11px;border-top:1px solid var(--line);max-height:240px;overflow:auto;
   font-size:11.5px;line-height:1.55;color:var(--muted);white-space:pre-wrap;word-break:break-word;
-  background:rgba(0,0,0,.22);
+  background:var(--sunken2);
 }
 .mfile img.buyuk{display:block;max-width:100%;max-height:420px;margin:0;object-fit:contain;background:#000}
 @media (max-width:560px){
@@ -1215,7 +1221,7 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
   border-radius:20px;padding:2px 9px;white-space:nowrap}
 .ajanFlowDesc{margin:10px 0 12px;font-size:12px;color:var(--dim);line-height:1.5}
 .ajanCards{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:9px}
-.ajanCard{padding:10px 11px 11px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,.22);display:flex;flex-direction:column;gap:7px}
+.ajanCard{padding:10px 11px 11px;border:1px solid var(--line);border-radius:12px;background:var(--sunken);display:flex;flex-direction:column;gap:7px}
 .ajanCardHead{display:flex;gap:7px;align-items:center;min-width:0}
 .ajanNo{flex:0 0 auto;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
   background:rgba(var(--accrgb),.14);color:var(--acc);border:1px solid rgba(var(--accrgb),.3)}
@@ -1252,14 +1258,14 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
   color:var(--dim);font:inherit;font-size:11.5px;padding:1px 2px;text-align:right}
 .ajanRole:focus{outline:none;color:var(--text);border-bottom-color:var(--acc)}
 .ajanLbl{display:flex;flex-direction:column;gap:3px;font-size:10px;letter-spacing:.06em;color:var(--dim);text-transform:uppercase}
-.ajanIn{width:100%;box-sizing:border-box;resize:vertical;background:rgba(var(--w),.045);border:1px solid var(--line);
+.ajanIn{width:100%;box-sizing:border-box;resize:vertical;background:var(--field);border:1px solid var(--line);
   border-radius:8px;color:var(--text);font:inherit;font-size:12.5px;line-height:1.45;padding:6px 7px}
-.ajanIn:focus{outline:none;border-color:rgba(var(--accrgb),.55);background:rgba(var(--w),.07)}
+.ajanIn:focus{outline:none;border-color:rgba(var(--accrgb),.55);background:var(--fieldFocus)}
 .ajanIn::placeholder{color:rgba(var(--w),.26)}
 .ajanNote{margin:10px 0 0;font-size:11px;color:var(--dim)}
 
 .ajanBar{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:0 0 9px;padding:7px 9px;
-  border:1px solid var(--line);border-radius:11px;background:rgba(0,0,0,.25);font-size:11.5px}
+  border:1px solid var(--line);border-radius:11px;background:var(--sunken);font-size:11.5px}
 .ajanStep{display:inline-flex;gap:5px;align-items:center;padding:2px 8px;border-radius:20px;
   border:1px solid var(--line);color:var(--dim);background:rgba(var(--w),.03);white-space:nowrap}
 .ajanStep i{font-style:normal;font-size:10px;width:12px;text-align:center;color:var(--dim)}
@@ -1297,7 +1303,7 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
 
 /* ================= GÖRSEL ================= */
 .imgRow{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:0 0 12px;padding:8px 10px;
-  border:1px solid var(--line);border-radius:11px;background:rgba(0,0,0,.18)}
+  border:1px solid var(--line);border-radius:11px;background:var(--sunken2)}
 .imgRowLbl{font-size:10.5px;letter-spacing:.07em;color:var(--dim);text-transform:uppercase;margin-right:2px}
 .imgEngBtn{display:flex;flex-direction:column;gap:1px;align-items:flex-start;padding:5px 10px;border-radius:9px;
   border:1px solid var(--line);background:rgba(var(--w),.03);color:var(--muted);cursor:pointer;font:inherit;transition:.15s}
@@ -1328,7 +1334,7 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
 .ajanClear{margin-left:6px;color:var(--warnInk);border-color:rgba(var(--warnrgb),.35)}
 
 .msg.imgMsg{grid-template-columns:1fr;margin:10px 0 16px}
-.imgCard{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:rgba(0,0,0,.3)}
+.imgCard{margin:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--sunken)}
 .imgCard .imgHead{display:flex;gap:8px;align-items:center;padding:7px 11px;border-bottom:1px solid var(--line);
   font-size:11.5px;color:var(--muted);background:rgba(var(--w),.03)}
 .imgCard .imgHead b{font-weight:600;color:var(--text)}
