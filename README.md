@@ -580,6 +580,20 @@ sürerken hiç dokunmaz (önce “Durdur”). Klavyeyle de çalışır: marka bi
 (yeşil · mavi · turuncu · mor). Marka adı **24 px** serif (telefonda 22 px). Sekme simgesi ve telefon
 simgesi de aynı baklava, aynı renklerle.
 
+**Demo masası (üç satır, üç ayrı model):**
+
+| Sandalye | Servis | Model | Rol |
+|---|---|---|---|
+| 1 | Pollinations | gpt-oss 20B | Moderatör · başkan |
+| 2 | LLM7.io | Codestral | Analist |
+| 3 | OVH AI Endpoints | Llama 3.3 70B | Eleştirmen |
+
+![Konsey · üç ayrı model](ekranlar/133-konsey-siralar.jpg)
+
+![Ajan kartları · gerçek model ve servis](ekranlar/133-ajan.jpg)
+
+![Ayna · gerçek model adı](ekranlar/133-ayna-siralar.jpg)
+
 **Hareket:** markanın üzerine gelince sloganın altından **pirinç bir çizgi soldan sağa süpürülür**,
 logo bir tık yukarı kalkar; fare çekilince çizgi geri kapanır. Hareket azaltma tercihi açıksa
 (`prefers-reduced-motion`) sadece renk değişir, kayma olmaz.
@@ -763,6 +777,11 @@ anahtarsız kurulum da çalışır, yalnız bazen 20–60 saniye bekletir.
 
 - **Demo da gerçek modeldir; bedeli yavaşlık ve kotadır.** Üç ücretsiz servis (OVH · LLM7 · Pollinations)
   anahtarsız cevap verir; hazır metin yoktur. Günlük kota dolunca o sandalye yedeğe düşer.
+- **Demo masasında üç sandalye = üç ayrı servis, üç ayrı model.** Açılışta masa şöyle dağılır:
+  **Pollinations → gpt-oss 20B** (başkan), **LLM7 → Codestral**, **OVH → Llama 3.3 70B**.
+  Sandalyede, ajan kartında ve Ayna'da yazan ad, isteğin gerçekten gittiği **model ve servistir** —
+  "ChatGPT" ya da "Grok" gibi marka adı yazmaz. (Kol 133'ten önce başkan sandalyesi Pollinations'a
+  çekildiği için iki sandalye aynı modele düşüyor, OVH hiç kullanılmıyordu.)
 - **Canlı mod API anahtarı ister ve internet ister.** Anahtar yoksa canlı masa çalışmaz; denemek için Demo var.
 - **Kısalık bir üst sınırdır.** Model sınırı aşmaz ama bazen gereğinden kısa yazabilir; uzun analiz için
   tek konuya odaklanmış yeni bir masa aç.

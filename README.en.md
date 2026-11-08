@@ -465,6 +465,12 @@ conversation: cost does not grow quadratically along the chain and constraints d
 **In Demo mode** the answers are real too (three free services); only no key is spent, and speed and quota
 depend on each service's own limit.
 
+**Three seats in Demo = three separate services, three separate models.** On first open the table is set as
+**Pollinations → gpt-oss 20B** (chair), **LLM7 → Codestral**, **OVH → Llama 3.3 70B**. What a seat, an agent
+card or Mirror shows is the **model and service the request actually goes to** — never a brand name like
+"ChatGPT" or "Grok". (Before Kol 133 the chair seat was pulled to Pollinations, so two seats landed on the
+same model and OVH was never used.)
+
 ---
 
 ## Images (Agents)
@@ -579,6 +585,24 @@ keyboard too — the brand is a button: `Tab` to focus, `Enter` to press.
 The **icon** sits on the left, **34 px** (32 px on phones): a brass **diamond** holding the four seats
 at the table (green · blue · orange · purple). The brand name is **24 px** serif (22 px on phones).
 The tab icon and the phone icon use the same diamond and the same colours.
+
+**Motion:** hovering the brand **sweeps a brass line from left to right** under the tagline and lifts
+the icon a hair; moving away closes the line again. With `prefers-reduced-motion` only the colour
+changes — nothing slides.
+
+**The Demo table (three rows, three separate models):**
+
+| Seat | Service | Model | Role |
+|---|---|---|---|
+| 1 | Pollinations | gpt-oss 20B | Moderator · chair |
+| 2 | LLM7.io | Codestral | Analyst |
+| 3 | OVH AI Endpoints | Llama 3.3 70B | Critic |
+
+![Council · three separate models](ekranlar/133-konsey-siralar.jpg)
+
+![Agent cards · real model and service](ekranlar/133-ajan.jpg)
+
+![Mirror · real model name](ekranlar/133-ayna-siralar.jpg)
 
 ![The brand on the page](ekranlar/130-marka-sayfa.jpg)
 

@@ -1219,7 +1219,10 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
 .ajanCardHead{display:flex;gap:7px;align-items:center;min-width:0}
 .ajanNo{flex:0 0 auto;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;
   background:rgba(var(--accrgb),.14);color:var(--acc);border:1px solid rgba(var(--accrgb),.3)}
-.ajanNm{font-size:12.5px;font-weight:600;white-space:nowrap}
+.ajanId{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.ajanNm{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ajanSrv{font-style:normal;font-size:9.5px;letter-spacing:.02em;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root[data-palette="paper"] .ajanSrv{color:#6b6355}
 .kadroBtn{flex:0 0 auto;margin-left:auto;font:inherit;font-size:10.5px;line-height:1;color:var(--muted);
   background:rgba(var(--w),.04);border:1px solid var(--line);border-radius:7px;padding:4px 7px;cursor:pointer;white-space:nowrap}
 .kadroBtn:hover{color:var(--text);border-color:var(--line2);background:rgba(var(--w),.09)}
@@ -3376,7 +3379,12 @@ const GOALS = {
    · demo = üç ücretsiz anahtarsız servis (OVH · LLM7 · Pollinations) — GERÇEK cevap, anahtar yok
    · live = yalnız API anahtarıyla; anahtarsız sandalye canlıda çalışmaz, varsayılan masa 4 sandalye */
 const DEMO_SEATS = ['gpt', 'gemini', 'claude'];
-const DEMO_SRC = { gpt: 'ovh', gemini: 'llm7', claude: 'pollinations' };
+/* KOL 133 · KUSUR: eskiden gpt→ovh, claude→pollinations idi. Açılışta ensureTek() başkan
+   sandalyesini Pollinations'a çektiği için claude ile AYNI servise düşüyordu: masada
+   iki kez gpt-oss 20B görünüyor, OVH (Llama) hiç kullanılmıyordu. Artık üç sandalye
+   üç ayrı anahtarsız servise dağılır; başkan/TekeTek sandalyesi hızlı serviste kalır. */
+const DEMO_SRC = { gpt: 'pollinations', gemini: 'llm7', claude: 'ovh' };
+const KEYLESS_DEMO_ORDER = ['pollinations', 'llm7', 'ovh'];
 const LIVE_SEATS = ['gpt', 'gemini', 'claude', 'grok'];   // canlı varsayılanı: 4 sandalye
 function isDemoMode() { return state.settings.mode !== 'live'; }
 
@@ -3411,10 +3419,25 @@ function normalizeMode() {
     DEMO_SEATS.forEach(pid => {
       const pk = picks[pid];
       const g = GATEWAYS[pk];
-      const kind = (g && g.group === 'keyless') ? pk : DEMO_SRC[pid];
-      nextSrc[pid] = kind;
-      const pre = (GATEWAYS[kind] || {}).models || {};
-      s.models[pid] = pre[pid] || Object.keys(pre).map(k => pre[k]).find(Boolean) || '';
+      nextSrc[pid] = (g && g.group === 'keyless') ? pk : DEMO_SRC[pid];
+    });
+    /* KOL 133: iki sandalye aynı servise düşerse ikincisini boş servise taşı —
+       "3 ayrı model" sözü tutulsun, aynı model iki sandalyede görünmesin. */
+    const kullanilan = {};
+    DEMO_SEATS.forEach(pid => {
+      const k = nextSrc[pid];
+      if (!kullanilan[k]) { kullanilan[k] = pid; return; }
+      const bos = KEYLESS_DEMO_ORDER.find(x => !kullanilan[x]);
+      if (bos) { kullanilan[bos] = pid; nextSrc[pid] = bos; }
+    });
+    DEMO_SEATS.forEach(pid => {
+      /* KOL 133: sandalye başına ön ayar anahtarı (gpt/gemini/claude) OVH'de Mistral'a
+         düşebiliyordu; ekranda "OVH" yazarken modelin Mistral olması kafa karıştırıyordu.
+         Anahtarsız servislerin ana modeli `models.gpt`'dir: Pollinations → gpt-oss 20B,
+         LLM7 → Codestral, OVH → Llama 3.3 70B. Demo kartı da bunları yazıyor. */
+      const pre = (GATEWAYS[nextSrc[pid]] || {}).models || {};
+      s.models[pid] = String(pre.gpt || '').trim()
+        || Object.keys(pre).map(k => pre[k]).find(Boolean) || '';
     });
     /* demo sandalyesi olmayan (ör. Ayna'nın modeli) anahtarsız seçimler korunur */
     Object.keys(s.seatSrc || {}).forEach(k => {
@@ -3808,7 +3831,18 @@ function ensureTek() {
   if (s._tekSeeded) return;                 // kullanıcının kendi seçimini her gelişte ezme
   s._tekSeeded = true;
   const hasKey = !!String(keyOfKind(s.api.kind) || '').trim();
-  if (!hasKey) tekPidNeedsSwitch('pollinations');   // anahtar yoksa kurulum istemeyiz
+  if (hasKey) return;
+  /* KOL 133 · KUSUR: burada koşulsuz tekPidNeedsSwitch('pollinations') çağrılıyordu.
+     Açılış TekeTek'te olduğu için demo masasının eşlemesini eziyor, başkan sandalyesini
+     Pollinations'a çekiyordu → üçüncü sandalye de Pollinations'ta olduğundan masada
+     aynı model iki kez görünüyordu. Artık sandalye zaten anahtarsız bir servise
+     bağlıysa dokunulmaz. */
+  const pid = tekSeat();
+  const cur = (s.seatSrc || {})[pid];
+  if (cur && GATEWAYS[cur] && GATEWAYS[cur].group === 'keyless') return;
+  const dsr = DEMO_SRC[pid];
+  if (isDemoMode() && dsr && (GATEWAYS[dsr] || {}).group === 'keyless') return;
+  tekPidNeedsSwitch('pollinations');   // anahtar yoksa kurulum istemeyiz
 }
 const duelPid = () => (state.settings.duel && PROVIDERS[state.settings.duel.pid]) ? state.settings.duel.pid : 'grok';
 /* Ayna'nın kendi renk çifti — Konsey paletinden BAĞIMSIZ.
@@ -3822,14 +3856,18 @@ const personas = () => {
   if (duelOn()) {
     const pid = duelPid();
     const base = PROVIDERS[pid];
+    /* KOL 133 · KUSUR: burada doğrudan PROVIDERS adı yazılıyordu; demo modunda ekran
+       "Grok A / Grok B" diyor, istek ise anahtarsız servise gidiyordu. Artık gerçek model. */
+    const _dm = state.settings.models[pid] || '';
+    const _dv = (typeof seatVendorName === 'function') ? seatVendorName(pid, _dm) : null;
     return ['a', 'b'].map(side => {
       const s = DUEL_SIDES[side];
       return {
         id: side === 'a' ? pid : pid + '2',
         provider: pid,
-        model: state.settings.models[pid] || '',
-        name: base.name + ' ' + s.tag,
-        short: (base.short + s.tag).slice(0, 4),
+        model: _dm,
+        name: (_dv ? _dv.name : base.name) + ' ' + s.tag,
+        short: String(_dv ? _dv.short : base.short).slice(0, 4),
         color: DUEL_COLORS[side] || base.color,
         role: s.role,
         roleLabel: s.roleLabel,
@@ -3913,7 +3951,7 @@ function seatVendorName(pid, model) {
     return { name: ad, short: ad === 'Codestral' ? 'CDS' : 'MNM', vendor: 'LLM7.io (anahtarsız)' };
   }
   if (kind === 'ovh') {
-    const ad = /llama-?3.?3/i.test(m) ? 'Llama 3.3 70B' : /mistral/i.test(m) ? 'Mistral Small'
+    const ad = /llama-?3.?3/i.test(m) ? 'Llama 3.3 70B' : /mistral/i.test(m) ? 'Mistral Small 3.2'
       : /qwen/i.test(m) ? 'Qwen' : (prettyModel(m) || 'OVH modeli');
     return { name: ad, short: /llama/i.test(m) ? 'L33' : /qwen/i.test(m) ? 'QWN' : 'MSM', vendor: 'OVH AI Endpoints (anahtarsız)' };
   }
@@ -5401,8 +5439,12 @@ async function testConnections(cfgMain, seats, onProgress) {
   return results;
 }
 
-/* bu sandalye hangi bağlantıyı kullanıyor? (boş = ana bağlantı) */
+/* bu sandalye hangi bağlantıyı kullanıyor? (boş = ana bağlantı)
+   KOL 133: DEMO modunda cevabı veren şey ana bağlantı değil, anahtarsız servistir.
+   Eskiden burada api.kind (ör. "google") dönüyordu; ekran "Grok A" yazarken istek
+   OVH'ye gidiyordu. Artık demo'da demoKindFor() kullanılır. */
 function seatKindOf(pid) {
+  if (isDemoMode()) return demoKindFor(pid);
   const s = (state.settings.seatSrc || {})[pid];
   return (s && GATEWAYS[s]) ? s : state.settings.api.kind;
 }
@@ -5569,11 +5611,15 @@ function resolveRoute(pid) {
      sessizce durmasındansa masa çalışsın. (Özel bağlantıda ön ayar yoktur.) */
   let model2 = model;
   if (demo) {
-    /* demo'da model kimliği servisin kendi ön ayarından gelir; canlı model adı buraya sızmasın */
+    /* demo'da model kimliği servisin kendi listesinden gelir; canlı model adı sızmasın.
+       KOL 133: sandalyenin sakladığı kimlik o servisin listesinde VARSA o kullanılır
+       (böylece masada Llama da görünebilir), yoksa servisin ana modeline düşülür. */
     const pre = (g.models || {});
+    const vals = Object.keys(pre).map(k => String(pre[k] || '').trim()).filter(Boolean);
+    const suanki = String(state.settings.models[pid] || '').trim();
     const key = DEMO_SEATS.includes(pid) ? pid : 'gpt';
-    model2 = String(pre[key] || '').trim() ||
-             Object.keys(pre).map(k => String(pre[k] || '').trim()).find(Boolean) || '';
+    model2 = (suanki && vals.indexOf(suanki) >= 0) ? suanki
+           : (String(pre[key] || '').trim() || vals[0] || '');
   } else if (!String(model2).trim()) {
     const pre = (g.models || {});
     model2 = String(pre[state.settings.chair] || '').trim() ||
@@ -9137,9 +9183,19 @@ function renderAjanSetup() {
   const cards = seats.map((pid, i) => {
     const p = PROVIDERS[pid] || {};
     const t = ajanTaskOf(pid);
+    /* KOL 133 · KUSUR: kartta PROVIDERS adı (ChatGPT · Gemini · Claude) yazıyordu; demo
+       modunda cevabı onlar vermiyor, anahtarsız servisler veriyor (gpt-oss 20B · Codestral ·
+       Llama 3.3 70B). Artık kart, isteğin gerçekten gideceği modeli ve servisi yazar. */
+    const _m = modelFor(pid);
+    const _vn = (typeof seatVendorName === 'function') ? seatVendorName(pid, _m) : null;
+    const _ad = _vn ? _vn.name : (p.name || pid);
+    const _srv = _vn ? String(_vn.vendor || '').replace(/\s*\((anahtarsız|keyless)\)/i, '') : '';
     return '<div class="ajanCard" data-pid="' + pid + '">' +
       '<div class="ajanCardHead"><span class="ajanNo">' + (i + 1) + '</span>' +
-        '<span class="ajanNm">' + esc(p.name || pid) + '</span>' +
+        '<span class="ajanId" title="' + esc(_ad + (_srv ? ' · ' + _srv : '')) + '">' +
+          '<b class="ajanNm">' + esc(_ad) + '</b>' +
+          (_srv ? '<i class="ajanSrv">' + esc(_srv) + '</i>' : '') +
+        '</span>' +
         '<input class="ajanRole" data-pid="' + pid + '" data-f="role" value="' + esc(t.role || '') + '" placeholder="' + esc(window.T2(p.roleLabel || 'rol', (window.I18N.EN[p.roleLabel] || 'role'))) + '" aria-label="' + esc(window.T2((p.name || pid) + ' rolü', (p.name || pid) + ' role')) + '">' +
         '<button type="button" class="kadroBtn' + (kadroPid === pid ? ' on' : '') + '" data-kadro="' + pid + '" aria-expanded="' + (kadroPid === pid) + '" title="' + esc(window.T2('Hazır kadrodan rol, görev ve beklenen çıktı seç', 'Pick role, task and expected output from the ready roster')) + '">' + window.T2('Kadro', 'Roster') + '</button>' +
       '</div>' +
