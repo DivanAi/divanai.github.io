@@ -1,0 +1,97 @@
+DivanAI
+Copyright 2026 DivanAI
+
+This product includes software developed by the DivanAI project.
+Source repository: https://github.com/divanai/divanai.github.io
+Live site:        https://divanai.github.io/
+
+--------------------------------------------------------------------------
+TÜRKÇE ÖZET (hukuken bağlayıcı olan metin LICENSE dosyasıdır)
+--------------------------------------------------------------------------
+
+Lisans: Apache License 2.0
+Tam metin: LICENSE dosyası · http://www.apache.org/licenses/LICENSE-2.0
+
+Ne yapabilirsin?
+  ✓ Kullan, çalıştır, değiştir, dağıt.
+  ✓ Para ile sat. Kendi ürününe gömüp ticari olarak satabilirsin.
+  ✓ Kapalı kutu yap. Kaynak kodu müşterilerine vermek zorunda değilsin.
+  ✓ Değiştirdiğin dosyaları kendi lisansınla lisanslayabilirsin.
+
+Karşılığında ne yapmalısın? (kısa liste)
+  1. Bu lisansın bir kopyasını ürünle birlikte ver (LICENSE dosyası).
+  2. Değiştirdiğin dosyalara "bu dosyayı değiştirdim" notu koy.
+  3. Telif / atıf bildirimlerini ve bu NOTICE dosyasını koru.
+  4. Patent davası açarsan, sana verilen patent lisansı sona erer (md. 3).
+
+Ne YAPAMAZSIN?
+  ✗ "DivanAI" adını ve logosunu kendi ürününün markası gibi kullanmak
+    (md. 6 — ticari marka lisansı verilmez).
+
+Garanti?
+  Yok. "OLDUĞU GİBİ" sağlanır (md. 7-8). Hukuk, sağlık, finans gibi
+  konularda profesyonel danışmanlık yerine geçmez.
+
+--------------------------------------------------------------------------
+NEDEN APACHE 2.0? (MIT yerine)
+--------------------------------------------------------------------------
+MIT ile Apache 2.0 arasındaki iki pratik fark:
+
+  1. PATENT: Apache 2.0, katkıda bulunanların patent haklarını kullanıcıya
+     açıkça lisanslar ve patent davası açanın lisansını düşürür (md. 3).
+     MIT'de patent hükmü yoktur. Bu, özellikle bir şirkete satarken
+     "patent koruması var mı?" sorusuna cevap olur.
+  2. YÜKÜMLÜLÜK: Apache 2.0 biraz daha fazla iş ister: NOTICE dosyası,
+     değiştirilen dosyaların işaretlenmesi. MIT yalnızca bildirimi korumanı
+     ister.
+
+Her iki lisans da "al, kapalı kutuya çevir, sat" senaryosunu birebir
+karşılar. GPL/AGPL bunu ENGELLEMEZ ama zorlaştırır: türevin kaynak kodu
+açık kalmak zorunda olur (satmak yine serbesttir — bu yaygın bir yanlış
+bilgidir). DivanAI'da kapalı kutu satışı serbest bırakıldığı için Apache 2.0
+seçildi.
+
+--------------------------------------------------------------------------
+KULLANILAN ÜÇÜNCÜ TARAF KODU
+--------------------------------------------------------------------------
+DivanAI tek dosyadır ve hiçbir dış kütüphane içermez: CDN, npm paketi,
+font ya da çerçeve kullanılmaz. .docx dışa aktarma ve ZIP paketleme
+kodu bu proje için sıfırdan yazılmıştır. Dolayısıyla bu depoda
+bildirilmesi gereken başka bir telif yoktur.
+
+--------------------------------------------------------------------------
+KADRO — HAZIR GÖREV ŞABLONLARI
+--------------------------------------------------------------------------
+Ajanlar modülündeki "Kadro" listesi iki kaynaktan oluşur:
+
+  1. TÜRKÇE ŞABLONLAR (12 adet)
+     DivanAI ekibi tarafından yazılmıştır. Bu depoyla aynı lisans: Apache 2.0.
+
+  2. İNGİLİZCE UZMAN KADROSU (268 adet)
+     Kaynak: https://github.com/msitarzewski/agency-agents
+     Lisans: MIT
+     Copyright (c) 2025 AgentLand Contributors
+
+     MIT License metni:
+       Permission is hereby granted, free of charge, to any person obtaining
+       a copy of this software and associated documentation files (the
+       "Software"), to deal in the Software without restriction, including
+       without limitation the rights to use, copy, modify, merge, publish,
+       distribute, sublicense, and/or sell copies of the Software, and to
+       permit persons to whom the Software is furnished to do so, subject to
+       the following conditions:
+       The above copyright notice and this permission notice shall be
+       included in all copies or substantial portions of the Software.
+       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+       EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+       MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+       IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+       CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+     NE ALINDI: yalnızca her kişiliğin ADI ve TEK CÜMLELİK TANITIMI
+     (kadro.js içindeki KADRO_EN_DATA). Kişilik dosyalarının tam metni
+     (3–55 KB: kimlik, görev, kontrol listeleri) bu pakete GİRMEZ.
+     Ölçüm: 279 dosya / 3.957 KB → alınan kısım 268 kayıt / 43 KB.
+
