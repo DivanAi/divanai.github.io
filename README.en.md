@@ -80,6 +80,11 @@ spread. To re-spread, press **Spread a different model per seat**.
 
 ![Solo: the model button inside the text box](ekranlar/129-cip.jpg)
 ![Model window: searchable and grouped](ekranlar/129-pencere.jpg)
+![Search inside the model window](ekranlar/129-arama.jpg)
+
+| Mirror · model window | Phone · model window | Night · model button |
+|---|---|---|
+| ![Mirror](ekranlar/129-ayna.jpg) | ![Phone](ekranlar/129-mobil.jpg) | ![Night](ekranlar/129-gece.jpg) |
 
 ![Settings — three keyless seats](ekranlar/30-ayarlar-sade.jpg)
 
@@ -96,7 +101,12 @@ OVH), then free services that need a key; paid ones stay folded under **Other se
 
 The table type now lives in a **vertical list on the left**: **OneOnOne · Panel · Council · Agents · Mirror**
 (the first visit is **OneOnOne** — the familiar single chat). Under the panel sits the **Demo / Live**
-label. On the phone the panel is a **horizontal strip** across the top; the Demo/Live label stays
+label.
+
+**The panel's language (desktop):** each mode is a **row**, not a card box — a rounded square holding the
+icon, the name and a one-line description beside it. The selected row sits on **cream**, gains a
+**brass bar** on its left and a `›` arrow on its right; hovering slides the row **2 px to the right**.
+The panel is **264 px** wide: a shade lighter than the paper in day mode, slate in night mode. On the phone the panel is a **horizontal strip** across the top; the Demo/Live label stays
 right below it.
 
 The top bar now has **no text**: on the right just a **dot** (green = Demo). Tapping it opens Settings.
@@ -559,20 +569,28 @@ Toggle with the **single icon** in the top bar: a moon in day mode, a sun in nig
 shows where you are going). The choice is stored in the browser; the first visit is **day**.
 The `G` key toggles too (not while typing). The settings drawer also has a `☀ Day / ☾ Night` row.
 
-The brand is now a **plaque** that stands apart from the page: a **dark navy-black surface** (with a
-soft amber glow at the top), brass frame and an inner hairline. On a paper-coloured page the brand is
-the only dark object, so the eye lands on it first. **Clicking it takes you home**; if the table has a conversation it asks first,
-and while a round is running it does nothing (press “Stop”). It works by keyboard too — the plaque is
-a button: `Tab` to focus, `Enter` to press.
+The brand is now a **strip**: no round plaque, no double frame, no brass line on top. The dark
+surface sits **only behind the name** — a thin, sharp-cornered strip; the **tagline sits outside the
+strip**, on the paper. The **AI** in the name is brass. On a paper-coloured page the brand is the only
+dark object, so the eye lands on it first. **Clicking it takes you home**; if the table has a
+conversation it asks first, and while a round is running it does nothing (press “Stop”). It works by
+keyboard too — the brand is a button: `Tab` to focus, `Enter` to press.
 
-The **logo** is the **first thing that catches the eye**: a **60 px** (52 px on phones) round
-**brass medallion** with four coloured seats (green · blue · orange · purple), a brass ring and a soft
-shadow. The table line is white and thick, so the medallion stays legible at 60 px. The brand name is
-**30 px** (25 px on phones). The tab icon and the phone icon use the same medallion and proportions.
+The **icon** sits on the left, **34 px** (32 px on phones): a brass **diamond** holding the four seats
+at the table (green · blue · orange · purple). The brand name is **24 px** serif (22 px on phones).
+The tab icon and the phone icon use the same diamond and the same colours.
 
-| Plaque · day | Plaque · night | Phone |
+![The brand on the page](ekranlar/130-marka-sayfa.jpg)
+
+| Brand · day | Brand · night | Phone |
 |---|---|---|
-| ![Plaque day](ekranlar/124-marka-gunduz.jpg) | ![Plaque night](ekranlar/124-marka-gece.jpg) | ![Mobile](ekranlar/124-marka-mobil.jpg) |
+| ![Brand day](ekranlar/132-marka-normal.jpg) | ![Brand night](ekranlar/132-ray-gece.jpg) | ![Mobile](ekranlar/132-ray-mobil.jpg) |
+
+**Left panel:** how it sits in day mode, the hover slide, and the night look.
+
+| Panel · day | Panel · night | Brand · on hover |
+|---|---|---|
+| ![Panel day](ekranlar/132-ray-gunduz.jpg) | ![Panel night](ekranlar/132-ray-gece.jpg) | ![Brass line](ekranlar/132-marka-hover.jpg) |
 
 **On the phone the top bar is two rows, both centred:**
 

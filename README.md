@@ -80,6 +80,11 @@ Yeniden dağıtmak istersen **Her sandalyeye ayrı model dağıt** düğmesine b
 
 ![TekeTek: model düğmesi yazı kutusunun içinde](ekranlar/129-cip.jpg)
 ![Model penceresi: aramalı ve gruplu](ekranlar/129-pencere.jpg)
+![Model penceresinde arama](ekranlar/129-arama.jpg)
+
+| Ayna · model penceresi | Telefon · model penceresi | Gece · model düğmesi |
+|---|---|---|
+| ![Ayna](ekranlar/129-ayna.jpg) | ![Mobil](ekranlar/129-mobil.jpg) | ![Gece](ekranlar/129-gece.jpg) |
 
 ![Ayarlar — üç anahtarsız sandalye](ekranlar/30-ayarlar-sade.jpg)
 
@@ -96,6 +101,11 @@ sonra ücretsiz anahtarlı servisler; ücretliler **Diğer servisler** başlığ
 
 Masa türü seçimi artık **sol panelde** dikey bir liste. Sıra: **TekeTek · Panel · Konsey · Ajanlar · Ayna**
 (ilk açılış **TekeTek** — herkesin tanıdığı tek sohbet). Panelin altında **Demo / Canlı** yazısı durur.
+**Sol panelin dili (masaüstü):** her mod bir kart kutusu değil, **satır**: solda yuvarlatılmış kare
+içinde simge, yanında ad ve tek cümlelik açıklama. Seçili modun satırı **krem zemine** oturur, solunda
+**pirinç bir çubuk** belirir, sağında `›` oku çıkar. Fareyle üzerine gelince satır hafifçe **sağa kayar**.
+Panel genişliği **264 px**; gündüz kâğıttan bir ton açık, gece slate ton.
+
 Telefonda panel üstte **yatay şerit** olur, parmakla yana kayar; Demo/Canlı yazısı hemen altında kalır.
 
 Üst şeritte artık **metin yok**: sağda yalnız bir **nokta** (yeşil = Demo). Noktaya basınca Ayarlar açılır.
@@ -559,19 +569,32 @@ kurtarılamaz** — başka yerde bir kopyası olsun. Kaldırmak tek düğme.
 modu gösterir). Seçim tarayıcıda saklanır; ilk açılış **gündüzdür**. `G` tuşu da değiştirir
 (yazı kutusunda çalışmaz). Ayarlar çekmecesinde de `☀ Gündüz / ☾ Gece` satırı vardır.
 
-Marka artık sayfadan ayrı duran bir **plaka**: **koyu lacivert-siyah zemin** (üstte hafif kehribar ışık),
-pirinç çerçeve, içte ince çizgi. Kâğıt sayfada tek koyu öğe marka olduğu için göz ilk ona gidiyor.
-Plakaya **tıklayınca ana ekrana dönersin**; masada konuşma varsa önce sorar, konuşma sürerken hiç
-dokunmaz (önce “Durdur”). Klavyeyle de çalışır: plaka bir düğmedir, `Tab` ile odaklanıp `Enter` ile basılır.
+Marka artık **şerit**: yuvarlak plaka, çift çerçeve ve üstteki pirinç çizgi yok. Koyu zemin
+**yalnız ismin arkasında** — keskin köşeli ince bir şerit; **alt cümle şeridin dışında**, kâğıdın
+üstünde duruyor. İsimdeki **AI** pirinç renginde. Kâğıt sayfada tek koyu öğe marka olduğu için göz
+ilk ona gidiyor. Markaya **tıklayınca ana ekrana dönersin**; masada konuşma varsa önce sorar, konuşma
+sürerken hiç dokunmaz (önce “Durdur”). Klavyeyle de çalışır: marka bir düğmedir, `Tab` ile odaklanıp
+`Enter` ile basılır.
 
-**Logo** sayfanın **ilk dikkat çeken öğesi**: **60 px** (telefonda 52 px) yuvarlak **pirinç
-madalyon**, dört renkli sandalye (yeşil · mavi · turuncu · mor), pirinç halka ve yumuşak gölge.
-Masa çizgisi beyaz ve kalın: madalyon 60 px'de de seçiliyor. Marka adı **30 px** (telefonda 25 px).
-Sekme simgesi ve telefon simgesi de aynı madalyon, aynı oranlarla.
+**Simge** solda, **34 px** (telefonda 32 px): pirinç bir **baklava** ve içinde masadaki dört sandalye
+(yeşil · mavi · turuncu · mor). Marka adı **24 px** serif (telefonda 22 px). Sekme simgesi ve telefon
+simgesi de aynı baklava, aynı renklerle.
 
-| Plaka · gündüz | Plaka · gece | Telefon |
+**Hareket:** markanın üzerine gelince sloganın altından **pirinç bir çizgi soldan sağa süpürülür**,
+logo bir tık yukarı kalkar; fare çekilince çizgi geri kapanır. Hareket azaltma tercihi açıksa
+(`prefers-reduced-motion`) sadece renk değişir, kayma olmaz.
+
+![Marka sayfada](ekranlar/130-marka-sayfa.jpg)
+
+| Marka · gündüz | Marka · gece | Telefon |
 |---|---|---|
-| ![Plaka gündüz](ekranlar/124-marka-gunduz.jpg) | ![Plaka gece](ekranlar/124-marka-gece.jpg) | ![Mobil](ekranlar/124-marka-mobil.jpg) |
+| ![Marka gündüz](ekranlar/132-marka-normal.jpg) | ![Marka gece](ekranlar/132-ray-gece.jpg) | ![Mobil](ekranlar/132-ray-mobil.jpg) |
+
+**Sol panel:** gündüz nasıl durduğu, üzerine gelince satırın kayması ve gece hâli.
+
+| Panel · gündüz | Panel · gece | Marka · üzerine gelince |
+|---|---|---|
+| ![Panel gündüz](ekranlar/132-ray-gunduz.jpg) | ![Panel gece](ekranlar/132-ray-gece.jpg) | ![Altın çizgi](ekranlar/132-marka-hover.jpg) |
 
 **Telefonda üst şerit iki satır, ikisi de ortalanmış:**
 
