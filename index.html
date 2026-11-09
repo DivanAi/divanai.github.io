@@ -2458,7 +2458,7 @@ body.pickOpen{overflow:hidden}
     "Vercel AI Gateway — tek anahtar, modelde ek ücret yok. Anahtar": "Vercel AI Gateway — one key, no extra fee per model. The key",
     "Fikir üret — çeşitlilik önemlidir, masadan farklı yönler çıkar.": "Generate ideas — variety matters; different directions come out of the table.",
     "Karar ver — herkes net bir seçenek söyler, başkan kararı yazar.": "Decide — everyone states one clear option; the chair writes the decision.",
-    "OpenRouter’ın araması kullanılır; model kimliğine :online eklenir.": "OpenRouter’s search is used; :online is appended to the model id.",
+    "Seçtiğin sağlayıcıya göre ücretli olabilir.": "Depending on the provider you pick, this may cost money.",   /* KOL 140 */
     "Hesap aç — OpenRouter’da; ücretsiz modeller için kredi kartı istemez.": "Create an account — at OpenRouter; free models need no credit card.",
     "Son iki turda yeni fikir gelmezse masa durur; boşuna token harcanmaz.": "If the last two rounds bring nothing new the table stops; no tokens wasted.",
     "OpenRouter — en pratik. 400+ model, bazıları ücretsiz (:free). Anahtar": "OpenRouter — the most practical. 400+ models, some free (:free). The key",
@@ -11943,7 +11943,7 @@ function drawerBodyHTML() {
   /* --- internet --- */
   h += '<div class="sec"><h3>İnternetten bilgi</h3>' +
     '<label class="swRow"><input type="checkbox" id="webChk" ' + (d.web ? 'checked' : '') + '/>' +
-      '<span><b>Güncel kaynakları modele ekle</b><i>OpenRouter’ın araması kullanılır; model kimliğine <code>:online</code> eklenir.</i></span></label>' +
+      '<span><b>Güncel kaynakları modele ekle</b><i>Seçtiğin sağlayıcıya göre ücretli olabilir.</i></span></label>' +   /* KOL 140: kullanıcı — mini açıklamada YALNIZ ücret uyarısı kalsın. */
     '<p class="note">Yalnızca <b>OpenRouter</b> bağlantısında çalışır. <b>Ücretsiz modelde bile kredi harcar</b>: istek başına yaklaşık 0,7–1,5 sent (motor Exa/Parallel). ' +
       'Kredin yoksa istek hata verir. Açıkken cevaplar [1], [2] ile kaynak gösterir.</p></div>';
 
