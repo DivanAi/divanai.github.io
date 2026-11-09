@@ -237,6 +237,9 @@ onu **Dışa aktar** ile alırsın.
 | **İnternetten bilgi** | Yalnız OpenRouter'da çalışır ve **kredi harcar**; kapalı tutmak ücretsizdir | Kapalı |
 
 **Bağlantı**
+Ayarlar → Bağlantı'da **Ücretsiz · kendi anahtarın (kart istemez)** başlığı altında dört kart
+yan yana durur: **Google AI Studio · Groq · Z.ai · OpenRouter**. Dördü de kredi kartı istemez;
+hangisine basarsan masadaki sandalyeler o servise geçer.
 Ücretsiz kalmak istiyorsan başlangıç **Google AI Studio**: kredi kartı istemez, Flash ve Flash-Lite
 modelleri ücretsiz; günlük istek hakkı **her model için ayrı** sayıldığı için dört sandalyeye dört ayrı
 Gemini modeli yazınca dört ayrı kota kullanılır. (Kesin günlük sayılar AI Studio → *Rate limits*

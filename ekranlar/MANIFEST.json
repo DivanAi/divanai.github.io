@@ -1,7 +1,6 @@
 {
- "index_sha": "b443f40263bd07620f9a5918512593e3bd6ce730fc4140dcddfa658e2991279e",
- "index_boyut": 830840,
- "tarih": "09.11.2026 00:36",
+ "index_sha": "db513ea64cc2d59e9920ce53724f4026ec41c6089682d81c0662ab3a1fc84321",
+ "index_boyut": 832580,
  "ekranlar": {
   "01-ana-sayfa-gunduz.jpg": "2f51bb2637ba12cf51042a02d0f00b020144206855d9880bcbd80b43ffc03a38",
   "02-ana-sayfa-gece.jpg": "c11f0f3c21fbb17cc6dc1b53bcf599f0f45496b2f866a7399968a62b3ab31315",
@@ -12,13 +11,13 @@
   "07-mobil.jpg": "c82af0b3630eaf55fcb3dfc98968d4c581172d901b658a94f1b8f1d556dccd79",
   "08-model-penceresi.jpg": "a8a728b5cdf314dd976808d3e458b56e8b1ceb7070234650f3d25e2ce3674d10",
   "09-ayarlar.jpg": "b322f871f7548ce776b565b8eaae121f745029f32032a27ca13797b38afaa34e",
-  "10-gecmis.jpg": "12380c60be368c323686a4f69f5af21e1c632425476a460300fbd2e58bd0ea1c",
+  "10-gecmis.jpg": "472b9495f3d518277a1f73e8e5474f4c9fa52c2ad4408658782cad8c915bb014",
   "11-marka.jpg": "30c5ba87fff39f47e2a974460a019aed0917a14225d186c1aa144661c89ad7e9",
-  "12-konsey-tur.jpg": "c7fbf83971df1d810e1848c5e02d984b79ed58171ba0ca40f8ab53c3e7bf4f1d",
-  "13-canli-baglanti.jpg": "2ffc50e61c7ddf7f667717abdcdaf75d1d182e8e079e7f379eec39cb19a87a23",
-  "14-canli-masa.jpg": "b778d7b67208552f8b13fad396d01eb9b04bb70c5c1742bfd3a5f28ef760cc6a",
-  "15-canli-modeller.jpg": "c88c78ec381289b1cac8eb78927907cd1edeb04744d78cda3e2fe98af28d4ec4",
-  "16-canli-openrouter.jpg": "0fb07015d7bc08aca40b6549fe235dac9bcfada37e1ccc31654fbe99dd77a004",
-  "davet-onizleme.jpg": "7e6a47ccc614d6ab650ecc1dd9e3a25ded52c9e721acf4a79dfc2c10bcf76d04"
+  "12-konsey-tur.jpg": "ea9e709b7ae9441d61e7cacbda6923a32242a354322e854bfa0c7530af932512",
+  "13-canli-baglanti.jpg": "33dfd0d18a45665108071d33cf0b2925c482b0fa45c5311207936f87235ad538",
+  "14-canli-masa.jpg": "e88fa95f1e3a5e2ac9853dae50a4847bc611369421e26396f2c4b204d0a1e87f",
+  "15-canli-modeller.jpg": "170746d98f61898923f93237234f18d76e9a91f5cdfd44e922a428e63b18edbe",
+  "16-canli-openrouter.jpg": "c1af9f2ba7a3fef28562de70c17a43f647b302d33185d403ae36dbb5ed066812",
+  "davet-onizleme.jpg": "06c70ac3c7973dfc4b092ec5425107aa526661c37ec4840cdc3f09fb7d477014"
  }
 }

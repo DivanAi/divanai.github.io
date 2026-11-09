@@ -2967,8 +2967,13 @@ const ROLES = {
    Aşağıdakiler "tek anahtar, çok model" veren ağ geçitleridir. */
 const GATEWAYS = {
   openrouter: {
-    group: 'other',
+    /* KOL 136 (kullanıcı): "OpenRouter'ı ücretsiz servislere alalım, dördü birlikte görünsün."
+       Doğru yerde: anahtar ister ama KART İSTEMEZ, ücretsiz modelleri var (:free).
+       Yine de tamamı ücretsiz değil — alt satırda ve rozette bu açıkça yazar. */
+    group: 'free',
     card: 'kartsız',
+    sub: 'tek anahtar · ücretsiz modeller var · ücretlisi de var',
+    subEn: 'one key · free models available · paid ones too',
     label: 'OpenRouter',
     baseUrl: 'https://openrouter.ai/api/v1',
     keyHint: 'sk-or-v1-…',
@@ -3980,8 +3985,8 @@ function seatModelMatchesBrand(pid, model) {
 }
 
 /** Sandalyenin bağlantısı, adından farklı bir şirketse ekranda gerçek model adı görünür. */
-function seatVendorName(pid, model) {
-  const kind = seatKindOf(pid);
+function seatVendorName(pid, model, settings) {
+  const kind = seatKindOf(pid, settings);
   if (kind === 'google') {
     const m = String(model || '').replace(/^google\//, '');
     const sayi = (m.match(/gemini-([0-9.]+)/) || [])[1] || '';
@@ -5494,10 +5499,16 @@ async function testConnections(cfgMain, seats, onProgress) {
    KOL 133: DEMO modunda cevabı veren şey ana bağlantı değil, anahtarsız servistir.
    Eskiden burada api.kind (ör. "google") dönüyordu; ekran "Grok A" yazarken istek
    OVH'ye gidiyordu. Artık demo'da demoKindFor() kullanılır. */
-function seatKindOf(pid) {
-  if (isDemoMode()) return demoKindFor(pid);
-  const s = (state.settings.seatSrc || {})[pid];
-  return (s && GATEWAYS[s]) ? s : state.settings.api.kind;
+/* KOL 136: istenirse VERİLEN ayar nesnesiyle çalışır.
+   Çekmecedeki taslak (drawerDraft) henüz kaydedilmediği için kart, kayıtlı demo
+   servislerini okuyup "gpt-oss 20B · Pollinations" yazıyordu; model ise OpenRouter'dı.
+   Artık kart, önündeki taslağa göre yazılır. */
+function seatKindOf(pid, settings) {
+  const st = settings || state.settings;
+  const demo = (st.mode !== 'live');
+  if (demo) return demoKindFor(pid, st);
+  const s = (st.seatSrc || {})[pid];
+  return (s && GATEWAYS[s]) ? s : (st.api || {}).kind;
 }
 /* sandalyenin anahtarı: kendi anahtarı varsa o, yoksa bağlantının anahtarı */
 function seatKeyOf(pid) {
@@ -5513,8 +5524,9 @@ function cfgOfKind(kind, key) {
 }
 
 /* demo modunda sandalyenin anahtarsız servisi (sırayla) */
-function demoKindFor(pid) {
-  const cur = (state.settings.seatSrc || {})[pid];
+function demoKindFor(pid, settings) {
+  const st = settings || state.settings;
+  const cur = (st.seatSrc || {})[pid];
   if (cur && GATEWAYS[cur] && GATEWAYS[cur].group === 'keyless') return cur;
   const i = Math.max(0, DEMO_SEATS.indexOf(pid));
   return DEMO_SRC[DEMO_SEATS[i % DEMO_SEATS.length]];
@@ -11815,7 +11827,7 @@ function drawerBodyHTML() {
     const mval = d.models[pid] || '';
     /* KOL 135: kart, sandalyenin MARKASINI değil, gerçekten KOŞAN modeli yazar.
        (OpenRouter'da "ChatGPT" sandalyesinde Claude koşabiliyordu → tutarsız görünüyordu.) */
-    const _vn = (typeof seatVendorName === 'function') ? seatVendorName(pid, mval) : null;
+    const _vn = (typeof seatVendorName === 'function') ? seatVendorName(pid, mval, d) : null;
     const _uyum = (typeof seatModelMatchesBrand === 'function') ? seatModelMatchesBrand(pid, mval) : true;
     const _ad = (_vn && _vn.name) ? _vn.name : P.name;
     const _alt = (_vn && _vn.vendor) ? _vn.vendor : '';
@@ -11827,7 +11839,9 @@ function drawerBodyHTML() {
           (isChair ? ' <span class="badge" style="margin-left:2px;color:#e8c27a;border-color:rgba(245,199,106,.35)">' +
             (window.T2 ? window.T2('BAŞKAN', 'CHAIR') : 'BAŞKAN') + '</span>' : '') + '</div>' +
         '<div class="prole">' + esc(P.roleLabel) +
-          (mval && !_uyum ? ' · ' + esc(P.name) + ' ' + (window.T2 ? window.T2('sandalyede', 'seat') : 'sandalyede') : '') +
+          /* KOL 136b: KAPALI sandalyede "DeepSeek sandalyede" gibi not çıkmasın —
+             canlıda o sandalye masada değil; demo kalıntısı gibi görünüyordu. */
+          (mval && !_uyum && on ? ' · ' + esc(P.name) + ' ' + (window.T2 ? window.T2('sandalyede', 'seat') : 'sandalyede') : '') +
           (_alt ? ' · ' + esc(_alt) : '') + '</div>' +
         '<input type="text" id="model-' + pid + '" class="modelInput" data-pid="' + pid + '" aria-label="' +
           esc(P.name + ' ' + (window.T2 ? window.T2('sandalyesi · model kimliği', 'seat · model id') : 'sandalyesi · model')) + '" placeholder="' +
@@ -12107,6 +12121,8 @@ function renderDrawerBody() {
     const _oncekiSrc = drawerDraft.seatSrc || {};
     const _srcVardi = Object.keys(_oncekiSrc).length > 0;
     drawerDraft.seatSrc = {};
+    /* KOL 136: canlıda anahtarsız sandalye olmaz — demo'dan kalan eşleme karta sızmasın. */
+    if (drawerDraft.mode === 'live') drawerDraft.seatSrc = {};
     drawerDraft.seatKey = drawerDraft.seatKey || {};
     // ağ geçidi değişince o bağlantının örnek model kimliklerini öner (boşsa)
     const preset = GATEWAYS[id] && GATEWAYS[id].models;
@@ -12118,8 +12134,16 @@ function renderDrawerBody() {
       });
       /* Kol 116b: boş/varsayılan modelleri tek tek preset[pid] ile doldurmak yerine
          HER SANDALYEYE AYRI model dağıt (havuz yetmezse sırayla tekrarlanır). */
+      /* KOL 136: canlıda masa en az 4 sandalye (Kol 116) — demo'dan geçerken 3 kalıyordu. */
+      if ((drawerDraft.active || []).length < 4 && (drawerDraft.active || []).join() === DEMO_SEATS.join()) {
+        drawerDraft.active = (typeof LIVE_SEATS !== 'undefined') ? LIVE_SEATS.slice() : ['gpt', 'gemini', 'claude', 'grok'];
+        drawerDraft.chair = drawerDraft.active[0];
+      }
       const _seats2 = (drawerDraft.active || []).slice();
-      const _picks2 = (typeof spreadFromPool === 'function') ? spreadFromPool(presetPool(id), _seats2.length) : [];
+      /* KOL 136: sırayla değil MARKAYA göre dağıt — "ChatGPT" sandalyesine Claude düşmesin. */
+      const _picks2 = (typeof paylastirSeats === 'function')
+        ? paylastirSeats(presetPool(id), _seats2)
+        : spreadFromPool(presetPool(id), _seats2.length);
       let _distributed = 0;
       _seats2.forEach((pid, i) => {
         const own = (drawerDraft.seatSrc || {})[pid];

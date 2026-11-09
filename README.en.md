@@ -236,6 +236,9 @@ not part of the settings backup; take it with **Export**.
 | **Web search** | Works on OpenRouter only and **spends credits**; leaving it off is free | Off |
 
 **Connection**
+Under **Free · your own key (no card needed)** in Settings → Connection four cards sit side by side:
+**Google AI Studio · Groq · Z.ai · OpenRouter**. None of them asks for a credit card; tap one and every
+seat at the table moves to that service.
 To stay free, start with **Google AI Studio**: no credit card, the Flash and Flash-Lite models are free,
 and the daily allowance is counted **per model** — so four seats on four different Gemini models use four
 separate allowances. (The exact daily numbers live in AI Studio → *Rate limits*; Google can change them
