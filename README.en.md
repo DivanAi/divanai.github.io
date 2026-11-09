@@ -438,7 +438,9 @@ Council and Mirror **debate** a question; Agents **do** a project.
 
 **How many agents (2…5).** The **Agent count** picker at the top right of the setup: `2` · `3` ·
 `4 (all)`. It only **narrows** — the first N open seats run, the roster is not deleted; the **≈ N
-requests** estimate above drops. The **＋ Add DeepSeek** button opens the fifth seat in one click.
+requests** estimate above drops. The **＋ Add DeepSeek** button opens the fifth seat in one click. It appears on the **live table only**:
+the demo table is fixed at three keyless seats (Pollinations · LLM7 · OVH), and a seat added there did not
+survive a reload, so the button is hidden in demo mode.
 
 **Pause at every step.** Ticked, you press **Continue** after each agent, so you can cut a chain that is
 going wrong. **Passes: 1 / 2 / 3** runs the same roster several times.

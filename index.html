@@ -345,6 +345,16 @@ a{color:var(--link)}
 .btn.icon.soon{opacity:.55}
 .btn.icon.soon:hover{opacity:.8}
 
+/* ---------------- bağış kalbi (kanatlı · halkalı · kırmızı) ----------------
+   KOL 138: kullanıcı isteği — "bağış için kalp simgesi kırmızı olsun, kanatları olsun,
+   üstünde melek halkası olsun". Renkler sabit: tema değişse de kalp kırmızı kalır. */
+.icHeart{display:block;overflow:visible}
+.icHeart .hBody{fill:#d8384c;stroke:#8f1728;stroke-width:1.05;stroke-linejoin:round}
+.icHeart .hWing{fill:#fbf6ec;stroke:#b6a88e;stroke-width:.95;stroke-linejoin:round}
+.icHeart .hHalo{fill:none;stroke:#e0a636;stroke-width:1.35}
+#supportTopBtn:hover .icHeart .hWing,.supportBtn:hover .icHeart .hWing{fill:#fffdf7}
+#supportTopBtn:hover .icHeart .hBody,.supportBtn:hover .icHeart .hBody{fill:#e84358}
+
 /* destek paneli (kalp simgesi) */
 .supportPop{position:fixed;z-index:80;width:290px;padding:10px;border-radius:14px;
   background:var(--panelSolid);border:1px solid rgba(var(--w),.1);box-shadow:0 18px 42px rgba(0,0,0,.55)}
@@ -1625,7 +1635,7 @@ body.pickOpen{overflow:hidden}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12a8.4 8.4 0 1 0 2.5-6"/><path d="M3.2 3.6v4.2h4.2"/><path d="M12 7.8V12l3 1.8"/></svg>
       </button>
       <button class="btn ghost icon" id="supportTopBtn" title="Destek" aria-label="Destek">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 0 1 6.5 6.5z"/></svg>
+        <svg class="icHeart" width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><ellipse class="hHalo" cx="12" cy="3.55" rx="3.6" ry="1.22"/><path class="hWing" d="M8.5 11.9C8.1 9.9 6.6 8.4 4.5 7.5c-.7 1.2-1.7 2.1-3 2.7.9 1 1.9 1.6 3.1 1.9-1 .3-1.8.9-2.4 1.7 1.4.6 2.8.7 4.2.3-.7.6-1.2 1.3-1.4 2.2 1.6-.2 3-.9 4.1-2 0-.9-.2-1.7-.6-2.4z"/><path class="hWing" d="M15.5 11.9c.4-2 1.9-3.5 4-4.4.7 1.2 1.7 2.1 3 2.7-.9 1-1.9 1.6-3.1 1.9 1 .3 1.8.9 2.4 1.7-1.4.6-2.8.7-4.2.3.7.6 1.2 1.3 1.4 2.2-1.6-.2-3-.9-4.1-2 0-.9.2-1.7.6-2.4z"/><path class="hBody" d="M12 20.2 6.4 14.6a3.62 3.62 0 0 1 5.12-5.12l.48.48.48-.48a3.62 3.62 0 0 1 5.12 5.12z"/></svg>
       </button>
     </div>
       <button class="btn primary iconOnly" id="settingsBtn" type="button" title="Ayarlar" aria-label="Ayarlar">
@@ -1739,7 +1749,7 @@ body.pickOpen{overflow:hidden}
         </div>
         <div class="supportRow" id="supportRow" hidden>
           <a class="supportBtn" id="supportLink" href="#" target="_blank" rel="noopener">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.3 4.6 12.9a4.6 4.6 0 0 1 6.5-6.5l.9.9.9-.9a4.6 4.6 0 0 1 6.5 6.5z"/></svg>
+            <svg class="icHeart" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><ellipse class="hHalo" cx="12" cy="3.55" rx="3.6" ry="1.22"/><path class="hWing" d="M8.5 11.9C8.1 9.9 6.6 8.4 4.5 7.5c-.7 1.2-1.7 2.1-3 2.7.9 1 1.9 1.6 3.1 1.9-1 .3-1.8.9-2.4 1.7 1.4.6 2.8.7 4.2.3-.7.6-1.2 1.3-1.4 2.2 1.6-.2 3-.9 4.1-2 0-.9-.2-1.7-.6-2.4z"/><path class="hWing" d="M15.5 11.9c.4-2 1.9-3.5 4-4.4.7 1.2 1.7 2.1 3 2.7-.9 1-1.9 1.6-3.1 1.9 1 .3 1.8.9 2.4 1.7-1.4.6-2.8.7-4.2.3.7.6 1.2 1.3 1.4 2.2-1.6-.2-3-.9-4.1-2 0-.9.2-1.7.6-2.4z"/><path class="hBody" d="M12 20.2 6.4 14.6a3.62 3.62 0 0 1 5.12-5.12l.48.48.48-.48a3.62 3.62 0 0 1 5.12 5.12z"/></svg>
             <span id="supportLabel">Destekle</span>
           </a>
           <span class="supportNote" id="supportNote" hidden></span>
@@ -9330,7 +9340,11 @@ function renderAjanSetup() {
           : '<label>' + window.T2('Geçiş', 'Passes') + ' <select id="ajanPass"><option value="1"' + (cfg.passes === 1 ? ' selected' : '') + '>1</option><option value="2"' + (cfg.passes === 2 ? ' selected' : '') + '>2</option><option value="3"' + (cfg.passes === 3 ? ' selected' : '') + '>3</option></select></label>') +
         '<label class="chk"><input type="checkbox" id="ajanPause"' + (cfg.pause ? ' checked' : '') + '> ' + window.T2('Her adımda dur', 'Pause at every step') + '</label>' +
         '<label class="ajanCountL">' + window.T2('Ajan sayısı', 'Agent count') + ' <select id="ajanCount">' + ajanCountOptions() + '</select></label>' +
-        (state.settings.active.includes('deepseek') ? ''
+        /* KOL 137: DEMO'da bu düğme yok. Demo sabit üç anahtarsız servistir (Pollinations ·
+           LLM7 · OVH); dördüncü anahtarsız sandalye yok, o yüzden düğme DeepSeek'i ekliyor
+           gibi görünüp ayarlar yeniden yüklenince kayboluyordu (deepseek'in modeli de
+           Pollinations'ınkiyle aynı çıkıyordu). Kafa karıştırıyordu → yalnız CANLI'da. */
+        ((isDemoMode() || state.settings.active.includes('deepseek')) ? ''
           : '<button type="button" class="mini ajanAddSeat" data-addseat="deepseek" title="' + esc(window.T2('DeepSeek’i beşinci sandalye olarak masaya ekler', 'Adds DeepSeek to the table as the fifth seat')) + '">＋ ' + window.T2('DeepSeek’i ekle', 'Add DeepSeek') + '</button>') +
         '<span class="ajanCost" id="ajanCost">' + ajanCostText() + '</span>' +
       '</div>' +
@@ -12995,6 +13009,8 @@ function boot() {
       const aseat = e.target.closest('[data-addseat]');
       if (aseat) {
         const pid = aseat.dataset.addseat;
+        /* KOL 137: demo sabit üç anahtarsız servistir; sandalye eklemek kalıcı olmaz. */
+        if (isDemoMode()) { toast(window.T2('Demo masası üç anahtarsız sandalyedir. Sandalye eklemek için Ayarlar → Canlı.', 'The demo table has three keyless seats. To add seats, switch to Live in Settings.'), 'warn'); return; }
         if (PROVIDERS[pid] && !state.settings.active.includes(pid)) {
           state.settings.active = PROVIDER_ORDER.filter(p => state.settings.active.includes(p) || p === pid);
           if (typeof clearAlts === 'function') clearAlts();

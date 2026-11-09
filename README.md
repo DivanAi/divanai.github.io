@@ -436,7 +436,9 @@ Konsey ve Ayna bir soruyu **tartışır**; Ajanlar bir projeyi **yapar**.
 
 **Kaç ajan çalışsın (2…5).** Kurulumun sağ üstünde **Ajan sayısı** seçicisi: `2` · `3` · `4 (hepsi)`.
 Yalnız **daraltır** — ilk N açık sandalye çalışır, kadro silinmez; üstteki **≈ N istek** tahmini düşer.
-**＋ DeepSeek'i ekle** düğmesi tek tıkla beşinci sandalyeyi açar.
+**＋ DeepSeek'i ekle** düğmesi tek tıkla beşinci sandalyeyi açar. Düğme **yalnız canlı masada görünür**:
+demo masası sabit üç anahtarsız sandalyedir (Pollinations · LLM7 · OVH) ve orada eklenen sandalye
+kalıcı olmadığı için (yenileyince masaya 3'e döner) demo'da düğme gösterilmez.
 
 **Her adımda dur.** İşaretlersen her ajandan sonra **Devam**'a basman gerekir; yanlış giden zinciri
 yarıda kesebilirsin. **Geçiş: 1 / 2 / 3** ile aynı kadroyu birkaç kez koşturabilirsin.
