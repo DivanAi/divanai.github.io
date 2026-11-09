@@ -41,6 +41,28 @@ All shot from this build: 24 Oct 2026 · daytime "notebook" theme (night and mob
 | ![History](ekranlar/10-gecmis.jpg) | ![Brand](ekranlar/11-marka.jpg) | ![Council round](ekranlar/12-konsey-tur.jpg) |
 | **History search** | **Brand — brass line on hover** | **A real Council round: three models** |
 
+### Live mode (with your own API key)
+
+Live mode **requires your own key**; that is why these shots contain **no answers** — no key, no answer.
+Everything visible is the real UI. The key in the shots is **sample text** (`TEST-0000-DENEME`) and is never sent anywhere.
+
+| | | |
+|---|---|---|
+| ![Live connection](ekranlar/13-canli-baglanti.jpg) | ![Live table](ekranlar/14-canli-masa.jpg) | ![Live models](ekranlar/15-canli-modeller.jpg) |
+| **Connection — key field, free providers** | **Live table — 4 seats, "LIVE" badge** | **A separate model per seat** |
+
+**What happens when you switch to Live:** the table grows to **4 seats** (ChatGPT · Gemini · Claude · Grok),
+each seat gets **its own model**, and the model name is shown on the seat. Sample model ids are filled in
+per provider; the "Spread a separate model to every seat" button re-deals them.
+
+![Live · OpenRouter · each seat on its own vendor](ekranlar/16-canli-openrouter.jpg)
+
+**One key, many vendors (Kol 135).** With OpenRouter each seat gets **its own vendor’s** model:
+ChatGPT → `openai/…`, Gemini → `google/…`, Claude → `anthropic/…`, Grok → `x-ai/…`.
+The model id and its vendor are shown on the card. If a seat’s brand and the running model differ
+(e.g. a Google key only has Gemini), the card shows the **real model** and says so underneath
+("ChatGPT seat · Google") — the name on screen is always the model that **actually runs**.
+
 ---
 
 ## Honest limits (summary)

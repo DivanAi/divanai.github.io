@@ -41,6 +41,28 @@ Hepsi bu sürümden çekildi: 24.10.2026 · gündüz "defter" teması (gece ve m
 | ![Geçmiş](ekranlar/10-gecmis.jpg) | ![Marka](ekranlar/11-marka.jpg) | ![Konsey turu](ekranlar/12-konsey-tur.jpg) |
 | **Geçmiş arama** | **Marka — üzerine gelince altın çizgi** | **Gerçek Konsey turu: üç ayrı model** |
 
+### Canlı mod (API anahtarınla)
+
+Canlı mod **kendi anahtarını ister**; o yüzden bu karelerde **cevap yok** — anahtar yokken cevap da yok.
+Görünen her şey gerçek arayüz. Karelerdeki anahtar **örnek metindir** (`TEST-0000-DENEME`), hiçbir servise gitmez.
+
+| | | |
+|---|---|---|
+| ![Canlı bağlantı](ekranlar/13-canli-baglanti.jpg) | ![Canlı masa](ekranlar/14-canli-masa.jpg) | ![Canlı modeller](ekranlar/15-canli-modeller.jpg) |
+| **Bağlantı — anahtar yeri, ücretsiz servisler** | **Canlı masa — 4 sandalye, "CANLI" rozeti** | **Sandalye başına ayrı model** |
+
+**Canlı açılınca ne olur:** masa **4 sandalyeye** çıkar (ChatGPT · Gemini · Claude · Grok), her sandalyeye
+**ayrı model** dağıtılır ve model adları sandalyede görünür. Bağlantıya göre örnek model kimlikleri
+otomatik dolar; "Her sandalyeye ayrı model dağıt" düğmesiyle yeniden dağıtabilirsin.
+
+![Canlı · OpenRouter · sandalye başına kendi markası](ekranlar/16-canli-openrouter.jpg)
+
+**OpenRouter gibi tek anahtarla çok şirket (Kol 135).** Her sandalye **kendi şirketinin** modelini alır:
+ChatGPT → `openai/…`, Gemini → `google/…`, Claude → `anthropic/…`, Grok → `x-ai/…`.
+Aynı model kimliği ve şirket bilgisi kartta yazar; sandalye markasıyla koşan model
+uyuşmazsa (ör. Google anahtarında yalnız Gemini var) kart **gerçek modeli** gösterir ve altında
+"ChatGPT sandalyede · Google" diye açıkça söyler — ekranda yazan ad her zaman **koşan** modeldir.
+
 ---
 
 ## Dürüst sınırlar (özet)

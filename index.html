@@ -3938,6 +3938,47 @@ function prettyModel(id) {
   return words.join(' ').replace(/\s+/g, ' ').trim() || String(id || '');
 }
 
+/* Kol 135: model kimliğinden ŞİRKET okunur.
+   OpenRouter gibi tek bağlantıda 4 sandalye farklı şirketlerin modellerini çalıştırabiliyor;
+   ekranda "ChatGPT" yazıp altında Claude koşarsa kullanıcı haklı olarak "tutarsız" der. */
+const MODEL_VENDORS = [
+  [/^(openai|azure-openai|o1|o3|o4)[\/]/i, 'openai', 'OpenAI'],
+  [/^anthropic[\/]/i, 'anthropic', 'Anthropic'],
+  [/^google[\/]/i, 'google', 'Google'],
+  [/^(x-ai|xai)[\/]/i, 'xai', 'xAI'],
+  [/^deepseek[\/]/i, 'deepseek', 'DeepSeek'],
+  [/^(z-ai|zai|thudm)[\/]/i, 'zai', 'Z.ai'],
+  [/^meta-llama[\/]/i, 'meta', 'Meta'],
+  [/^(mistralai|codestral)[\/]/i, 'mistral', 'Mistral'],
+  [/^qwen[\/]/i, 'qwen', 'Qwen'],
+  [/^(nvidia|nousresearch|cohere|amazon|microsoft)[\/]/i, '', '']
+];
+function modelVendorOf(model) {
+  const m = String(model || '').trim();
+  if (!m) return null;
+  for (const [re, key, label] of MODEL_VENDORS) {
+    if (re.test(m)) return key ? { key, label } : null;
+  }
+  /* önek yok: ada bak */
+  if (/^gpt|^o[1-4](-|$)/i.test(m)) return { key: 'openai', label: 'OpenAI' };
+  if (/claude/i.test(m)) return { key: 'anthropic', label: 'Anthropic' };
+  if (/gemini|gemma/i.test(m)) return { key: 'google', label: 'Google' };
+  if (/grok/i.test(m)) return { key: 'xai', label: 'xAI' };
+  if (/deepseek/i.test(m)) return { key: 'deepseek', label: 'DeepSeek' };
+  if (/glm/i.test(m)) return { key: 'zai', label: 'Z.ai' };
+  if (/llama/i.test(m)) return { key: 'meta', label: 'Meta' };
+  if (/mistral|codestral|devstral/i.test(m)) return { key: 'mistral', label: 'Mistral' };
+  if (/qwen/i.test(m)) return { key: 'qwen', label: 'Qwen' };
+  return null;
+}
+/* sandalyenin markası (gpt/gemini/claude/grok/deepseek) ile çalışan model aynı şirketten mi? */
+const SEAT_BRAND = { gpt: 'openai', gemini: 'google', claude: 'anthropic', grok: 'xai', deepseek: 'deepseek' };
+function seatModelMatchesBrand(pid, model) {
+  const v = modelVendorOf(model);
+  if (!v) return true;                 /* şirketi okunamadıysa suçlama */
+  return v.key === (SEAT_BRAND[pid] || '');
+}
+
 /** Sandalyenin bağlantısı, adından farklı bir şirketse ekranda gerçek model adı görünür. */
 function seatVendorName(pid, model) {
   const kind = seatKindOf(pid);
@@ -3972,11 +4013,15 @@ function seatVendorName(pid, model) {
     const ad = /120b/i.test(m) ? 'gpt-oss 120B' : /20b/i.test(m) ? 'gpt-oss 20B' : /qwen/i.test(m) ? 'Qwen 3.8' : (prettyModel(m) || 'Groq modeli');
     return { name: ad, short: 'GRQ', vendor: 'Groq' };
   }
-  /* tanınmayan bağlantı (OpenRouter, Vercel, kendi adresin …): kimliği okunur yaz */
+  /* tanınmayan bağlantı (OpenRouter, Vercel, kendi adresin …): kimliği okunur yaz.
+     Kol 135: şirket model kimliğinden okunur; bağlantı adı ayrıca yazılır. */
   if (String(m || '').trim()) {
     const ad = prettyModel(m);
     const bits = ad.split(' ').filter(Boolean);
-    return { name: ad, short: (bits[0] || 'MDL').slice(0, 3).toUpperCase(), vendor: (GATEWAYS[kind] || {}).label || '' };
+    const v = modelVendorOf(m);
+    const gw = (GATEWAYS[kind] || {}).label || '';
+    const vendor = v ? (gw && gw !== v.label ? v.label + ' · ' + gw : v.label) : gw;
+    return { name: ad, short: (bits[0] || 'MDL').slice(0, 3).toUpperCase(), vendor };
   }
   return null;
 }
@@ -5572,13 +5617,53 @@ async function fetchModelCatalog(kind, cfg) {
 }
 
 /* ayarları dağıt: synchronous kısım ön ayarla, async kısım gerçek listeyle düzeltir */
+/* KOL 135 — canlıda sandalye dağıtımı:
+   1) her sandalye ÖNCE kendi şirketinin modelini alır (gpt→OpenAI, gemini→Google, claude→Anthropic…)
+   2) o şirketten model yoksa (ör. Google anahtarında yalnız Gemini var) havuzdaki modeller
+      SIRAYLA dağıtılır — dört sandalyede üç kez aynı model görünmesin.
+   Dönen dizi: sandalye sırasıyla model kimlikleri. */
+function paylastirSeats(pool, seats) {
+  const benzersiz = [...new Set((pool || []).map(x => String(x || '').trim()).filter(Boolean))];
+  const kullanilan = new Set();
+  const sonuc = seats.map(() => null);
+  seats.forEach((pid, i) => {
+    const want = SEAT_BRAND[pid];
+    const uygun = benzersiz.find(id => !kullanilan.has(id) && (modelVendorOf(id) || {}).key === want);
+    if (uygun) { sonuc[i] = uygun; kullanilan.add(uygun); }
+  });
+  /* Kalan sandalyeler: arka arkaya AYNI model düşmesin (havuz küçükse sırayla dön).
+     Son atanan modelden başlamıyoruz; böylece 4 sandalyede 3.5·3.1·3.5·3.1 gibi dengeli olur. */
+  if (benzersiz.length > 1) {
+    let son = seats.map((pid, i) => sonuc[i]).filter(Boolean).pop();
+    let bas = benzersiz.indexOf(son); bas = (bas + 1) % benzersiz.length;
+    let j = 0;
+    seats.forEach((pid, i) => {
+      if (sonuc[i]) return;
+      let aday = benzersiz[(bas + j) % benzersiz.length];
+      /* dizide YAN YANA aynı model olmasın: bir önceki sandalyeyle çakışırsa sıradakini al */
+      let oncekiDolu = null;
+      for (let q = i - 1; q >= 0; q--) { if (sonuc[q]) { oncekiDolu = sonuc[q]; break; } }
+      if (aday === oncekiDolu) { j++; aday = benzersiz[(bas + j) % benzersiz.length]; }
+      sonuc[i] = aday; j++;
+    });
+  } else {
+    seats.forEach((pid, i) => { if (!sonuc[i]) sonuc[i] = benzersiz[0]; });
+  }
+  return sonuc;
+}
+
 function spreadModelsPreset(settings) {
   const s = settings || state.settings;
   if (!s || s.mode !== 'live') return [];
   const seats = (s.active || []).slice();
-  const picks = spreadFromPool(presetPool(s.api.kind), seats.length);
-  seats.forEach((pid, i) => { if (picks[i]) s.models[pid] = picks[i]; });
-  return seats.map((pid, i) => picks[i]).filter(Boolean);
+  const pool = presetPool(s.api.kind);
+  /* KOL 135 — ÖNCE MARKA: OpenRouter gibi çok modelli bağlantıda "ChatGPT" sandalyesine
+     Claude vermek tutarsız görünüyordu. Artık her sandalye önce kendi şirketinin modelini alır
+     (gpt→OpenAI, gemini→Google, claude→Anthropic, grok→xAI, deepseek→DeepSeek);
+     o şirketten model yoksa havuzdan sıradaki boş model gelir. */
+  const sonuc = paylastirSeats(pool, seats);
+  seats.forEach((pid, i) => { if (sonuc[i]) s.models[pid] = sonuc[i]; });
+  return sonuc.filter(Boolean);
 }
 
 async function spreadModelsLive() {
@@ -5588,7 +5673,11 @@ async function spreadModelsLive() {
   const ids = await fetchModelCatalog(kind, cfgOfKind(kind, keyOfKind(kind)));
   if (!ids || !ids.length) return null;
   const seats = s.active.slice();
-  const picks = spreadFromPool(ids, seats.length);
+  /* KOL 135: servisin GERÇEK listesi geldiğinde de markaya sadık dağıt — yoksa
+     OpenRouter'da katalog gelince "ChatGPT" sandalyesine yine Claude düşüyordu. */
+  const temiz = (ids || []).filter(id => !MODEL_SKIP.test(id));
+  const sohbet = temiz.filter(id => MODEL_CHAT.test(id));
+  const picks = paylastirSeats(sohbet.length ? sohbet : temiz, seats);
   const before = seats.map(pid => s.models[pid] || '');
   const changed = seats.some((pid, i) => picks[i] && picks[i] !== before[i]);
   seats.forEach((pid, i) => { if (picks[i]) s.models[pid] = picks[i]; });
@@ -11724,19 +11813,45 @@ function drawerBodyHTML() {
     const on = d.active.includes(pid);
     const isChair = d.chair === pid;
     const mval = d.models[pid] || '';
+    /* KOL 135: kart, sandalyenin MARKASINI değil, gerçekten KOŞAN modeli yazar.
+       (OpenRouter'da "ChatGPT" sandalyesinde Claude koşabiliyordu → tutarsız görünüyordu.) */
+    const _vn = (typeof seatVendorName === 'function') ? seatVendorName(pid, mval) : null;
+    const _uyum = (typeof seatModelMatchesBrand === 'function') ? seatModelMatchesBrand(pid, mval) : true;
+    const _ad = (_vn && _vn.name) ? _vn.name : P.name;
+    const _alt = (_vn && _vn.vendor) ? _vn.vendor : '';
     h += '<div class="prow' + (on ? '' : ' off') + '" data-sp="' + pid + '" style="--sp:' + P.color + '">' +
       '<input class="chk" type="checkbox" id="act-' + pid + '" aria-label="' +
         esc(P.name + ' ' + (window.T2 ? window.T2('sandalyesi · masada', 'seat · at the table') : 'sandalyesi')) + '" ' + (on ? 'checked' : '') + '/>' +
       '<div class="pinfo">' +
-        '<div class="pname"><span class="sw"></span>' + esc(P.name) +
-          (isChair ? ' <span class="badge" style="margin-left:2px;color:#e8c27a;border-color:rgba(245,199,106,.35)">BAŞKAN</span>' : '') + '</div>' +
-        '<div class="prole">' + esc(P.roleLabel) + '</div>' +
+        '<div class="pname"><span class="sw"></span>' + esc(_ad) +
+          (isChair ? ' <span class="badge" style="margin-left:2px;color:#e8c27a;border-color:rgba(245,199,106,.35)">' +
+            (window.T2 ? window.T2('BAŞKAN', 'CHAIR') : 'BAŞKAN') + '</span>' : '') + '</div>' +
+        '<div class="prole">' + esc(P.roleLabel) +
+          (mval && !_uyum ? ' · ' + esc(P.name) + ' ' + (window.T2 ? window.T2('sandalyede', 'seat') : 'sandalyede') : '') +
+          (_alt ? ' · ' + esc(_alt) : '') + '</div>' +
         '<input type="text" id="model-' + pid + '" class="modelInput" data-pid="' + pid + '" aria-label="' +
           esc(P.name + ' ' + (window.T2 ? window.T2('sandalyesi · model kimliği', 'seat · model id') : 'sandalyesi · model')) + '" placeholder="' +
           esc(window.T2 ? window.T2('model kimliği', 'model id') : 'model kimliği') + '" value="' + esc(mval) + '" spellcheck="false" ' + (datalist ? 'list="modelList"' : '') + '/>' +
         seatSrcHTML(pid, d) +
       '</div>' +
     '</div>';
+  }
+  if (live && typeof seatModelMatchesBrand === 'function') {
+    const _kayik = (d.active || []).filter(pid => String(d.models[pid] || '').trim()
+      && !seatModelMatchesBrand(pid, d.models[pid]));
+    if (_kayik.length) {
+      const _liste = _kayik.map(pid => {
+        const P = PROVIDERS[pid] || { name: pid };
+        const v = modelVendorOf(d.models[pid]) || { label: '?' };
+        return esc(P.name) + ' → <b>' + esc(v.label) + '</b>';
+      }).join(' · ');
+      h += '<p class="note" data-seatwarn="1" style="margin-top:6px">' + (window.T2
+        ? window.T2('Bu sandalyeler kendi markalarından farklı bir model çalıştırıyor: ' + _liste +
+            '. Kartlarda yazan ad <b>gerçekten koşan modeldir</b> — yanıltmaz. Markasına dönmesi için o şirketin bağlantısını seç ya da model kimliğini kendin yaz.',
+            'These seats run a model from a different vendor: ' + _liste +
+            '. The name on each card is <b>the model that actually runs</b> — nothing is misleading. To put a seat back on its own brand, pick that vendor’s connection or type the model id yourself.')
+        : _liste) + '</p>';
+    }
   }
   if (live && (d.active || []).length > 1 && (typeof sameModelSeats === 'function') && sameModelSeats(d)) {
     const _m0 = esc(String(d.models[d.active[0]] || ''));
