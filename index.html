@@ -1600,6 +1600,16 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 .pickEmpty{margin:18px 10px;font-size:12.5px;color:var(--dim)}
 body.pickOpen{overflow:hidden}
 </style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication",
+ "name":"DivanAI","url":"https://divanai.github.io/",
+ "applicationCategory":"ProductivityApplication","operatingSystem":"Any (web browser)",
+ "inLanguage":["tr","en"],
+ "offers":{"@type":"Offer","price":"0","priceCurrency":"TRY"},
+ "description":"Bir konu yaz; birden fazla yapay zekâ modeli aynı masada tartışsın, başkan özetlesin. Tek HTML dosyası, sunucu yok, anahtar tarayıcıda kalır.",
+ "featureList":["Konsey · çoklu model tartışma","Panel · yan yana cevaplar","Ayna · model kendine karşı","Ajanlar · zincirleme görev","Anahtarsız ücretsiz demo"],
+ "isAccessibleForFree":true,"license":"https://www.apache.org/licenses/LICENSE-2.0"}
+</script>
 </head>
 <body>
 <div id="app">
@@ -12858,6 +12868,11 @@ function helpHTML() {
       '<b>Kaynak kodu açık:</b> <a href="https://github.com/divanai/divanai.github.io" target="_blank" rel="noopener">github.com/divanai/divanai.github.io</a> · <a href="https://github.com/divanai/divanai.github.io/issues" target="_blank" rel="noopener">hata bildir / öneri</a> — iddiaları yalnız burada değil, kodda da doğrulayabilirsin.',
       '<b>Source is open:</b> <a href="https://github.com/divanai/divanai.github.io" target="_blank" rel="noopener">github.com/divanai/divanai.github.io</a> · <a href="https://github.com/divanai/divanai.github.io/issues" target="_blank" rel="noopener">report a bug / suggest</a> — you can check the claims in the code, not just here.'
     ) : '') + '</p>',
+    /* KOL 141: mod sayfalarına bağlantı — arama motorları uygulamadan bu sayfalara ulaşsın. */
+    '<h3>Mod sayfaları</h3>',
+    '<p style="color:#9aa2b5">' + (window.T2
+      ? 'Her modun kendi açıklama sayfası var: <a href="konsey.html">Konsey</a> · <a href="teketek.html">TekeTek</a> · <a href="panel.html">Panel</a> · <a href="ayna.html">Ayna</a> · <a href="ajanlar.html">Ajanlar</a> · <a href="ucretsiz.html">Gerçekten ücretsiz mi?</a>'
+      : 'Each mode has its own page: <a href="en/index.html">DivanAI (English)</a> · <a href="en/ai-debate.html">AI debate</a> · <a href="ucretsiz.html">Is it really free?</a>') + '</p>',
     '<h3>Verin nereye gidiyor?</h3>',
     '<p>Yazdığın konu ve konuşma, <b>doğrudan kendi tarayıcından</b> seçtiğin sağlayıcıya (OpenRouter vb.) gönderilir. DivanAI’nın sunucusu yoktur; bu metinleri toplayan, saklayan ya da okuyan bir yer yoktur. Konuşma geçmişi yalnızca bu tarayıcıda saklanır.</p>',
     '<p><b>Dikkat:</b> gönderilen metin yurt dışındaki sağlayıcı sunucularında işlenir. Kişisel, gizli veya müşteriye ait bilgi yazma; sağlayıcının kendi gizlilik koşulları geçerlidir.</p>',
@@ -12959,6 +12974,18 @@ function boot() {
     if (had) toast(window.T2('Masa temizlendi · ana ekran.', 'Table cleared · home.'), 'ok');
   });
   $('#helpClose').addEventListener('click', closeHelp);
+
+  /* KOL 141 · derin bağlantı (SEO açılış sayfaları için).
+     Dış sayfalardan "index.html?mod=konsey" gibi gelindiğinde kişi doğrudan o masaya düşer.
+     Bilinmeyen değer yok sayılır; kayıtlı ayarı bozmaz, yalnız bu oturumun masasını seçer. */
+  (function derinBag() {
+    try {
+      const m = (new URLSearchParams(location.search).get('mod') || '').toLowerCase();
+      const harita = { konsey: 'konsey', teketek: 'tek', tek: 'tek', panel: 'panel', ajanlar: 'ajan', ajan: 'ajan', ayna: 'ayna' };
+      const t = harita[m];
+      if (t && t !== tableNow()) switchTable(t);
+    } catch (e) { /* eski tarayıcı: sessizce geç */ }
+  })();
 
   // hedef çipleri
   $('#goalChips').addEventListener('click', e => {

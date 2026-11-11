@@ -865,3 +865,11 @@ Yayına alman gerekmez; GitHub Pages için gerekli değildir.
 - Konuyu yazarken neyin o servise gideceğini bil.
 - Anahtarını kimseyle paylaşma; ekran görüntüsü alırken Ayarlar penceresini kapat.
 - Şüpheli bir `.json` ayar yedeğini yalnız güvendiğin kişiden al.
+
+## Mod sayfaları (arama motorları için)
+
+Her modun kendi açıklama sayfası var: **Konsey** · **TekeTek** · **Panel** · **Ajanlar** · **Ayna** · **Gerçekten ücretsiz mi?** · **ChatGPT alternatifi** · **Nasıl çalışır?** · **Gerçek bir Konsey turu** · **Ücretsiz API anahtarı** · **Gizlilik** · **Telefonda kullanım** · **Türkçe yapay zekâ** · **Sandalye rolleri** · **Görsel üretimi**.
+İngilizce: `en/index.html` · `en/ai-debate.html` · `en/free-ai-no-signup.html` · `en/chatgpt-alternative.html` · `en/how-it-works.html`.
+Hepsinin bağlantısı tek sayfada: `site-haritasi.html`. Arama motoru için `sitemap.xml` + `robots.txt`;
+çeviri eşleri `hreflang` ile birbirine bağlı (`tr` / `en` / `x-default`).
+Bu sayfalar uygulamayla aynı sürümden üretilir; güncelleme: `gelistirme/seo/uret.py`.

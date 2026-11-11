@@ -1,0 +1,5 @@
+# DivanAI
+User-agent: *
+Allow: /
+# Uygulama tek sayfa; arama motorları için ayrı açılış sayfaları var.
+Sitemap: https://divanai.github.io/sitemap.xml

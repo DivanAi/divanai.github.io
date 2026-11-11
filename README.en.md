@@ -867,3 +867,13 @@ need it for GitHub Pages.
 - When writing the topic, know what is going to that service.
 - Do not share your key; close the Settings window before taking a screenshot.
 - Only take a suspicious `.json` settings backup from someone you trust.
+
+## Mode pages (for search engines)
+
+Every table mode has its own page: **Council** · **OneOnOne** · **Panel** · **Agents** · **Mirror** · **Is it really free?** · **ChatGPT alternative** · **How it works** · **A real Council round**.
+English pages: `en/index.html`, `en/ai-debate.html`, `en/free-ai-no-signup.html`,
+`en/chatgpt-alternative.html`, `en/how-it-works.html`. Turkish pages cover free API keys, privacy,
+mobile use, Turkish-language AI, seat roles and image generation. All links on one page:
+`site-haritasi.html`; for crawlers `sitemap.xml` + `robots.txt`; translations are tied together
+with `hreflang` (`tr` / `en` / `x-default`).
+Pages are generated from the same build; regenerate with `gelistirme/seo/uret.py`.

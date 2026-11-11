@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anahtarın nerede duruyor, istek nereye gidiyor? — DivanAI</title>
+<meta name="description" content="Tek HTML dosyası, sunucu yok, proxy yok. API anahtarın tarayıcında şifreli durur ve doğrudan seçtiğin servise gider. Teknik açıklama, süssüz.">
+<link rel="canonical" href="https://divanai.github.io/nasil-calisir.html">
+<link rel="alternate" hreflang="tr" href="https://divanai.github.io/nasil-calisir.html">
+<link rel="alternate" hreflang="en" href="https://divanai.github.io/en/how-it-works.html">
+<link rel="alternate" hreflang="x-default" href="https://divanai.github.io/nasil-calisir.html">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="DivanAI">
+<meta property="og:locale" content="tr_TR">
+<meta property="og:title" content="Anahtarın nerede duruyor, istek nereye gidiyor? — DivanAI">
+<meta property="og:description" content="Tek HTML dosyası, sunucu yok, proxy yok. API anahtarın tarayıcında şifreli durur ve doğrudan seçtiğin servise gider. Teknik açıklama, süssüz.">
+<meta property="og:url" content="https://divanai.github.io/nasil-calisir.html">
+<meta property="og:image" content="https://divanai.github.io/gorsel/ayarlar.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="icon-192.png" type="image/png">
+<style>
+:root{--bgr:#faf6ee;--ink:#241d17;--dim:#6b5f51;--line:#e2d8c6;--acc:#8a5a2b;--acc2:#b07a3c;--card:#fffdf8}
+@media(prefers-color-scheme:dark){:root{--bgr:#161310;--ink:#efe7da;--dim:#a99c8b;--line:#332a22;--card:#1e1a16;--acc:#e0b06a;--acc2:#c9954f}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bgr);color:var(--ink);font:16px/1.65 Georgia,"Times New Roman",serif}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+header.top{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;
+ padding:14px 20px;border-bottom:1px solid var(--line);background:var(--card)}
+.brand{font:600 17px/1 Georgia,serif;letter-spacing:.01em}
+.brand b{background:var(--ink);color:var(--bgr);padding:4px 8px;border-radius:3px}
+nav{display:flex;flex-wrap:wrap;gap:14px;font:14px/1 system-ui,sans-serif}
+nav a{color:var(--dim)}
+nav a[aria-current]{color:var(--acc);font-weight:600}
+main{max-width:820px;margin:0 auto;padding:34px 20px 10px}
+h1{font-size:clamp(28px,4.6vw,44px);line-height:1.15;margin:.2em 0 .4em;letter-spacing:-.01em}
+h2{font-size:clamp(20px,2.6vw,26px);margin:1.9em 0 .5em;line-height:1.25}
+h3{font-size:17px;margin:1.4em 0 .3em}
+p{margin:0 0 1em}
+.lead{font-size:19px;color:var(--dim)}
+ul,ol{margin:0 0 1em;padding-left:1.3em}
+li{margin:.3em 0}
+figure{margin:0 0 1.6em}
+figure.dikey{max-width:380px;margin-left:auto;margin-right:auto}
+figure.dikey img{max-height:620px;height:auto;width:auto;max-width:100%;margin:0 auto}
+img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:10px}
+figcaption{font:13px/1.5 system-ui,sans-serif;color:var(--dim);margin-top:8px}
+.cta{display:inline-block;background:var(--acc);color:var(--bgr);padding:13px 22px;border-radius:10px;
+ font:600 15px/1 system-ui,sans-serif;margin:6px 0 4px}
+.cta:hover{background:var(--acc2);text-decoration:none}
+table{width:100%;border-collapse:collapse;margin:0 0 1.2em;font:14.5px/1.5 system-ui,sans-serif}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--dim);font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+blockquote{margin:0 0 1.2em;padding:12px 16px;border-left:3px solid var(--acc);background:var(--card);
+ font-style:italic}
+.not{font:13.5px/1.6 system-ui,sans-serif;color:var(--dim);background:var(--card);border:1px solid var(--line);
+ padding:11px 13px;border-radius:8px}
+.sss details{border-bottom:1px solid var(--line);padding:12px 0}
+.sss summary{cursor:pointer;font:600 15.5px/1.4 system-ui,sans-serif}
+.sss p{margin:.6em 0 0;color:var(--dim)}
+.ilgili{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0 0 1.5em;padding:0;list-style:none}
+.ilgili a{display:block;border:1px solid var(--line);border-radius:10px;padding:13px 15px;background:var(--card);
+ font:15px/1.35 system-ui,sans-serif}
+footer{border-top:1px solid var(--line);margin-top:34px;padding:22px 20px 40px;background:var(--card)}
+footer .in{max-width:820px;margin:0 auto;font:13.5px/1.7 system-ui,sans-serif;color:var(--dim)}
+footer a{color:var(--dim);text-decoration:underline}
+</style>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Anahtarın nerede duruyor, istek nereye gidiyor? — DivanAI","description":"Tek HTML dosyası, sunucu yok, proxy yok. API anahtarın tarayıcında şifreli durur ve doğrudan seçtiğin servise gider. Teknik açıklama, süssüz.","inLanguage":"tr-TR","url":"https://divanai.github.io/nasil-calisir.html","dateModified":"2026-11-11","isPartOf":{"@type":"WebSite","name":"DivanAI","url":"https://divanai.github.io/"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"DivanAI","item":"https://divanai.github.io/"},{"@type":"ListItem","position":2,"name":"Anahtarın nerede duruyor, istek nereye gidiyor?","item":"https://divanai.github.io/nasil-calisir.html"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Anahtarımı DivanAI ekibi görebilir mi?","acceptedAnswer":{"@type":"Answer","text":"Hayır. Anahtar tarayıcında şifreli durur; bize ait bir sunucu olmadığı için kopyasına erişemeyiz."}},{"@type":"Question","name":"İnternet olmadan çalışır mı?","acceptedAnswer":{"@type":"Answer","text":"Arayüz açılır ama cevap üretilemez; cevaplar seçtiğin servisten gelir."}},{"@type":"Question","name":"Kendi sunucumda barındırabilir miyim?","acceptedAnswer":{"@type":"Answer","text":"Evet. Tek HTML dosyası olduğu için herhangi bir statik sunucuya (GitHub Pages, kendi alanın) koyabilirsin."}},{"@type":"Question","name":"Lisansı ne?","acceptedAnswer":{"@type":"Answer","text":"Apache 2.0. Değiştirebilir, kendi işinde kullanabilirsin."}}]}</script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html"><b>DivanAI</b> · Yapay Zekâlar Aynı Masada</a>
+  <nav><a href="index.html">Uygulama</a><a href="konsey.html">Konsey</a><a href="panel.html">Panel</a><a href="ayna.html">Ayna</a><a href="ajanlar.html">Ajanlar</a><a href="ucretsiz.html">Ücretsiz mi?</a><a href="chatgpt-alternatifi.html">Alternatif</a><a href="nasil-calisir.html" aria-current="page">Nasıl çalışır</a><a href="en/index.html">EN</a></nav>
+</header>
+<main>
+<h1>Anahtarın nerede duruyor, istek nereye gidiyor?</h1>
+<p class="lead">DivanAI'nin arkasında bir sunucu yok: sayfa tek bir HTML dosyası. Bu, güvenlik iddiasını kanıtlanabilir kılıyor — söz vermiyoruz, mimari öyle. Aşağıda ne olduğunu adım adım yazdım.</p>
+
+<figure>
+  <img src="gorsel/ayarlar.jpg" srcset="gorsel/ayarlar.jpg 900w" width="900" height="643" alt="Ayarlar ekranı: anahtar alanı ve “anahtar yalnız bu tarayıcıda kalır” notu" loading="eager" decoding="async">
+  <figcaption>Ayarlar ekranı: anahtar alanı ve “anahtar yalnız bu tarayıcıda kalır” notu</figcaption>
+</figure>
+<h2>İstek yolu</h2>
+<ol><li>Bir soru yazdığında uygulama hangi sandalyenin hangi servise bağlı olduğunu tarayıcıda çözer.</li><li>İsteği <b>doğrudan</b> o servisin adresine gönderir (ör. OpenRouter, Google AI Studio, LLM7).</li><li>Cevap aynı yoldan geri gelir; uygulama onu masaya yazar.</li></ol>
+<p>Arada DivanAI'ye ait bir sunucu, bir proxy ya da bir kayıt katmanı yoktur. Bu yüzden “biz anahtarını görmüyoruz” cümlesi bir vaat değil, mimarinin sonucudur: görecek bir yer yok.</p>
+<h2>Anahtar nerede saklanıyor?</h2>
+<p>Anahtar tarayıcının yerel deposunda (localStorage) durur ve <b>AES-GCM</b> ile şifrelenir. Şifreleme anahtarı cihazda tutulur; istersen Ayarlar'dan “Bu tarayıcıdan sil” ile tek tuşla temizlersin. Ortak kullandığın bir bilgisayarda çalışıyorsan anahtarı kaydetmeyip her oturumda yazabilirsin.</p>
+<h2>Neden proxy yok?</h2>
+<p>İki yol var: isteği kendi sunucundan geçirmek ya da tarayıcıdan göndermek. Birincisinde anahtar sende kalmaz — sunucuda durur, o sunucunun sahibi anahtarını görebilir. DivanAI ikincisini seçti: anahtarın sende, istek doğrudan servise. Bedeli, servisin CORS izni vermesi; bu yüzden bazı servisler tarayıcıdan çalışmaz ve listede yoktur.</p>
+<h2>Tek dosya ne demek?</h2>
+<p>HTML + CSS + JavaScript tek dosyada, ~815 KB. Dış CDN, dış yazı tipi, dış betik yoktur; internet kesilse bile arayüz açılır (model çağrısı elbette çalışmaz). Dosyayı indirip kendi alanına koyabilir, değiştirebilirsin: lisans Apache 2.0.</p>
+<h2>Neyi iddia etmiyoruz?</h2>
+<p>Cevapların doğruluğunu garanti etmiyoruz; modeller hata yapar. Ücretsiz servislerin hızını ve kotasını biz belirlemiyoruz. Ve hiçbir arama motorunda “birinci sıra” sözü vermiyoruz — bu sayfa da o yüzden abartılı cümlelerle değil, böyle yazıldı.</p>
+
+
+<h2>Sık sorulan sorular</h2>
+<div class="sss">
+<details><summary>Anahtarımı DivanAI ekibi görebilir mi?</summary><p>Hayır. Anahtar tarayıcında şifreli durur; bize ait bir sunucu olmadığı için kopyasına erişemeyiz.</p></details>
+<details><summary>İnternet olmadan çalışır mı?</summary><p>Arayüz açılır ama cevap üretilemez; cevaplar seçtiğin servisten gelir.</p></details>
+<details><summary>Kendi sunucumda barındırabilir miyim?</summary><p>Evet. Tek HTML dosyası olduğu için herhangi bir statik sunucuya (GitHub Pages, kendi alanın) koyabilirsin.</p></details>
+<details><summary>Lisansı ne?</summary><p>Apache 2.0. Değiştirebilir, kendi işinde kullanabilirsin.</p></details>
+</div>
+
+<h2>İlgili sayfalar</h2>
+<ul class="ilgili">
+<li><a href="ucretsiz.html">Gerçekten ücretsiz mi?</a></li>
+<li><a href="chatgpt-alternatifi.html">ChatGPT alternatifi — düşünülmüş</a></li>
+<li><a href="konsey.html">Konsey: yapay zekâlar tartışsın</a></li>
+<li><a href="teketek.html">TekeTek: tek modelle sohbet</a></li>
+</ul>
+
+</main>
+<footer><div class="in">
+<p><b>DivanAI</b> · tek HTML dosyası · Apache 2.0 · fiyat: 0 TL · reklam ve analitik yok.</p>
+<p>Son güncelleme: 11 Kasım 2026 · <a href="index.html">Uygulamayı aç</a> ·
+<a href="https://divanai.github.io/">divanai.github.io</a> ·
+<a href="https://github.com/DivanAi/divanai.github.io">GitHub deposu</a></p>
+<p>Bu sayfadaki sayılar ürünün kendi ölçümlerinden gelir; olmayan sayı yazılmaz.</p>
+</div></footer>
+</body>
+</html>
