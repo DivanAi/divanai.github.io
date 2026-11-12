@@ -795,7 +795,16 @@ input.fieldErr, select.fieldErr{border-color:rgba(var(--badrgb),.65)!important;b
    (Eskiden dikeyde ortalıyordu; üstte anlamsız boşluk bırakıyordu.)
    Yazı kutusu ekranın altında kalır: arada boşluk olsa da göz yormaz. */
 #scroll.idle{display:flex;flex-direction:column;padding-top:16px}   /* başlık, soldaki ilk mod etiketiyle aynı hizada başlar */
-#scroll.idle .wrap{margin:0;min-height:100%;display:flex;flex-direction:column}
+/* Yatay ortalama KORUNUR (margin:0 auto). Kol 142'de margin:0 yazılmıştı; bu yüzden
+   boş ekranda içerik sola yapışıyordu, Ajanlar'da ise (o modda .idle sınıfı yok) ortada
+   kalıyordu — modlar arasında hiza farkı buradan geliyordu.
+   Genişlik %100: dar ekranda da blok alanın tamamını kullanır (scrollbar payı hesaba katılsın). */
+#scroll.idle .wrap{margin:0 auto;width:100%;min-height:100%;display:flex;flex-direction:column;
+  padding-right:calc(var(--sbw, 0px))}
+/* Ajanlar modunda .idle sınıfı YOK (yazı kutusu ekranın altında kalır), ama hiza aynı olsun:
+   aynı üst boşluk ve yatay ortalama kuralı o modda da geçerli. Modlar arası hiza farkı buydu. */
+#scroll:not(.started) .wrap{margin-left:auto;margin-right:auto;width:100%}
+#scroll:not(.started){padding-top:16px}
 #scroll.idle #dockHost{margin-top:auto;padding-top:18px}            /* yazı kutusu ekranın altında kalır */
 #scroll.idle .modes{position:static}
 .dock.inhero{padding:16px 0 0;background:none;z-index:1}
@@ -4892,6 +4901,13 @@ function utf8Decode(bytes) {
   try { return decodeURIComponent(out); } catch (e) { return ''; }
 }
 
+/* Kol 146 · AKIŞ BEKÇİSİ
+   Kusur: sunucu bağlantıyı açıp HİÇ veri göndermezse reader.read() sonsuza kadar bekliyordu.
+   Kullanıcı Ajanlar modunda 1 saat bekledi; ekranda "yazıyor..." kaldı. Artık veri gelmezse
+   akış iptal edilir ve "zaman aşımı" hatası döner (yedek model / açık mesaj devreye girer). */
+const SSE_IDLE_MS = (() => { const k = Number(window.__SSE_IDLE_MS); return Number.isFinite(k) && k >= 1000 ? k : 90000; })();   // ilk parça veya parçalar arası: en çok 90 sn sessizlik
+const SSE_TOTAL_MS = (() => { const k = Number(window.__SSE_TOTAL_MS); return Number.isFinite(k) && k >= 1000 ? k : 480000; })(); // tek istek için üst sınır: 8 dakika
+
 async function streamSSE(resp, onEvent) {
   const reader = resp.body.getReader();
   const hasTD = typeof TextDecoder !== 'undefined';
@@ -4910,9 +4926,41 @@ async function streamSSE(resp, onEvent) {
     return delta;
   };
 
+  const baslangic = Date.now();
+  let sonVeri = Date.now();
+  /* bekçi: veri gelmezse zamanlayıcı düşer; gelen veride zamanlayıcı temizlenir
+     (temizlenmezse geride kalan reddedilmiş söz "unhandled rejection" üretir). */
+  let zilTemizle = null;
+  const bekci = (ms, ne) => new Promise((res, red) => {
+    const t = setTimeout(() => {
+      const gecen = Math.round((Date.now() - sonVeri) / 1000);
+      const toplam = Math.round((Date.now() - baslangic) / 1000);
+      const e = new Error('zaman aşımı: ' + ne + ' (' + (ne === 'ilk parça' ? toplam : gecen) + ' sn veri yok)');
+      e.name = 'TimeoutError';
+      red(e);
+    }, ms);
+    zilTemizle = () => clearTimeout(t);
+  });
+
   while (true) {
-    const { value, done } = await reader.read();
+    const kalan = Math.max(1000, SSE_IDLE_MS - (Date.now() - sonVeri));
+    const toplamKalan = Math.max(1000, SSE_TOTAL_MS - (Date.now() - baslangic));
+    const ne = sonVeri === baslangic ? 'ilk parça' : 'yanıt akışı';
+    const ms = Math.min(kalan, toplamKalan);
+    let okuma;
+    try {
+      okuma = await Promise.race([
+        Promise.resolve(reader.read()).then(v => { if (zilTemizle) zilTemizle(); return v; },
+                                          e => { if (zilTemizle) zilTemizle(); throw e; }),
+        bekci(ms, ne)
+      ]);
+    } catch (e) {
+      try { await reader.cancel(); } catch (e0) {}
+      throw e;
+    }
+    const { value, done } = okuma;
     if (done) break;
+    sonVeri = Date.now();
     buf += take(value);
     const parts = buf.split(/\r?\n\r?\n/);
     buf = parts.pop() || '';
@@ -4992,13 +5040,32 @@ function friendlyError(status, bodyText, providerName, retryAfter) {
   return base + who + (detail ? ' — ' + detail : '');
 }
 
+/* Kol 146 · BAŞLIK BEKÇİSİ
+   Kusur: sunucu bağlantıyı kabul edip HİÇ yanıt başlığı göndermezse fetch() sonsuza kadar
+   bekliyordu (Ajanlar'da 1 saat "yazıyor..."). Artık 60 sn içinde başlık gelmezse istek kesilir. */
+const HEADERS_MS = (() => { const k = Number(window.__SSE_HEADERS_MS); return Number.isFinite(k) && k >= 1000 ? k : 60000; })();
+
 async function openAICompatStream(url, headers, body, onDelta, signal, providerName, netHint, retried) {
   let resp;
-  try { resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal }); }
+  const hctrl = new AbortController();
+  /* dış sinyal (kullanıcı durdurdu / sandalye zaman aşımı) her aşamada isteği kessin */
+  if (signal) {
+    if (signal.aborted) hctrl.abort();
+    else { try { signal.addEventListener('abort', () => { try { hctrl.abort(); } catch (e) {} }); } catch (e) {} }
+  }
+  const hTimer = setTimeout(() => { try { hctrl.abort(); } catch (e) {} }, HEADERS_MS);
+  try { resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: hctrl.signal }); }
   catch (e) {
-    if (e && e.name === 'AbortError') throw e;
+    clearTimeout(hTimer);
+    if (e && e.name === 'AbortError') {
+      if (signal && signal.aborted) throw e;          // kullanıcı ya da üst katman durdurdu
+      const te = new Error('zaman aşımı: sunucu ' + Math.round(HEADERS_MS / 1000) + ' sn içinde yanıt başlığı göndermedi');
+      te.name = 'TimeoutError';
+      throw te;
+    }
     throw new Error(netHint || 'Bağlantı kurulamadı. İnternetini ve API anahtarını kontrol et.');
   }
+  clearTimeout(hTimer);
   if (!resp.ok) {
     const raw = await resp.text().catch(() => '');
     // 429: sunucunun söylediği süre kadar bekleyip bir kez tekrar dene
@@ -8792,8 +8859,26 @@ function ajanMergeSystem(chairP, ctx) {
 /* ---------------- tek ajan çağrısı ----------------
    runRound'un yedek zinciri mantığının sadeleştirilmiş hâli:
    bağlantı çözümle → demo/canlı → yedek model → token tavanında genişlet. */
+/* Kol 146 · AJAN ZAMAN AŞIMI
+   Kusur: ajan çağrısı süresiz bekleyebiliyordu (ekran görüntüsü: başkan teslimatı 1 saat "yazıyor...").
+   Artık her DENEME için sert bir tavan var; süre dolunca istek iptal edilir, yedek model denenir,
+   o da olmazsa adım "yanıt yok" diye kapanır ve akış DEVAM eder. */
+function ajanTimeoutMs(p) {
+  /* test/ölçüm kancası: state.settings.ajanTimeoutMs (arayüzde yok, varsayılan 0) */
+  const kanca = Number(state.settings && state.settings.ajanTimeoutMs);
+  if (Number.isFinite(kanca) && kanca >= 1000) return kanca;
+  const ayar = (typeof seatTimeoutSec === 'function' && seatTimeoutSec()) || 0;
+  const anahtarsiz = (() => {
+    try { const k = seatKindOf(p.provider); return !!(GATEWAYS[k] && GATEWAYS[k].keyless); } catch (e) { return false; }
+  })();
+  if (ayar) return ayar * 1000;
+  return anahtarsiz ? 90000 : 180000;    // anahtarsız: 1,5 dk · canlı: 3 dk
+}
+
 async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) {
   const sig = signal || state.abort.signal;     // sandalye zaman aşımı kendi sinyalini geçer
+  const cap = ajanTimeoutMs(p);                 // bu ADIM için toplam tavan
+  const bitis = Date.now() + cap;
   let acc = '';
   let modelUsed = effModel(p.provider) || '—';
   const onDelta = piece => {
@@ -8821,6 +8906,17 @@ async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) 
         renderTranscript();
       }
     }
+    /* her DENEME kendi sinyalini ve kendi saatini alır: biri asılırsa yedeğe geçilir,
+       yedek de asılırsa adım kapanır. Adımın toplamı cap'i aşmaz (en az 20 sn pay). */
+    const denemeMs = Math.max(Math.min(20000, cap), Math.min(cap, bitis - Date.now()));
+    const ctrl = new AbortController();
+    if (sig) {
+      if (sig.aborted) ctrl.abort();
+      else { try { sig.addEventListener('abort', () => { try { ctrl.abort(); } catch (e) {} }); } catch (e) {} }
+    }
+    let zamanAsimi = false;
+    const capTimer = setTimeout(() => { zamanAsimi = true; try { ctrl.abort(); } catch (e) {} }, denemeMs);
+    const sig2 = ctrl.signal;
     try {
       let budget = tokenBudget();
       for (let attempt = 1; ; attempt++) {
@@ -8828,19 +8924,27 @@ async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) 
         bumpReq();
         modelUsed = route.model;
         if (!route.model) throw new Error('Model kimliği boş: Ayarlar → Masadaki modeller.');
-        await callChat(route.cfg, route.model, sys, hist, budget, onDelta, sig);
-        if (token !== state.runToken) return { ok: false, text: acc, model: modelUsed, why: 'durduruldu' };
+        await callChat(route.cfg, route.model, sys, hist, budget, onDelta, sig2);
+        if (token !== state.runToken) { clearTimeout(capTimer); return { ok: false, text: acc, model: modelUsed, why: 'durduruldu' }; }
         if (state.lastFinish !== 'length' || attempt >= 3) break;
         acc = ''; draft.text = ''; updateMsgDOM(draft);
         budget = Math.min(8000, Math.round(budget * 1.9));
       }
     } catch (err) {
+      clearTimeout(capTimer);
+      if (zamanAsimi) {
+        /* kullanıcı durdurmadı: bu DENEME zaman aşımına uğradı → yedek model denenebilir */
+        lastErr = new Error('zaman aşımı: ' + Math.round(denemeMs / 1000) + ' sn içinde cevap gelmedi');
+        if (ci < chain.length - 1) continue;
+        throw lastErr;
+      }
       if (err && err.name === 'AbortError') throw err;
       lastErr = err;
       if (worthFallback(err && err.message) && ci < chain.length - 1) continue;
       if (notice) { notice.level = 'err'; notice.text = p.name + ' yanıt veremedi (' + whyShort(err && err.message) + ') · yedekler de boş döndü.'; renderTranscript(); }
       throw err;
     }
+    clearTimeout(capTimer);
     if (visibleLen(acc) >= 2) {
       if (notice) {
         setAlt(p.provider, route.model, '');
@@ -8931,6 +9035,33 @@ async function runAgents(opts = {}) {
       renderTranscript();
     }
     state.speaking = null; renderSeats();
+  }
+
+  /* --- görev yoksa: tek cümleden dağıt ---
+     Kullanıcı Ajanlar'da yalnız konuyu yazıp gönderirse görevler boş kalıyordu; ajanlar
+     "MODERATÖR: —" diye çalışıp boş yanıt üretiyordu. Artık görev yoksa Kol 143 motoru
+     projeyi sandalyelere böler ve bunu ekranda söyler. */
+  if (!jobs) {
+    const bosMu = seats.every(pid => {
+      const t = cfg.tasks[pid] || {};
+      return !String(t.task || '').trim() && !String(t.out || '').trim();
+    });
+    if (bosMu) {
+      const proje = String(state.topic || state.ajanNote || '').trim() ||
+        (document.getElementById('input') || {}).value || '';
+      if (proje && typeof otomatikPlan === 'function') {
+        try {
+          const plan = otomatikPlan(proje, seats);
+          for (const k of plan.kollar) cfg.tasks[k.pid] = { role: k.role, task: k.task, out: k.out, img: !!k.img };
+          cfg.autoSig = JSON.stringify(plan.kollar.map(k => [k.role, k.task, k.out, !!k.img]));
+          saveSettings();
+          addMessage({ kind: 'notice', level: 'info', text: window.T2(
+            'Görev yazılmamıştı: sistem projeyi ' + seats.length + ' ajana böldü (' + plan.alan.tr + '). Kartlarda görebilir, sonra değiştirebilirsin.',
+            'No tasks were written: the system split the project across ' + seats.length + ' agents (' + plan.alan.en + '). You can see and change them on the cards.') });
+          renderTranscript();
+        } catch (e) {}
+      }
+    }
   }
 
   /* --- iş kuyruğu --- */
@@ -9204,14 +9335,44 @@ async function ajanMerge(chairP, packets, planText, token, tried) {
   const draft = { id: uid(), ts: nowISO(), kind: 'msg', personaId: chairP.id, name: chairP.name, short: chairP.short, color: chairP.color, roleLabel: 'BAŞKAN · TESLİM', text: '', streaming: true };
   state.transcript.push(draft); appendMsgDOM(draft); scrollBump(true);
 
-  let res = null;
+  let res = null, hata = '';
   try {
     res = await ajanCall(chairP, ajanMergeSystem(chairP, { packets, plan: planText }),
       [{ role: 'user', content: 'Teslimatı yaz.' }], draft, token, tried, 'merge');
   } catch (e) {
     if (e && e.name === 'AbortError') return;
+    hata = whyShort(e && e.message);
     state.transcript = state.transcript.filter(m => m.id !== draft.id); removeMsgDOM(draft.id);
-    addMessage({ kind: 'notice', level: 'err', text: 'Başkan teslimatı yazamadı (' + whyShort(e && e.message) + '). Paketler yukarıda duruyor.' });
+    addMessage({ kind: 'notice', level: 'warn', text: 'Başkan teslimatı yazamadı (' + hata + '). Teslimat eldeki paketlerden kuruluyor.' });
+    renderTranscript();
+  }
+
+  /* Başkan yazamadıysa: paketlerden YEREL teslimat. Model çağrılmaz, uydurma yok —
+     yalnız ajanların kendi yazdığı paket satırları derlenir. */
+  if ((!res || !res.ok || !(res.text || '').trim()) && packets.length) {
+    state.transcript = state.transcript.filter(m => m.id !== draft.id); removeMsgDOM(draft.id);
+    const yerel = yerelTeslimat(packets, planText);
+    const s0 = addMessage({ kind: 'summary', personaId: null, name: window.T2('DivanAI', 'DivanAI'),
+      roleLabel: window.T2('YEREL BİRLEŞTİRME', 'LOCAL MERGE'), color: 'var(--acc)',
+      title: window.T2('EKİP TESLİMİ · ' + packets.length + ' ajan (başkan yazamadı)', 'TEAM DELIVERY · ' + packets.length + ' agents (chair could not write)'),
+      text: yerel, plain: plainOf(yerel) });
+    state.ajanResult = yerel;
+    state.ajanResultId = s0.id;
+    state.speaking = null; state.phase = 'waiting';
+    if (state.tick) { clearInterval(state.tick); state.tick = null; }
+    state.ajanPackets = packets.slice();
+    persistSession(); renderAll(); renderAjanBar(); renderTranscript(); scrollBump(true);
+    toast(window.T2('Teslimat paketlerden kuruldu; başkan modeli cevap vermedi.', 'The delivery was assembled from the packets; the chair model did not answer.'), 'warn');
+    return;
+  }
+
+  /* Ne paket ne teslimat: tur yine KAPANIR (süresiz "yazıyor..." yok), sebep yazılır. */
+  if (!packets.length && (!res || !res.ok || !(res.text || '').trim())) {
+    addMessage({ kind: 'notice', level: 'err', text: window.T2(
+      'Tur bitti ama teslimat çıkmadı: hiçbir ajan yanıt veremedi' + (hata ? ' (' + hata + ')' : '') +
+      '. Bağlantıları Ayarlar’dan kontrol et ya da “Kaldığı yerden devam” ile yeniden dene.',
+      'The round ended with no delivery: no agent could answer' + (hata ? ' (' + hata + ')' : '') +
+      '. Check the connections in Settings, or retry with “Resume”.') });
     renderTranscript();
   }
 
@@ -9459,6 +9620,44 @@ function ajanApplyTemplate(key) {
   if (inp && !inp.value.trim()) { inp.value = t.topic; autoGrow(inp); }
   toast('Hazır proje yüklendi: ' + t.label + '. Konuyu değiştirip gönder.', 'ok');
 }
+
+/* ---------------- yerel teslimat (model yok) ----------------
+   Başkan modeli cevap vermezse kullanıcıyı boş elle bırakmamak için paketlerin
+   kendi satırlarından teslimat kurulur. Metin UYDURULMAZ: her satır bir ajanın yazdığıdır. */
+function yerelTeslimat(packets, planText) {
+  const EN = !!(window.I18N && window.I18N.isEn());
+  const L = [];
+  L.push(EN ? 'Assembled from the hand-off packets below (no model was called for this summary).'
+            : 'Aşağıdaki devir paketlerinden derlendi (bu özet için model çağrılmadı).');
+  if (planText && planText.trim()) {
+    L.push('');
+    L.push('**' + (EN ? 'Chair plan (first lines)' : 'Başkan planı (ilk satırlar)') + '**');
+    L.push(planText.trim().split('\n').slice(0, 4).join('\n'));
+  }
+  packets.forEach((pk, i) => {
+    const f = pk.packet || null;
+    L.push('');
+    L.push('**' + (i + 1) + '. ' + (pk.name || '') + '**');
+    if (f) {
+      const etiket = EN
+        ? { amac: 'Goal', yerlesen: 'Settled', acik: 'Open', kanit: 'Evidence', kisit: 'Constraint', sinir: 'Limit', sonraki: 'Next' }
+        : { amac: 'Amaç', yerlesen: 'Yerleşen', acik: 'Açık', kanit: 'Kanıt', kisit: 'Kısıt', sinir: 'Sınır', sonraki: 'Sonraki' };
+      for (const k of ['amac', 'yerlesen', 'acik', 'kanit', 'kisit', 'sinir', 'sonraki']) {
+        const v = (f[k] || '').toString().trim();
+        if (v) L.push('- **' + etiket[k] + ':** ' + v.replace(/\s*\n\s*/g, ' · '));
+      }
+    }
+    if (!f || !(f.yerlesen || f.acik || f.amac)) {
+      const kisa = String(pk.raw || '').replace(/\s+/g, ' ').trim();
+      if (kisa) L.push('- ' + (kisa.length > 400 ? kisa.slice(0, 400) + '…' : kisa));
+    }
+  });
+  L.push('');
+  L.push(EN ? '**Next step:** re-run with a live key or a different chair model (Settings → Models at the table).'
+            : '**İlk adım:** canlı anahtarla ya da başka bir başkan modeliyle tekrar çalıştır (Ayarlar → Masadaki modeller).');
+  return L.join('\n');
+}
+
 
 
 /* ==========================================================================
@@ -11226,13 +11425,28 @@ function renderComposer() {
     const tbl = state.settings.table;
     const ajanIdle = tbl === 'ajan' && state.transcript.length === 0;
     const tekM = tbl === 'tek';
+    /* Kol 145: yer tutucular da arayüz diline uyar (İngilizce arayüzde Türkçe kalıyordu) */
+    const P = window.T2;
     input.placeholder = running
-      ? (tbl === 'ajan' ? 'Ajanlar çalışırken araya not bırakabilirsin…' : (tekM ? 'Cevap yazılıyor…' : 'Masa konuşurken araya not bırakabilirsin…'))
+      ? (tbl === 'ajan'
+          ? P('Ajanlar çalışırken araya not bırakabilirsin…', 'Leave a note while the agents work…')
+          : (tekM ? P('Cevap yazılıyor…', 'Answer is being written…')
+                  : P('Masa konuşurken araya not bırakabilirsin…', 'Leave a note while the table talks…')))
       : (tekM
-        ? (state.transcript.length === 0 ? 'Ne sormak istiyorsun? (örn: Kredi kartı borcumu nasıl düzene sokarım?)' : 'Yazmaya devam et…')
-        : (ajanIdle ? 'Projeyi yaz… (örn: Küçük bir sabun markası için 6 haftalık lansman planı çıkar.)'
-        : (tbl === 'ajan' ? 'Ek talimat yaz: eksik kalan işi söyle, ajanlar yeni geçişte uysun…'
-          : (state.transcript.length <= 1 ? 'Masaya bir konu at… (örn: Bu yazılım fikrimi 3 ayda çıkarabilir miyim?)' : 'Masaya yaz: itiraz, ek bilgi, yeni soru…'))));
+        ? (state.transcript.length === 0
+            ? P('Ne sormak istiyorsun? (örn: Kredi kartı borcumu nasıl düzene sokarım?)',
+                'What do you want to ask? (e.g. How do I get my credit card debt under control?)')
+            : P('Yazmaya devam et…', 'Keep writing…'))
+        : (ajanIdle
+          ? P('Projeyi yaz… (örn: Küçük bir sabun markası için 6 haftalık lansman planı çıkar.)',
+              'Write the project… (e.g. Draw up a six-week launch plan for a small soap brand.)')
+          : (tbl === 'ajan'
+            ? P('Ek talimat yaz: eksik kalan işi söyle, ajanlar yeni geçişte uysun…',
+                'Add an instruction: name what is missing and the agents will cover it next pass…')
+            : (state.transcript.length <= 1
+              ? P('Masaya bir konu at… (örn: Bu yazılım fikrimi 3 ayda çıkarabilir miyim?)',
+                  'Put a topic on the table… (e.g. Can I ship this software idea in 3 months?)')
+              : P('Masaya yaz: itiraz, ek bilgi, yeni soru…', 'Write to the table: objection, extra detail, new question…')))));
   }
   if (hint) {
     if (running) {
