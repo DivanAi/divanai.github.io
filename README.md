@@ -422,11 +422,15 @@ ve onu çözecek veri, ilk adım.
 Konsey ve Ayna bir soruyu **tartışır**; Ajanlar bir projeyi **yapar**.
 
 1. **Projeyi** yaz (tek cümle): *"Küçük bir el yapımı sabun markası için 6 haftalık lansman planı çıkar."*
-2. Her sandalyeye **Görev** ve **Beklenen çıktı** yaz. İkincisi kabul kriteridir. Boş bıraktığın ajan atlanır.
-3. **Akışı** seç (aşağıdaki tablo).
-4. Gönder. Ajanlar sırayla çalışır, her adım ekranda görünür (**1 ✓ 2 ● 3 · 4 ·**).
-5. Sonunda **EKİP TESLİMİ** kartı çıkar: özet, kim ne yaptı, asıl çıktı, açık kalanlar, ilk adım.
-6. Yetmezse **+ Bir geçiş daha**: ajanlar bu kez önceki geçişin açık maddelerini kapatmaya çalışır.
+2. **✨ Dağıt**'a bas: sistem o cümleden **rolleri, görevleri, beklenen çıktıyı** ve **görsel oranını/kamerayı**
+   kendisi seçer — üç kart birden dolar. İstemezsen her alanı **elle değiştirebilirsin**; yazdığın kalır.
+   Yanlış dağıttıysa **Geri al** eski hâle döndürür. (Dağıtım model çağırmaz: anında olur, istek harcamaz,
+   ücretli görsel motorunu **asla** kendisi seçmez.) Elle doldurmayı tercih edersen aşağıdaki 3. adım geçerli.
+3. Her sandalyeye **Görev** ve **Beklenen çıktı** yaz. İkincisi kabul kriteridir. Boş bıraktığın ajan atlanır.
+4. **Akışı** seç (aşağıdaki tablo).
+5. Gönder. Ajanlar sırayla çalışır, her adım ekranda görünür (**1 ✓ 2 ● 3 · 4 ·**).
+6. Sonunda **EKİP TESLİMİ** kartı çıkar: özet, kim ne yaptı, asıl çıktı, açık kalanlar, ilk adım.
+7. Yetmezse **+ Bir geçiş daha**: ajanlar bu kez önceki geçişin açık maddelerini kapatmaya çalışır.
 
 | Akış | Ne yapar | İstek |
 |---|---|---|

@@ -422,13 +422,17 @@ objection, the point that cannot be decided and the data that would settle it, a
 Council and Mirror **debate** a question; Agents **do** a project.
 
 1. Write the **project** (one sentence): *"Draw up a 6-week launch plan for a small handmade soap brand."*
-2. Give each seat a **Task** and an **Expected output**. The second is the acceptance criterion. An agent
+2. Press **✨ Assign**: from that sentence the system picks the **roles, tasks, expected outputs** and the
+   **image ratio/camera** — all three cards fill at once. Change any field **by hand** if you like; your edit
+   stays. **Undo** restores the previous state. (Assigning calls no model: it is instant, costs no requests,
+   and never picks a paid image engine.) If you prefer filling by hand, step 3 still applies.
+3. Give each seat a **Task** and an **Expected output**. The second is the acceptance criterion. An agent
    left empty is skipped.
-3. Pick the **flow** (table below).
-4. Send. Agents work in turn and every step shows on screen (**1 ✓ 2 ● 3 · 4 ·**).
-5. At the end a **TEAM DELIVERY** card appears: summary, who did what, the real output, what is still
+4. Pick the **flow** (table below).
+5. Send. Agents work in turn and every step shows on screen (**1 ✓ 2 ● 3 · 4 ·**).
+6. At the end a **TEAM DELIVERY** card appears: summary, who did what, the real output, what is still
    open, first step.
-6. Not enough? **+ One more pass**: the agents now try to close what the previous pass left open.
+7. Not enough? **+ One more pass**: the agents now try to close what the previous pass left open.
 
 | Flow | What it does | Requests |
 |---|---|---|

@@ -791,9 +791,12 @@ input.fieldErr, select.fieldErr{border-color:rgba(var(--badrgb),.65)!important;b
   position:relative;z-index:4;
 }
 .dockin{max-width:1080px;margin:0 auto}
-/* boş ekran (konuşma yok): içerik dikeyde ortalanır, yazı kutusu başlığın altına taşınır */
-#scroll.idle{display:flex;flex-direction:column}
-#scroll.idle .wrap{margin-top:auto;margin-bottom:auto}
+/* boş ekran (konuşma yok): içerik ÜSTTEN başlar — sol menüdeki ilk moda hizalı.
+   (Eskiden dikeyde ortalıyordu; üstte anlamsız boşluk bırakıyordu.)
+   Yazı kutusu ekranın altında kalır: arada boşluk olsa da göz yormaz. */
+#scroll.idle{display:flex;flex-direction:column;padding-top:16px}   /* başlık, soldaki ilk mod etiketiyle aynı hizada başlar */
+#scroll.idle .wrap{margin:0;min-height:100%;display:flex;flex-direction:column}
+#scroll.idle #dockHost{margin-top:auto;padding-top:18px}            /* yazı kutusu ekranın altında kalır */
 #scroll.idle .modes{position:static}
 .dock.inhero{padding:16px 0 0;background:none;z-index:1}
 .dock.inhero .dockin{margin:0}   /* sekme şeridiyle aynı genişlik (kutu sağa kadar uzar) */
@@ -1340,6 +1343,7 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
 .camBtn{padding:4px 10px;border-radius:999px;border:1px dashed var(--line2);background:transparent;color:var(--dim);
   font:inherit;font-size:11.5px;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .camBtn:hover{color:var(--text);border-color:rgba(var(--accrgb),.45);background:rgba(var(--accrgb),.07)}
+.camBtn.on{color:var(--acc3);border-style:solid;border-color:rgba(var(--accrgb),.55);background:rgba(var(--accrgb),.14);font-weight:600}
 .camNote{font-size:10.5px;color:var(--dim)}
 @media(max-width:520px){.imgRatioBtn i{display:none}.imgRowSep{display:none}}
 .ajanImgChk{font-size:11px;color:var(--dim);gap:5px;display:flex;align-items:center;cursor:pointer;
@@ -1599,6 +1603,32 @@ body,.topbar,.dock,.drawer,.composer,.modeBtn,.btn,.pill,.topicCard{
 .prCheck{flex:0 0 auto;color:var(--acc)}
 .pickEmpty{margin:18px 10px;font-size:12.5px;color:var(--dim)}
 body.pickOpen{overflow:hidden}
+
+/* ---------------- Kol 143: otomatik görev dağıtımı ----------------
+   Ajanlar panelinin en üstünde tek satır kutu: projeyi yaz → ✨ Dağıt.
+   Sonuç normal alanlara düşer, özet satırı ve "Geri al" burada durur. */
+.autoRow{margin:0 0 12px;padding:10px 12px;border:1px solid rgba(var(--accrgb),.26);border-radius:12px;
+  background:linear-gradient(180deg,rgba(var(--accrgb),.055),rgba(var(--accrgb),.018))}
+.autoHead{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;margin-bottom:7px}
+.autoHead b{font-size:12px;letter-spacing:.05em;color:var(--acc)}
+.autoHead span{font-size:11.5px;color:var(--muted)}
+.autoIn{display:flex;gap:7px;align-items:stretch}
+.autoIn textarea{flex:1;min-width:0;resize:vertical;min-height:38px;padding:8px 10px;border-radius:10px;
+  border:1px solid var(--line2);background:rgba(var(--w),.05);color:var(--text);font:inherit;font-size:12.5px;line-height:1.45}
+.autoIn textarea:focus{outline:none;border-color:rgba(var(--accrgb),.55)}
+.autoBtn{flex:0 0 auto;align-self:stretch;padding:0 14px;white-space:nowrap}
+.autoOrnekler{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:7px 0 0;font-size:11px;color:var(--dim)}
+.autoOrnekler .chip{font-size:11px;padding:4px 9px}
+.autoHint{margin:7px 0 0;font-size:11px;line-height:1.5;color:var(--dim)}
+.autoSummary{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:8px 0 0;padding:7px 9px;
+  border:1px solid rgba(var(--accrgb),.3);border-radius:10px;background:rgba(var(--accrgb),.07);font-size:11.5px;color:var(--muted)}
+.autoSummary b{color:var(--acc);font-size:11.5px;letter-spacing:.03em}
+.autoSummary .autoEngine{color:var(--dim)}
+.autoSummary .mini{margin-left:auto}
+@media (max-width:560px){
+  .autoIn{flex-direction:column}
+  .autoBtn{align-self:flex-start;padding:7px 14px}
+}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication",
@@ -1905,6 +1935,9 @@ body.pickOpen{overflow:hidden}
 
   /* ---- sözlük: Türkçe → İngilizce ---- */
   const EN = {
+    '✨ Tek cümle yeter': '✨ One sentence is enough',
+    '✨ Dağıt': '✨ Assign',
+    'Dağıtıldı': 'Assigned',
     /* üst şerit */
     'yapay zekâlar aynı masada': 'many AI minds, one table',
     'Hız': 'Speed',
@@ -2635,7 +2668,7 @@ body.pickOpen{overflow:hidden}
     "Masa, sandalye ve tartışma yok: yazdığını tek bir yapay zekâ cevaplar. Yazı kutusundaki model düğmesinden modeli seçersin. Anahtarın yoksa anahtarsız seçenek hazır gelir — kurulum yapmadan konuşmaya başlarsın.": "No table, no seats, no debate: a single AI answers what you write. Pick the model with the button inside the text box. If you have no key, a keyless option is ready — start talking with no setup.",
     "Tek modeli iki sandalyeye oturt: biri savunur, biri itiraz eder. Her turda açan taraf değişir; sonunda tarafsız hakem kararı çıkar. Tek modelin kör noktasını görmek için.": "Put one model in two seats: one defends, one objects. The opening side swaps every round; the round ends with a neutral judge verdict. For seeing a single model’s blind spot.",
     "Sandalyeler aynı anda, birbirini görmeden cevap verir; başkan ya da özet yok. Görüşlerin alt alta yazılır, karşılaştırmayı sen yaparsın.": "Seats answer at the same time without seeing each other; no chair, no summary. Opinions are written one under another — the comparison is yours.",
-    "Bir proje yaz, her ajana kendi işini ver. Ajanlar sırayla çalışır ve birbirine teslim paketi bırakır; başkan sonunda tek teslimat çıkarır. Boş konuşma yok, iş çıkar.": "Write a project, give each agent its own job. Agents work in turn and hand a delivery package to each other; at the end the chair produces one delivery. No empty talk — work comes out.",
+    "Projeyi tek cümleyle yaz: sistem her ajana işi böler, görsel ayarını seçer; istediğini sonra değiştirirsin. Ajanlar teslim paketi bırakarak ilerler, başkan tek teslimat çıkarır.": "Write the project in one sentence: the system splits the work across agents and picks the image settings; change anything afterwards. Agents move on by handing packages to each other and the chair produces one delivery.",
     "Not: bu çıktı karar desteğidir; hukuk, sağlık, finans gibi konularda profesyonel danışmanlık yerine geçmez. Modeller hata yapabilir — kritik sayıyı kaynağından doğrula.": "Note: this output is decision support; it does not replace professional advice on law, health or finance. Models make mistakes — check critical numbers at the source.",
     "Masa kendiliğinden durdu ve özeti çıkardı. Devam etmek istersen “Bir tur daha” ile sürdürebilirsin (ek token harcar).": "The table stopped on its own and produced the summary. To keep going, continue with “One more round” (costs extra tokens).",
     "Bu özet paylaşılabilir. \"Kopyala\" ile tüm konuşmayı markdown olarak alabilirsin.": "This summary is ready to share. Use \"Copy\" to grab the whole conversation as markdown.",
@@ -8557,6 +8590,8 @@ function ajanCfg() {
   a.count = Math.max(0, Math.min(9, Math.round(Number(a.count) || 0)));   // 0 = hepsi
   if (!a.tasks || typeof a.tasks !== 'object') a.tasks = {};
   if (!Array.isArray(a.order)) a.order = [];
+  if (typeof a.autoText !== 'string') a.autoText = '';   // Kol 143: otomatik dağıtım kutusu
+  if (typeof a.autoSig !== 'string') a.autoSig = '';     // son otomatik dağıtımın imzası
   return a;
 }
 const ajanOn = () => state.settings.table === 'ajan';
@@ -9347,6 +9382,7 @@ function renderAjanSetup() {
         '<button type="button" class="mini ajanClear" id="ajanClearBtn" title="' + esc(window.T2('Görevleri, proje cümlesini ve konuşmayı temizle', 'Clear the tasks, the project sentence and the conversation')) + '">✦ ' + window.T2('Temizle', 'Clear') + '</button>' +
       '</div>' +
     '</div>' +
+    (typeof otoBlokHTML === 'function' ? otoBlokHTML() : '') +
     '<div class="flowRow" role="group" aria-label="Ajan akışı">' + flowBtns +
       '<div class="flowOpts">' +
         (cfg.flow === 'devir'
@@ -9375,7 +9411,8 @@ function renderAjanSetup() {
       '<span class="imgRowNote">' + esc(trNote(IMG_ENGINES[imgCfg().engine].note)) + window.T2(' · Oran: ', ' · Ratio: ') + esc(trNote(imgRatioOf(imgCfg().ratio).note)) + '</span>' +
     '</div>' +
     '<div class="camRow"><span class="imgRowLbl">' + window.T2('Kamera', 'Camera') + '</span>' +
-      CAMS.map(c => '<button type="button" class="camBtn" data-cam="' + c.id + '" title="' + esc(window.T2('İstemin sonuna eklenir: ', 'Added to the end of the prompt: ') + c.line) + '">' + esc(c.label) + '</button>').join('') +
+      CAMS.map(c => '<button type="button" class="camBtn' + (imgCfg().cam === c.id ? ' on' : '') + '" data-cam="' + c.id +
+        '" aria-pressed="' + (imgCfg().cam === c.id) + '" title="' + esc(window.T2('İstemin sonuna eklenir: ', 'Added to the end of the prompt: ') + c.line) + '">' + esc(c.label) + '</button>').join('') +
       '<span class="camNote">' + window.T2('Metin etiketi — kredi harcamaz, yalnız görsel istemine eklenir.', 'Text tag — costs no credits, only added to the image prompt.') + '</span>' +
     '</div>' +
     '<div class="ajanCards">' + cards + '</div>' +
@@ -9421,6 +9458,549 @@ function ajanApplyTemplate(key) {
   const inp = document.getElementById('input');
   if (inp && !inp.value.trim()) { inp.value = t.topic; autoGrow(inp); }
   toast('Hazır proje yüklendi: ' + t.label + '. Konuyu değiştirip gönder.', 'ok');
+}
+
+
+/* ==========================================================================
+   OTOMATİK GÖREV DAĞITIMI (Kol 143)
+   ---------------------------------------------------------------------------
+   Tek cümlelik proje → sandalye rolleri + görevler + beklenen çıktı +
+   görsel oranı/kamera seçimi.
+
+   Neden kural tabanlı, model değil?
+     · Anında cevap (model çağrısı yok; demo modunda 20–60 saniye beklenmez).
+     · Ücretsiz ve kotasız (istek sayısı artmaz).
+     · Tekrarlanabilir: aynı cümle aynı dağılımı verir; test edilebilir.
+     · Yazdığı her şey normal alanlara düşer → kullanıcı tek tek değiştirebilir.
+
+   Dil: arayüz TR ise TR, EN ise EN metin yazılır.
+   ========================================================================== */
+
+/* ---------- rol sözlüğü: her rol iki dilde, tek yerde ---------- */
+const OTO_ROLLER = {
+  pazar: {
+    tr: { role: 'Pazar araştırmacısı',
+          task: 'Hedef müşteriyi ve rakip fiyat aralığını çıkar; pazarın boşluğunu söyle: «{k}»',
+          out: 'İki müşteri kesiti + bir fiyat aralığı + üç gözlem' },
+    en: { role: 'Market researcher',
+          task: 'Map the target customer and the competitor price range; name the gap in the market: “{k}”',
+          out: 'Two customer segments + one price range + three observations' }
+  },
+  musteri: {
+    tr: { role: 'Kullanıcı vekili',
+          task: 'Bu işe “hayır” diyecek üç itirazı yaz ve her birine verilecek cevabı kur: «{k}»',
+          out: 'Üç itiraz + üç cevap + en güçlü itiraz' },
+    en: { role: 'User advocate',
+          task: 'Write the three objections that would make someone say no, and an answer to each: “{k}”',
+          out: 'Three objections + three answers + the strongest one' }
+  },
+  icerik: {
+    tr: { role: 'Metin yazarı',
+          task: 'Tek cümlelik ana mesajı ve üç başlık alternatifini yaz: «{k}»',
+          out: 'Ana mesaj (tek cümle) + üç başlık (her biri en çok 60 karakter)' },
+    en: { role: 'Copywriter',
+          task: 'Write the one-sentence core message and three headline options: “{k}”',
+          out: 'Core message (one sentence) + three headlines (60 characters max each)' }
+  },
+  gorsel: {
+    tr: { role: 'Görsel yönetmeni',
+          task: 'Metnin görselini tarif eden tek bir görsel istemi yaz; kadraj, ışık ve renk belirtilsin: «{k}»',
+          out: 'Tek paragraf görsel istemi + kaçınılacak üç şey' },
+    en: { role: 'Art director',
+          task: 'Write one image prompt that describes the visual; state framing, light and colour: “{k}”',
+          out: 'A one-paragraph image prompt + three things to avoid' },
+    img: true
+  },
+  plan: {
+    tr: { role: 'Plan yapıcı',
+          task: 'İşi haftalara böl; her hafta tek iş olsun ve her haftanın bir ölçütü yazılsın: «{k}»',
+          out: 'Dört satırlık takvim (hafta · tek iş · ölçüt)' },
+    en: { role: 'Planner',
+          task: 'Break the work into weeks; one job per week, each with a measure: “{k}”',
+          out: 'A four-row plan (week · single job · measure)' }
+  },
+  butce: {
+    tr: { role: 'Bütçe denetçisi',
+          task: 'Kalem kalem maliyeti çıkar ve en kırılgan varsayımı işaretle: «{k}»',
+          out: 'Maliyet kalemleri + en kırılgan varsayım + bir tasarruf önerisi' },
+    en: { role: 'Budget auditor',
+          task: 'List the costs item by item and flag the most fragile assumption: “{k}”',
+          out: 'Cost items + the most fragile assumption + one saving idea' }
+  },
+  operasyon: {
+    tr: { role: 'Operasyon planlayıcısı',
+          task: 'Günü saat saat yaz; tıkanacak iki noktayı ve çözümünü belirt: «{k}»',
+          out: 'Saat saat akış + iki darboğaz + çözüm' },
+    en: { role: 'Operations planner',
+          task: 'Write the day hour by hour; name the two bottlenecks and their fix: “{k}”',
+          out: 'Hour-by-hour flow + two bottlenecks + the fix' }
+  },
+  risk: {
+    tr: { role: 'Risk denetçisi',
+          task: 'Bu işi bozacak üç riski yaz; her biri için erken uyarı işareti ver: «{k}»',
+          out: 'Üç risk + erken uyarı işareti + tek önlem' },
+    en: { role: 'Risk auditor',
+          task: 'Write three risks that would sink this; give an early warning sign for each: “{k}”',
+          out: 'Three risks + early warning sign + one mitigation' }
+  },
+  olcum: {
+    tr: { role: 'Ölçüm tasarımcısı',
+          task: 'Başarıyı gösterecek üç sayıyı, nasıl hesaplanacağını ve nereden okunacağını yaz: «{k}»',
+          out: 'Üç ölçüt + hesap yöntemi + ilk kontrol tarihi' },
+    en: { role: 'Measurement designer',
+          task: 'Name the three numbers that prove success, how each is computed and where it is read: “{k}”',
+          out: 'Three measures + calculation + first check date' }
+  },
+  teknik: {
+    tr: { role: 'Teknik lider',
+          task: 'Gereken parçaları ve veri akışını çıkar; en riskli teknik varsayımı söyle: «{k}»',
+          out: 'Parça listesi + beş adımlık veri akışı + tek risk' },
+    en: { role: 'Technical lead',
+          task: 'List the parts and the data flow; name the riskiest technical assumption: “{k}”',
+          out: 'Part list + five-step data flow + one risk' }
+  },
+  test: {
+    tr: { role: 'Test tasarımcısı',
+          task: 'Kabul kriterlerini ve bozulacak uç durumları yaz: «{k}»',
+          out: 'Beş kabul kriteri + üç uç durum' },
+    en: { role: 'Test designer',
+          task: 'Write the acceptance criteria and the edge cases that will break: “{k}”',
+          out: 'Five acceptance criteria + three edge cases' }
+  },
+  kapsam: {
+    tr: { role: 'Kapsam tanımlayıcı',
+          task: 'İlk sürümde ne var, ne yok: kapsamı kes ve dışarıda kalanı gerekçesiyle listele: «{k}»',
+          out: 'MVP listesi (en çok 4 madde) + yapılmayacaklar + gerekçe' },
+    en: { role: 'Scope owner',
+          task: 'Decide what is in the first version and what is out; justify what is left out: “{k}”',
+          out: 'MVP list (4 items max) + not-doing list + reasons' }
+  },
+  egitim: {
+    tr: { role: 'Öğretim tasarımcısı',
+          task: 'Dört oturumluk bir izlence kur; her oturumun somut çıktısı olsun: «{k}»',
+          out: 'Dört oturum (kazanım · süre · çıktı)' },
+    en: { role: 'Learning designer',
+          task: 'Build a four-session programme; every session must produce something: “{k}”',
+          out: 'Four sessions (goal · duration · output)' }
+  },
+  menu: {
+    tr: { role: 'Menü tasarımcısı',
+          task: 'Sekiz kalemlik menü kur; iki imza kalemi seç ve maliyet yükünü kaba tasnifle: «{k}»',
+          out: 'Sekiz kalem menü + iki imza ürün + kaba maliyet' },
+    en: { role: 'Menu designer',
+          task: 'Build an eight-item menu; pick two signature items and rough-rank the cost: “{k}”',
+          out: 'Eight-item menu + two signature items + rough cost' },
+    img: true
+  },
+  mekan: {
+    tr: { role: 'Mekân planlayıcısı',
+          task: 'Yerleşimi sözle çiz ve eksikleri çıkar; en çok fark yaratacak üç dokunuşu yaz: «{k}»',
+          out: 'Yerleşim tarifi + üç dokunuş + bütçe sırası' },
+    en: { role: 'Space planner',
+          task: 'Describe the layout in words, list what is missing, name the three highest-impact touches: “{k}”',
+          out: 'Layout in words + three touches + spend order' },
+    img: true
+  },
+  rota: {
+    tr: { role: 'Rota planlayıcısı',
+          task: 'Gün gün bir rota kur; her gün için tek ana durak ve bir yedek yaz: «{k}»',
+          out: 'Gün gün rota + ulaşım süresi + iki yedek' },
+    en: { role: 'Route planner',
+          task: 'Build a day-by-day route; one main stop and one backup per day: “{k}”',
+          out: 'Day-by-day route + travel time + two backups' }
+  },
+  hukuk: {
+    tr: { role: 'Mevzuat kontrolcüsü',
+          task: 'Gereken izin, sözleşme ve yükümlülükleri listele; kesin hüküm verme, kontrol edilecekleri işaretle: «{k}»',
+          out: 'Kontrol listesi + belirsiz kalan üç nokta (uzman onayı notuyla)' },
+    en: { role: 'Compliance checker',
+          task: 'List needed permits, contracts and duties; do not rule on the law, mark what to verify: “{k}”',
+          out: 'Checklist + three open points (with an expert-signoff note)' }
+  },
+  elestirmen: {
+    tr: { role: 'Eleştirmen',
+          task: 'Bu planın en zayıf halkasını bul; tek soruyla açığa çıkar: «{k}»',
+          out: 'Tek zayıf halka + onu sınayan tek soru + düzeltme' },
+    en: { role: 'Critic',
+          task: 'Find the weakest link in this plan and expose it with one question: “{k}”',
+          out: 'One weak link + one probing question + the fix' }
+  },
+  sunum: {
+    tr: { role: 'Sunum yazarı',
+          task: 'Beş slaytlık bir iskelet çıkar; her slaytta tek mesaj olsun: «{k}»',
+          out: 'Beş slayt başlığı + her biri için tek cümle mesaj' },
+    en: { role: 'Deck writer',
+          task: 'Draft a five-slide outline; one message per slide: “{k}”',
+          out: 'Five slide titles + one-sentence message each' }
+  }
+};
+
+/* ---------- alanlar: hangi kelime hangi rol dizisini getirir ---------- */
+const OTO_ALANLAR = [
+  { k: 'yemek', tr: 'Yemek & mekân', en: 'Food & venue',
+    kw: ['restoran', 'kafe', 'menu', 'mutfak', 'yemek', 'kahve', 'kahvalti', 'pastane', 'firin',
+         'tatli', 'sef', 'tarif', 'gida', 'catering', 'lokanta', 'bar', 'restaurant', 'cafe'],
+    roller: ['pazar', 'menu', 'operasyon', 'butce'], oran: '4:3', cam: 'sabah' },
+
+  { k: 'yazilim', tr: 'Yazılım & ürün', en: 'Software & product',
+    kw: ['yazilim', 'uygulama', 'site', 'web', 'api', 'kod', 'sprint', 'backlog', 'ozellik',
+         'veritabani', 'otomasyon', 'bot', 'eklenti', 'platform', 'modul', 'app', 'software',
+         'mobil uygulama', 'arayuz', 'sistem'],
+    roller: ['kapsam', 'teknik', 'test', 'olcum'], oran: '16:9', cam: '' },
+
+  { k: 'pazarlama', tr: 'Lansman & pazarlama', en: 'Launch & marketing',
+    kw: ['lansman', 'pazarlama', 'kampanya', 'marka', 'reklam', 'satis', 'musteri', 'e-ticaret',
+         'magaza', 'urun', 'tanitim', 'sosyal medya', 'afis', 'ambalaj', 'vitrin', 'marketing',
+         'launch', 'brand', 'campaign'],
+    roller: ['pazar', 'icerik', 'gorsel', 'plan', 'butce'], oran: '16:9', cam: 'urun' },
+
+  { k: 'yayin', tr: 'Yayın & içerik', en: 'Publishing & content',
+    kw: ['dergi', 'kitap', 'kitapcik', 'bulten', 'blog', 'makale', 'yazi', 'podcast', 'video',
+         'senaryo', 'icerik', 'yayin', 'sayi', 'baski', 'roportaj', 'magazine', 'newsletter'],
+    roller: ['icerik', 'gorsel', 'plan', 'risk'], oran: '3:2', cam: 'duz' },
+
+  { k: 'etkinlik', tr: 'Etkinlik', en: 'Event',
+    kw: ['dugun', 'davet', 'etkinlik', 'festival', 'konser', 'konferans', 'toplanti', 'organizasyon',
+         'sergi', 'parti', 'acilis', 'toren', 'nikah', 'event', 'wedding', 'conference'],
+    roller: ['plan', 'butce', 'operasyon', 'gorsel'], oran: '9:16', cam: 'sinema' },
+
+  { k: 'egitim', tr: 'Eğitim', en: 'Education',
+    kw: ['ders', 'kurs', 'egitim', 'ogrenci', 'ogretmen', 'sinav', 'mufredat', 'atolye', 'seminer',
+         'okul', 'universite', 'ogrenme', 'course', 'training', 'lesson'],
+    roller: ['egitim', 'icerik', 'olcum', 'risk'], oran: '16:9', cam: 'duz' },
+
+  { k: 'finans', tr: 'Para & bütçe', en: 'Money & budget',
+    kw: ['butce', 'finans', 'yatirim', 'kredi', 'maliyet', 'gelir', 'kar', 'muhasebe', 'kasa',
+         'fiyat', 'nakit', 'vergi', 'borsa', 'birikim', 'budget', 'invest', 'finance'],
+    roller: ['butce', 'risk', 'olcum', 'elestirmen'], oran: '4:3', cam: '' },
+
+  { k: 'saglik', tr: 'Sağlık & spor', en: 'Health & fitness',
+    kw: ['saglik', 'klinik', 'hastane', 'diyet', 'spor', 'egzersiz', 'uyku', 'beslenme', 'psikoloji',
+         'fizyoterapi', 'kosu', 'antrenman', 'health', 'fitness', 'diet'],
+    roller: ['egitim', 'olcum', 'risk', 'elestirmen'], oran: '1:1', cam: 'portre' },
+
+  { k: 'seyahat', tr: 'Seyahat', en: 'Travel',
+    kw: ['seyahat', 'tatil', 'otel', 'tur', 'gezi', 'rota', 'ucak', 'konaklama', 'sehir', 'kamp',
+         'travel', 'trip', 'hotel', 'itinerary'],
+    roller: ['rota', 'butce', 'plan', 'risk'], oran: '16:9', cam: 'genis' },
+
+  { k: 'mekan', tr: 'Ev & mekân', en: 'Home & space',
+    kw: ['ev', 'daire', 'kiralik', 'satilik', 'tadilat', 'dekorasyon', 'mobilya', 'insaat', 'arsa',
+         'ofis', 'depo', 'bahce', 'oda', 'salon', 'mutfak dolabi', 'duzenle', 'home', 'interior',
+         'renovation', 'living room', 'decor'],
+    roller: ['mekan', 'butce', 'gorsel', 'plan'], oran: '3:2', cam: 'genis' },
+
+  { k: 'hukuk', tr: 'Hukuk & izinler', en: 'Legal & permits',
+    kw: ['sozlesme', 'hukuk', 'dava', 'izin', 'ruhsat', 'mevzuat', 'basvuru', 'dilekce', 'kvkk',
+         'gizlilik sozlesmesi', 'contract', 'legal', 'licence', 'permit'],
+    roller: ['hukuk', 'risk', 'plan', 'elestirmen'], oran: '4:3', cam: '' },
+
+  { k: 'kisisel', tr: 'Kişisel plan', en: 'Personal plan',
+    kw: ['kariyer', 'cv', 'mulakat', 'terfi', 'maas', 'hedef', 'aliskanlik', 'kisisel gelisim',
+         'ozgecmis', 'portfolyo', 'career', 'habit', 'resume'],
+    roller: ['egitim', 'plan', 'olcum', 'elestirmen'], oran: '1:1', cam: 'portre' }
+];
+
+const OTO_GENEL = { k: 'genel', tr: 'Genel proje', en: 'General project',
+  roller: ['pazar', 'plan', 'icerik', 'risk'], oran: '16:9', cam: '' };
+
+/* görsel niyeti */
+const OTO_GORSEL_ISTEK = ['gorsel', 'foto', 'fotograf', 'resim', 'afis', 'poster', 'kapak', 'logo',
+  'illustrasyon', 'illustration', 'katalog', 'vitrin', 'ambalaj', 'banner', 'gorseller', 'image', 'photo'];
+const OTO_GORSEL_HAYIR = ['gorsel istemiyorum', 'gorsel gerekmiyor', 'gorsel olmasin', 'sadece metin',
+  'metin yeterli', 'resim istemiyorum', 'no image', 'text only', 'gorsel cizmeyin'];
+const OTO_COKLU = ['iki gorsel', 'uc gorsel', 'birkac gorsel', 'bir dizi gorsel', 'kapak ve afis',
+  'afis ve kapak', 'gorsel seti', 'iki afis', 'iki kapak', 'birden fazla gorsel', 'two images', 'a few images'];
+
+/* ---------- yardımcılar ---------- */
+function otoNormal(t) {
+  return String(t || '').toLowerCase()
+    .replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g').replace(/ü/g, 'u')
+    .replace(/ö/g, 'o').replace(/ç/g, 'c').replace(/â/g, 'a').replace(/î/g, 'i')
+    .replace(/[^a-z0-9\s\-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/* proje cümlesini rol kartına sığacak kadar kısalt (kelime ortasından kesme) */
+function otoKisa(t, n) {
+  const s = String(t || '').replace(/\s+/g, ' ').trim();
+  const lim = n || 110;
+  if (s.length <= lim) return s;
+  const kes = s.slice(0, lim);
+  const son = kes.lastIndexOf(' ');
+  return (son > 40 ? kes.slice(0, son) : kes).replace(/[.,;:!?]+$/, '') + '…';
+}
+
+/* Dil seçimi: önce CÜMLENİN dili. Kullanıcı Türkçe arayüzde İngilizce brifing yapıştırırsa
+   görev metinleri İngilizce yazılır (arayüz etiketleri yine Türkçe kalır).
+   Karar için güçlü kanıt aranır: Türkçeye özgü harf YOK + en az 3 İngilizce işlev kelimesi. */
+const OTO_EN_STOP = [' the ', ' and ', ' for ', ' with ', ' of ', ' to ', ' a ', ' an ', ' my ', ' our ',
+  ' plan ', ' create ', ' build ', ' design ', ' write ', ' launch ', ' make '];
+const OTO_TR_STOP = [' bir ', ' ve ', ' için ', ' ile ', ' bu ', ' çok ', ' olsun ', ' çıkar ', ' hazırla ',
+  ' tasarla ', ' yap ', ' planı ', ' lazım ', ' gerek '];
+function otoCumleDili(metin) {
+  const ham = String(metin || '').toLowerCase();
+  if (/[ışğİŞĞ]/.test(metin) || /[üöç]/.test(ham) && /\b(bir|ve|için|çok)\b/.test(ham)) return 'tr';
+  const sarili = ' ' + ham.replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ') + ' ';
+  const en = OTO_EN_STOP.filter(w => sarili.indexOf(w) >= 0).length;
+  const tr = OTO_TR_STOP.filter(w => ham.indexOf(w) >= 0).length;
+  return (en >= 3 && en > tr) ? 'en' : null;
+}
+const otoDil = (metin) => otoCumleDili(metin) || ((window.I18N && window.I18N.isEn()) ? 'en' : 'tr');
+
+/* cümledeki kelime öbeklerine göre alanı seç; eşleşme yoksa genel */
+function otoKelimeVar(norm, w) {
+  /* kısa kelimeler (≤4 harf) tam kelime olarak aranır: "ev" → "every" içinde sayılmasın */
+  if (w.length <= 4 && w.indexOf(' ') < 0) {
+    return new RegExp('(^|[^a-z])' + w + '([^a-z]|$)').test(norm);
+  }
+  return norm.indexOf(w) >= 0;
+}
+function otoAlanBul(norm) {
+  let en = null, puan = 0;
+  for (const a of OTO_ALANLAR) {
+    let p = 0;
+    for (const w of a.kw) {
+      if (!otoKelimeVar(norm, w)) continue;
+      p += w.indexOf(' ') >= 0 ? 3 : (w.length >= 6 ? 2 : 1);   // uzun/öbek kelime daha çok şey söyler
+    }
+    if (p > puan) { puan = p; en = a; }
+  }
+  return en || OTO_GENEL;
+}
+
+/* oran: cümledeki ipuçları → yoksa alanın varsayılanı */
+function otoOranBul(norm, alan) {
+  if (/(afis|poster|hikaye|story|reels|dikey|telefon ekrani|instagram story)/.test(norm)) return '9:16';
+  if (/(panorama|sinema bandi|banner genis|cok genis)/.test(norm)) return '21:9';
+  if (/(kapak|dergi kapagi|manset|kitap kapagi)/.test(norm)) return '3:2';
+  if (/(menu|katalog|sunum|slayt kagidi)/.test(norm)) return '4:3';
+  if (/(logo|amblem|ikon|simge|profil fotografi|kare)/.test(norm)) return '1:1';
+  if (/(web sitesi|vitrin|hero|anasayfa gorseli|genis)/.test(norm)) return '16:9';
+  return alan.oran || '1:1';
+}
+
+/* kamera etiketi: cümledeki ipuçları → yoksa alanın varsayılanı */
+function otoCamBul(norm, alan) {
+  if (/(yemek|kahve|tatli|tabak|menu|firin|pastane|restoran)/.test(norm)) return 'sabah';
+  if (/(sema|diyagram|ikon|infografik|cizim|illustrasyon|duz grafik)/.test(norm)) return 'duz';
+  if (/(urun|ambalaj|sabun|mum|logo|takı|mobilya parcasi)/.test(norm)) return 'urun';
+  if (/(insan|musteri|calisan|portre|kisi|sef|ekip|oyuncu)/.test(norm)) return 'portre';
+  if (/(manzara|sinema|atmosfer|film|gece sehri)/.test(norm)) return 'sinema';
+  if (/(ev|mekan|otel|sehir|doga|gezi|bahce|ofis|dekor)/.test(norm)) return 'genis';
+  return alan.cam || '';
+}
+
+/* ---------- plan ---------- */
+/* metin + sandalye listesi → {kollar:[{pid,role,task,out,img}], img:{ratio,cam,count}, alan, gorselVar} */
+function otomatikPlan(metin, seats) {
+  const dil = otoDil(metin);
+  const norm = otoNormal(metin);
+  const alan = otoAlanBul(norm);
+  const kisa = otoKisa(metin);
+
+  /* rol dizisi: alanın rolleri, yetmezse doldurucu havuzdan tamamla */
+  const doldurucu = ['olcum', 'icerik', 'elestirmen', 'risk', 'sunum', 'plan'];
+  const kollar = alan.roller.slice();
+  for (const x of doldurucu) {
+    if (kollar.length >= seats.length) break;
+    if (kollar.indexOf(x) < 0) kollar.push(x);
+  }
+
+  const gorselYok = OTO_GORSEL_HAYIR.some(x => norm.indexOf(x) >= 0);
+  const gorselIstek = OTO_GORSEL_ISTEK.some(x => norm.indexOf(x) >= 0);
+  const coklu = OTO_COKLU.some(x => norm.indexOf(x) >= 0);
+
+  /* görsel çizilecek sandalye sayısı */
+  let kacGorsel = 0;
+  if (!gorselYok) {
+    const imgRoller = kollar.filter(r => OTO_ROLLER[r] && OTO_ROLLER[r].img);
+    if (gorselIstek) kacGorsel = Math.min(seats.length, coklu ? 2 : (imgRoller.length || 1));
+    else if (imgRoller.length) kacGorsel = Math.min(imgRoller.length, 1);   // menü/kapak gibi doğal görsel işi
+    else if (coklu) kacGorsel = Math.min(seats.length, 2);
+  }
+
+  /* görsel işaretini önce görsel rollere, sonra metin yazan sandalyeye ver */
+  const imgPid = [];
+  if (kacGorsel > 0) {
+    const sirali = seats.map((pid, i) => ({ pid, rol: kollar[i] }))
+      .sort((a, b) => ((OTO_ROLLER[b.rol] && OTO_ROLLER[b.rol].img) ? 1 : 0) - ((OTO_ROLLER[a.rol] && OTO_ROLLER[a.rol].img) ? 1 : 0));
+    for (const x of sirali) { if (imgPid.length >= kacGorsel) break; imgPid.push(x.pid); }
+  }
+
+  return {
+    alan, dil, metin: String(metin).trim(), kisa,
+    kollar: seats.map((pid, i) => {
+      const rid = kollar[i] || 'icerik';
+      const r = OTO_ROLLER[rid][dil];
+      return {
+        pid,
+        role: r.role,
+        task: r.task.replace(/\{k\}/g, kisa),
+        out: r.out,
+        img: imgPid.indexOf(pid) >= 0
+      };
+    }),
+    img: { ratio: otoOranBul(norm, alan), cam: otoCamBul(norm, alan), count: kacGorsel },
+    gorselVar: kacGorsel > 0
+  };
+}
+
+/* ---------- uygula / geri al ---------- */
+let otoYedek = null;          // { tasks, ratio, cam, text } — "Geri al" için
+let otoSonuc = null;          // son dağıtımın özeti (panelde gösterilir)
+
+function ajanOtomatikDagit() {
+  if (typeof ajanOn === 'function' && !ajanOn()) return;
+  const cfg = ajanCfg();
+  const panel = document.getElementById('ajanAutoText');
+  const komp = document.getElementById('input');
+  const metin = ((panel && panel.value) || '').trim() || ((komp && komp.value) || '').trim() ||
+    String(cfg.autoText || '').trim() || String(state.topic || '').trim();
+
+  if (metin.length < 12) {
+    toast(window.T2('Önce projeyi tek cümleyle yaz (en az birkaç kelime).',
+                    'First write the project in one sentence (at least a few words).'), 'warn');
+    if (panel) panel.focus();
+    return;
+  }
+
+  const seats = ajanSeats();
+  if (!seats.length) {
+    toast(window.T2('Açık sandalye yok. Ayarlar → Masadaki modeller.', 'No seat is open. Settings → Models at the table.'), 'err');
+    return;
+  }
+
+  /* Kullanıcı elle yazdıysa sessizce silme: bir kez sor (otomatik dağıtımın kendi
+     yazdığı görevlerde sormaz — orada tekrar dağıtmak olağan iş). */
+  const imza = JSON.stringify(seats.map(pid => {
+    const t = cfg.tasks[pid] || {};
+    return [t.role || '', t.task || '', t.out || '', !!t.img];
+  }));
+  const dolu = seats.some(pid => String((cfg.tasks[pid] || {}).task || '').trim());
+  if (dolu && cfg.autoSig && cfg.autoSig !== imza) {
+    if (!window.confirm(window.T2('Kartlarda elle yazdığın görevler var.\n\nOtomatik dağıtım bunları yeniden yazacak (Geri al ile dönebilirsin).\n\nDevam edilsin mi?',
+                                  'The cards hold tasks you wrote by hand.\n\nAuto-assign will rewrite them (Undo brings them back).\n\nContinue?'))) return;
+  }
+
+  /* geri al için mevcut durumu sakla */
+  otoYedek = {
+    tasks: JSON.parse(JSON.stringify(cfg.tasks || {})),
+    ratio: imgCfg().ratio,
+    cam: imgCfg().cam,
+    text: cfg.autoText || '',
+    sig: cfg.autoSig || ''
+  };
+
+  const plan = otomatikPlan(metin, seats);
+
+  /* görevleri yaz (kullanıcının kendi yazdığı alanlar da bu dağıtımla yenilenir —
+     "Geri al" ile hepsi aynen döner) */
+  for (const k of plan.kollar) {
+    cfg.tasks[k.pid] = { role: k.role, task: k.task, out: k.out, img: !!k.img };
+  }
+
+  cfg.autoText = plan.metin;
+  cfg.autoSig = JSON.stringify(plan.kollar.map(k => [k.role, k.task, k.out, !!k.img]));
+  imgCfg().ratio = plan.img.ratio;
+  imgCfg().cam = plan.img.cam;
+  saveSettings();
+
+  /* proje cümlesi yazı kutusuna da geçsin: kullanıcı doğrudan gönderebilsin */
+  if (komp && komp.value.trim() !== plan.metin) {
+    komp.value = plan.metin;
+    if (typeof autoGrow === 'function') autoGrow(komp);
+  }
+
+  otoSonuc = {
+    n: plan.kollar.length,
+    alan: plan.alan[plan.dil] || plan.alan.k,
+    ratio: plan.img.ratio,
+    cam: plan.img.cam,
+    gorsel: plan.img.count,
+    engine: imgCfg().engine
+  };
+
+  renderAjanSetup();
+  if (typeof refreshAjanCost === 'function') refreshAjanCost();
+  if (typeof renderHero === 'function') renderHero();
+
+  const camAd = plan.img.cam ? trNote((CAMS.find(c => c.id === plan.img.cam) || {}).label || '') : '';
+  toast(window.T2(
+    plan.kollar.length + ' ajana görev dağıtıldı · ' + plan.alan.tr +
+      (plan.img.count ? ' · ' + plan.img.count + ' görsel (' + plan.img.ratio + (camAd ? ' · ' + camAd : '') + ')' : ' · görsel yok'),
+    plan.kollar.length + ' agents assigned · ' + plan.alan.en +
+      (plan.img.count ? ' · ' + plan.img.count + ' image' + (plan.img.count > 1 ? 's' : '') + ' (' + plan.img.ratio + (camAd ? ' · ' + camAd : '') + ')' : ' · no images')), 'ok');
+}
+
+function ajanOtomatikGeriAl() {
+  if (!otoYedek) { toast(window.T2('Geri alınacak bir dağıtım yok.', 'Nothing to undo.'), 'warn'); return; }
+  const cfg = ajanCfg();
+  cfg.tasks = otoYedek.tasks || {};
+  cfg.autoText = otoYedek.text || '';
+  cfg.autoSig = otoYedek.sig || '';
+  imgCfg().ratio = otoYedek.ratio || '1:1';
+  imgCfg().cam = otoYedek.cam || '';
+  otoYedek = null;
+  otoSonuc = null;
+  saveSettings();
+  renderAjanSetup();
+  if (typeof refreshAjanCost === 'function') refreshAjanCost();
+  toast(window.T2('Dağıtım geri alındı; önceki görevler ve görsel ayarları döndü.',
+                  'Distribution undone; the previous tasks and image settings are back.'), 'ok');
+}
+
+/* örnek proje cümleleri (tek tıkla kutuya yazılır) */
+const OTO_ORNEK = {
+  tr: [
+    'Küçük bir el yapımı sabun markası için 6 haftalık yeni yıl lansmanı planı çıkar.',
+    'İstanbul’da 40 kişilik bir kahvaltı restoranı açıyorum; açılış planı ve menü çıkar.',
+    'Ekibim için haftada 2 saatlik yapay zekâ eğitimi tasarla; dört oturum olsun.'
+  ],
+  en: [
+    'Plan a six-week New Year launch for a small handmade soap brand.',
+    'I am opening a 40-seat breakfast restaurant in Istanbul; build the opening plan and menu.',
+    'Design a two-hour-a-week AI training for my team; four sessions.'
+  ]
+};
+
+/* ---------- panel HTML ---------- */
+function otoBlokHTML() {
+  const cfg = ajanCfg();
+  const dil = otoDil();
+  const metin = cfg.autoText || '';
+  const ornek = OTO_ORNEK[dil];
+  const ozet = otoSonuc ? (
+    '<div class="autoSummary">' +
+      '<b>✨ ' + window.T2('Dağıtıldı', 'Assigned') + '</b>' +
+      '<span>' + esc(otoSonuc.n + ' ' + window.T2('ajan', 'agents') + ' · ' + otoSonuc.alan) + '</span>' +
+      '<span>' + esc(otoSonuc.gorsel
+        ? (otoSonuc.gorsel + ' ' + window.T2('görsel · oran ', 'image · ratio ') + otoSonuc.ratio +
+           (otoSonuc.cam ? ' · ' + trNote(((CAMS.find(c => c.id === otoSonuc.cam) || {}).label || '')) : ''))
+        : window.T2('görsel yok', 'no images')) + '</span>' +
+      '<span class="autoEngine">' + esc(window.T2('motor: ', 'engine: ') + trNote((IMG_ENGINES[otoSonuc.engine] || {}).label || '') +
+        ' (' + window.T2('senin seçimin', 'your choice') + ')') + '</span>' +
+      '<button type="button" class="mini" data-auto-undo="1">' + window.T2('Geri al', 'Undo') + '</button>' +
+      '<button type="button" class="mini" data-auto-close="1" title="' + esc(window.T2('Özeti kapat', 'Hide summary')) + '">×</button>' +
+    '</div>') : '';
+
+  return '<div class="autoRow">' +
+    '<div class="autoHead"><b>' + window.T2('✨ Tek cümle yeter', '✨ One sentence is enough') + '</b>' +
+      '<span>' + window.T2('Projeyi yaz, “Dağıt”a bas: rolleri, görevleri, beklenen çıktıyı ve görsel oranını sistem seçer.',
+                            'Write the project, press “Assign”: the system picks roles, tasks, expected outputs and the image ratio.') + '</span></div>' +
+    '<div class="autoIn">' +
+      '<textarea id="ajanAutoText" rows="2" spellcheck="false" placeholder="' +
+        esc(dil === 'en' ? 'e.g. Plan a six-week launch for a small handmade soap brand.'
+                         : 'ör. Küçük bir el yapımı sabun markası için 6 haftalık yeni yıl lansmanı planı çıkar.') + '">' +
+        esc(metin) + '</textarea>' +
+      '<button type="button" class="btn sm autoBtn" id="ajanAutoBtn">✨ ' + window.T2('Dağıt', 'Assign') + '</button>' +
+    '</div>' +
+    '<div class="autoOrnekler"><span>' + window.T2('Örnek:', 'Try:') + '</span>' +
+      ornek.map((t, i) => '<button type="button" class="chip" data-auto-ornek="' + i + '">' +
+        esc(otoKisa(t, 46)) + '</button>').join('') +
+    '</div>' +
+    '<p class="autoHint">' + window.T2('Yazdığı her şey aşağıdaki normal alanlara düşer: istediğini değiştir, kendi yazdığın kalır. Görsel motoruna dokunmaz (ücretli motoru yalnız sen seçersin).',
+                                       'Everything it writes lands in the normal fields below: change any of it, your edit stays. It never touches the image engine (only you can pick a paid one).') + '</p>' +
+    ozet + '</div>';
 }
 
 
@@ -9930,6 +10510,9 @@ function autoGrow(el) {
 function scrollBump(force) {
   const sc = $('#scroll');
   if (!sc) return;
+  /* Boş ekranda (henüz konuşma yok) sayfa kendiliğinden kaymasın:
+     içerik birkaç piksel taştığında sayfa aşağı atıyor, başlık yukarı kayıyordu. */
+  if (!force && state.phase === 'idle' && state.transcript.length === 0) return;
   const near = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 220;
   if (force || near) sc.scrollTop = sc.scrollHeight;
 }
@@ -10183,7 +10766,7 @@ const TABLE_COPY = {
   ajan: {
     title: 'Her sandalyeye <em>ayrı görev</em>.',
     titleEn: 'A <em>separate job</em> for every seat.',
-    sub: 'Bir proje yaz, her ajana kendi işini ver. Ajanlar sırayla çalışır ve birbirine teslim paketi bırakır; başkan sonunda tek teslimat çıkarır. Boş konuşma yok, iş çıkar.'
+    sub: 'Projeyi tek cümleyle yaz: sistem her ajana işi böler, görsel ayarını seçer; istediğini sonra değiştirirsin. Ajanlar teslim paketi bırakarak ilerler, başkan tek teslimat çıkarır.'
   }
 };
 
@@ -13006,6 +13589,18 @@ function boot() {
         renderAjanSetup(); renderHero(); toast(AJAN_FLOWS[f.dataset.flow].label + ' akışı seçildi.', 'ok');
         return;
       }
+      /* Kol 143: tek cümleden otomatik görev dağıtımı */
+      if (e.target.closest('#ajanAutoBtn')) { ajanOtomatikDagit(); return; }
+      if (e.target.closest('[data-auto-undo]')) { ajanOtomatikGeriAl(); return; }
+      if (e.target.closest('[data-auto-close]')) { otoSonuc = null; renderAjanSetup(); return; }
+      const aornek = e.target.closest('[data-auto-ornek]');
+      if (aornek) {
+        const l = (window.I18N && window.I18N.isEn()) ? 'en' : 'tr';
+        const metin = (OTO_ORNEK[l] || OTO_ORNEK.tr)[Number(aornek.dataset.autoOrnek)];
+        const kutu = document.getElementById('ajanAutoText');
+        if (kutu && metin) { kutu.value = metin; ajanCfg().autoText = metin; saveSettings(); kutu.focus(); }
+        return;
+      }
       const t = e.target.closest('[data-tpl]');
       if (t) { ajanApplyTemplate(t.dataset.tpl); return; }
       // --- hazır kadro (şablon seçici) ---
@@ -13098,9 +13693,17 @@ function boot() {
         saveSettings();
         return;
       }
+      if (el.id === 'ajanAutoText') { ajanCfg().autoText = el.value; saveSettings(); return; }
       if (el.id === 'ajanPass') { ajanCfg().passes = Number(el.value); saveSettings(); refreshAjanCost(); }
       if (el.id === 'ajanHop') { ajanCfg().hopCap = Number(el.value); saveSettings(); refreshAjanCost(); }
       if (el.id === 'ajanPause') { ajanCfg().pause = !!el.checked; saveSettings(); }
+    });
+    /* Enter: dağıt (Shift+Enter alt satır) — tek elle kullanım */
+    setup.addEventListener('keydown', e => {
+      if (e.target && e.target.id === 'ajanAutoText' && e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        ajanOtomatikDagit();
+      }
     });
     setup.addEventListener('change', e => {
       const el = e.target;
@@ -13434,7 +14037,17 @@ function boot() {
   if (state.settings.table === 'tek' && typeof ensureTek === 'function') ensureTek();
   renderAll();
   if (!restoreSession()) {
-    $('#input') && $('#input').focus();
+    /* preventScroll: kutu odaklanınca sayfa kendiliğinden aşağı kaymasın (başlık yerinde kalsın) */
+    const ilk = $('#input');
+    if (ilk) { try { ilk.focus({ preventScroll: true }); } catch (e) { ilk.focus(); } }
+    /* Yazı kutusu odaklanınca tarayıcı onu görünür alana çekmek için sayfayı birkaç piksel
+       kaydırıyordu (başlık yukarı zıplıyordu). Boş ekranda sayfa başta kalsın. */
+    const basaAl = () => {
+      const sc2 = $('#scroll');
+      if (sc2 && sc2.classList.contains('idle')) sc2.scrollTop = 0;
+    };
+    requestAnimationFrame(basaAl);
+    setTimeout(basaAl, 320);
   }
   renderKeyState();
 }
