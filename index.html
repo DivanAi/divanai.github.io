@@ -1367,11 +1367,14 @@ select optgroup{background:var(--panelSolid);color:var(--muted)}
 .imgCard .imgHead b{font-weight:600;color:var(--text)}
 .imgCard .imgEng{margin-left:auto;font-size:10px;letter-spacing:.05em;color:var(--dim);
   border:1px solid var(--line);border-radius:20px;padding:1px 8px}
-.imgCard img{display:block;width:100%;max-width:760px;height:auto;margin:0 auto;background:var(--bg)}
+.imgCard img{display:block;width:100%;max-width:760px;height:auto;max-height:70vh;object-fit:contain;
+  margin:0 auto;background:var(--bg)}   /* Kol 147: 9:16 gibi dikey görseller ekranı kaplamasın */
 /* oran seçilince kartın üstünde küçük etiket */
 .imgCard .imgRatio{font-size:10px;letter-spacing:.05em;color:var(--dim);border:1px solid var(--line2);border-radius:6px;padding:1px 5px}
 .imgCard figcaption{padding:8px 11px;font-size:11px;color:var(--dim);line-height:1.45;border-top:1px solid var(--line)}
 .imgCard figcaption b{color:var(--muted);font-weight:600}
+/* Kol 147: istemin nereden geldiğini söyleyen satır (ajansız çizimde) */
+.imgCard .imgNote{padding:6px 11px 8px;font-size:11px;line-height:1.45;color:var(--muted);border-top:1px dashed var(--line)}
 .imgCard .imgRetry{margin:0 11px 11px}
 .imgCard.err{border-color:rgba(230,120,120,.35)}
 .imgCard .imgMsg{margin:9px 11px;font-size:12.5px;color:var(--badInk)}
@@ -8974,6 +8977,85 @@ function handoffMsg(x) {
   return addMessage({ kind: 'handoff', name: x.name, pid: x.pid, color: x.color, packet: x.packet, raw: x.raw, no: x.no });
 }
 
+
+/* ---------------- ajan görseli (Kol 147) ----------------
+   İki kusur vardı:
+     · Görsel ajanı cevap veremediğinde görsel HİÇ çizilmiyordu; sebebi de yazmıyordu.
+     · Demo modunda görsel üretimi tümden kapalıydı, oysa ücretsiz motor anahtarsızdır.
+   Şimdi: görsel ajanı düşse de görsel çizilir — istem kullanıcının kendi proje cümlesinden
+   kurulur ve kartta "istem nereden geldi" yazar. Metin uydurulmaz. */
+function ajanGorselSayisi(seats) {
+  return (seats || ajanSeats()).filter(pid => ajanTaskOf(pid).img).length;
+}
+
+/* proje cümlesinden görsel istemi: emir kipini at, kısa tut */
+function ajanProjeIstemi() {
+  const inp = document.getElementById('input');
+  let konu = String(state.topic || '').trim() || String((inp && inp.value) || '').trim();
+  konu = konu.replace(/\s+/g, ' ').trim();
+  konu = konu.replace(/\s*(çıkar|hazırla|yaz|planla|oluştur|üret|tasarla|çıkarır mısın|hazırlar mısın)\.?\s*$/i, '');
+  return konu.slice(0, 400);
+}
+
+async function ajanGorselCiz(p, metin, kaynak, sebep) {
+  const cfgI = imgCfg();
+  let motor = cfgI.engine;
+  /* demo modu: ücretli motor anahtar/kredi ister → ücretsiz (anahtarsız) motorla çiz */
+  if (state.settings.mode !== 'live' && motor === 'openrouter') {
+    motor = 'bedava';
+    if (!state.imgDemoNotice) {
+      state.imgDemoNotice = true;
+      addMessage({ kind: 'notice', level: 'info', text: window.T2(
+        'Görsel motoru “OpenRouter (ücretli)” seçili ama mod Demo: anahtar/kredi harcanmaz, ücretsiz anahtarsız motor kullanıldı. Canlı moda geçersen seçtiğin ücretli motor kullanılır.',
+        'The image engine is set to “OpenRouter (paid)” but the mode is Demo: no key or credit is spent — the keyless free engine was used. Switch to live mode to use the paid engine you picked.') });
+      renderTranscript();
+    }
+  }
+
+  if (!state.imgConfirmed) {
+    const nImg = ajanGorselSayisi();
+    const eng = IMG_ENGINES[motor];
+    const ok = window.confirm('Bu projede ' + nImg + ' görsel çizilecek.\n\n' +
+      'Görseli ajanlar değil, görsel motoru üretir: ' + eng.label + ' — ' + eng.note +
+      (state.settings.mode !== 'live' ? '\n\nDemo modunda ücretsiz motor kullanılır; anahtar gerekmez.' : '') +
+      '\n\nBaşlasın mı?');
+    if (!ok) {
+      addMessage({ kind: 'notice', level: 'info', text: window.T2(
+        'Görsel çizimi atlandı. Metin kısmı hazır; her cevabın başındaki “🖼 Görsel üret” ile istediğin zaman çizdirebilirsin.',
+        'Image drawing was skipped. The text is ready; use the “🖼 Generate image” button at the top of any answer whenever you want.') });
+      renderTranscript();
+      return null;
+    }
+    state.imgConfirmed = true;
+  }
+
+  const prompt = kaynak === 'ajan' ? imgPromptFrom(metin) : ajanProjeIstemi();
+  if (!prompt) {
+    addMessage({ kind: 'notice', level: 'warn', text: window.T2(
+      'Görsel için istem çıkarılamadı (ne ajanın metni ne proje cümlesi elde var).',
+      'No prompt could be built for the image (neither the agent text nor the project sentence is available).') });
+    renderTranscript();
+    return null;
+  }
+
+  const im = addMessage({ kind: 'image', personaId: p.id, name: p.name, color: p.color,
+    prompt: prompt, label: window.T2('Görsel', 'Image'), status: 'run',
+    engine: motor, forceEngine: motor,
+    note: kaynak === 'ajan' ? '' : window.T2(
+      'İstem ajanın metninden değil, senin proje cümleden kuruldu' + (sebep ? ' (' + sebep + ')' : '') + '.',
+      'The prompt was built from your project sentence, not the agent’s text' + (sebep ? ' (' + sebep + ')' : '') + '.') });
+  appendMsgDOM(im); scrollBump(true);
+  await runImageMsg(im);
+  scrollBump(false);
+  if (im.status === 'err') {
+    addMessage({ kind: 'notice', level: 'warn', text: window.T2(
+      'Görsel çizilemedi: ' + (im.error || 'bilinmeyen hata') + ' Metin teslimatı etkilenmedi.',
+      'The image could not be drawn: ' + (im.error || 'unknown error') + ' The text delivery is unaffected.') });
+    renderTranscript();
+  }
+  return im;
+}
+
 /* ---------------- yürütücü ---------------- */
 async function runAgents(opts = {}) {
   const token = ++state.runToken;
@@ -9075,6 +9157,7 @@ async function runAgents(opts = {}) {
 
   let hops = 0, done = 0, stopped = '';
   const restingNow = [];        // bu koşuda dinlendiği için atlanan bağlantılar
+  const imgBekliyor = [];       // görseli çizilemeyen sandalyeler (Kol 147)
 
   while (queue.length) {
     if (token !== state.runToken) return;
@@ -9160,6 +9243,7 @@ async function runAgents(opts = {}) {
         }
         renderTranscript();
         if (stepIdx >= 0) state.ajanSteps[stepIdx].state = 'skip';
+        if (t.img) imgBekliyor.push({ pid: p.id, name: p.name, why: jobTimedOut + ' sn içinde cevap yok' });
         continue;
       }
       if (e && e.name === 'AbortError') return;
@@ -9179,6 +9263,7 @@ async function runAgents(opts = {}) {
         queue = []; stopped = 'kota';
       }
       if (stepIdx >= 0) state.ajanSteps[stepIdx].state = 'skip';
+      if (t.img) imgBekliyor.push({ pid: p.id, name: p.name, why: whyShort(e && e.message) });
     } finally {
       if (jobTimer) clearTimeout(jobTimer);
       if (userSig && userSig.removeEventListener) { try { userSig.removeEventListener('abort', onUserAbort); } catch (e0) {} }
@@ -9188,6 +9273,7 @@ async function runAgents(opts = {}) {
       addMessage({ kind: 'notice', level: 'warn', text: p.name + ' boş yanıt döndü (' + (res.why || 'boş') + '). Bu adım atlandı.' });
       renderTranscript();
       if (stepIdx >= 0) state.ajanSteps[stepIdx].state = 'skip';
+      if (t.img) imgBekliyor.push({ pid: p.id, name: p.name, why: 'boş yanıt' });
     } else if (res && res.text && res.text.trim()) {
       const pkt = parsePacket(res.text);
       const body = pkt ? packetBody(res.text) : res.text;
@@ -9200,30 +9286,7 @@ async function runAgents(opts = {}) {
         renderTranscript();
       }
       /* görsel görevli sandalye: metin bitti, şimdi görsel */
-      if (t.img && state.settings.mode !== 'live') {
-        addMessage({ kind: 'notice', level: 'info', text: window.T2(p.name + ' için görsel çizimi istendi ama demo modunda görsel üretilmez (ağa çıkılmaz, hazır metinden anlamlı bir istem de çıkmaz). Canlı modda ajanın yazdığı istemle görsel motoru çizer; denemek istersen cevabın başındaki “🖼 Görsel üret” düğmesini kullan.',
-            p.name + ' was asked to draw an image, but nothing is generated in demo mode (no network, and a canned text yields no meaningful prompt). In live mode the image engine draws from the prompt the agent writes; to try it, use the “🖼 Generate image” button at the top of the answer.') });
-        renderTranscript();
-      } else if (t.img) {
-        if (!state.imgConfirmed) {
-          const nImg = seats.filter(x => ajanTaskOf(x).img).length;
-          if (window.confirm('Bu projede ' + nImg + ' görsel çizilecek (ajanların metninden).\n\n' +
-            'Görseli ajanlar değil, seçili görsel motoru üretir: ' + IMG_ENGINES[imgCfg().engine].label +
-            ' — ' + IMG_ENGINES[imgCfg().engine].note + '\n\nBaşlasın mı?')) {
-            state.imgConfirmed = true;
-          } else {
-            addMessage({ kind: 'notice', level: 'info', text: 'Görsel çizimi atlandı. Metin kısmı hazır; her cevabın başındaki “🖼 Görsel üret” ile istediğin zaman tek tek çizdirebilirsin.' });
-            renderTranscript();
-          }
-        }
-        if (state.imgConfirmed) {
-          const im = addMessage({ kind: 'image', personaId: p.id, name: p.name, color: p.color,
-            prompt: imgPromptFrom(draft.text), label: 'Görsel', status: 'run', engine: imgCfg().engine });
-          appendMsgDOM(im); scrollBump(true);
-          await runImageMsg(im);
-          scrollBump(false);
-        }
-      }
+      if (t.img) await ajanGorselCiz(p, draft.text, 'ajan');
       const rec = { name: p.name, pid: p.id, color: p.color, packet: pkt, raw: body || res.text, no: packets.length + 1 };
       packets.push(rec);
       handoffMsg(rec);
@@ -9277,6 +9340,33 @@ async function runAgents(opts = {}) {
     addMessage({ kind: 'notice', level: 'info', text:
       'Dinlenen bağlantının adımları atlandı: ' + restingNow.join(', ') + '. Diğer ajanlar devam etti.' });
     renderTranscript();
+  }
+
+  /* Görsel ajanı düştüyse görsel yine çizilir: istem SENİN proje cümleden kurulur,
+     ajanın metninden değil. Kartta kaynağı yazar; hiçbir şey uydurulmaz. */
+  /* Günlük LLM kotası dolsa bile görsel çizilir: görsel motoru ayrı bir servistir,
+     aynı kotadan harcamaz. Kullanıcı en azından istediği görseli alır. */
+  let gorselIsleri = imgBekliyor;
+  if (!gorselIsleri.length && token === state.runToken) {
+    /* Tur hiç paket üretmeden kesildiyse (kota/asılma) görsel sandalyeleri hiç çalışmamış olabilir.
+       Kullanıcı yine de görseli istemişti: istem proje cümlesinden kurulur, en çok 2 görsel çizilir. */
+    const istenen = seats.filter(pid => ajanTaskOf(pid).img);
+    if (!packets.length && istenen.length) {
+      gorselIsleri = istenen.slice(0, 2).map(pid => ({ pid: pid, name: (personaById(pid) || {}).name || pid,
+        why: stopped === 'kota' ? window.T2('günlük ücretsiz istek hakkı doldu', 'daily free request quota is used up') : window.T2('tur erken kesildi', 'the round was cut short') }));
+    }
+  }
+  if (gorselIsleri.length && token === state.runToken) {
+    for (const x of gorselIsleri) {
+      if (token !== state.runToken) return;
+      const q = personaById(x.pid);
+      if (!q) continue;
+      addMessage({ kind: 'notice', level: 'warn', text: window.T2(
+        q.name + ' görseli çizemedi (' + x.why + '). Görsel senin proje cümleden çiziliyor — istem ajanın metninden değil.',
+        q.name + ' could not draw the image (' + x.why + '). The image is drawn from your project sentence — not from the agent’s text.') });
+      renderTranscript();
+      await ajanGorselCiz(q, '', 'proje', x.why);
+    }
   }
 
   if (!packets.length) {
@@ -10427,7 +10517,7 @@ const IMG_RATIOS = [
 ];
 const imgRatioOf = k => IMG_RATIOS.find(r => r.k === k) || IMG_RATIOS[0];
 /* istenen oranı motora uygun tam sayı boyuta çevir */
-function imgDims(k) {
+function imgDims(k, motor) {
   const c = imgCfg();
   const base = Math.max(512, Math.min(1536, Math.round(Number(c.size) || 1024)));
   const r = imgRatioOf(k || c.ratio);
@@ -10435,7 +10525,7 @@ function imgDims(k) {
   let h = r.n >= 1 ? base : Math.round(base / r.n);
   /* Ücretsiz motor uzun kenarı 1024'te tutuyor (ölçüldü: 1824×1024 istendi, 1024×575 geldi).
      Kartta yazan boyut gerçekten istenen boyut olsun diye önce biz indiriyoruz. */
-  if (c.engine === 'bedava') {
+  if ((motor || c.engine) === 'bedava') {
     const long = Math.max(w, h);
     if (long > 1024) { const f = 1024 / long; w = Math.round(w * f); h = Math.round(h * f); }
   }
@@ -10495,7 +10585,7 @@ function imgPromptFrom(text) {
 
 /* ---- motor: ücretsiz (anahtarsız) ---- */
 async function genImageFree(prompt, signal) {
-  const d = imgDims();                       // orana göre genişlik/yükseklik
+  const d = imgDims(undefined, 'bedava');    // orana göre genişlik/yükseklik
   const seed = Math.floor(Math.random() * 1e6);
   const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt.slice(0, 900)) +
     '?width=' + d.w + '&height=' + d.h + '&nologo=true&seed=' + seed;
@@ -10577,8 +10667,11 @@ function imgErr(message, kind, wait, retryOnce) {
 /* ---- tek giriş noktası ---- */
 async function genImage(prompt, opts = {}) {
   const cfgI = imgCfg();
+  /* Kol 147 · motor çağrı başına geçersiz kılınabilir: demo modunda ücretli motor yerine
+     ücretsiz (anahtarsız) motor kullanılır. Ayarlar'daki seçim değiştirilmez. */
+  const motor = IMG_ENGINES[opts.engine] ? opts.engine : cfgI.engine;
   if (!prompt || !prompt.trim()) throw imgErr('Görsel istemi boş.', 'conf');
-  if (cfgI.engine === 'openrouter' && !state.imgPaidOk) {
+  if (motor === 'openrouter' && !state.imgPaidOk) {
     const ok = window.confirm(
       'Görsel ÜCRETLİ motordan üretilecek (OpenRouter · ' + cfgI.model + ').\n\n' +
       'Görsel başına yaklaşık $0.001–0.003 harcanır; bu ücret senin kendi anahtarından düşer.\n\n' +
@@ -10587,7 +10680,7 @@ async function genImage(prompt, opts = {}) {
     if (!ok) throw imgErr('Ücretli görsel üretimi iptal edildi.', 'conf');
     state.imgPaidOk = true;      // oturum boyunca bir daha sorma
   }
-  if (cfgI.engine === 'bedava') {
+  if (motor === 'bedava') {
     const wait = imgReadyIn();
     if (wait > 0) {
       if (opts.onWait) opts.onWait(wait);
@@ -10624,6 +10717,7 @@ function imgCardHTML(m) {
       '<span class="imgEng">' + esc(eng) + '</span></div>' +
       '<p class="imgMsg">' + esc(m.error || 'bilinmeyen hata') + '</p>' +
       '<div class="imgPrompt">' + esc(m.prompt || '') + '</div>' +
+      (m.note ? '<div class="imgNote">' + esc(m.note) + '</div>' : '') +
       '<button type="button" class="btn ghost sm imgRetry" data-img="' + m.id + '">Yeniden dene</button></div>';
   }
   const src = m.src || '';
@@ -10634,6 +10728,7 @@ function imgCardHTML(m) {
     (src ? '<img src="' + esc(src) + '" alt="' + esc(m.alt || m.prompt || 'üretilen görsel') + '" loading="lazy">'
          : '<div class="imgGone">Görsel bu tarayıcıda saklanmaz — sayfa yenilendi. “Yeniden üret” ile tekrar çıkar.</div>') +
     '<figcaption title="' + esc(m.prompt || '') + '"><b>İstem:</b> ' + esc((m.prompt || '').slice(0, 220)) + '</figcaption>' +
+    (m.note ? '<div class="imgNote">' + esc(m.note) + '</div>' : '') +
     (src ? '' : '<button type="button" class="btn ghost sm imgRetry" data-img="' + m.id + '">Yeniden üret</button>') +
     '</figure>';
 }
@@ -10654,7 +10749,7 @@ async function runImageMsg(m) {
   m.error = '';
   m.prompt = withCam(m.prompt, imgCfg().cam);   // kamera etiketi (varsa) — iki kez eklenmez
   m.ratio = imgCfg().ratio;                      // kartta oranı göster
-  m.engine = imgCfg().engine;
+  m.engine = m.forceEngine || imgCfg().engine;
   if (!state.dom.get(m.id)) appendMsgDOM(m);
   else updateMsgDOM(m);
 
@@ -10670,6 +10765,7 @@ async function runImageMsg(m) {
   try {
     const r = await genImage(m.prompt, {
       label: m.label,
+      engine: m.forceEngine || '',
       onWait: w => { m.waitUntil = Date.now() + w * 1000 + 400; m.status = 'wait'; updateMsgDOM(m); startTicker(); }
     });
     m.src = r.src; m.status = 'ok'; m.engine = r.engine;
