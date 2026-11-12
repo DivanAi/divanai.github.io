@@ -1625,6 +1625,9 @@ body.pickOpen{overflow:hidden}
 .autoHead b{font-size:12px;letter-spacing:.05em;color:var(--acc)}
 .autoHead span{font-size:11.5px;color:var(--muted)}
 .autoIn{display:flex;gap:7px;align-items:stretch}
+.autoIn .autoKaynak{flex:1;min-width:0;display:flex;align-items:center;min-height:38px;padding:8px 11px;
+  border:1px dashed var(--line2);border-radius:10px;font-size:12.5px;color:var(--muted);line-height:1.4}
+.autoIn .autoKaynak span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .autoIn textarea{flex:1;min-width:0;resize:vertical;min-height:38px;padding:8px 10px;border-radius:10px;
   border:1px solid var(--line2);background:rgba(var(--w),.05);color:var(--text);font:inherit;font-size:12.5px;line-height:1.45}
 .autoIn textarea:focus{outline:none;border-color:rgba(var(--accrgb),.55)}
@@ -8781,7 +8784,9 @@ function ajanSystem(p, job, ctx) {
     lines.push('',
       '## Ek: görsel',
       'Bu görevde bir görsel üretilecek. Cevabının sonuna, devir paketinden ÖNCE tek satır ekle:',
-      'GÖRSEL İSTEMİ: <İngilizce, en fazla 60 kelime; sahne, ışık, stil, kadraj. Metin/logo/yazı isteme.>',
+      'GÖRSEL İSTEMİ: <İNGİLİZCE yaz, en fazla 45 kelime. Kalıp: "ana nesne — malzeme/renk, yüzey/ortam, ışık, kadraj, stil".',
+      '  Örnek: "close-up of a kraft-paper wrapped artisan soap bar with a linen ribbon, dark oak table, soft window light from the left, 85mm shallow depth of field, product photography, no text".',
+      '  Somut ol: nesneyi, malzemeyi ve rengi yaz. "güzel, şık, modern" gibi boş sıfatlar YOK. Metin/logo/harf isteme.',
       'Görsel istemini İngilizce yaz — görsel modeli İngilizceyi daha iyi anlıyor. Açıklamayı Türkçe yazmaya devam et.');
   }
   lines.push('',
@@ -10129,15 +10134,15 @@ let otoSonuc = null;          // son dağıtımın özeti (panelde gösterilir)
 function ajanOtomatikDagit() {
   if (typeof ajanOn === 'function' && !ajanOn()) return;
   const cfg = ajanCfg();
-  const panel = document.getElementById('ajanAutoText');
   const komp = document.getElementById('input');
-  const metin = ((panel && panel.value) || '').trim() || ((komp && komp.value) || '').trim() ||
-    String(cfg.autoText || '').trim() || String(state.topic || '').trim();
+  /* Kol 149: tek kaynak — ekranın altındaki yazı kutusu. Paneldeki kutuyu kaldırdık. */
+  const metin = ((komp && komp.value) || '').trim() || String(state.topic || '').trim() ||
+    String(cfg.autoText || '').trim();
 
   if (metin.length < 12) {
     toast(window.T2('Önce projeyi tek cümleyle yaz (en az birkaç kelime).',
                     'First write the project in one sentence (at least a few words).'), 'warn');
-    if (panel) panel.focus();
+    if (komp) komp.focus();
     return;
   }
 
@@ -10260,15 +10265,18 @@ function otoBlokHTML() {
       '<button type="button" class="mini" data-auto-close="1" title="' + esc(window.T2('Özeti kapat', 'Hide summary')) + '">×</button>' +
     '</div>') : '';
 
+  /* Kol 149 · TEK YAZI KUTUSU.
+     Burada ikinci bir metin kutusu vardı; ekranın altındaki yazı kutusuyla aynı işi görüyordu.
+     Kaldırıldı: proje cümlesi alttaki TEK kutuda yazılır, buradaki “Dağıt” onu okur. */
+  const kaynak = metin ? otoKisa(metin, 96)
+    : window.T2('Proje cümlesi alttaki yazı kutusunda yazılır.', 'The project sentence is written in the message box below.');
   return '<div class="autoRow">' +
     '<div class="autoHead"><b>' + window.T2('✨ Tek cümle yeter', '✨ One sentence is enough') + '</b>' +
-      '<span>' + window.T2('Projeyi yaz, “Dağıt”a bas: rolleri, görevleri, beklenen çıktıyı ve görsel oranını sistem seçer.',
-                            'Write the project, press “Assign”: the system picks roles, tasks, expected outputs and the image ratio.') + '</span></div>' +
+      '<span>' + window.T2('Projeyi alttaki yazı kutusuna yaz, sonra buradaki “Dağıt”a bas: rolleri, görevleri, beklenen çıktıyı ve görsel oranını sistem seçer.',
+                            'Write the project in the message box below, then press “Assign”: the system picks roles, tasks, expected outputs and the image ratio.') + '</span></div>' +
     '<div class="autoIn">' +
-      '<textarea id="ajanAutoText" rows="2" spellcheck="false" placeholder="' +
-        esc(dil === 'en' ? 'e.g. Plan a six-week launch for a small handmade soap brand.'
-                         : 'ör. Küçük bir el yapımı sabun markası için 6 haftalık yeni yıl lansmanı planı çıkar.') + '">' +
-        esc(metin) + '</textarea>' +
+      '<div class="autoKaynak" id="ajanAutoKaynak" title="' + esc(metin || '') + '">' +
+        '<span>' + esc(kaynak) + '</span></div>' +
       '<button type="button" class="btn sm autoBtn" id="ajanAutoBtn">✨ ' + window.T2('Dağıt', 'Assign') + '</button>' +
     '</div>' +
     '<div class="autoOrnekler"><span>' + window.T2('Örnek:', 'Try:') + '</span>' +
@@ -10571,6 +10579,80 @@ function imgPromptFrom(text) {
   return plain.slice(0, 260);
 }
 
+
+/* ==========================================================================
+   Kol 149 · GÖRSEL İSTEMİNİ MOTORUN ANLADIĞI DİLE ÇEVİR
+   Kusur: ajan "GÖRSEL İSTEMİ: Close-up sabun paketi, beyaz zemin, doğal ışık" gibi
+   kısa/Türkçe bir satır yazıyordu; ücretsiz motor bunu anlamıyor, bulanık bir leke üretiyordu.
+   Burada uydurma YOK: yalnız kullanıcının/ajanın yazdığı nesneler İngilizceye çevrilir,
+   üstüne fotoğrafçılık terimleri (ışık, netlik, kadraj) eklenir.
+   ========================================================================== */
+const IMG_TR = [
+  /* önce çok kelimeli kalıplar */
+  [/yak[ıi]n çekim/g, 'close-up'], [/beyaz zemin/g, 'clean white seamless background'],
+  [/do[ğg]al [ıi][şs][ıi]k/g, 'soft natural window light'], [/[üu]r[üu]n çekimi/g, 'professional product photography'],
+  [/el yap[ıi]m[ıi]/g, 'handmade artisan'], [/ah[şs]ap masa/g, 'rustic wooden table'],
+  [/mermer zemin/g, 'white marble surface'], [/kahvalt[ıi] masas[ıi]/g, 'breakfast table spread'],
+  [/[ıi][şs]ık ve g[öo]lge/g, 'strong light and shadow'],
+  /* nesneler */
+  [/sabun paketi|paketli sabun/g, 'artisan soap bar in kraft paper packaging'],
+  [/sabun\w*/g, 'artisan soap bar'], [/ambalaj\w*|paket\w*|kutu\w*/g, 'kraft paper packaging'],
+  [/[şs]i[şs]e\w*/g, 'glass bottle'], [/kavanoz\w*/g, 'glass jar'], [/fincan\w*/g, 'ceramic cup'],
+  [/kahve\w*/g, 'coffee'], [/[çc]ay\w*/g, 'tea'], [/ekmek\w*/g, 'sourdough bread'],
+  [/restoran\w*/g, 'restaurant interior'], [/men[üu]\w*/g, 'printed menu card'],
+  [/yemek\w*/g, 'plated food'], [/tatl[ıi]\w*/g, 'dessert'], [/çiçek\w*|[çc]i[çc]ek\w*/g, 'flowers'],
+  [/tak[ıi]\w*/g, 'fine jewelry'], [/parfüm\w*|parf[üu]m\w*/g, 'perfume bottle'],
+  [/k[ıi]yafet\w*|giyim\w*/g, 'folded clothing'], [/ayakkab[ıi]\w*/g, 'leather shoes'],
+  [/kitap\w*/g, 'book cover'], [/dergi\w*/g, 'magazine cover'], [/kapak\w*/g, 'cover'], [/afi[şs]\w*|poster\w*/g, 'poster design'],
+  [/telefon\w*/g, 'smartphone'], [/bilgisayar\w*|diz[üu]st[üu]\w*/g, 'laptop'],
+  [/ofis\w*/g, 'modern office'], [/mutfak\w*/g, 'kitchen'], [/otel\w*/g, 'hotel room'],
+  [/orman\w*/g, 'forest'], [/deniz\w*/g, 'calm sea'], [/da[ğg]\w*/g, 'mountain landscape'],
+  [/[şs]ehir\w*/g, 'city skyline'], [/k[öo]pek\w*/g, 'dog'], [/kedi\w*/g, 'cat'],
+  [/çocuk\w*|[çc]ocuk\w*/g, 'child'], [/insan\w*|ki[şs]i\w*/g, 'person'],
+  [/e[ğg]itim\w*/g, 'classroom'], [/spor\w*/g, 'sportswear'], [/araba\w*|otomobil\w*/g, 'car'],
+  /* sıfatlar */
+  [/l[üu]ks\w*/g, 'luxury'], [/minimal\w*/g, 'minimalist'], [/modern\w*/g, 'modern'],
+  [/s[ıi]cak\w*/g, 'warm tones'], [/pastel\w*/g, 'pastel palette'], [/sade\w*/g, 'clean simple'],
+  [/canl[ıi]\w*/g, 'vivid'], [/zarif\w*/g, 'elegant'], [/do[ğg]al\w*/g, 'natural'],
+  [/arka plan\w*/g, 'background'], [/zemin\w*/g, 'surface'],
+  [/portre\w*/g, 'portrait'], [/giri[şs]imci\w*/g, 'entrepreneur'], [/yeni y[ıi]l/g, 'festive new year theme'],
+  [/kahvalt[ıi]\w*/g, 'breakfast'], [/a[çc][ıi]l[ıi][şs]\w*/g, 'opening'], [/kad[ıi]n\w*/g, 'woman'],
+  [/k[üu][çc][üu]k\w*/g, 'small'], [/b[üu]y[üu]k\w*/g, 'large'], [/yeni\w*/g, 'new'],
+  [/k[ıi][şs] mevsimi/g, 'winter'], [/ilkbahar/g, 'spring'], [/sonbahar/g, 'autumn'],
+  [/sosyal medya\w*/g, 'social media post'], [/vitrin\w*/g, 'shop window display'],
+  [/masa[üu]st[üu]\w*/g, 'desk setup'], [/sunum\w*/g, 'presentation slide']
+];
+
+/* görsel olmayan iş sözcükleri: nesne kalsın, "plan/takvim/bütçe" kalmasın */
+const IMG_DROP = /\b(marka\w*|markas[ıi]|lansman\w*|kampanya\w*|plan\w*|takvim\w*|strateji\w*|b[üu]t[çc]e\w*|hedef\w*|kitle\w*|analiz\w*|rapor\w*|haftal[ıi]k|hafta\w*|g[üu]nl[üu]k|ayl[ıi]k|y[ıi]ll[ıi]k|i[çc]erik\w*|metin\w*|ba[şs]l[ıi]k\w*|mesaj\w*|sat[ıi][şs]\w*|e-ticaret|b[üu]y[üu]me\w*|m[üu][şs]teri\w*|ekip\w*)\b/g;
+
+const IMG_STYLE_EN = 'professional product photography, sharp focus, high detail, clean composition, natural light, no text, no lettering, no watermark';
+
+function imgPromptZengin(prompt) {
+  let t = String(prompt || '').replace(/\s+/g, ' ').trim();
+  if (!t) return t;
+  const turkce = /[ıişğüöçİŞĞÜÖÇ]/i.test(t) || /\b(bir|ve|için|ile|olan|beyaz|doğal)\b/i.test(t);
+  if (turkce) {
+    const low = t.toLocaleLowerCase('tr');
+    let out = low;
+    for (const [re, en] of IMG_TR) out = out.replace(re, en);
+    /* çeviriden artakalan Türkçe bağlaçlar */
+    out = out.replace(/\b(bir|ve|ile|için|olan|çok|daha|alt[ıi]|ü[çc]|d[öo]rt|be[şs]|iki|yedi|sekiz|dokuz|on)\b/g, ' ');
+    out = out.replace(IMG_DROP, ' ');
+    /* artakalan Türkçe sözcükler: Türkçeye özgü harf taşıyan ya da yalnız sayı olan kelimeler atılır
+       (İngilizce istemde bu harfler yok; böylece "kahvaltı", "ı", "40" gibi kırıntılar kalmaz) */
+    out = out.split(/\s+/).filter(w => w && !/[ışğüöçİŞĞÜÖÇ’']/.test(w) && !/^[\d.,]+$/.test(w)).join(' ');
+    out = out.replace(/\s*,\s*,+/g, ',').replace(/^[\s,.;]+|[\s,.;]+$/g, '').replace(/\s{2,}/g, ' ').trim();
+    t = out;
+  }
+  const hasStyle = /professional|photograph|studio|35mm|bokeh|render|illustration|cinematic/i.test(t);
+  if (!hasStyle) t += ', ' + IMG_STYLE_EN;
+  else if (!/sharp focus|high detail/i.test(t)) t += ', sharp focus, high detail, no text, no watermark';
+  if (t.length < 45) t += ', well-lit detailed scene, clean background';
+  /* çok kısa kalan (ör. tek kelime) istemlerde nesne betimlemesi zayıf kalır: uyar, uydurma */
+  return t.replace(/\s{2,}/g, ' ').slice(0, 900);
+}
+
 /* ---- motor: ücretsiz (anahtarsız) ---- */
 async function genImageFree(prompt, signal) {
   const d = imgDims(undefined, 'bedava');    // orana göre genişlik/yükseklik
@@ -10741,6 +10823,11 @@ async function runImageMsg(m) {
   m.prompt = withCam(m.prompt, imgCfg().cam);   // kamera etiketi (varsa) — iki kez eklenmez
   m.ratio = imgCfg().ratio;                      // kartta oranı göster
   m.engine = m.forceEngine || imgCfg().engine;
+  /* Kol 149 · ücretsiz motor Türkçe/kısa istemi anlamıyor: kartta MOTORA GİDEN istem yazar */
+  if (m.engine === 'bedava') {
+    m.origPrompt = m.origPrompt || m.prompt;
+    m.prompt = imgPromptZengin(m.prompt);
+  }
   if (!state.dom.get(m.id)) appendMsgDOM(m);
   else updateMsgDOM(m);
 
@@ -13898,8 +13985,17 @@ function boot() {
       if (aornek) {
         const l = (window.I18N && window.I18N.isEn()) ? 'en' : 'tr';
         const metin = (OTO_ORNEK[l] || OTO_ORNEK.tr)[Number(aornek.dataset.autoOrnek)];
-        const kutu = document.getElementById('ajanAutoText');
-        if (kutu && metin) { kutu.value = metin; ajanCfg().autoText = metin; saveSettings(); kutu.focus(); }
+        /* Kol 149: örnek cümle alttaki TEK yazı kutusuna yazılır */
+        const kutu = document.getElementById('input');
+        if (kutu && metin) {
+          kutu.value = metin;
+          kutu.dispatchEvent(new Event('input', { bubbles: true }));
+          ajanCfg().autoText = metin; saveSettings();
+          if (typeof autoGrow === 'function') autoGrow(kutu);
+          kutu.focus();
+          const k2 = document.getElementById('ajanAutoKaynak');
+          if (k2) k2.innerHTML = '<span>' + esc(otoKisa(metin, 96)) + '</span>';
+        }
         return;
       }
       const t = e.target.closest('[data-tpl]');
