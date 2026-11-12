@@ -1644,6 +1644,13 @@ body.pickOpen{overflow:hidden}
   .autoIn{flex-direction:column}
   .autoBtn{align-self:flex-start;padding:7px 14px}
 }
+
+/* Kol 150 · tek satır komut şeridi (panelde ikinci kutu yok) */
+.autoTek{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:0 0 10px;
+  padding:8px 11px;border:1px solid var(--line);border-radius:11px;background:var(--sunken)}
+.autoTekHint{flex:1 1 320px;min-width:0;font-size:11.5px;line-height:1.45;color:var(--muted)}
+.autoTek .mini{flex:0 0 auto}
+.autoTek .autoDone{font-size:11.5px;color:var(--muted);white-space:nowrap}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication",
@@ -10245,47 +10252,25 @@ const OTO_ORNEK = {
   ]
 };
 
-/* ---------- panel HTML ---------- */
+/* ---------- panel HTML ----------
+   Kol 150 · KUŞAK KALDIRILDI.
+   Kullanıcı: "dağıt kısmı kafa karıştırıyor. orada prompt görünmesinin ne anlamı var."
+   Haklıydı: panelde bir kutu + "Dağıt" düğmesi + altta ana yazı kutusu = iki giriş, iki düğme.
+   Artık tek giriş var (alttaki yazı kutusu). Panelde yalnız TEK SATIR komut şeridi kalır:
+   görevleri hemen bölmek isteyen için küçük "Böl" düğmesi ve varsa "Geri al". */
 function otoBlokHTML() {
-  const cfg = ajanCfg();
-  const dil = otoDil();
-  const metin = cfg.autoText || '';
-  const ornek = OTO_ORNEK[dil];
   const ozet = otoSonuc ? (
-    '<div class="autoSummary">' +
-      '<b>✨ ' + window.T2('Dağıtıldı', 'Assigned') + '</b>' +
-      '<span>' + esc(otoSonuc.n + ' ' + window.T2('ajan', 'agents') + ' · ' + otoSonuc.alan) + '</span>' +
-      '<span>' + esc(otoSonuc.gorsel
-        ? (otoSonuc.gorsel + ' ' + window.T2('görsel · oran ', 'image · ratio ') + otoSonuc.ratio +
-           (otoSonuc.cam ? ' · ' + trNote(((CAMS.find(c => c.id === otoSonuc.cam) || {}).label || '')) : ''))
-        : window.T2('görsel yok', 'no images')) + '</span>' +
-      '<span class="autoEngine">' + esc(window.T2('motor: ', 'engine: ') + trNote((IMG_ENGINES[otoSonuc.engine] || {}).label || '') +
-        ' (' + window.T2('senin seçimin', 'your choice') + ')') + '</span>' +
-      '<button type="button" class="mini" data-auto-undo="1">' + window.T2('Geri al', 'Undo') + '</button>' +
-      '<button type="button" class="mini" data-auto-close="1" title="' + esc(window.T2('Özeti kapat', 'Hide summary')) + '">×</button>' +
-    '</div>') : '';
-
-  /* Kol 149 · TEK YAZI KUTUSU.
-     Burada ikinci bir metin kutusu vardı; ekranın altındaki yazı kutusuyla aynı işi görüyordu.
-     Kaldırıldı: proje cümlesi alttaki TEK kutuda yazılır, buradaki “Dağıt” onu okur. */
-  const kaynak = metin ? otoKisa(metin, 96)
-    : window.T2('Proje cümlesi alttaki yazı kutusunda yazılır.', 'The project sentence is written in the message box below.');
-  return '<div class="autoRow">' +
-    '<div class="autoHead"><b>' + window.T2('✨ Tek cümle yeter', '✨ One sentence is enough') + '</b>' +
-      '<span>' + window.T2('Projeyi alttaki yazı kutusuna yaz, sonra buradaki “Dağıt”a bas: rolleri, görevleri, beklenen çıktıyı ve görsel oranını sistem seçer.',
-                            'Write the project in the message box below, then press “Assign”: the system picks roles, tasks, expected outputs and the image ratio.') + '</span></div>' +
-    '<div class="autoIn">' +
-      '<div class="autoKaynak" id="ajanAutoKaynak" title="' + esc(metin || '') + '">' +
-        '<span>' + esc(kaynak) + '</span></div>' +
-      '<button type="button" class="btn sm autoBtn" id="ajanAutoBtn">✨ ' + window.T2('Dağıt', 'Assign') + '</button>' +
-    '</div>' +
-    '<div class="autoOrnekler"><span>' + window.T2('Örnek:', 'Try:') + '</span>' +
-      ornek.map((t, i) => '<button type="button" class="chip" data-auto-ornek="' + i + '">' +
-        esc(otoKisa(t, 46)) + '</button>').join('') +
-    '</div>' +
-    '<p class="autoHint">' + window.T2('Yazdığı her şey aşağıdaki normal alanlara düşer: istediğini değiştir, kendi yazdığın kalır. Görsel motoruna dokunmaz (ücretli motoru yalnız sen seçersin).',
-                                       'Everything it writes lands in the normal fields below: change any of it, your edit stays. It never touches the image engine (only you can pick a paid one).') + '</p>' +
-    ozet + '</div>';
+    '<span class="autoDone">' + esc('✓ ' + otoSonuc.n + ' ' + window.T2('ajan', 'agents') + ' · ' + otoSonuc.alan +
+      (otoSonuc.gorsel ? ' · ' + otoSonuc.gorsel + ' ' + window.T2('görsel', 'image') : '')) + '</span>' +
+    '<button type="button" class="mini" data-auto-undo="1">' + window.T2('Geri al', 'Undo') + '</button>'
+  ) : '';
+  return '<div class="autoTek">' +
+    '<span class="autoTekHint">' + window.T2(
+      'Proje cümlesini alttaki kutuya yaz ve gönder: görevler ajana bölünür, kartlarda istediğini değiştir. Hemen bölmek için “Böl”.',
+      'Write the project sentence in the message box below and send: tasks are split across the agents, change any of them on the cards. To split right away, press “Split”.') + '</span>' +
+    '<button type="button" class="mini autoBbtn" id="ajanAutoBtn" title="' + esc(window.T2('Alttaki yazı kutusundaki cümleye göre görevleri şimdi böl', 'Split the tasks from the sentence in the message box right now')) + '">✨ ' +
+      window.T2('Böl', 'Split') + '</button>' + ozet +
+  '</div>';
 }
 
 
@@ -10626,31 +10611,81 @@ const IMG_TR = [
 /* görsel olmayan iş sözcükleri: nesne kalsın, "plan/takvim/bütçe" kalmasın */
 const IMG_DROP = /\b(marka\w*|markas[ıi]|lansman\w*|kampanya\w*|plan\w*|takvim\w*|strateji\w*|b[üu]t[çc]e\w*|hedef\w*|kitle\w*|analiz\w*|rapor\w*|haftal[ıi]k|hafta\w*|g[üu]nl[üu]k|ayl[ıi]k|y[ıi]ll[ıi]k|i[çc]erik\w*|metin\w*|ba[şs]l[ıi]k\w*|mesaj\w*|sat[ıi][şs]\w*|e-ticaret|b[üu]y[üu]me\w*|m[üu][şs]teri\w*|ekip\w*)\b/g;
 
-const IMG_STYLE_EN = 'professional product photography, sharp focus, high detail, clean composition, natural light, no text, no lettering, no watermark';
+/* Fotoğrafçılık terimleri. "studio product shot, softbox, neutral background" KULLANILMIYOR:
+   ölçüldü — bu üçü birlikte bej bir "stüdyo kutusu" üretiyor, nesne tanınmıyor.
+   Doğal ışık + gerçek ortam + net kadraj daha iyi sonuç veriyor. */
+const IMG_STYLE_EN = 'soft natural window light, 85mm lens, shallow depth of field, high detail, no text, no watermark';
+
+/* Konu → sahne. Prompt "nesne" değil "sahne" anlatmalı: sabun bir banyo tezgâhında,
+   fincan bir masada, menü bir restoran masasında durur. Bunlar UYDURMA DEĞİL, konunun
+   doğal bağlamı; kullanıcının nesnesi ve rengi aynen korunur. */
+const IMG_SAHNE = [
+  [/soap|sabun/, 'on a wooden soap dish, thick white lather bubbles, water droplets, bright bathroom'],
+  [/coffee|kahve/, 'in a ceramic cup on a rustic wooden table, steam rising'],
+  [/tea|çay/, 'in a clear glass cup on a linen cloth, steam rising'],
+  [/bread|ekmek/, 'on a wooden cutting board, flour dust, linen cloth'],
+  [/menu|menü/, 'printed menu card on a dressed table, cutlery and a glass'],
+  [/food|yemek|dessert|tatlı/, 'a plated dish on a rustic table, fresh herbs, linen napkin'],
+  [/perfume|parfüm/, 'on a marble surface beside dried flowers, glass reflections'],
+  [/jewel|takı/, 'on dark velvet, delicate highlights, macro detail'],
+  [/bottle|şişe/, 'on a stone surface, water droplets, greenery behind'],
+  [/flower|çiçek/, 'in a ceramic vase on a windowsill, soft shadows'],
+  [/book|kitap/, 'open on a wooden desk beside a cup, warm lamp light'],
+  [/magazine|dergi/, 'a magazine spread on a table with a cup and dried flowers'],
+  [/laptop|bilgisayar|office|ofis/, 'on a wooden desk with a notebook, plant and daylight'],
+  [/restaurant|restoran/, 'a warm restaurant interior with set tables and evening light'],
+  [/kitchen|mutfak/, 'a bright kitchen counter with fresh ingredients'],
+  [/portrait|portre|woman|kadın|man|erkek|person/, 'looking at the camera, natural expression, soft side light'],
+  [/dog|köpek|cat|kedi/, 'in a sunlit room, soft background'],
+  [/forest|orman|mountain|dağ|sea|deniz/, 'wide landscape at golden hour, atmospheric depth'],
+  [/poster|afiş/, 'a poster pinned on a plain wall, even daylight']
+];
+
+function imgSahneBul(t) {
+  for (const [re, sahne] of IMG_SAHNE) if (re.test(t)) return sahne;
+  return 'on a clean surface, simple natural background';
+}
+
+/* aynı kelime iki kez geçmesin ("artisan artisan") */
+function imgTekrarsiz(t) {
+  /* virgül yapısı KORUNUR (model cümleyi bölümlere ayırıyor), yalnız tekrar eden kelime atılır */
+  const gorulen = new Set();
+  return String(t || '').split(',').map(seg => seg.trim()).filter(Boolean).map(seg => {
+    return seg.split(/\s+/).filter(w => {
+      const k = w.toLowerCase().replace(/[^a-z]/g, '');
+      if (!k) return false;
+      if (gorulen.has(k)) return false;
+      gorulen.add(k); return true;
+    }).join(' ');
+  }).filter(Boolean).join(', ');
+}
 
 function imgPromptZengin(prompt) {
   let t = String(prompt || '').replace(/\s+/g, ' ').trim();
   if (!t) return t;
   const turkce = /[ıişğüöçİŞĞÜÖÇ]/i.test(t) || /\b(bir|ve|için|ile|olan|beyaz|doğal)\b/i.test(t);
   if (turkce) {
-    const low = t.toLocaleLowerCase('tr');
-    let out = low;
+    let out = t.toLocaleLowerCase('tr');
     for (const [re, en] of IMG_TR) out = out.replace(re, en);
-    /* çeviriden artakalan Türkçe bağlaçlar */
     out = out.replace(/\b(bir|ve|ile|için|olan|çok|daha|alt[ıi]|ü[çc]|d[öo]rt|be[şs]|iki|yedi|sekiz|dokuz|on)\b/g, ' ');
     out = out.replace(IMG_DROP, ' ');
-    /* artakalan Türkçe sözcükler: Türkçeye özgü harf taşıyan ya da yalnız sayı olan kelimeler atılır
-       (İngilizce istemde bu harfler yok; böylece "kahvaltı", "ı", "40" gibi kırıntılar kalmaz) */
     out = out.split(/\s+/).filter(w => w && !/[ışğüöçİŞĞÜÖÇ’']/.test(w) && !/^[\d.,]+$/.test(w)).join(' ');
     out = out.replace(/\s*,\s*,+/g, ',').replace(/^[\s,.;]+|[\s,.;]+$/g, '').replace(/\s{2,}/g, ' ').trim();
     t = out;
   }
-  const hasStyle = /professional|photograph|studio|35mm|bokeh|render|illustration|cinematic/i.test(t);
-  if (!hasStyle) t += ', ' + IMG_STYLE_EN;
-  else if (!/sharp focus|high detail/i.test(t)) t += ', sharp focus, high detail, no text, no watermark';
-  if (t.length < 45) t += ', well-lit detailed scene, clean background';
-  /* çok kısa kalan (ör. tek kelime) istemlerde nesne betimlemesi zayıf kalır: uyar, uydurma */
-  return t.replace(/\s{2,}/g, ' ').slice(0, 900);
+  t = imgTekrarsiz(t);
+
+  /* kullanıcı/ajan kendi sahnesini yazdıysa dokunma; yoksa konunun doğal sahnesini ekle */
+  const sahneVar = /\b(on|in|at|beside|with|table|dish|surface|background|interior|room|wall|desk|hand)\b/i.test(t);
+  const parcalar = [t];
+  if (!sahneVar) parcalar.push(imgSahneBul(t.toLowerCase()));
+  parcalar.push(IMG_STYLE_EN);
+  const stil = parcalar.pop();
+  /* gövdeyi tekilleştir, sonra stili ekle; stil kendi içinde zaten tekil */
+  let govde = imgTekrarsiz(parcalar.join(', '));
+  const stilParcalari = String(stil || '').split(',').map(x => x.trim()).filter(Boolean)
+    .filter(x => govde.toLowerCase().indexOf(x.toLowerCase()) < 0);
+  return (govde + (stilParcalari.length ? ', ' + stilParcalari.join(', ') : '')).slice(0, 900);
 }
 
 /* ---- motor: ücretsiz (anahtarsız) ---- */
