@@ -9012,22 +9012,10 @@ async function ajanGorselCiz(p, metin, kaynak, sebep) {
     }
   }
 
-  if (!state.imgConfirmed) {
-    const nImg = ajanGorselSayisi();
-    const eng = IMG_ENGINES[motor];
-    const ok = window.confirm('Bu projede ' + nImg + ' görsel çizilecek.\n\n' +
-      'Görseli ajanlar değil, görsel motoru üretir: ' + eng.label + ' — ' + eng.note +
-      (state.settings.mode !== 'live' ? '\n\nDemo modunda ücretsiz motor kullanılır; anahtar gerekmez.' : '') +
-      '\n\nBaşlasın mı?');
-    if (!ok) {
-      addMessage({ kind: 'notice', level: 'info', text: window.T2(
-        'Görsel çizimi atlandı. Metin kısmı hazır; her cevabın başındaki “🖼 Görsel üret” ile istediğin zaman çizdirebilirsin.',
-        'Image drawing was skipped. The text is ready; use the “🖼 Generate image” button at the top of any answer whenever you want.') });
-      renderTranscript();
-      return null;
-    }
-    state.imgConfirmed = true;
-  }
+  /* Kol 148 · ONAY PENCERESİ KALKTI.
+     Ücretsiz (anahtarsız) motorda sorulmadan çizilir: kredi harcamaz, kullanıcıyı durdurmak anlamsız.
+     ÜCRETLİ motorda tek onay yine var — ama o genImage() içinde, para harcandığı için (bir kez). */
+  state.imgConfirmed = true;
 
   const prompt = kaynak === 'ajan' ? imgPromptFrom(metin) : ajanProjeIstemi();
   if (!prompt) {
@@ -10669,7 +10657,10 @@ async function genImage(prompt, opts = {}) {
   const cfgI = imgCfg();
   /* Kol 147 · motor çağrı başına geçersiz kılınabilir: demo modunda ücretli motor yerine
      ücretsiz (anahtarsız) motor kullanılır. Ayarlar'daki seçim değiştirilmez. */
-  const motor = IMG_ENGINES[opts.engine] ? opts.engine : cfgI.engine;
+  let motor = IMG_ENGINES[opts.engine] ? opts.engine : cfgI.engine;
+  /* Kol 147/148 · Demo modunda ÜCRETLİ motor seçili olsa bile para harcanmaz:
+     ücretsiz (anahtarsız) motor kullanılır, onay da sorulmaz. Kullanıcının ayarı değişmez. */
+  if (state.settings.mode !== 'live' && motor === 'openrouter') motor = 'bedava';
   if (!prompt || !prompt.trim()) throw imgErr('Görsel istemi boş.', 'conf');
   if (motor === 'openrouter' && !state.imgPaidOk) {
     const ok = window.confirm(
