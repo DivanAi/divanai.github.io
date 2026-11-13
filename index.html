@@ -2191,7 +2191,7 @@ body.pickOpen{overflow:hidden}
     "TekeTek modunda kullanılacak yapay zekâ": "AI used in OneOnOne mode",
     "Ayna modunda kullanılacak model": "Model used in Mirror mode",
     "Ajan akışı": "Agent flow",
-    "Kredi harcamaz. IP başına 45 saniyede 1 görsel; sağ altta küçük filigran. Yazı/harf üretmekte zayıf.": "Costs no credits. One image per 45 seconds per IP; small watermark bottom right. Weak at lettering.",
+    "Kredi harcamaz. Önce OVHcloud SDXL: 1024 piksel, filigransız, dakikada 2 görsel. OVH doluysa yedek Pollinations devreye girer (filigranlı, 45 saniyede 1).": "Costs no credits. OVHcloud SDXL first: 1024 px, no watermark, 2 images per minute. If OVH is busy, the Pollinations fallback takes over (watermarked, one per 45 seconds).",
     "Ücretli: görsel başına ~$0.001–0.003. Kalite daha yüksek, filigran yok; tabela/yazı da düzgün çıkar.": "Paid: about $0.001–0.003 per image. Higher quality, no watermark; signs and lettering come out clean.",
     "Kare — ürün, portre, sosyal akış": "Square — product, portrait, social feed",
     "Klasik fotoğraf — sunum, katalog": "Classic photo — slides, catalogue",
@@ -2702,7 +2702,7 @@ body.pickOpen{overflow:hidden}
     "“Bu ajanın metninden görsel çizilsin”": "“Draw an image from this agent’s text”",
     "Bu ajanın metninden görsel çizilsin": "Draw an image from this agent’s text",
     "yukarıdaki görsel motoru": "the image engine above",
-    "Kredi harcamaz. IP başına 45 saniyede 1 görsel; sağ altta küçük filigran. Yazı/harf üretmekte zayıf. · Oran: Kare — ürün, portre, sosyal akış": "Costs no credits. 1 image per 45 seconds per IP; small watermark bottom right. Weak at text/letters. · Ratio: Square — product, portrait, social feed",
+    "Kredi harcamaz. Önce OVHcloud SDXL: 1024 piksel, filigransız, dakikada 2 görsel. OVH doluysa yedek Pollinations devreye girer (filigranlı, 45 saniyede 1). · Oran: Kare — ürün, portre, sosyal akış": "Costs no credits. OVHcloud SDXL first: 1024 px, no watermark, 2 images per minute. If OVH is busy, the Pollinations fallback takes over (watermarked, one per 45 seconds). · Ratio: Square — product, portrait, social feed",
     "Her ajan sırayla çalışır ve öncekilerin teslim paketini alır. En ucuz, en öngörülebilir akış.": "Each agent works in turn and receives the delivery package of the ones before. The cheapest, most predictable flow.",
     "Başkan önce işi parçalara böler; ajanlar bu plana göre çalışır; başkan sonunda birleştirir.": "The chair splits the work first; the agents follow that plan; the chair merges at the end.",
     "Her ajan bitince sıradakini kendi seçer. “BİTTİ” derse zincir durur. Sonsuz döngüye karşı devir tavanı var.": "When an agent finishes it picks the next one. If it says “DONE” the chain stops. A pass cap guards against endless loops.",
@@ -10479,7 +10479,7 @@ async function runPanel(opts = {}) {
 const IMG_ENGINES = {
   bedava: {
     label: 'Ücretsiz', short: 'anahtarsız',
-    note: 'Kredi harcamaz. IP başına 45 saniyede 1 görsel; sağ altta küçük filigran. Yazı/harf üretmekte zayıf.'
+    note: 'Kredi harcamaz. Önce OVHcloud SDXL: 1024 piksel, filigransız, dakikada 2 görsel. OVH doluysa yedek Pollinations devreye girer (filigranlı, 45 saniyede 1).'
   },
   openrouter: {
     label: 'OpenRouter', short: 'kendi anahtarın',
@@ -10519,7 +10519,7 @@ const CAMS = [
   { id: 'sabah',   label: 'Sabah ışığı',  line: 'soft morning light, warm tones, 35mm' },
   { id: 'portre',  label: 'Portre',       line: '85mm portrait lens, shallow depth of field, f/2.0' },
   { id: 'genis',   label: 'Geniş açı',    line: 'wide angle 24mm, deep focus, architectural' },
-  { id: 'urun',    label: 'Ürün çekimi',  line: 'studio product shot, softbox lighting, neutral background' },
+  { id: 'urun',    label: 'Ürün çekimi',  line: 'product photography, soft natural light, clean simple background, macro detail' },
   { id: 'sinema',  label: 'Sinematik',    line: 'cinematic still, anamorphic, golden hour, film grain' },
   { id: 'duz',     label: 'Düz çizim',    line: 'flat vector illustration, minimal, clean lines, no shading' }
 ];
@@ -10535,8 +10535,19 @@ function withCam(prompt, camId) {
   return p + ', ' + add.join(', ');
 }
 
-const IMG_FREE_GAP = 45000;      // anonim sınır: 1 görsel / 45 sn
-const IMG_TIMEOUT = 75000;       // bazı istekler 90 sn'ye kadar tıkanıyor
+/* ---- KOL 153 · ÜCRETSİZ GÖRSEL MOTORU ----
+   Ölçüm (13 Kas 2026): aynı istemle üç sahne üretildi, OVHcloud SDXL üçünde de
+   daha net ve doğru çıktı; Pollinations fincanı boş, restoranı bulanık çizdi.
+   Bu yüzden SIRA: 1) OVHcloud SDXL (1024×1024, filigransız, dakikada 2)
+                        2) Pollinations  (768×768, filigranlı, 45 sn'de 1) — OVH yoğunsa yedek
+   OVH yalnız 1024×1024 üretiyor; istenen oran tarayıcıda ortadan kırpılıyor. */
+const IMG_OVH_URL = 'https://stable-diffusion-xl.endpoints.kepler.ai.cloud.ovh.net/api/text2image';
+const IMG_OVH_GAP = 31000;       // dakikada 2 istek → 30 sn arayla güvenli
+const IMG_OVH_TIMEOUT = 45000;   // ölçüm: 10,8 – 24,1 sn
+const IMG_FREE_GAP = 45000;      // Pollinations anonim sınır: 1 görsel / 45 sn
+const IMG_TIMEOUT = 45000;       // tek motor için üst sınır (tur asılı kalmasın)
+/* olumsuz istem: SDXL'in kendi parametresi (istemin yerine geçmez, ayrı alan) */
+const IMG_NEG_EN = 'text, watermark, letters, logo, signature, blurry, out of focus, deformed, extra fingers, low quality, jpeg artifacts';
 
 function imgCfg() {
   const s = state.settings;
@@ -10620,6 +10631,9 @@ const IMG_STYLE_EN = 'soft natural window light, 85mm lens, shallow depth of fie
    fincan bir masada, menü bir restoran masasında durur. Bunlar UYDURMA DEĞİL, konunun
    doğal bağlamı; kullanıcının nesnesi ve rengi aynen korunur. */
 const IMG_SAHNE = [
+  /* AMBALAJ önce gelir: "sabun ambalajı" istenmişse sabunluk/köpük sahnesi ambalajı öldürüyor
+     (ölçüldü: ikisi birlikte yazılınca model köpüklü çıplak sabun çiziyor). */
+  [/ambalaj|paket|packaging|kraft|wrapped|wrap/, 'kraft paper wrapped with a linen ribbon, standing on a rustic wooden table, soft daylight, product photography'],
   [/soap|sabun/, 'on a wooden soap dish, thick white lather bubbles, water droplets, bright bathroom'],
   [/coffee|kahve/, 'in a ceramic cup on a rustic wooden table, steam rising'],
   [/tea|çay/, 'in a clear glass cup on a linen cloth, steam rising'],
@@ -10660,9 +10674,12 @@ function imgTekrarsiz(t) {
   }).filter(Boolean).join(', ');
 }
 
-function imgPromptZengin(prompt) {
+function imgPromptZengin(prompt, camId) {
   let t = String(prompt || '').replace(/\s+/g, ' ').trim();
   if (!t) return t;
+  /* kamera etiketi AYRI tutulur: içindeki "background" kelimesi sahne tespitini yanıltıyordu
+     (sahne var sanılıp sabunluk/köpük eklenmiyordu). Etiket en sona eklenir. */
+  const camLine = ((CAMS.find(c => c.id === camId) || {}).line || '');
   const turkce = /[ıişğüöçİŞĞÜÖÇ]/i.test(t) || /\b(bir|ve|için|ile|olan|beyaz|doğal)\b/i.test(t);
   if (turkce) {
     let out = t.toLocaleLowerCase('tr');
@@ -10677,36 +10694,125 @@ function imgPromptZengin(prompt) {
 
   /* kullanıcı/ajan kendi sahnesini yazdıysa dokunma; yoksa konunun doğal sahnesini ekle */
   const sahneVar = /\b(on|in|at|beside|with|table|dish|surface|background|interior|room|wall|desk|hand)\b/i.test(t);
-  const parcalar = [t];
-  if (!sahneVar) parcalar.push(imgSahneBul(t.toLowerCase()));
-  parcalar.push(IMG_STYLE_EN);
-  const stil = parcalar.pop();
-  /* gövdeyi tekilleştir, sonra stili ekle; stil kendi içinde zaten tekil */
-  let govde = imgTekrarsiz(parcalar.join(', '));
-  const stilParcalari = String(stil || '').split(',').map(x => x.trim()).filter(Boolean)
-    .filter(x => govde.toLowerCase().indexOf(x.toLowerCase()) < 0);
-  return (govde + (stilParcalari.length ? ', ' + stilParcalari.join(', ') : '')).slice(0, 900);
+  const govdeParca = [t];
+  if (!sahneVar) govdeParca.push(imgSahneBul(t.toLowerCase()));
+  const govde = imgTekrarsiz(govdeParca.join(', '));
+  /* kamera etiketi + fotoğrafçılık terimleri SONA, tekilleştirmeden eklenir
+     ("no text, no watermark" bozulmasın; "no" kelimesi bir kez görülsün diye) */
+  const ekler = [];
+  const kelime = w => w.toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (const parca of [camLine, IMG_STYLE_EN].filter(Boolean)) {
+    for (const x of parca.split(',').map(y => y.trim()).filter(Boolean)) {
+      const simdi = (govde + ' ' + ekler.join(' ')).toLowerCase();
+      const varOlan = new Set(simdi.split(/\s+/).map(kelime).filter(Boolean));
+      const kelimeler = x.toLowerCase().split(/\s+/).map(kelime).filter(w => w.length > 2);
+      /* KOL 153 · SDXL istemi harfiyen izliyor: yarım tekrar bile çelişki üretiyor
+         ("soft natural light" + "soft natural window light", "35mm" + "85mm lens").
+         Bu yüzden kelimelerin üçte biri bile varsa eklemiyoruz; olumsuzlamaya ("no …") dokunmuyoruz. */
+      const olumsuz = /^no\b/i.test(x);
+      const kapsam = kelimeler.length ? kelimeler.filter(w => varOlan.has(w)).length / kelimeler.length : 0;
+      if (!olumsuz && (kapsam >= 1 / 3)) continue;
+      /* odak/mercek çelişkisi: istemde zaten "35mm" gibi bir değer varsa ikinci merceği yazma */
+      if (!olumsuz && /\d+\s*mm/i.test(x) && /\d+\s*mm/i.test(simdi)) continue;
+      /* ışık tarifi iki kez yazılmasın ("soft daylight" + "soft natural window light") */
+      if (!olumsuz && /\blight\b/i.test(x) && /light/i.test(simdi)) continue;
+      ekler.push(x);
+    }
+  }
+  return (govde + (ekler.length ? ', ' + ekler.join(', ') : '')).slice(0, 900);
 }
 
-/* ---- motor: ücretsiz (anahtarsız) ---- */
-async function genImageFree(prompt, signal) {
-  const d = imgDims(undefined, 'bedava');    // orana göre genişlik/yükseklik
-  const seed = Math.floor(Math.random() * 1e6);
-  const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt.slice(0, 900)) +
-    '?width=' + d.w + '&height=' + d.h + '&nologo=true&seed=' + seed;
+/* ---- görsel kırpma: OVH yalnız 1024×1024 veriyor, istenen oran ortadan kesilir ----
+   Ayrıca 1,2–1,7 MB'lık PNG yerine ~150–350 KB'lık JPEG kalır (bellek/indirme). */
+function imgKes(blob, w, h) {
+  return new Promise(resolve => {
+    const ciz = src => {
+      try {
+        const sw0 = src.width, sh0 = src.height;
+        const hedef = w / h;
+        let sw, sh, sx, sy;
+        if (sw0 / sh0 > hedef) { sh = sh0; sw = Math.round(sh * hedef); sx = Math.round((sw0 - sw) / 2); sy = 0; }
+        else { sw = sw0; sh = Math.round(sw / hedef); sx = 0; sy = Math.round((sh0 - sh) / 2); }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        const g = c.getContext('2d');
+        g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+        g.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
+        c.toBlob(b => resolve(b && b.size > 100 ? b : blob), 'image/jpeg', 0.92);
+      } catch (e) { resolve(blob); }
+    };
+    if (typeof createImageBitmap === 'function') {
+      createImageBitmap(blob).then(ciz).catch(() => resolve(blob));
+    } else {
+      const im = new Image();
+      im.onload = () => ciz(im);
+      im.onerror = () => resolve(blob);
+      im.src = URL.createObjectURL(blob);
+    }
+  });
+}
+
+function imgSure(ms, signal) {
   const ctl = new AbortController();
-  const timer = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, IMG_TIMEOUT);
+  const timer = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, ms);
   if (signal) signal.addEventListener('abort', () => { try { ctl.abort(); } catch (e) {} });
+  return { ctl, bitti: () => clearTimeout(timer) };
+}
+const imgIptal = () => imgErr('Görsel üretimi iptal edildi.', 'abort');
+
+/* ---- 1. motor: OVHcloud SDXL (anahtarsız, filigransız) ---- */
+async function genImageOvh(prompt, d, signal) {
+  const body = {
+    prompt: String(prompt).slice(0, 900),
+    negative_prompt: IMG_NEG_EN,
+    width: 1024, height: 1024,
+    num_inference_steps: 30,
+    seed: Math.floor(Math.random() * 1e6)
+  };
+  const t = imgSure(IMG_OVH_TIMEOUT, signal);
   let resp;
   try {
-    resp = await fetch(url, { signal: ctl.signal, cache: 'no-store' });
+    resp = await fetch(IMG_OVH_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: t.ctl.signal
+    });
   } catch (e) {
-    clearTimeout(timer);
+    t.bitti();
+    if (t.ctl.signal.aborted || (signal && signal.aborted)) throw imgIptal();
+    throw imgErr('OVH görsel sunucusuna ulaşılamadı.', 'net');
+  }
+  t.bitti();
+  if (resp.status === 429) throw imgErr('OVH ücretsiz hakkı doldu (dakikada 2).', 'ovhlimit', 60);
+  if (resp.status >= 500) throw imgErr('OVH görsel sunucusu dolu (HTTP ' + resp.status + ').', 'busy');
+  const ct = (resp.headers.get('content-type') || '').toLowerCase();
+  if (!resp.ok || ct.indexOf('image/') !== 0) {
+    throw imgErr('OVH görsel yerine ' + (ct.split(';')[0] || 'bilinmeyen yanıt') + ' döndü (HTTP ' + resp.status + ').', 'net');
+  }
+  const ham = await resp.blob();
+  if (ham.size < 1000) throw imgErr('OVH boş görsel döndürdü (' + ham.size + ' bayt).', 'net');
+  const kesik = await imgKes(ham, d.w, d.h);
+  return { src: URL.createObjectURL(kesik), size: kesik.size, engine: 'bedava', via: 'ovh' };
+}
+
+/* ---- 2. motor (yedek): Pollinations (anahtarsız, filigranlı) ---- */
+async function genImagePoll(prompt, d, signal) {
+  const seed = Math.floor(Math.random() * 1e6);
+  const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(String(prompt).slice(0, 900)) +
+    '?width=' + d.w + '&height=' + d.h + '&nologo=true&seed=' + seed;
+  const t = imgSure(IMG_TIMEOUT, signal);
+  let resp;
+  try {
+    resp = await fetch(url, { signal: t.ctl.signal, cache: 'no-store' });
+  } catch (e) {
+    t.bitti();
+    if (t.ctl.signal.aborted || (signal && signal.aborted)) throw imgIptal();
     throw imgErr('Görsel sunucusuna ulaşılamadı (ağ, güvenlik duvarı ya da zaman aşımı).', 'net');
   }
-  clearTimeout(timer);
-
+  t.bitti();
   if (resp.status === 402 || resp.status === 429) {
+    /* Kol 152: servis kaç saniye sonra açılacağını başlıkta söylüyor (ölçüm: 14–18 sn) */
     const ra = Number(resp.headers.get('retry-after')) || 45;
     let msg = '';
     try { const j = await resp.json(); msg = (j && j.error && j.error.message) || ''; } catch (e) {}
@@ -10714,15 +10820,48 @@ async function genImageFree(prompt, signal) {
   }
   const ct = (resp.headers.get('content-type') || '').toLowerCase();
   if (!resp.ok || ct.indexOf('image/') !== 0) {
-    // sunucu tarafı geçici yük (5xx): mesajı anlaşılır yaz, teknik ayrıntıyı parantezde tut
-    if (resp.status >= 500) throw imgErr('Ücretsiz görsel sunucusu şu an dolu (HTTP ' + resp.status + '). Birkaç dakika sonra “Yeniden dene”ye bas.', 'busy', 0, true);
+    if (resp.status >= 500) throw imgErr('Ücretsiz görsel sunucusu şu an dolu (HTTP ' + resp.status + ').', 'busy');
     throw imgErr('Sunucu görsel yerine ' + (ct.split(';')[0] || 'bilinmeyen yanıt') + ' döndü (HTTP ' + resp.status + ').', 'net');
   }
   const blob = await resp.blob();
   if (blob.size < 100) throw imgErr('Gelen görsel boş/bozuk (yalnızca ' + blob.size + ' bayt).', 'net');
-  return { src: URL.createObjectURL(blob), size: blob.size, engine: 'bedava' };
+  return { src: URL.createObjectURL(blob), size: blob.size, engine: 'bedava', via: 'pollinations' };
 }
 
+/* ---- ücretsiz motor: önce OVH, olmazsa Pollinations ---- */
+async function genImageFree(prompt, opts = {}) {
+  const d = imgDims(undefined, 'bedava');
+  const hatalar = [];
+  const ovhAcik = (state.imgOvhBlockedUntil || 0) < Date.now();
+  if (ovhAcik) {
+    try {
+      const r = await genImageOvh(prompt, d, opts.signal);
+      state.imgNextAt = Date.now() + IMG_OVH_GAP;
+      return r;
+    } catch (e) {
+      if (e && e.img && e.img.kind === 'abort') throw e;
+      hatalar.push(e);
+      if (e && e.img && e.img.kind === 'ovhlimit') state.imgOvhBlockedUntil = Date.now() + 60000;
+    }
+  }
+  try {
+    const r = await genImagePoll(prompt, d, opts.signal);
+    state.imgNextAt = Date.now() + IMG_FREE_GAP;
+    return r;
+  } catch (e) {
+    if (e && e.img && e.img.kind === 'abort') throw e;
+    hatalar.push(e);
+  }
+  /* ikisi de olmadı: kullanıcıya tek, anlaşılır cümle */
+  const limit = hatalar.find(e => e && e.img && e.img.kind === 'limit');
+  if (limit) throw limit;
+  const dolu = hatalar.every(e => e && e.img && (e.img.kind === 'busy' || e.img.kind === 'ovhlimit'));
+  throw imgErr(
+    'İki ücretsiz görsel motoru da yanıt vermedi. ' +
+    (dolu ? 'Yoğunluk var; birkaç dakika sonra “Yeniden dene”ye bas.'
+          : 'İnternet bağlantını kontrol edip yeniden dene.'),
+    dolu ? 'busy' : 'net', 0, true);
+}
 /* ---- motor: OpenRouter (kullanıcının anahtarı, ücretli) ---- */
 async function genImageOpenRouter(prompt, signal) {
   const cfgI = imgCfg();
@@ -10796,15 +10935,15 @@ async function genImage(prompt, opts = {}) {
     }
     let r;
     try {
-      r = await genImageFree(prompt, opts.signal);
+      r = await genImageFree(prompt, opts);
     } catch (e) {
-      // 5xx = sunucu dolu; hak yakılmadı → 6 sn sonra bir kez daha dene
+      // iki motor da dolu: 6 sn sonra bir kez daha dene
       if (e && e.img && e.img.retryOnce && !opts._retried) {
         await sleep(6000);
-        r = await genImageFree(prompt, opts.signal);
+        r = await genImageFree(prompt, Object.assign({}, opts, { _retried: true }));
       } else throw e;
     }
-    state.imgNextAt = Date.now() + IMG_FREE_GAP;
+    /* bekleme süresini kullanan motor belirler: OVH 31 sn, Pollinations 45 sn */
     return r;
   }
   return await genImageOpenRouter(prompt, opts.signal);
@@ -10812,7 +10951,8 @@ async function genImage(prompt, opts = {}) {
 
 /* ---- kart ---- */
 function imgCardHTML(m) {
-  const eng = (IMG_ENGINES[m.engine] || IMG_ENGINES.bedava).label;
+  const viaAd = m.via === 'ovh' ? 'OVH SDXL' : (m.via === 'pollinations' ? 'Pollinations' : '');
+  const eng = (IMG_ENGINES[m.engine] || IMG_ENGINES.bedava).label + (viaAd ? ' · ' + viaAd : '');
   if (m.status === 'wait') {
     const left = Math.max(0, Math.ceil(((m.waitUntil || 0) - Date.now()) / 1000));
     return '<div class="imgCard"><div class="imgHead"><b>Görsel sırada</b>' +
@@ -10855,13 +10995,15 @@ async function askImage(seedText, who, opts = {}) {
 async function runImageMsg(m) {
   m.status = 'run';
   m.error = '';
-  m.prompt = withCam(m.prompt, imgCfg().cam);   // kamera etiketi (varsa) — iki kez eklenmez
   m.ratio = imgCfg().ratio;                      // kartta oranı göster
   m.engine = m.forceEngine || imgCfg().engine;
-  /* Kol 149 · ücretsiz motor Türkçe/kısa istemi anlamıyor: kartta MOTORA GİDEN istem yazar */
+  /* Kol 149/150/151 · ücretsiz motor Türkçe/kısa istemi anlamıyor: kartta MOTORA GİDEN istem yazar.
+     Kamera etiketi ayrı geçer; böylece istem "sahne" ekleyip eklemeyeceğine doğru karar verir. */
   if (m.engine === 'bedava') {
     m.origPrompt = m.origPrompt || m.prompt;
-    m.prompt = imgPromptZengin(m.prompt);
+    m.prompt = imgPromptZengin(m.prompt, imgCfg().cam);
+  } else {
+    m.prompt = withCam(m.prompt, imgCfg().cam);
   }
   if (!state.dom.get(m.id)) appendMsgDOM(m);
   else updateMsgDOM(m);
@@ -10881,8 +11023,11 @@ async function runImageMsg(m) {
       engine: m.forceEngine || '',
       onWait: w => { m.waitUntil = Date.now() + w * 1000 + 400; m.status = 'wait'; updateMsgDOM(m); startTicker(); }
     });
-    m.src = r.src; m.status = 'ok'; m.engine = r.engine;
+    m.src = r.src; m.status = 'ok'; m.engine = r.engine; m.via = r.via || '';
     m.size = r.size || 0;
+    if (r.via === 'pollinations') {
+      m.note = 'OVHcloud bu isteği karşılayamadı; yedek motordan (Pollinations) çizildi — görselde filigran olabilir.';
+    }
   } catch (e) {
     if (ticker) { clearInterval(ticker); ticker = null; }
     m.status = 'err';
