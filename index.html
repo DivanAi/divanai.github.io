@@ -8810,7 +8810,9 @@ function ajanSystem(p, job, ctx) {
     'KANIT: - (dayandığın veri/örnek; yoksa "kanıt yok")',
     'KISIT: - (sonraki ajanın uyması gereken sınır)',
     'SINIR: (senin yapmadığın / yetmediğin şey)',
-    'SONRAKİ: ' + (ctx.nextHint || 'BİTTİ'),
+    'SONRAKİ: ' + (ctx.nextHint || 'BİTTİ') + '  ← varsayılan: sıradaki ajanın adı',
+    '   (SONRAKİ satırına sıradaki ajanın adını yaz. Yalnız TÜM proje bitti kanaatindeysen BİTTİ yaz;',
+    '    kendi görevin bitti diye BİTTİ yazma — zincir erken kapanır.)',
     '',
     '5. Paket en fazla 120 kelime olsun. Sohbet dökümünü, önceki cevapları tekrar etme.',
     '6. Cevabın tamamı Türkçe dışında bir dilde istenmiyorsa kullanıcının yazdığı dilde olsun.'
@@ -8914,7 +8916,7 @@ async function ajanCall(p, sys, hist, draft, token, triedNow, demoKind, signal) 
     if (ci > 0) {
       acc = ''; draft.text = ''; updateMsgDOM(draft);
       route.model = chain[ci]; triedNow.add(chain[ci]);
-      if (!notice) {
+      if (!notice && demoKind !== 'pick') {   // KOL 155: gizli "sıradakini seç" çağrısı ekrana yazmaz
         const why0 = whyShort(lastErr && lastErr.message);
         notice = addMessage({ kind: 'notice', level: 'warn', text: p.name + ' yanıt veremedi (' + why0 + ') · yedek model deneniyor…' });
         notice.why = why0;
@@ -9296,19 +9298,62 @@ async function runAgents(opts = {}) {
 
       if (cfg.flow === 'devir') {
         hops++;
-        const nx = nextSeatFrom(res.text, p.id, seats);
+        const sonrakiHam = (pkt && String(pkt.sonraki || '').trim()) || '';
+        /* KOL 154 · KUSUR: model devir paketini yazmayınca nextSeatFrom null dönüyordu ve
+           kod bunu “BİTTİ dedi” sanıp zinciri kapatıyordu — ekranda hem “sıradaki ajan
+           ham metni aldı” hem “zincir kapandı” yazıyordu (çelişki). Artık:
+             · paket VAR ve SONRAKİ: BİTTİ  → zincir gerçekten kapanır (modelin kararı)
+             · paket YOK                    → sıradaki hiç çalışmamış ajan devralır (ham metin)
+             · hepsi çalıştı                → zincir dürüst bir cümleyle kapanır */
+        const bittiDedi = !!sonrakiHam && /B[İI]TT[İI]|YOK|DUR/i.test(sonrakiHam);
+        let nx = nextSeatFrom(res.text, p.id, seats);
+        let oto = false, karar = '';
+        if (!nx && !bittiDedi) {
+          const calisan = new Set(packets.map(x => x.pid));
+          const kalan = seats.filter(pid => !calisan.has(pid))
+            .map(pid => ({ pid, name: ajanAd(pid),
+                           model: (effModel((PROVIDERS[pid] || {}).provider || pid) || ''),
+                           gorev: ajanTaskOf(pid).task }));
+          if (kalan.length) {
+            /* KOL 155: sıradakini BAŞKAN seçer; cevap gelmezse sıraya dönülür */
+            const bas = chairPersona() && seats.includes(chairPersona().id) ? chairPersona() : personaById(seats[0]);
+            let sec = null;
+            try { sec = await ajanSiradakiSec(bas, kalan, body || res.text, token); } catch (e) { sec = null; }
+            if (sec && sec.bitti) {
+              karar = 'bitti';
+            } else if (sec && sec.pid) {
+              nx = sec.pid; oto = true;
+              karar = 'başkan seçti';
+            } else {
+              nx = kalan[0].pid; oto = true;
+              karar = 'başkan seçemedi, sıradaki alındı';
+            }
+          }
+        }
+        if (karar === 'bitti') {
+          addMessage({ kind: 'notice', level: 'info', text: 'Devir paketi yazılmadı; başkan kalan işleri yeterli buldu — zincir kapandı (' + hops + ' devir).' });
+          renderTranscript();
+          break;
+        }
         if (hops >= cfg.hopCap) {
           addMessage({ kind: 'notice', level: 'warn', text: 'Devir tavanına ulaşıldı (' + cfg.hopCap + '). Sonsuz döngü riskine karşı zincir durduruldu; eldeki paketlerle teslimat çıkarılıyor.' });
           renderTranscript();
           break;
         }
         if (!nx) {
-          addMessage({ kind: 'notice', level: 'info', text: p.name + ' “BİTTİ” dedi — zincir kapandı (' + hops + ' devir).' });
+          addMessage({ kind: 'notice', level: 'info', text: bittiDedi
+            ? p.name + ' “BİTTİ” dedi — zincir kapandı (' + hops + ' devir).'
+            : 'Devir paketi yazılmadı ve sırada çalışmamış ajan kalmadı — zincir kapandı (' + hops + ' devir).' });
           renderTranscript();
           break;
         }
+        if (oto) {
+          addMessage({ kind: 'notice', level: 'warn', text: p.name + ' devir paketini yazmadı; ' +
+            (karar === 'başkan seçti' ? 'başkan sıradaki ajanı seçti: ' : 'başkan seçemedi, sıradaki alındı: ') +
+            ajanAd(nx) + ' — bu cevabın ham metnini devraldı.' });
+        }
         queue.push({ pid: nx, pass: 1 });
-        addMessage({ kind: 'notice', level: 'info', text: 'Devir: ' + p.name + ' → ' + (PROVIDERS[nx] || {}).name });
+        addMessage({ kind: 'notice', level: 'info', text: 'Devir: ' + p.name + ' → ' + ajanAd(nx) });
         renderTranscript();
       }
     }
@@ -9413,6 +9458,62 @@ function nextSeatFrom(text, fromPid, seats) {
     return seats[(i + 1) % seats.length];
   }
   return best;
+}
+
+/* ---------------- KOL 155 · başkan sıradakini seçer ----------------
+   Model devir paketini yazmayınca kimin devam edeceği belirsiz kalıyordu; sıra numarasına
+   göre seçmek "kör" bir çözüm. Burada BAŞKAN'a soruyoruz: eldeki cevaba göre kalan
+   ajanlardan hangisi devam etmeli? Cevap alınamazsa sıra numarasına dönülür (tur durmaz). */
+function ajanAd(pid) {
+  const pp = (typeof personaById === 'function') ? personaById(pid) : null;
+  return (pp && pp.name) || (PROVIDERS[pid] || {}).name || pid;
+}
+
+async function ajanSiradakiSec(chairP, kalan, oncekiMetin, token) {
+  if (!chairP || !kalan.length) return null;
+  const sys = [
+    'Sen "' + chairP.name + '" adlı başkansın. Bir ekip zincirinde bir ajan işini bitirdi ama',
+    'sıradaki ajanı yazmadı. Kalan ajanlardan hangisinin devam etmesi gerektiğine karar veriyorsun.',
+    '',
+    '## Proje', state.topic || '',
+    '',
+    '## Az önce biten ajan', oncekiMetin.slice(0, 600),
+    '',
+    '## Kalan ajanlar',
+    ...kalan.map(k => '- ' + k.name + (k.model ? ' (' + k.model + ')' : '') + ': ' +
+      (k.gorev || '(görev yazılmadı)').slice(0, 140)),
+    '',
+    'Yalnız TEK satır yaz: kalan ajanlardan birinin adı, aynen yukarıdaki gibi (parantezdeki model adı da olur).',
+    'Açıklama, madde imi, tırnak yok. Hiçbiri uygun değilse yalnız "BİTTİ" yaz.'
+  ].join('\n');
+  const draft = { id: 'pick' + uid(), ts: nowISO(), kind: 'msg', text: '', streaming: true };
+  const ctrl = new AbortController();
+  const tm = setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 15000);
+  let res = null;
+  try {
+    res = await ajanCall(chairP, sys, [{ role: 'user', content: 'Kimi seçiyorsun?' }],
+      draft, token, new Set(), 'pick', ctrl.signal);
+  } catch (e) {
+    res = null;
+  }
+  clearTimeout(tm);
+  const txt = ((res && res.ok && res.text) || '').trim();
+  if (!txt) return null;
+  if (/^B[İI]TT[İI]\b/i.test(txt)) return { bitti: true };
+  /* Eşleştirme KELİME bazlı: başkan "Llama 3.3 70B" dese de sandalyenin adı "Claude",
+     model kimliği "Meta-Llama-3_3-70B-Instruct" olabiliyor. Tam ad tutmazsa anlamlı
+     kelimelerin kesişimine bakılır ("llama", "70b" → doğru sandalye). */
+  const kelimeler = t => String(t || '').toLocaleLowerCase('tr')
+    .replace(/[^a-z0-9ğüşıöç]+/gi, ' ').split(/\s+/)
+    .filter(w => w.length >= 2 && !/^(ai|the|model|instruct|latest|preview|chat|v\d+)$/.test(w));
+  const cevap = new Set(kelimeler(txt));
+  let best = null, bestPuan = 0;
+  for (const k of kalan) {
+    const adlar = [k.name, k.model].filter(Boolean).join(' ');
+    const puan = kelimeler(adlar).filter(w => cevap.has(w)).length;
+    if (puan > bestPuan) { best = k.pid; bestPuan = puan; }
+  }
+  return bestPuan >= 1 ? { pid: best } : null;
 }
 
 /* ---------------- birleştirme ---------------- */
@@ -10856,10 +10957,12 @@ async function genImageFree(prompt, opts = {}) {
   const limit = hatalar.find(e => e && e.img && e.img.kind === 'limit');
   if (limit) throw limit;
   const dolu = hatalar.every(e => e && e.img && (e.img.kind === 'busy' || e.img.kind === 'ovhlimit'));
+  /* KOL 154 · “internet bağlantını kontrol et” demek yerine GERÇEK sebebi yaz:
+     sunucu görsel yerine başka bir yanıt döndüyse onu söyler. */
+  const ilk = (hatalar[0] && hatalar[0].message) || 'sebep bilinmiyor';
   throw imgErr(
-    'İki ücretsiz görsel motoru da yanıt vermedi. ' +
-    (dolu ? 'Yoğunluk var; birkaç dakika sonra “Yeniden dene”ye bas.'
-          : 'İnternet bağlantını kontrol edip yeniden dene.'),
+    dolu ? 'İki ücretsiz görsel motoru da yoğun. Birkaç dakika sonra “Yeniden dene”ye bas.'
+         : 'İki ücretsiz görsel motoru da görsel veremedi. Sebep: ' + ilk,
     dolu ? 'busy' : 'net', 0, true);
 }
 /* ---- motor: OpenRouter (kullanıcının anahtarı, ücretli) ---- */
